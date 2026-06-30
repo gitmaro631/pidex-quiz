@@ -9,11 +9,11 @@ const KEYS = {
   STREAK:          'quiz_streak',
   TOTAL_CORRECT:   'quiz_correct',
   TOTAL_SEEN:      'quiz_seen',
+  STATS_VIEW_TIME: 'stats_view_time',
 };
 
-export const LIVES_INITIAL       = 5;
-export const LIVES_STREAK_BONUS  = 5;  // 5연속 정답 시 +1 생명
-export const LIVES_SURVEY_BONUS  = 3;  // 설문 완료 시 +3 생명
+export const LIVES_INITIAL          = 2;
+export const LIVES_SURVEY_MILESTONE = 5;  // 설문 5개 완료마다 +1 생명
 
 // ── 점수 ──────────────────────────────────────────────
 export function getScore() {
@@ -116,6 +116,25 @@ export function getSurveyDone() {
 
 export function hasSurveyDone(surveyId) {
   return getSurveyDone().has(surveyId);
+}
+
+// 그룹 설문의 하위 답변 저장 (완료 카운트에 포함되지 않음)
+export function saveSubAnswer(id, answer) {
+  const answers = getSurveyAnswers();
+  answers[id] = answer;
+  localStorage.setItem(KEYS.SURVEY_ANSWERS, JSON.stringify(answers));
+}
+
+export function getSurveyCount() {
+  return getSurveyDone().size;
+}
+
+export function getLastStatsViewTime() {
+  return parseInt(localStorage.getItem(KEYS.STATS_VIEW_TIME) ?? '0');
+}
+
+export function setLastStatsViewTime() {
+  localStorage.setItem(KEYS.STATS_VIEW_TIME, String(Date.now()));
 }
 
 // ── 게임 리셋 (생명 소진 시) ──────────────────────────

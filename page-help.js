@@ -1,4 +1,5 @@
 import { t, getLang } from './util-i18n.js';
+import { createDonation } from './pi-sdk.js';
 
 const HELP_CONTENT = {
   ko: {
@@ -16,10 +17,10 @@ const HELP_CONTENT = {
       {
         title: '❤️ 생명력 시스템',
         items: [
-          '처음에 생명력 5개로 시작합니다.',
+          '처음에 생명력 2개로 시작합니다.',
           '오답을 선택하면 생명력 1개가 줄어듭니다.',
-          '5문제를 연속으로 맞추면 생명력이 1개 회복됩니다.',
-          '설문에 답하면 생명력이 3개 추가됩니다.',
+          '설문에 5개 참여할 때마다 생명력 1개가 추가됩니다.',
+          '커뮤니티 통계 화면을 조회하면 1시간에 한 번 생명력 1개가 추가됩니다.',
           '생명력이 0이 되면 점수가 리더보드에 기록되고 새 게임이 시작됩니다.',
         ],
       },
@@ -48,8 +49,7 @@ const HELP_CONTENT = {
         items: [
           '초급 퀴즈 중간에 커뮤니티 설문이 나타납니다.',
           '설문은 Pi 파이오니어 현황 파악을 위한 것으로, 답변은 익명으로 처리됩니다.',
-          '이전 답변과 연관 없는 설문 항목은 자동으로 건너뜁니다.',
-          '예) 노드를 안 돌리는 경우, 노드 방식 질문은 뜨지 않습니다.',
+          '노드 관련 설문은 한 화면에서 한 번에 작성할 수 있습니다.',
           '건너뛰기 버튼으로 설문을 생략할 수 있습니다.',
         ],
       },
@@ -70,6 +70,13 @@ const HELP_CONTENT = {
         ],
       },
     ],
+    donation: {
+      title: '💙 유틸 제작 지원',
+      desc: '앱이 도움이 됐다면 소중한 후원 부탁드려요.<br>후원금은 앱 개발·운영·업데이트에 사용됩니다.',
+      btns: ['1 Pi', '5 Pi', '10 Pi'],
+      successMsg: (amount) => `${amount}π 후원 감사합니다! 💙`,
+      errorMsg: 'Pi Browser에서만 후원이 가능합니다.',
+    },
   },
   en: {
     title: 'Help',
@@ -86,10 +93,10 @@ const HELP_CONTENT = {
       {
         title: '❤️ Lives System',
         items: [
-          'You start with 5 lives.',
+          'You start with 2 lives.',
           'Each wrong answer costs 1 life.',
-          'Answer 5 in a row correctly to earn +1 life.',
-          'Completing a survey gives +3 lives.',
+          'Every 5 surveys completed earns +1 life.',
+          'Viewing the community stats page earns +1 life (once per hour).',
           'When lives hit 0, your score is saved to the leaderboard and a new game starts.',
         ],
       },
@@ -118,8 +125,7 @@ const HELP_CONTENT = {
         items: [
           'Surveys appear during Beginner quizzes.',
           'Answers are anonymous and used for Pi ecosystem research.',
-          'Survey questions that don\'t apply to you are automatically skipped.',
-          'E.g., if you don\'t run a node, node-type questions won\'t appear.',
+          'Node-related questions are grouped into a single card.',
           'You can always skip a survey question.',
         ],
       },
@@ -140,6 +146,13 @@ const HELP_CONTENT = {
         ],
       },
     ],
+    donation: {
+      title: '💙 Support Development',
+      desc: 'If you enjoy the app, a small tip goes a long way.<br>All support goes toward app development and updates.',
+      btns: ['1 Pi', '5 Pi', '10 Pi'],
+      successMsg: (amount) => `Thank you for the ${amount}π tip! 💙`,
+      errorMsg: 'Donations are only available inside Pi Browser.',
+    },
   },
   id: {
     title: 'Bantuan',
@@ -156,10 +169,10 @@ const HELP_CONTENT = {
       {
         title: '❤️ Sistem Nyawa',
         items: [
-          'Mulai dengan 5 nyawa.',
+          'Mulai dengan 2 nyawa.',
           'Setiap jawaban salah mengurangi 1 nyawa.',
-          'Jawab benar 5 kali berturut-turut untuk mendapatkan +1 nyawa.',
-          'Menyelesaikan survei memberikan +3 nyawa.',
+          'Setiap 5 survei selesai mendapatkan +1 nyawa.',
+          'Melihat halaman statistik komunitas memberikan +1 nyawa (sekali per jam).',
           'Jika nyawa habis, skor disimpan ke papan peringkat dan permainan baru dimulai.',
         ],
       },
@@ -188,12 +201,18 @@ const HELP_CONTENT = {
         items: [
           'Survei muncul saat kuis Pemula.',
           'Jawaban bersifat anonim untuk riset ekosistem Pi.',
-          'Pertanyaan survei yang tidak relevan dilewati otomatis.',
-          'Contoh: jika kamu tidak menjalankan node, pertanyaan tentang node tidak muncul.',
+          'Pertanyaan tentang node dikelompokkan dalam satu kartu.',
           'Kamu bisa melewati survei kapan saja.',
         ],
       },
     ],
+    donation: {
+      title: '💙 Dukung Pengembangan',
+      desc: 'Jika aplikasi ini bermanfaat, dukunganmu sangat berarti.<br>Semua dukungan digunakan untuk pengembangan aplikasi.',
+      btns: ['1 Pi', '5 Pi', '10 Pi'],
+      successMsg: (amount) => `Terima kasih atas ${amount}π! 💙`,
+      errorMsg: 'Donasi hanya tersedia di dalam Pi Browser.',
+    },
   },
 };
 
@@ -224,6 +243,17 @@ export function renderHelpModal(onClose) {
             </ul>
           </div>
         `).join('')}
+
+        <div class="help-donation">
+          <h3 class="help-section-title">${c.donation.title}</h3>
+          <p class="donation-desc">${c.donation.desc}</p>
+          <div class="donation-btns">
+            ${[1, 5, 10].map((amount, i) => `
+              <button class="donation-btn" data-amount="${amount}">${c.donation.btns[i]}</button>
+            `).join('')}
+          </div>
+          <p class="donation-result" id="donation-result"></p>
+        </div>
       </div>
     </div>
   `;
@@ -240,6 +270,31 @@ export function renderHelpModal(onClose) {
       modal.remove();
       onClose?.();
     }
+  });
+
+  modal.querySelectorAll('.donation-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const amount = parseInt(btn.dataset.amount);
+      const resultEl = modal.querySelector('#donation-result');
+      modal.querySelectorAll('.donation-btn').forEach(b => b.disabled = true);
+      try {
+        await createDonation(amount);
+        resultEl.textContent = c.donation.successMsg(amount);
+        resultEl.className = 'donation-result donation-success';
+      } catch (err) {
+        if (err.message === 'cancelled') {
+          resultEl.textContent = '';
+        } else if (err.message.includes('Pi SDK')) {
+          resultEl.textContent = c.donation.errorMsg;
+          resultEl.className = 'donation-result donation-error';
+        } else {
+          resultEl.textContent = c.donation.errorMsg;
+          resultEl.className = 'donation-result donation-error';
+        }
+      } finally {
+        modal.querySelectorAll('.donation-btn').forEach(b => b.disabled = false);
+      }
+    });
   });
 
   return modal;

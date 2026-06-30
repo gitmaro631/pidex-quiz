@@ -2,21 +2,35 @@ import { quizBeginner }  from './data/quiz-beginner.js';
 import { quizMid }       from './data/quiz-mid.js';
 import { quizAdvanced }  from './data/quiz-advanced.js';
 import { surveyQuestions } from './data/survey.js';
-import { t } from './util-i18n.js';
+import { t, getLang } from './util-i18n.js';
 import {
   getScore, addScore, getHighScore,
   getStreak, setStreak,
   getLives, loseLife, addLives, resetGame,
   recordAnswer, markAnswered, hasAnswered,
-  hasSurveyDone, saveSurveyAnswer, getSurveyAnswers,
+  hasSurveyDone, saveSurveyAnswer, saveSubAnswer, getSurveyAnswers, getSurveyCount,
   getRank, getNextRank,
-  LIVES_STREAK_BONUS, LIVES_SURVEY_BONUS,
+  LIVES_SURVEY_MILESTONE,
 } from './util-storage.js';
 import { updateHeaderScore, updateHeaderLives } from './app.js';
 import { submitSurveyAnswers, submitLeaderboardScore } from './firebase.js';
 
 const POINTS       = { beginner: 10, mid: 20, advanced: 30 };
 const STREAK_BONUS = 5;  // 3연속 정답 시 +5점
+
+// ── 퀴즈 번역 훅 (번역 파일 추가 시 이 함수들만 수정) ───
+function quizQ(q) {
+  // TODO: const lang = getLang(); return quizTranslations[lang]?.[q.id]?.q ?? q.q;
+  return q.q;
+}
+function quizChoice(q, i) {
+  // TODO: const lang = getLang(); return quizTranslations[lang]?.[q.id]?.choices?.[i] ?? q.choices[i];
+  return q.choices[i];
+}
+function quizExplain(q) {
+  // TODO: const lang = getLang(); return quizTranslations[lang]?.[q.id]?.explanation ?? q.explanation;
+  return q.explanation;
+}
 
 // ── 세션 상태 ─────────────────────────────────────────
 let session  = null;
@@ -73,8 +87,8 @@ function renderDifficultySelect(container) {
 
       <div class="lives-hint">
         ❤️ 오답 시 생명력 -1 &nbsp;|&nbsp;
-        5연속 정답 시 +1 &nbsp;|&nbsp;
-        설문 완료 시 +${LIVES_SURVEY_BONUS}
+        설문 ${LIVES_SURVEY_MILESTONE}개 완료 시 +1 &nbsp;|&nbsp;
+        통계 화면 조회 시 +1 (1시간마다)
       </div>
     </div>
   `;
@@ -150,8 +164,11 @@ function renderNextItem(container) {
     return;
   }
   const item = session.queue[session.index];
-  if (item.type === 'quiz')   renderQuestion(container, item.data);
-  if (item.type === 'survey') renderSurveyQuestion(container, item.data);
+  if (item.type === 'quiz') renderQuestion(container, item.data);
+  if (item.type === 'survey') {
+    if (item.data.type === 'grouped') renderGroupedSurvey(container, item.data);
+    else renderSurveyQuestion(container, item.data);
+  }
 }
 
 // ── 퀴즈 문항 렌더 ───────────────────────────────────
@@ -166,12 +183,12 @@ function renderQuestion(container, q) {
         <span class="quiz-lives-inline">${'❤️'.repeat(Math.max(0,lives))}</span>
         <span class="quiz-pts-badge">+${pts}점</span>
       </div>
-      <div class="quiz-question">${q.q}</div>
+      <div class="quiz-question">${quizQ(q)}</div>
       <div class="quiz-choices">
         ${q.choices.map((c, i) => `
           <button class="choice-btn" data-index="${i}">
             <span class="choice-num">${['①','②','③','④'][i]}</span>
-            <span class="choice-text">${c}</span>
+            <span class="choice-text">${quizChoice(q, i)}</span>
           </button>
         `).join('')}
       </div>
@@ -191,21 +208,14 @@ function handleAnswer(container, q, selectedIndex) {
   const newStreak  = correct ? streak + 1 : 0;
   setStreak(newStreak);
 
-  let earned      = 0;
-  let lifeMsg     = '';
-  let livesLeft   = getLives();
+  let earned    = 0;
+  let livesLeft = getLives();
 
   if (correct) {
     earned = pts;
     if (newStreak > 0 && newStreak % 3 === 0) earned += STREAK_BONUS;
     addScore(earned);
     session.correct++;
-
-    // 5연속 정답 시 생명 +1
-    if (newStreak > 0 && newStreak % LIVES_STREAK_BONUS === 0) {
-      livesLeft = addLives(1);
-      lifeMsg = `❤️ ${LIVES_STREAK_BONUS}연속 정답! 생명력 +1`;
-    }
   } else {
     livesLeft = loseLife();
   }
@@ -216,22 +226,20 @@ function handleAnswer(container, q, selectedIndex) {
   updateHeaderScore();
   updateHeaderLives();
 
-  // 버튼 시각 피드백
   container.querySelectorAll('.choice-btn').forEach((btn, i) => {
     btn.disabled = true;
-    if (i === q.answer)                       btn.classList.add('correct');
-    if (i === selectedIndex && !correct)       btn.classList.add('wrong');
+    if (i === q.answer)                 btn.classList.add('correct');
+    if (i === selectedIndex && !correct) btn.classList.add('wrong');
   });
 
   const card = container.querySelector('.quiz-card');
 
-  // 생명 0이면 → 정답 표시 후 게임오버
   if (!correct && livesLeft <= 0) {
     card.insertAdjacentHTML('beforeend', `
       <div class="quiz-result result-wrong">
         <div class="result-icon">❌</div>
         <div class="result-msg">오답 — 생명력 소진! 💀</div>
-        <div class="result-explanation">${q.explanation}</div>
+        <div class="result-explanation">${quizExplain(q)}</div>
         <button class="btn-primary btn-next" id="btn-gameover">결과 보기</button>
       </div>
     `);
@@ -243,10 +251,8 @@ function handleAnswer(container, q, selectedIndex) {
     <div class="quiz-result ${correct ? 'result-correct' : 'result-wrong'}">
       <div class="result-icon">${correct ? '✅' : '❌'}</div>
       <div class="result-msg">${correct ? `정답! +${earned}점` : `오답 — 생명력 남음 ${'❤️'.repeat(livesLeft)}`}</div>
-      ${lifeMsg  ? `<div class="streak-msg">${lifeMsg}</div>` : ''}
-      ${newStreak >= 3 && correct && newStreak % LIVES_STREAK_BONUS !== 0
-        ? `<div class="streak-msg">🔥 ${newStreak}연속 정답!</div>` : ''}
-      <div class="result-explanation">${q.explanation}</div>
+      ${newStreak >= 3 && correct ? `<div class="streak-msg">🔥 ${newStreak}연속 정답!</div>` : ''}
+      <div class="result-explanation">${quizExplain(q)}</div>
       <button class="btn-primary btn-next" id="btn-next">다음 →</button>
     </div>
   `);
@@ -256,7 +262,7 @@ function handleAnswer(container, q, selectedIndex) {
   });
 }
 
-// ── 설문 문항 렌더 ────────────────────────────────────
+// ── 설문 문항 렌더 (단일) ─────────────────────────────
 function renderSurveyQuestion(container, s) {
   const isMulti = s.type === 'multi';
   const qText   = (t(s.id + '.q') !== s.id + '.q') ? t(s.id + '.q') : s.q;
@@ -290,7 +296,13 @@ function renderSurveyQuestion(container, s) {
     const answer = isMulti ? checked : checked[0];
     saveSurveyAnswer(s.id, answer);
     addScore(5);
-    addLives(LIVES_SURVEY_BONUS);
+
+    const count = getSurveyCount();
+    if (count > 0 && count % LIVES_SURVEY_MILESTONE === 0) {
+      addLives(1);
+      showToast(`🎉 설문 ${count}개 완료! 생명력 +1`);
+    }
+
     updateHeaderScore();
     updateHeaderLives();
 
@@ -305,6 +317,96 @@ function renderSurveyQuestion(container, s) {
     session.index++;
     renderNextItem(container);
   });
+}
+
+// ── 설문 문항 렌더 (노드 통합 카드) ──────────────────
+function renderGroupedSurvey(container, s) {
+  const subQsHTML = s.subQuestions.map(sq => `
+    <div class="survey-subq ${sq.showIf ? 'survey-subq-hidden' : ''}" data-sqid="${sq.id}" data-showif='${JSON.stringify(sq.showIf ?? null)}'>
+      <div class="survey-subq-label">${sq.q}</div>
+      <div class="survey-choices">
+        ${sq.choices.map(c => `
+          <label class="survey-choice">
+            <input type="radio" name="sq_${sq.id}" value="${c.value}" />
+            <span>${c.label}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div class="survey-card">
+      <div class="survey-badge">📋 커뮤니티 설문</div>
+      ${s.ecosystemMsg ? `<div class="survey-ecosystem-msg">${s.ecosystemMsg}</div>` : ''}
+      ${subQsHTML}
+      <button class="btn-primary btn-survey-submit" id="btn-survey-group">제출</button>
+      <button class="btn-ghost" id="btn-skip-group">${t('survey.skip')}</button>
+    </div>
+  `;
+
+  const firstSq = s.subQuestions[0];
+  container.querySelectorAll(`input[name="sq_${firstSq.id}"]`).forEach(input => {
+    input.addEventListener('change', () => updateGroupedVisibility(container, s, input.value));
+  });
+
+  container.querySelector('#btn-survey-group').addEventListener('click', () => {
+    const subAnswers = {};
+    let missingRequired = false;
+
+    for (const sq of s.subQuestions) {
+      const el = container.querySelector(`[data-sqid="${sq.id}"]`);
+      if (el.classList.contains('survey-subq-hidden')) continue;
+      const checked = container.querySelector(`input[name="sq_${sq.id}"]:checked`);
+      if (!checked) { missingRequired = true; break; }
+      subAnswers[sq.id] = checked.value;
+    }
+
+    if (missingRequired) return;
+
+    for (const [id, val] of Object.entries(subAnswers)) {
+      saveSubAnswer(id, val);
+    }
+    saveSurveyAnswer(s.id, 'done');
+    addScore(5);
+
+    const count = getSurveyCount();
+    if (count > 0 && count % LIVES_SURVEY_MILESTONE === 0) {
+      addLives(1);
+      showToast(`🎉 설문 ${count}개 완료! 생명력 +1`);
+    }
+
+    updateHeaderScore();
+    updateHeaderLives();
+
+    if (hasSurveyDone('S_INFO_SOURCE')) {
+      submitSurveyAnswers(getSurveyAnswers());
+    }
+    session.index++;
+    renderNextItem(container);
+  });
+
+  container.querySelector('#btn-skip-group').addEventListener('click', () => {
+    session.index++;
+    renderNextItem(container);
+  });
+}
+
+function updateGroupedVisibility(container, s, q1Value) {
+  s.subQuestions.forEach(sq => {
+    if (!sq.showIf) return;
+    const el = container.querySelector(`[data-sqid="${sq.id}"]`);
+    el.classList.toggle('survey-subq-hidden', !sq.showIf.values.includes(q1Value));
+  });
+}
+
+// ── 토스트 메시지 ─────────────────────────────────────
+function showToast(msg, ms = 2500) {
+  const el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), ms);
 }
 
 // ── 세션 종료 ─────────────────────────────────────────

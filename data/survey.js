@@ -67,32 +67,45 @@ export const surveyQuestions = [
     ],
   },
 
-  // ── C. 노드 ─────────────────────────────────────────
+  // ── C. 노드 (통합 카드) ─────────────────────────────
   {
-    id: 'S_NODE',
+    id: 'S_NODE_GROUP',
     group: 'node',
     insertAfter: 15,
-    type: 'single',
-    q: '파이 노드를 운영하고 계신가요? / Are you running a Pi Node?',
-    choices: [
-      { value: 'running',    label: '현재 운영 중 / Currently running' },
-      { value: 'stopped',    label: '돌리다가 중단했어요 / Used to, but stopped' },
-      { value: 'planning',   label: '앞으로 돌릴 계획 / Planning to run' },
-      { value: 'noInterest', label: '관심 없어요 / Not interested' },
-    ],
-  },
-
-  {
-    id: 'S_NODE_DETAIL',
-    group: 'node',
-    insertAfter: 18,
-    type: 'single',
-    dependsOn: { id: 'S_NODE', value: 'running' },
-    q: '노드를 어떻게 운영하고 계신가요? / How do you run your node?',
-    choices: [
-      { value: '24h',      label: '24시간 상시 운영 / 24/7 continuous' },
-      { value: 'part',     label: '틈날 때만 켜요 / Only when I can' },
-      { value: 'super',    label: '슈퍼노드 운영 중 / Super Node' },
+    type: 'grouped',
+    ecosystemMsg: '노드 운영자는 파이 네트워크 탈중앙화의 핵심입니다. 여러분의 답변이 파이 생태계 발전에 직접 기여합니다 🌐',
+    subQuestions: [
+      {
+        id: 'S_NODE',
+        q: '파이 노드를 운영하고 계신가요?',
+        choices: [
+          { value: 'running',    label: '현재 운영 중' },
+          { value: 'stopped',    label: '돌리다가 중단했어요' },
+          { value: 'planning',   label: '앞으로 돌릴 계획이에요' },
+          { value: 'noInterest', label: '관심 없어요' },
+        ],
+      },
+      {
+        id: 'S_NODE_PC',
+        q: '어떤 환경에서 운영하나요?',
+        showIf: { id: 'S_NODE', values: ['running'] },
+        choices: [
+          { value: 'dedicated', label: '전문 노드컴 (24시간 상시)' },
+          { value: 'regular',   label: '일반 PC (틈날 때만)' },
+          { value: 'server',    label: '서버 / 클라우드' },
+        ],
+      },
+      {
+        id: 'S_NODE_REASON',
+        q: '돌리지 않는 이유나 향후 계획을 알려주세요.',
+        showIf: { id: 'S_NODE', values: ['stopped', 'planning', 'noInterest'] },
+        choices: [
+          { value: 'cost',     label: '전기·컴퓨터 비용 부담' },
+          { value: 'unknown',  label: '방법을 잘 모름' },
+          { value: 'noNeed',   label: '필요성을 못 느낌' },
+          { value: 'planSoon', label: '조만간 시작할 예정' },
+        ],
+      },
     ],
   },
 

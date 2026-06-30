@@ -1,7 +1,20 @@
 import { initFirebase, fetchSurveyStats } from './firebase.js';
+import { addLives, getLastStatsViewTime, setLastStatsViewTime } from './util-storage.js';
+import { updateHeaderLives } from './app.js';
+
+const STATS_LIFE_COOLDOWN_MS = 60 * 60 * 1000; // 1시간
 
 export async function renderStatsPage(container) {
   container.innerHTML = `<div class="stats-loading">통계 불러오는 중...</div>`;
+
+  // 1시간마다 생명 +1 지급
+  const now      = Date.now();
+  const lastView = getLastStatsViewTime();
+  if (now - lastView >= STATS_LIFE_COOLDOWN_MS) {
+    addLives(1);
+    setLastStatsViewTime();
+    updateHeaderLives();
+  }
 
   initFirebase();
   const stats = await fetchSurveyStats();
