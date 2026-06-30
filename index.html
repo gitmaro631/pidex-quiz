@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>PiDEX 퀴즈</title>
+  <title>QuizPi</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -33,18 +33,21 @@
   <!-- 앱 화면 -->
   <div id="app-screen" class="screen hidden">
     <header class="app-header">
-      <span class="header-title">PiDEX π</span>
-      <div class="header-right">
-        <span id="header-lives" class="header-lives">❤️❤️❤️❤️❤️</span>
-        <span id="header-score" class="header-score">0점</span>
+      <div class="header-row1">
+        <div class="header-status">
+          <span id="header-lives" class="header-lives">❤️❤️</span>
+          <span id="header-score" class="header-score">0점</span>
+        </div>
+        <span class="header-title">QuizPi π</span>
         <span id="header-username" class="header-user">-</span>
-        <!-- 언어 선택 -->
+      </div>
+      <div class="header-row2">
+        <button class="btn-header-action" id="btn-help">❓ 도움말</button>
+        <button class="btn-header-action" id="btn-intro-overlay">🔗 유틸 소개</button>
         <div class="lang-picker-wrap">
-          <button class="btn-lang-picker" id="btn-lang" title="Language / 언어">🌐</button>
+          <button class="btn-lang-picker" id="btn-lang">🌐</button>
           <div class="lang-dropdown" id="lang-dropdown"></div>
         </div>
-        <!-- 도움말 -->
-        <button class="btn-help-icon" id="btn-help" title="도움말 / Help">❓</button>
       </div>
     </header>
 

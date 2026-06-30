@@ -172,6 +172,13 @@ async function init() {
   const helpBtn = document.getElementById('btn-help');
   if (helpBtn) helpBtn.addEventListener('click', () => renderHelpModal());
 
+  const introOverlayBtn = document.getElementById('btn-intro-overlay');
+  if (introOverlayBtn) introOverlayBtn.addEventListener('click', () => {
+    const introContainer = document.getElementById('intro-screen');
+    introContainer.classList.remove('hidden');
+    renderIntroPage(introContainer, () => introContainer.classList.add('hidden'));
+  });
+
   buildLangPicker();
 
   const introSeen = localStorage.getItem('quiz_intro_seen');

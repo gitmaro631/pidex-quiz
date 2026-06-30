@@ -72,5 +72,7 @@ export function t(key) {
 
 // 번역 조회 — 없으면 fallback(원문) 반환
 export function tf(key, fallback) {
-  return T[currentLang]?.[key] ?? T.en?.[key] ?? fallback;
+  if (T[currentLang]?.[key] !== undefined) return T[currentLang][key];
+  if (currentLang === 'ko') return fallback;
+  return T.en?.[key] ?? fallback;
 }
