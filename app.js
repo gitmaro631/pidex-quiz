@@ -1,20 +1,28 @@
 import { initPiSDK, authenticate } from './pi-sdk.js';
-import { renderQuizPage }  from './page-quiz.js';
-import { renderRankPage }  from './page-rank.js';
-import { renderStatsPage } from './page-stats.js';
+import { renderQuizPage }   from './page-quiz.js';
+import { renderRankPage }   from './page-rank.js';
+import { renderStatsPage }  from './page-stats.js';
+import { renderSurveyPage } from './page-survey.js';
 import { getScore, getLives } from './util-storage.js';
 import { initLang, t, getLang, setLang, SUPPORTED_LANGS } from './util-i18n.js';
-import { renderIntroPage } from './page-intro.js';
-import { renderHelpModal } from './page-help.js';
+import { renderIntroPage }  from './page-intro.js';
+import { renderHelpModal }  from './page-help.js';
+import { initFirebase, loadSurveyFromFirestore } from './firebase.js';
+import { mergeSurveyFromCloud } from './util-storage.js';
+
+// ── 현재 로그인한 Pi UID ──────────────────────────────
+let currentUid = null;
+export function getCurrentUid() { return currentUid; }
 
 // ── 페이지 라우팅 ──────────────────────────────────────
 let activePage = 'quiz';
 const renderedPages = new Set();
 
 const PAGE_RENDERERS = {
-  quiz:  (el) => renderQuizPage(el),
-  rank:  (el) => renderRankPage(el),
-  stats: (el) => renderStatsPage(el),
+  quiz:   (el) => renderQuizPage(el),
+  survey: (el) => renderSurveyPage(el),
+  rank:   (el) => renderRankPage(el),
+  stats:  (el) => renderStatsPage(el),
 };
 
 function switchPage(pageKey) {
@@ -44,16 +52,22 @@ export function updateHeaderLives() {
   const el = document.getElementById('header-lives');
   if (!el) return;
   const n = getLives();
-  el.textContent = '❤️'.repeat(Math.max(0, n)) || '💀';
+  if (n === null) {
+    el.textContent = '🔱';
+  } else {
+    el.textContent = '❤️'.repeat(Math.max(0, n)) || '💀';
+  }
 }
 
 function applyNavLabels() {
-  const quizTab = document.querySelector('.nav-tab[data-page="quiz"] .nav-label');
-  const rankTab = document.querySelector('.nav-tab[data-page="rank"] .nav-label');
-  const statsTab = document.querySelector('.nav-tab[data-page="stats"] .nav-label');
-  if (quizTab)  quizTab.textContent  = t('nav.quiz');
-  if (rankTab)  rankTab.textContent  = t('nav.rank');
-  if (statsTab) statsTab.textContent = t('nav.stats');
+  const quizTab   = document.querySelector('.nav-tab[data-page="quiz"] .nav-label');
+  const surveyTab = document.querySelector('.nav-tab[data-page="survey"] .nav-label');
+  const rankTab   = document.querySelector('.nav-tab[data-page="rank"] .nav-label');
+  const statsTab  = document.querySelector('.nav-tab[data-page="stats"] .nav-label');
+  if (quizTab)   quizTab.textContent   = t('nav.quiz');
+  if (surveyTab) surveyTab.textContent = '설문';
+  if (rankTab)   rankTab.textContent   = t('nav.rank');
+  if (statsTab)  statsTab.textContent  = t('nav.stats');
 }
 
 // ── 로그인 ────────────────────────────────────────────
@@ -65,9 +79,22 @@ async function doLogin() {
   if (errEl) errEl.style.display = 'none';
   try {
     const auth = await authenticate();
-    document.getElementById('header-username').textContent = auth.user?.username ?? 'Pioneer';
+    const user = auth.user;
+    currentUid = user?.uid ?? null;
+
+    document.getElementById('header-username').textContent = user?.username ?? 'Pioneer';
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app-screen').classList.remove('hidden');
+
+    // Firestore에서 설문 기록 불러와 로컬에 병합 (중복 방지)
+    if (currentUid) {
+      initFirebase();
+      const cloudData = await loadSurveyFromFirestore(currentUid);
+      if (cloudData) {
+        mergeSurveyFromCloud(cloudData.answers, cloudData.completedIds);
+      }
+    }
+
     updateHeaderScore();
     updateHeaderLives();
     applyNavLabels();
@@ -80,15 +107,12 @@ async function doLogin() {
   }
 }
 
-// ── 인트로 페이지 ─────────────────────────────────────
+// ── 인트로 ────────────────────────────────────────────
 function showLoginScreen() {
   const loginBtn = document.getElementById('btn-login');
-  if (loginBtn) {
-    loginBtn.innerHTML = t('login.btn') + '<br><span class="login-btn-en">Start Quiz</span>';
-  }
+  if (loginBtn) loginBtn.innerHTML = t('login.btn') + '<br><span class="login-btn-en">Start Quiz</span>';
   const loginNote = document.getElementById('login-note');
   if (loginNote) loginNote.textContent = t('login.note') + ' · Pi Browser only';
-
   document.getElementById('intro-screen').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
 }
@@ -97,22 +121,18 @@ function showIntro() {
   const introContainer = document.getElementById('intro-screen');
   introContainer.classList.remove('hidden');
   document.getElementById('login-screen').classList.add('hidden');
-
   renderIntroPage(introContainer, () => {
     localStorage.setItem('quiz_intro_seen', '1');
     showLoginScreen();
   });
 }
 
-// ── 언어 선택 드롭다운 (헤더 버튼) ───────────────────
+// ── 언어 선택 ─────────────────────────────────────────
 function buildLangPicker() {
-  const btn = document.getElementById('btn-lang');
-  if (!btn) return;
-
+  const btn      = document.getElementById('btn-lang');
   const dropdown = document.getElementById('lang-dropdown');
-  if (!dropdown) return;
+  if (!btn || !dropdown) return;
 
-  // 드롭다운 항목 채우기
   dropdown.innerHTML = SUPPORTED_LANGS.map(l => `
     <button class="lang-option ${l.code === getLang() ? 'active' : ''}" data-lang="${l.code}">
       ${l.flag} ${l.label}
@@ -130,14 +150,10 @@ function buildLangPicker() {
     opt.addEventListener('click', () => {
       setLang(opt.dataset.lang);
       dropdown.classList.remove('open');
-      // 현재 활성 상태 갱신
       dropdown.querySelectorAll('.lang-option').forEach(o => o.classList.remove('active'));
       opt.classList.add('active');
       applyNavLabels();
-      // 열려 있는 인트로 화면은 재렌더
-      if (!document.getElementById('intro-screen').classList.contains('hidden')) {
-        showIntro();
-      }
+      if (!document.getElementById('intro-screen').classList.contains('hidden')) showIntro();
     });
   });
 }
@@ -148,25 +164,18 @@ function init() {
   initPiSDK();
 
   document.querySelectorAll('.nav-tab').forEach(btn => {
-    btn.addEventListener('click', () => switchPage(btn.dataset.page));
+    btn.addEventListener('click', () => rerenderPage(btn.dataset.page));
   });
 
   document.getElementById('btn-login').addEventListener('click', doLogin);
 
-  // 도움말 버튼
   const helpBtn = document.getElementById('btn-help');
-  if (helpBtn) {
-    helpBtn.addEventListener('click', () => renderHelpModal());
-  }
+  if (helpBtn) helpBtn.addEventListener('click', () => renderHelpModal());
 
-  // 언어 선택
   buildLangPicker();
 
-  // 인트로 표시 여부
   const introSeen = localStorage.getItem('quiz_intro_seen');
-  if (!introSeen) {
-    showIntro();
-  }
+  if (!introSeen) showIntro();
 }
 
 init();

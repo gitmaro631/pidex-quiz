@@ -1,19 +1,45 @@
-// ── 키 정의 ───────────────────────────────────────────
-const KEYS = {
-  SCORE:           'quiz_score',
-  HIGH_SCORE:      'quiz_high_score',
-  LIVES:           'quiz_lives',
-  ANSWERED:        'quiz_answered',
-  SURVEY_DONE:     'survey_done',
-  SURVEY_ANSWERS:  'survey_answers',
-  STREAK:          'quiz_streak',
-  TOTAL_CORRECT:   'quiz_correct',
-  TOTAL_SEEN:      'quiz_seen',
-  STATS_VIEW_TIME: 'stats_view_time',
+// ── 모드 정의 ──────────────────────────────────────────
+export const MODES = {
+  miner:     { key: 'miner',     label: 'Miner',     icon: '⛏️',  lives: 2, surveyMilestone: 4 },
+  pioneer:   { key: 'pioneer',   label: 'Pioneer',   icon: '🚀',  lives: 2, surveyMilestone: 4 },
+  validator: { key: 'validator', label: 'Validator', icon: '🔱',  lives: null },
 };
 
-export const LIVES_INITIAL          = 2;
-export const LIVES_SURVEY_MILESTONE = 5;  // 설문 5개 완료마다 +1 생명
+// ── 키 정의 ───────────────────────────────────────────
+const KEYS = {
+  MODE:                  'quiz_mode',
+  SCORE:                 'quiz_score',
+  HIGH_SCORE:            'quiz_high_score',
+  LIVES:                 'quiz_lives',
+  ANSWERED:              'quiz_answered',
+  SURVEY_DONE:           'survey_done',
+  SURVEY_ANSWERS:        'survey_answers',
+  STREAK:                'quiz_streak',
+  TOTAL_CORRECT:         'quiz_correct',
+  TOTAL_SEEN:            'quiz_seen',
+  STATS_VIEW_TIME:       'stats_view_time',
+  LEADERBOARD_VIEW_TIME: 'lb_view_time',
+  MINER_CORRECT_COUNT:   'miner_correct',
+};
+
+export const LIVES_SURVEY_MILESTONE = 4;
+
+// ── 모드 ──────────────────────────────────────────────
+export function getMode() {
+  return localStorage.getItem(KEYS.MODE) ?? null;
+}
+
+export function setMode(modeKey) {
+  localStorage.setItem(KEYS.MODE, modeKey);
+  const cfg = MODES[modeKey];
+  localStorage.setItem(KEYS.SCORE, '0');
+  localStorage.setItem(KEYS.STREAK, '0');
+  if (cfg.lives !== null) {
+    localStorage.setItem(KEYS.LIVES, String(cfg.lives));
+  } else {
+    localStorage.removeItem(KEYS.LIVES);
+  }
+}
 
 // ── 점수 ──────────────────────────────────────────────
 export function getScore() {
@@ -38,8 +64,10 @@ function updateHighScore(score) {
 
 // ── 생명력 ────────────────────────────────────────────
 export function getLives() {
+  const mode = getMode();
+  if (mode === 'validator') return null;
   const v = localStorage.getItem(KEYS.LIVES);
-  return v === null ? LIVES_INITIAL : parseInt(v);
+  return v === null ? (MODES[mode]?.lives ?? 2) : parseInt(v);
 }
 
 export function setLives(n) {
@@ -47,15 +75,28 @@ export function setLives(n) {
 }
 
 export function addLives(n) {
-  const newVal = getLives() + n;
-  setLives(newVal);
+  const lives = getLives();
+  if (lives === null) return null;
+  setLives(lives + n);
   return getLives();
 }
 
 export function loseLife() {
-  const newVal = getLives() - 1;
-  setLives(newVal);
+  const lives = getLives();
+  if (lives === null) return null;
+  setLives(lives - 1);
   return getLives();
+}
+
+// ── Miner 누적 정답 카운트 (10개마다 생명 +1) ─────────
+export function getMinerCorrectCount() {
+  return parseInt(localStorage.getItem(KEYS.MINER_CORRECT_COUNT) ?? '0');
+}
+
+export function incrementMinerCorrect() {
+  const n = getMinerCorrectCount() + 1;
+  localStorage.setItem(KEYS.MINER_CORRECT_COUNT, String(n));
+  return n;
 }
 
 // ── 스트릭 ────────────────────────────────────────────
@@ -118,7 +159,6 @@ export function hasSurveyDone(surveyId) {
   return getSurveyDone().has(surveyId);
 }
 
-// 그룹 설문의 하위 답변 저장 (완료 카운트에 포함되지 않음)
 export function saveSubAnswer(id, answer) {
   const answers = getSurveyAnswers();
   answers[id] = answer;
@@ -129,6 +169,18 @@ export function getSurveyCount() {
   return getSurveyDone().size;
 }
 
+// 외부(Firestore)에서 불러온 설문 데이터를 로컬에 병합
+export function mergeSurveyFromCloud(answers, completedIds) {
+  if (!answers || !completedIds) return;
+  const localAnswers = getSurveyAnswers();
+  const localDone    = getSurveyDone();
+  const merged = { ...answers, ...localAnswers };
+  const mergedDone = new Set([...completedIds, ...localDone]);
+  localStorage.setItem(KEYS.SURVEY_ANSWERS, JSON.stringify(merged));
+  localStorage.setItem(KEYS.SURVEY_DONE, JSON.stringify([...mergedDone]));
+}
+
+// ── 뷰 타임 (생명 쿨다운) ────────────────────────────
 export function getLastStatsViewTime() {
   return parseInt(localStorage.getItem(KEYS.STATS_VIEW_TIME) ?? '0');
 }
@@ -137,14 +189,25 @@ export function setLastStatsViewTime() {
   localStorage.setItem(KEYS.STATS_VIEW_TIME, String(Date.now()));
 }
 
+export function getLastLeaderboardViewTime() {
+  return parseInt(localStorage.getItem(KEYS.LEADERBOARD_VIEW_TIME) ?? '0');
+}
+
+export function setLastLeaderboardViewTime() {
+  localStorage.setItem(KEYS.LEADERBOARD_VIEW_TIME, String(Date.now()));
+}
+
 // ── 게임 리셋 (생명 소진 시) ──────────────────────────
 export function resetGame() {
   const score = getScore();
   updateHighScore(score);
-  // 점수·생명·스트릭만 리셋 (풀었던 문제·설문 기록은 유지)
+  const mode = getMode();
+  const cfg  = MODES[mode];
   localStorage.setItem(KEYS.SCORE,  '0');
-  localStorage.setItem(KEYS.LIVES,  String(LIVES_INITIAL));
   localStorage.setItem(KEYS.STREAK, '0');
+  if (cfg?.lives !== null && cfg?.lives !== undefined) {
+    localStorage.setItem(KEYS.LIVES, String(cfg.lives));
+  }
 }
 
 // ── 등급 계산 ─────────────────────────────────────────

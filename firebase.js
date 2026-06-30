@@ -16,13 +16,46 @@ export function initFirebase() {
   db = firebase.firestore();
 }
 
-// ── 리더보드 ──────────────────────────────────────────
-export async function submitLeaderboardScore(username, score) {
+// ── 설문 (UID 기반 중복 방지) ─────────────────────────
+
+export async function loadSurveyFromFirestore(uid) {
   if (!db) initFirebase();
+  if (!db || !uid) return null;
   try {
-    await db.collection('leaderboard').add({
+    const doc = await db.collection('surveys').doc(uid).get();
+    if (!doc.exists) return null;
+    return doc.data();
+  } catch (e) {
+    console.warn('설문 로드 실패:', e);
+    return null;
+  }
+}
+
+export async function saveSurveyToFirestore(uid, answers, completedIds) {
+  if (!db) initFirebase();
+  if (!db || !uid) return;
+  try {
+    await db.collection('surveys').doc(uid).set({
+      uid,
+      answers,
+      completedIds: [...completedIds],
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+  } catch (e) {
+    console.warn('설문 저장 실패:', e);
+  }
+}
+
+// ── 리더보드 (모드별) ─────────────────────────────────
+
+export async function submitLeaderboardScore(username, score, mode) {
+  if (!db) initFirebase();
+  const col = `leaderboard_${mode}`;
+  try {
+    await db.collection(col).add({
       username,
       score,
+      mode,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
   } catch (e) {
@@ -30,10 +63,11 @@ export async function submitLeaderboardScore(username, score) {
   }
 }
 
-export async function fetchLeaderboard(limit = 20) {
+export async function fetchLeaderboard(mode, limit = 100) {
   if (!db) initFirebase();
+  const col = `leaderboard_${mode}`;
   try {
-    const snap = await db.collection('leaderboard')
+    const snap = await db.collection(col)
       .orderBy('score', 'desc')
       .limit(limit)
       .get();
@@ -44,7 +78,7 @@ export async function fetchLeaderboard(limit = 20) {
   }
 }
 
-// ── 설문 응답 저장 ────────────────────────────────────
+// ── 설문 응답 집계용 저장 (통계 페이지용) ────────────
 export async function submitSurveyAnswers(answers) {
   if (!db) return;
   try {
@@ -83,27 +117,26 @@ function aggregateStats(rows) {
   return {
     total,
     kyc: {
-      passed:     count('kyc', 'passed'),
-      failed:     count('kyc', 'failed'),
-      pending:    count('kyc', 'pending'),
-      notTried:   count('kyc', 'notTried'),
+      passed:     count('S_KYC', 'passed'),
+      failed:     count('S_KYC', 'failed'),
+      pending:    count('S_KYC', 'pending'),
+      notTried:   count('S_KYC', 'notTried'),
     },
     node: {
-      running:    count('node', 'running'),
-      stopped:    count('node', 'stopped'),
-      planning:   count('node', 'planning'),
-      noInterest: count('node', 'noInterest'),
+      running:    count('S_NODE', 'running'),
+      stopped:    count('S_NODE', 'stopped'),
+      planning:   count('S_NODE', 'planning'),
+      noInterest: count('S_NODE', 'noInterest'),
     },
     tradeExp: {
-      p2p:        countAny('tradeExp', 'p2p'),
-      exchange:   countAny('tradeExp', 'exchange'),
-      barter:     countAny('tradeExp', 'barter'),
-      dex:        countAny('tradeExp', 'dex'),
-      none:       countAny('tradeExp', 'none'),
+      p2p:        countAny('S_TRADE_EXP', 'p2p'),
+      exchange:   countAny('S_TRADE_EXP', 'exchange'),
+      barter:     countAny('S_TRADE_EXP', 'barter'),
+      dexApp:     countAny('S_TRADE_EXP', 'dexApp'),
+      none:       countAny('S_TRADE_EXP', 'none'),
     },
-    // 국가 집계는 별도 처리
     countries: rows.reduce((acc, r) => {
-      if (r.country) acc[r.country] = (acc[r.country] ?? 0) + 1;
+      if (r.S_COUNTRY) acc[r.S_COUNTRY] = (acc[r.S_COUNTRY] ?? 0) + 1;
       return acc;
     }, {}),
   };
