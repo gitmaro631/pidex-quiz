@@ -17,9 +17,11 @@ export default async function handler(req, res) {
     `https://api.minepi.com/v2/payments/${paymentId}/complete`,
     {
       method: 'POST',
-      headers: { Authorization: `Key ${apiKey}` },
+      headers: {
+        Authorization: `Key ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ txid }),
-      // Content-Type intentionally omitted — Pi API accepts no body for complete
     }
   );
 
