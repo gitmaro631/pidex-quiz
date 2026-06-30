@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>PiDEX 퀴즈</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- 로그인 화면 -->
+  <div id="login-screen" class="screen">
+    <div class="login-box">
+      <div class="login-logo">📊</div>
+      <h1 class="app-title">PiDEX 퀴즈</h1>
+      <p class="app-sub">DEX 지식을 테스트하고 등급을 받아보세요</p>
+      <p class="app-sub-en">Test your DEX knowledge & earn your rank</p>
+      <button id="btn-login" class="btn-login-main">
+        퀴즈 시작하기<br><span class="login-btn-en">Start Quiz</span>
+      </button>
+      <p class="login-note">Requires Pi Browser · Pi Browser 전용</p>
+      <p id="login-error" class="login-error-msg" style="display:none;"></p>
+    </div>
+  </div>
+
+  <!-- 앱 화면 -->
+  <div id="app-screen" class="screen hidden">
+    <header class="app-header">
+      <span class="header-title">PiDEX 퀴즈</span>
+      <div class="header-right">
+        <span id="header-score" class="header-score">0점</span>
+        <span id="header-username" class="header-user">-</span>
+      </div>
+    </header>
+
+    <main class="page-container">
+      <div id="page-quiz"  class="page"></div>
+      <div id="page-rank"  class="page hidden"></div>
+      <div id="page-stats" class="page hidden"></div>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-tab active" data-page="quiz">
+        <span class="nav-icon">🧩</span>
+        <span class="nav-label">퀴즈</span>
+      </button>
+      <button class="nav-tab" data-page="rank">
+        <span class="nav-icon">🏆</span>
+        <span class="nav-label">내 등급</span>
+      </button>
+      <button class="nav-tab" data-page="stats">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">커뮤니티 통계</span>
+      </button>
+    </nav>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
