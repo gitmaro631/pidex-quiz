@@ -2,6 +2,7 @@ import { quizBeginner }  from './data/quiz-beginner.js';
 import { quizMid }       from './data/quiz-mid.js';
 import { quizAdvanced }  from './data/quiz-advanced.js';
 import { surveyQuestions } from './data/survey.js';
+import { t } from './util-i18n.js';
 import {
   getScore, addScore, getHighScore,
   getStreak, setStreak,
@@ -258,20 +259,26 @@ function handleAnswer(container, q, selectedIndex) {
 // ── 설문 문항 렌더 ────────────────────────────────────
 function renderSurveyQuestion(container, s) {
   const isMulti = s.type === 'multi';
+  const qText   = (t(s.id + '.q') !== s.id + '.q') ? t(s.id + '.q') : s.q;
+
   container.innerHTML = `
     <div class="survey-card">
-      <div class="survey-badge">📋 커뮤니티 설문 +5점 ❤️+${LIVES_SURVEY_BONUS}</div>
-      <div class="survey-question">${s.q}</div>
+      <div class="survey-badge">${t('survey.badge')}</div>
+      <div class="survey-question">${qText}</div>
       <div class="survey-choices">
-        ${s.choices.map((c, i) => `
-          <label class="survey-choice">
-            <input type="${isMulti ? 'checkbox' : 'radio'}" name="survey" value="${c.value}" />
-            <span>${c.label}</span>
-          </label>
-        `).join('')}
+        ${s.choices.map((c) => {
+          const choiceKey = s.id + '.c.' + c.value;
+          const choiceLabel = (t(choiceKey) !== choiceKey) ? t(choiceKey) : c.label;
+          return `
+            <label class="survey-choice">
+              <input type="${isMulti ? 'checkbox' : 'radio'}" name="survey" value="${c.value}" />
+              <span>${choiceLabel}</span>
+            </label>
+          `;
+        }).join('')}
       </div>
-      <button class="btn-primary btn-survey-submit" id="btn-survey">답변 제출</button>
-      <button class="btn-ghost" id="btn-skip">건너뛰기</button>
+      <button class="btn-primary btn-survey-submit" id="btn-survey">${t('survey.submit')}</button>
+      <button class="btn-ghost" id="btn-skip">${t('survey.skip')}</button>
     </div>
   `;
 

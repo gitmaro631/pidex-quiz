@@ -293,3 +293,129 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
   color: #fff; padding: 10px 20px; border-radius: 20px;
   font-size: 13px; z-index: 999; white-space: nowrap;
 }
+
+/* ── 인트로 페이지 ──────────────────────────────────── */
+#intro-screen {
+  display: flex; align-items: flex-start; justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f1117 0%, #1a1d27 100%);
+  overflow-y: auto;
+}
+.intro-page {
+  max-width: 480px; width: 100%; padding: 40px 20px 80px;
+  text-align: center;
+}
+.intro-logo {
+  font-size: 64px; font-weight: 900; color: var(--primary);
+  line-height: 1; margin-bottom: 12px; font-style: italic;
+}
+.intro-headline {
+  font-size: 22px; font-weight: 700; color: var(--text);
+  margin-bottom: 8px;
+}
+.intro-subtitle {
+  font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.5;
+}
+.intro-sections { display: flex; flex-direction: column; gap: 16px; margin-bottom: 28px; }
+.intro-section {
+  display: flex; align-items: flex-start; gap: 14px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px; text-align: left;
+}
+.intro-section-icon { font-size: 28px; flex-shrink: 0; }
+.intro-section-body strong { display: block; font-size: 14px; color: var(--accent); margin-bottom: 4px; }
+.intro-section-body p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.intro-lang-select { margin: 24px 0 20px; }
+.intro-lang-label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.lang-grid {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+}
+.lang-btn {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); border-radius: 20px; padding: 6px 14px;
+  font-size: 12px; cursor: pointer; transition: all 0.15s;
+}
+.lang-btn:hover { border-color: var(--primary); background: var(--surface2); }
+.lang-btn.active { border-color: var(--accent); background: rgba(0,191,165,0.1); color: var(--accent); font-weight: 700; }
+.intro-privacy {
+  font-size: 11px; color: var(--muted); margin-bottom: 24px;
+  background: var(--surface); border-radius: 8px; padding: 12px;
+  line-height: 1.5;
+}
+.btn-intro-start {
+  width: 100%; max-width: 320px; font-size: 16px; font-weight: 700;
+  padding: 16px; border-radius: 12px;
+  background: var(--primary); color: #fff; border: none; cursor: pointer;
+}
+.btn-intro-start:hover { background: #9370c4; }
+
+/* ── 로그인 화면 추가 ──────────────────────────────── */
+.btn-show-intro {
+  margin-top: 16px; font-size: 12px; color: var(--muted);
+  background: none; border: none; cursor: pointer; text-decoration: underline;
+}
+.login-logo { font-size: 48px; font-weight: 900; color: var(--primary); font-style: italic; margin-bottom: 8px; }
+
+/* ── 언어 선택 드롭다운 (헤더) ─────────────────────── */
+.lang-picker-wrap { position: relative; }
+.btn-lang-picker {
+  background: none; border: none; font-size: 18px; cursor: pointer;
+  padding: 4px; border-radius: 6px; transition: background 0.15s;
+}
+.btn-lang-picker:hover { background: var(--surface2); }
+.lang-dropdown {
+  display: none; position: absolute; right: 0; top: calc(100% + 6px);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 6px;
+  min-width: 160px; z-index: 999;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.lang-dropdown.open { display: flex; flex-direction: column; gap: 2px; }
+.lang-option {
+  background: none; border: none; text-align: left;
+  color: var(--text); padding: 8px 12px; border-radius: 6px;
+  font-size: 13px; cursor: pointer; white-space: nowrap;
+}
+.lang-option:hover { background: var(--surface2); }
+.lang-option.active { color: var(--accent); font-weight: 700; }
+
+/* ── 도움말 버튼 (헤더) ─────────────────────────────── */
+.btn-help-icon {
+  background: none; border: none; font-size: 18px; cursor: pointer;
+  padding: 4px; border-radius: 6px; transition: background 0.15s;
+}
+.btn-help-icon:hover { background: var(--surface2); }
+
+/* ── 모달 ────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.modal-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; width: 100%; max-width: 480px;
+  max-height: 85vh; display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.modal-header h2 { font-size: 17px; font-weight: 700; color: var(--text); }
+.modal-close {
+  background: none; border: none; color: var(--muted); font-size: 18px;
+  cursor: pointer; padding: 4px 8px; border-radius: 6px;
+}
+.modal-close:hover { background: var(--surface2); color: var(--text); }
+.modal-body { overflow-y: auto; padding: 16px 20px 24px; }
+.help-section { margin-bottom: 24px; }
+.help-section-title { font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
+.help-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.help-list li {
+  font-size: 13px; color: var(--muted); line-height: 1.6;
+  padding-left: 12px; border-left: 2px solid var(--border);
+}
+
+/* ── 헤더 레이아웃 업데이트 ─────────────────────────── */
+.header-right { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }

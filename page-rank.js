@@ -1,6 +1,7 @@
 import { getScore, getRank, getNextRank, getStats, getHighScore, getLives } from './util-storage.js';
 import { shareResult } from './util-share.js';
 import { fetchLeaderboard } from './firebase.js';
+import { t } from './util-i18n.js';
 
 export async function renderRankPage(container) {
   const score     = getScore();
@@ -38,13 +39,13 @@ export async function renderRankPage(container) {
       ` : '<div class="rank-next-hint">🎉 최고 등급 달성!</div>'}
 
       <button class="btn-share" id="btn-share">
-        📤 결과 공유하기
+        ${t('btn.share')}
       </button>
       <p class="share-hint">텔레그램 · X · 카카오 등에 공유하세요</p>
 
       <div class="leaderboard-section">
-        <h3 class="leaderboard-title">🏆 전체 리더보드 TOP 20</h3>
-        <div id="leaderboard-list" class="leaderboard-loading">불러오는 중...</div>
+        <h3 class="leaderboard-title">${t('lb.title')}</h3>
+        <div id="leaderboard-list" class="leaderboard-loading">${t('lb.loading')}</div>
       </div>
 
     </div>
@@ -61,7 +62,7 @@ export async function renderRankPage(container) {
   try {
     const rows = await fetchLeaderboard(20);
     if (rows.length === 0) {
-      listEl.innerHTML = `<div class="leaderboard-empty">아직 기록이 없어요. 첫 번째 도전자가 되세요!</div>`;
+      listEl.innerHTML = `<div class="leaderboard-empty">${t('lb.empty')}</div>`;
     } else {
       listEl.innerHTML = rows.map((r, i) => `
         <div class="leaderboard-row ${r.username === username ? 'leaderboard-me' : ''}">
@@ -72,7 +73,7 @@ export async function renderRankPage(container) {
       `).join('');
     }
   } catch {
-    listEl.innerHTML = `<div class="leaderboard-empty">리더보드 로드 실패</div>`;
+    listEl.innerHTML = `<div class="leaderboard-empty">${t('lb.fail')}</div>`;
   }
 }
 
