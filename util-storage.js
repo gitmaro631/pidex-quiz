@@ -1,15 +1,21 @@
 // ── 키 정의 ───────────────────────────────────────────
 const KEYS = {
   SCORE:           'quiz_score',
-  ANSWERED:        'quiz_answered',   // Set of answered question IDs
-  SURVEY_DONE:     'survey_done',     // Set of answered survey IDs
-  SURVEY_ANSWERS:  'survey_answers',  // { surveyId: answer }
+  HIGH_SCORE:      'quiz_high_score',
+  LIVES:           'quiz_lives',
+  ANSWERED:        'quiz_answered',
+  SURVEY_DONE:     'survey_done',
+  SURVEY_ANSWERS:  'survey_answers',
   STREAK:          'quiz_streak',
   TOTAL_CORRECT:   'quiz_correct',
   TOTAL_SEEN:      'quiz_seen',
 };
 
-// ── 점수 & 스트릭 ─────────────────────────────────────
+export const LIVES_INITIAL       = 5;
+export const LIVES_STREAK_BONUS  = 5;  // 5연속 정답 시 +1 생명
+export const LIVES_SURVEY_BONUS  = 3;  // 설문 완료 시 +3 생명
+
+// ── 점수 ──────────────────────────────────────────────
 export function getScore() {
   return parseInt(localStorage.getItem(KEYS.SCORE) ?? '0');
 }
@@ -20,6 +26,39 @@ export function addScore(points) {
   return score;
 }
 
+export function getHighScore() {
+  return parseInt(localStorage.getItem(KEYS.HIGH_SCORE) ?? '0');
+}
+
+function updateHighScore(score) {
+  if (score > getHighScore()) {
+    localStorage.setItem(KEYS.HIGH_SCORE, String(score));
+  }
+}
+
+// ── 생명력 ────────────────────────────────────────────
+export function getLives() {
+  const v = localStorage.getItem(KEYS.LIVES);
+  return v === null ? LIVES_INITIAL : parseInt(v);
+}
+
+export function setLives(n) {
+  localStorage.setItem(KEYS.LIVES, String(Math.max(0, n)));
+}
+
+export function addLives(n) {
+  const newVal = getLives() + n;
+  setLives(newVal);
+  return getLives();
+}
+
+export function loseLife() {
+  const newVal = getLives() - 1;
+  setLives(newVal);
+  return getLives();
+}
+
+// ── 스트릭 ────────────────────────────────────────────
 export function getStreak() {
   return parseInt(localStorage.getItem(KEYS.STREAK) ?? '0');
 }
@@ -42,7 +81,7 @@ export function recordAnswer(correct) {
   localStorage.setItem(KEYS.TOTAL_SEEN,    String(s + 1));
 }
 
-// ── 답변한 문제 ID 추적 (중복 방지) ──────────────────
+// ── 답변한 문제 ID 추적 ───────────────────────────────
 export function getAnsweredIds() {
   return new Set(JSON.parse(localStorage.getItem(KEYS.ANSWERED) ?? '[]'));
 }
@@ -77,6 +116,16 @@ export function getSurveyDone() {
 
 export function hasSurveyDone(surveyId) {
   return getSurveyDone().has(surveyId);
+}
+
+// ── 게임 리셋 (생명 소진 시) ──────────────────────────
+export function resetGame() {
+  const score = getScore();
+  updateHighScore(score);
+  // 점수·생명·스트릭만 리셋 (풀었던 문제·설문 기록은 유지)
+  localStorage.setItem(KEYS.SCORE,  '0');
+  localStorage.setItem(KEYS.LIVES,  String(LIVES_INITIAL));
+  localStorage.setItem(KEYS.STREAK, '0');
 }
 
 // ── 등급 계산 ─────────────────────────────────────────

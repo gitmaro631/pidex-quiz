@@ -242,6 +242,50 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 
 .quiz-empty { text-align: center; padding: 40px; color: var(--muted); line-height: 2; }
 
+/* ── 생명력 헤더 ──────────────────────────────────── */
+.header-lives { font-size: 14px; letter-spacing: -1px; }
+
+/* ── 퀴즈 홈 생명력·힌트 ─────────────────────────── */
+.rank-lives   { font-size: 18px; margin-top: 6px; letter-spacing: -1px; }
+.lives-hint   { text-align: center; font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.8; }
+
+/* ── 퀴즈 카드 인라인 생명력 ─────────────────────── */
+.quiz-lives-inline { font-size: 13px; letter-spacing: -2px; }
+
+/* ── 세션 종료 생명력 ────────────────────────────── */
+.session-lives { font-size: 22px; margin-bottom: 6px; letter-spacing: -1px; }
+
+/* ── 게임 오버 ───────────────────────────────────── */
+.game-over { text-align: center; padding: 24px 0; }
+.game-over-icon  { font-size: 56px; margin-bottom: 12px; }
+.game-over-title { font-size: 22px; font-weight: 700; color: var(--wrong); margin-bottom: 8px; }
+.game-over-score { font-size: 52px; font-weight: 900; color: var(--accent); margin-bottom: 6px; }
+.game-over-rank  { font-size: 20px; color: #fff; margin-bottom: 8px; }
+.game-over-best  { font-size: 14px; color: #f90; margin-bottom: 6px; }
+.game-over-prev  { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+.game-over-desc  { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+.game-over-btn   { width: 100%; }
+
+/* ── 리더보드 ────────────────────────────────────── */
+.rank-card-lives { font-size: 20px; margin-bottom: 4px; letter-spacing: -1px; }
+.leaderboard-section { margin-top: 24px; }
+.leaderboard-title   { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 12px; }
+.leaderboard-loading { text-align: center; color: var(--muted); padding: 20px; font-size: 13px; }
+.leaderboard-empty   { text-align: center; color: var(--muted); padding: 20px; font-size: 13px; }
+.leaderboard-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 10px;
+  background: var(--surface2); margin-bottom: 6px;
+  border: 1px solid var(--border);
+}
+.leaderboard-row.leaderboard-me { border-color: var(--accent); background: rgba(0,191,165,0.08); }
+.lb-rank  { width: 24px; font-size: 13px; font-weight: 700; color: var(--muted); text-align: center; }
+.lb-user  { flex: 1; font-size: 14px; color: var(--text); }
+.lb-score { font-size: 14px; font-weight: 700; color: var(--accent); }
+.leaderboard-row:nth-child(1) .lb-rank { color: #FFD700; }
+.leaderboard-row:nth-child(2) .lb-rank { color: #C0C0C0; }
+.leaderboard-row:nth-child(3) .lb-rank { color: #CD7F32; }
+
 /* ── 토스트 ───────────────────────────────────────── */
 .toast-msg {
   position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);

@@ -2,7 +2,7 @@ import { initPiSDK, authenticate } from './pi-sdk.js';
 import { renderQuizPage }  from './page-quiz.js';
 import { renderRankPage }  from './page-rank.js';
 import { renderStatsPage } from './page-stats.js';
-import { getScore }        from './util-storage.js';
+import { getScore, getLives } from './util-storage.js';
 
 // ── 페이지 라우팅 ──────────────────────────────────────
 let activePage = 'quiz';
@@ -31,10 +31,17 @@ export function rerenderPage(pageKey) {
   switchPage(pageKey);
 }
 
-// ── 헤더 점수 업데이트 ────────────────────────────────
+// ── 헤더 업데이트 ─────────────────────────────────────
 export function updateHeaderScore() {
   const el = document.getElementById('header-score');
   if (el) el.textContent = `${getScore()}점`;
+}
+
+export function updateHeaderLives() {
+  const el = document.getElementById('header-lives');
+  if (!el) return;
+  const n = getLives();
+  el.textContent = '❤️'.repeat(Math.max(0, n)) || '💀';
 }
 
 // ── 로그인 ────────────────────────────────────────────
@@ -50,6 +57,7 @@ async function doLogin() {
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app-screen').classList.remove('hidden');
     updateHeaderScore();
+    updateHeaderLives();
     switchPage('quiz');
   } catch (e) {
     btn.disabled = false;

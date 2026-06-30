@@ -16,6 +16,34 @@ export function initFirebase() {
   db = firebase.firestore();
 }
 
+// ── 리더보드 ──────────────────────────────────────────
+export async function submitLeaderboardScore(username, score) {
+  if (!db) initFirebase();
+  try {
+    await db.collection('leaderboard').add({
+      username,
+      score,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (e) {
+    console.error('리더보드 등록 실패:', e);
+  }
+}
+
+export async function fetchLeaderboard(limit = 20) {
+  if (!db) initFirebase();
+  try {
+    const snap = await db.collection('leaderboard')
+      .orderBy('score', 'desc')
+      .limit(limit)
+      .get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.error('리더보드 조회 실패:', e);
+    return [];
+  }
+}
+
 // ── 설문 응답 저장 ────────────────────────────────────
 export async function submitSurveyAnswers(answers) {
   if (!db) return;
