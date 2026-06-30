@@ -264,24 +264,32 @@ function handleAnswer(container, q, selectedIndex) {
 
 // ── 설문 문항 렌더 (단일) ─────────────────────────────
 function renderSurveyQuestion(container, s) {
-  const isMulti = s.type === 'multi';
-  const qText   = (t(s.id + '.q') !== s.id + '.q') ? t(s.id + '.q') : s.q;
+  const isMulti    = s.type === 'multi';
+  const isDropdown = s.type === 'dropdown';
+  const qText      = (t(s.id + '.q') !== s.id + '.q') ? t(s.id + '.q') : s.q;
+
+  const choicesHTML = isDropdown
+    ? `<select class="survey-select" name="survey">
+        <option value="">${s.placeholder ?? '— 선택하세요 —'}</option>
+        ${s.choices.map(c => `<option value="${c.value}">${c.label}</option>`).join('')}
+      </select>`
+    : s.choices.map((c) => {
+        const choiceKey   = s.id + '.c.' + c.value;
+        const choiceLabel = (t(choiceKey) !== choiceKey) ? t(choiceKey) : c.label;
+        return `
+          <label class="survey-choice">
+            <input type="${isMulti ? 'checkbox' : 'radio'}" name="survey" value="${c.value}" />
+            <span>${choiceLabel}</span>
+          </label>
+        `;
+      }).join('');
 
   container.innerHTML = `
     <div class="survey-card">
       <div class="survey-badge">${t('survey.badge')}</div>
       <div class="survey-question">${qText}</div>
-      <div class="survey-choices">
-        ${s.choices.map((c) => {
-          const choiceKey = s.id + '.c.' + c.value;
-          const choiceLabel = (t(choiceKey) !== choiceKey) ? t(choiceKey) : c.label;
-          return `
-            <label class="survey-choice">
-              <input type="${isMulti ? 'checkbox' : 'radio'}" name="survey" value="${c.value}" />
-              <span>${choiceLabel}</span>
-            </label>
-          `;
-        }).join('')}
+      <div class="survey-choices ${isDropdown ? 'survey-choices-dropdown' : ''}">
+        ${choicesHTML}
       </div>
       <button class="btn-primary btn-survey-submit" id="btn-survey">${t('survey.submit')}</button>
       <button class="btn-ghost" id="btn-skip">${t('survey.skip')}</button>
@@ -289,8 +297,14 @@ function renderSurveyQuestion(container, s) {
   `;
 
   container.querySelector('#btn-survey').addEventListener('click', () => {
-    const inputs  = [...container.querySelectorAll('input[name="survey"]')];
-    const checked = inputs.filter(i => i.checked).map(i => i.value);
+    let checked;
+    if (isDropdown) {
+      const val = container.querySelector('select[name="survey"]')?.value;
+      checked = val ? [val] : [];
+    } else {
+      const inputs = [...container.querySelectorAll('input[name="survey"]')];
+      checked = inputs.filter(i => i.checked).map(i => i.value);
+    }
     if (checked.length === 0) return;
 
     const answer = isMulti ? checked : checked[0];
