@@ -244,6 +244,17 @@ export function renderHelpModal(onClose) {
           </div>
         `).join('')}
 
+        <div class="help-donation">
+          <h3 class="help-section-title">${c.donation.title}</h3>
+          <p class="donation-desc">${c.donation.desc}</p>
+          <div class="donation-btns">
+            ${[1, 5, 10].map((amount, i) => `
+              <button class="donation-btn" data-amount="${amount}">${c.donation.btns[i]}</button>
+            `).join('')}
+          </div>
+          <p class="donation-result" id="donation-result"></p>
+        </div>
+
       </div>
     </div>
   `;
@@ -262,6 +273,27 @@ export function renderHelpModal(onClose) {
     }
   });
 
+  modal.querySelectorAll('.donation-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const amount = parseInt(btn.dataset.amount);
+      const resultEl = modal.querySelector('#donation-result');
+      modal.querySelectorAll('.donation-btn').forEach(b => b.disabled = true);
+      try {
+        await createDonation(amount);
+        resultEl.textContent = c.donation.successMsg(amount);
+        resultEl.className = 'donation-result donation-success';
+      } catch (err) {
+        if (err.message === 'cancelled') {
+          resultEl.textContent = '';
+        } else {
+          resultEl.textContent = c.donation.errorMsg;
+          resultEl.className = 'donation-result donation-error';
+        }
+      } finally {
+        modal.querySelectorAll('.donation-btn').forEach(b => b.disabled = false);
+      }
+    });
+  });
 
   return modal;
 }

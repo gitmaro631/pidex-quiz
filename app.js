@@ -159,9 +159,9 @@ function buildLangPicker() {
 }
 
 // ── 초기화 ────────────────────────────────────────────
-function init() {
+async function init() {
   initLang();
-  initPiSDK();
+  await initPiSDK();
 
   document.querySelectorAll('.nav-tab').forEach(btn => {
     btn.addEventListener('click', () => rerenderPage(btn.dataset.page));
