@@ -143,7 +143,49 @@ function renderModeHome(container) {
   `;
 
   container.querySelector('#btn-start').addEventListener('click', () => startSession(container));
-  container.querySelector('#btn-change-mode').addEventListener('click', () => renderModeSelect(container));
+  container.querySelector('#btn-change-mode').addEventListener('click', () => {
+    if (loadSession()) {
+      renderModeChangeDialog(container);
+    } else {
+      renderModeSelect(container);
+    }
+  });
+}
+
+// ── 모드 변경 확인 다이얼로그 ────────────────────────
+function renderModeChangeDialog(container) {
+  const mode  = getMode();
+  const cfg   = MODES[mode];
+  const score = getScore();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'mode-change-overlay';
+  overlay.innerHTML = `
+    <div class="mode-change-dialog">
+      <div class="mode-change-icon">${cfg.icon}</div>
+      <div class="mode-change-title">${t('mode.change.confirm.title')}</div>
+      <div class="mode-change-desc">${t('mode.change.confirm.desc')
+        .replace('{mode}', cfg.label).replace('{score}', score)}</div>
+      <button class="btn-primary mode-change-btn" id="btn-submit-change">${t('mode.change.confirm.submit')}</button>
+      <button class="btn-ghost mode-change-btn" id="btn-cancel-change">${t('mode.change.confirm.cancel')}</button>
+    </div>
+  `;
+  container.appendChild(overlay);
+
+  overlay.querySelector('#btn-submit-change').addEventListener('click', async () => {
+    try { await submitLeaderboardScore(username, score, mode); } catch (e) { console.warn(e); }
+    clearSession();
+    resetGame();
+    session = null;
+    overlay.remove();
+    updateHeaderScore();
+    updateHeaderLives();
+    renderModeSelect(container);
+  });
+
+  overlay.querySelector('#btn-cancel-change').addEventListener('click', () => {
+    overlay.remove();
+  });
 }
 
 // ── 세션 시작 ─────────────────────────────────────────
@@ -199,6 +241,12 @@ function renderNextItem(container) {
     return;
   }
   const item = session.queue[session.index];
+  // 설문탭에서 이미 완료된 설문이면 건너뜀
+  if (item.type === 'survey' && hasSurveyDone(item.data.id)) {
+    session.index++;
+    renderNextItem(container);
+    return;
+  }
   if (item.type === 'quiz') renderQuestion(container, item.data);
   if (item.type === 'survey') {
     if (item.data.type === 'grouped') renderGroupedSurvey(container, item.data);

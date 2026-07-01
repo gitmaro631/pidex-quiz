@@ -37,8 +37,12 @@ export default {
   'mode.miner.desc':      '2 starting lives\n+1 life per 4 surveys\n+1 life per stats/ranking view (every 1 hr)\n+1 life per 10 correct answers',
   'mode.pioneer.desc':    '2 starting lives\n+1 life per 4 surveys',
   'mode.validator.desc':  'No lives\nOne wrong answer = immediate game over\nChallenge for a high score!',
-  'mode.lives.none':      'No lives',
-  'mode.validator.fail':  'Wrong — Validator mode ended!',
+  'mode.lives.none':           'No lives',
+  'mode.validator.fail':       'Wrong — Validator mode ended!',
+  'mode.change.confirm.title': 'Change mode?',
+  'mode.change.confirm.desc':  '{mode} mode in progress ({score} pts)\nChanging mode resets your score and lives.',
+  'mode.change.confirm.submit':'Submit to leaderboard & change mode',
+  'mode.change.confirm.cancel':'Cancel (keep current mode)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'Out of Lives!',

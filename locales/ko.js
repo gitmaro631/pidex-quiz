@@ -37,8 +37,12 @@ export default {
   'mode.miner.desc':      '기본 생명 2개\n설문 4개당 +1생명\n통계/랭킹 조회 시 +1생명 (1시간마다)\n퀴즈 10개 맞추면 +1생명',
   'mode.pioneer.desc':    '기본 생명 2개\n설문 4개당 +1생명',
   'mode.validator.desc':  '생명 없음\n한 문제라도 틀리면 즉시 종료\n고득점 도전!',
-  'mode.lives.none':      '생명 없음',
-  'mode.validator.fail':  '오답 — Validator 모드 종료!',
+  'mode.lives.none':           '생명 없음',
+  'mode.validator.fail':       '오답 — Validator 모드 종료!',
+  'mode.change.confirm.title': '모드를 변경할까요?',
+  'mode.change.confirm.desc':  '{mode} 모드 진행 중 ({score}점)\n모드 변경 시 점수·생명이 초기화됩니다.',
+  'mode.change.confirm.submit':'랭킹 등록 후 모드 변경',
+  'mode.change.confirm.cancel':'취소 (현재 모드 유지)',
 
   // ── 게임오버 ──────────────────────────────────────────
   'gameover.title': '생명력 소진!',
