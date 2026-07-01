@@ -327,8 +327,8 @@ export const surveyQuestions = [
     id: 'S_INFO_SOURCE',
     group: 'app',
     insertAfter: 30,
-    type: 'single',
-    q: '파이 관련 정보를 주로 어디서 얻으시나요?',
+    type: 'multi',
+    q: '파이 관련 정보를 어디서 얻으시나요? (복수 선택)',
     choices: [
       { value: 'youtube',   label: '유튜브' },
       { value: 'telegram',  label: '텔레그램' },

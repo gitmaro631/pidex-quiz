@@ -80,7 +80,7 @@ async function doLogin() {
   try {
     const auth = await authenticate();
     const user = auth.user;
-    currentUid = user?.uid ?? null;
+    currentUid = user?.uid ?? user?.username ?? null;
 
     document.getElementById('header-username').textContent = user?.username ?? 'Pioneer';
     document.getElementById('login-screen').classList.add('hidden');
