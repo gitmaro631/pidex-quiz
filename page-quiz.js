@@ -8,7 +8,7 @@ import {
   getStreak, setStreak,
   getLives, loseLife, addLives, resetGame,
   recordAnswer, markAnswered, hasAnswered,
-  hasSurveyDone, saveSurveyAnswer, saveSubAnswer, getSurveyAnswers, getSurveyCount,
+  hasSurveyDone, saveSurveyAnswer, saveSubAnswer, getSurveyAnswers, getSurveyDone, getSurveyCount,
   getRank, getNextRank,
   getMode, setMode, MODES,
   LIVES_SURVEY_MILESTONE,
