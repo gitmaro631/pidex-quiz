@@ -20,6 +20,7 @@ const KEYS = {
   STATS_VIEW_TIME:       'stats_view_time',
   LEADERBOARD_VIEW_TIME: 'lb_view_time',
   MINER_CORRECT_COUNT:   'miner_correct',
+  SESSION:               'quiz_session',
 };
 
 export const LIVES_SURVEY_MILESTONE = 4;
@@ -167,6 +168,26 @@ export function saveSubAnswer(id, answer) {
 
 export function getSurveyCount() {
   return getSurveyDone().size;
+}
+
+// ── 세션 저장/복원 (진행 중 나가기/재개용) ────────────
+export function saveSession(s) {
+  localStorage.setItem(KEYS.SESSION, JSON.stringify({
+    mode:     s.mode,
+    queueIds: s.queue.map(item => ({ type: item.type, id: item.data.id })),
+    index:    s.index,
+    correct:  s.correct,
+    total:    s.total,
+  }));
+}
+
+export function loadSession() {
+  try { return JSON.parse(localStorage.getItem(KEYS.SESSION) ?? 'null'); }
+  catch { return null; }
+}
+
+export function clearSession() {
+  localStorage.removeItem(KEYS.SESSION);
 }
 
 // 외부(Firestore)에서 불러온 설문 데이터를 로컬에 병합

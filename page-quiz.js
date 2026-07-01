@@ -13,6 +13,7 @@ import {
   getMode, setMode, MODES,
   LIVES_SURVEY_MILESTONE,
   getMinerCorrectCount, incrementMinerCorrect,
+  saveSession, loadSession, clearSession,
 } from './util-storage.js';
 import { updateHeaderScore, updateHeaderLives, getCurrentUid } from './app.js';
 import { submitLeaderboardScore, saveSurveyToFirestore } from './firebase.js';
@@ -28,14 +29,45 @@ function quizExplain(q)   { return tf(q.id + '.explain',  q.explanation); }
 let session  = null;
 let username = 'Pioneer';
 
+// ── 세션 복원 (저장된 queueIds → 전체 객체 재구성) ───
+function restoreSession(saved) {
+  const allQ = [...quizBeginner, ...quizMid, ...quizAdvanced];
+  const queue = saved.queueIds
+    .map(({ type, id }) =>
+      type === 'quiz'
+        ? { type: 'quiz',   data: allQ.find(q => q.id === id) }
+        : { type: 'survey', data: surveyQuestions.find(s => s.id === id) }
+    )
+    .filter(item => item.data);
+
+  // 이미 완료된 항목은 건너뜀 (답변 후 나갔다 돌아온 경우)
+  let index = saved.index;
+  while (index < queue.length) {
+    const item = queue[index];
+    if (item.type === 'quiz'   && hasAnswered(item.data.id))   { index++; continue; }
+    if (item.type === 'survey' && hasSurveyDone(item.data.id)) { index++; continue; }
+    break;
+  }
+
+  return { mode: saved.mode, queue, index, correct: saved.correct, total: saved.total };
+}
+
 // ── 진입점 ────────────────────────────────────────────
 export function renderQuizPage(container) {
   username = document.getElementById('header-username')?.textContent ?? 'Pioneer';
   const mode = getMode();
-  if (mode) {
-    renderModeHome(container);
+  if (!mode) { renderModeSelect(container); return; }
+
+  const saved = loadSession();
+  if (saved && saved.mode === mode && saved.index < saved.queueIds.length) {
+    session = restoreSession(saved);
+    if (session.index >= session.queue.length) {
+      renderSessionEnd(container);
+    } else {
+      renderNextItem(container);
+    }
   } else {
-    renderModeSelect(container);
+    renderModeHome(container);
   }
 }
 
@@ -71,6 +103,7 @@ function renderModeSelect(container) {
 
   container.querySelectorAll('.mode-card').forEach(btn => {
     btn.addEventListener('click', () => {
+      clearSession();
       setMode(btn.dataset.mode);
       updateHeaderLives();
       renderModeHome(container);
@@ -132,6 +165,7 @@ function startSession(container) {
   const queue = buildQueue(shuffled);
 
   session = { mode, queue, index: 0, correct: 0, total: 0 };
+  saveSession(session);
   renderNextItem(container);
 }
 
@@ -187,6 +221,7 @@ function renderQuestion(container, q) {
   container.innerHTML = `
     <div class="quiz-card">
       <div class="quiz-progress">
+        <button class="btn-quiz-exit" id="btn-exit-quiz">⏸</button>
         <span>문제 ${session.index + 1} / ${session.queue.length}</span>
         ${livesHTML}
         <span class="quiz-pts-badge">+${pts}점</span>
@@ -205,6 +240,11 @@ function renderQuestion(container, q) {
 
   container.querySelectorAll('.choice-btn').forEach(btn => {
     btn.addEventListener('click', () => handleAnswer(container, q, parseInt(btn.dataset.index), pts));
+  });
+
+  container.querySelector('#btn-exit-quiz').addEventListener('click', () => {
+    saveSession(session);
+    renderModeHome(container);
   });
 }
 
@@ -266,6 +306,7 @@ function handleAnswer(container, q, selectedIndex, pts) {
   const card = container.querySelector('.quiz-card');
 
   if (!correct && livesLeft <= 0) {
+    clearSession();
     card.insertAdjacentHTML('beforeend', `
       <div class="quiz-result result-wrong">
         <div class="result-icon">❌</div>
@@ -292,12 +333,14 @@ function handleAnswer(container, q, selectedIndex, pts) {
   `);
   card.querySelector('#btn-next').addEventListener('click', () => {
     session.index++;
+    saveSession(session);
     renderNextItem(container);
   });
 }
 
 // ── Validator 오답 즉시 종료 ──────────────────────────
 function renderValidatorFail(container, q, selectedIndex) {
+  clearSession();
   container.querySelectorAll('.choice-btn').forEach((btn, i) => {
     btn.disabled = true;
     if (i === q.answer)     btn.classList.add('correct');
@@ -388,12 +431,14 @@ export function renderSurveyQuestion(container, s, onDone) {
       return;
     }
     session.index++;
+    saveSession(session);
     renderNextItem(container);
   });
 
   if (!onDone) {
     container.querySelector('#btn-skip')?.addEventListener('click', () => {
       session.index++;
+      saveSession(session);
       renderNextItem(container);
     });
   }
@@ -476,12 +521,14 @@ export function renderGroupedSurvey(container, s, onDone) {
       return;
     }
     session.index++;
+    saveSession(session);
     renderNextItem(container);
   });
 
   if (!onDone) {
     container.querySelector('#btn-skip-group')?.addEventListener('click', () => {
       session.index++;
+      saveSession(session);
       renderNextItem(container);
     });
   }
@@ -533,6 +580,7 @@ function renderSessionEnd(container) {
     </div>
   `;
 
+  clearSession();
   container.querySelector('#btn-again').addEventListener('click', () => startSession(container));
   container.querySelector('#btn-rank').addEventListener('click', () => {
     import('./app.js').then(m => m.rerenderPage('rank'));
