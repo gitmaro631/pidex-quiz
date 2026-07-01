@@ -107,26 +107,6 @@ async function doLogin() {
   }
 }
 
-// ── 인트로 ────────────────────────────────────────────
-function showLoginScreen() {
-  const loginBtn = document.getElementById('btn-login');
-  if (loginBtn) loginBtn.innerHTML = t('login.btn') + '<br><span class="login-btn-en">Start Quiz</span>';
-  const loginNote = document.getElementById('login-note');
-  if (loginNote) loginNote.textContent = t('login.note') + ' · Pi Browser only';
-  document.getElementById('intro-screen').classList.add('hidden');
-  document.getElementById('login-screen').classList.remove('hidden');
-}
-
-function showIntro() {
-  const introContainer = document.getElementById('intro-screen');
-  introContainer.classList.remove('hidden');
-  document.getElementById('login-screen').classList.add('hidden');
-  renderIntroPage(introContainer, () => {
-    localStorage.setItem('quiz_intro_seen', '1');
-    showLoginScreen();
-  });
-}
-
 // ── 언어 선택 ─────────────────────────────────────────
 function buildLangPicker() {
   const btn      = document.getElementById('btn-lang');
@@ -153,7 +133,6 @@ function buildLangPicker() {
       dropdown.querySelectorAll('.lang-option').forEach(o => o.classList.remove('active'));
       opt.classList.add('active');
       applyNavLabels();
-      if (!document.getElementById('intro-screen').classList.contains('hidden')) showIntro();
     });
   });
 }
@@ -180,9 +159,6 @@ async function init() {
   });
 
   buildLangPicker();
-
-  const introSeen = localStorage.getItem('quiz_intro_seen');
-  if (!introSeen) showIntro();
 }
 
 init();
