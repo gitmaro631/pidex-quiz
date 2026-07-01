@@ -640,19 +640,17 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .util-card-link { font-size: 11px; color: var(--accent); }
 
 /* ── 도움말 문의 섹션 ───────────────────────────────────── */
-.help-contact {
-  border-top: 1px solid var(--border); padding-top: 20px; margin-top: 4px; margin-bottom: 4px;
-}
-.help-contact-channel {
-  display: flex; align-items: center; gap: 10px;
-  margin: 10px 0 8px;
-}
-.help-yt-icon { font-size: 16px; color: #e05a5a; }
-.help-yt-name { font-size: 14px; font-weight: 600; color: var(--text); }
-.help-copy-row {
-  display: flex; align-items: center; gap: 8px; margin-top: 6px;
-}
-.help-copy-url { font-size: 12px; color: var(--muted); flex: 1; word-break: break-all; }
+.contact-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-top: 4px; margin-bottom: 4px; }
+.contact-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.contact-desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; line-height: 1.6; }
+.youtube-link { display: flex; align-items: center; gap: 12px; background: #e05a5a; border-radius: 10px; padding: 10px 14px; text-decoration: none; color: #fff; transition: opacity .15s; }
+.youtube-link:hover { opacity: .88; }
+.yt-icon { font-size: 18px; flex-shrink: 0; }
+.yt-text { display: flex; flex-direction: column; }
+.yt-label { font-size: 14px; font-weight: 700; }
+.yt-sub { font-size: 11px; opacity: .85; }
+.copy-url-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; background: var(--bg); border-radius: 8px; padding: 8px 10px; }
+.copy-url-text { flex: 1; font-size: 12px; color: var(--primary); word-break: break-all; }
 .btn-outline {
   background: none; border: 1px solid var(--border);
   color: var(--muted); border-radius: 6px; padding: 4px 10px;

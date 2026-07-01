@@ -1,6 +1,27 @@
 import { t, getLang } from './util-i18n.js';
 import { createDonation } from './pi-sdk.js';
 
+const CONTACT_STRINGS = {
+  ko: { title:'📮 문의 및 피드백', desc:'사용 중 문의사항이나 피드백은 유튜브 채널 댓글로 남겨주세요.', copyBtn:'복사', copied:'복사됨', copyNote:'위 주소를 복사 후 유튜브에서 검색해주세요.' },
+  en: { title:'📮 Contact & Feedback', desc:'Leave questions or feedback in the YouTube channel comments.', copyBtn:'Copy', copied:'Copied!', copyNote:'Copy the URL above and search in YouTube.' },
+  id: { title:'📮 Kontak & Masukan', desc:'Tinggalkan pertanyaan atau masukan di kolom komentar YouTube.', copyBtn:'Salin', copied:'Tersalin!', copyNote:'Salin URL di atas lalu cari di YouTube.' },
+  vi: { title:'📮 Liên hệ & Phản hồi', desc:'Hãy để lại câu hỏi hoặc phản hồi trong phần bình luận kênh YouTube.', copyBtn:'Sao chép', copied:'Đã sao chép!', copyNote:'Sao chép URL phía trên và tìm kiếm trên YouTube.' },
+  zh: { title:'📮 联系及反馈', desc:'如有使用问题或反馈，请在YouTube频道评论区留言。', copyBtn:'复制', copied:'已复制！', copyNote:'复制上方地址后在YouTube搜索。' },
+  ja: { title:'📮 お問い合わせとフィードバック', desc:'ご不明な点やフィードバックはYouTubeチャンネルのコメント欄にお寄せください。', copyBtn:'コピー', copied:'コピーしました！', copyNote:'上記URLをコピーしてYouTubeで検索してください。' },
+  tl: { title:'📮 Makipag-ugnayan at Feedback', desc:'Mag-iwan ng mga tanong o feedback sa mga komento ng YouTube channel.', copyBtn:'Kopyahin', copied:'Nakopya na!', copyNote:'Kopyahin ang URL sa itaas at hanapin sa YouTube.' },
+  hi: { title:'📮 संपर्क और फीडबैक', desc:'प्रश्न या फीडबैक YouTube चैनल के कमेंट में छोड़ें।', copyBtn:'कॉपी करें', copied:'कॉपी हो गया!', copyNote:'ऊपर का URL कॉपी करें और YouTube पर खोजें।' },
+  bn: { title:'📮 যোগাযোগ ও মতামত', desc:'YouTube চ্যানেলের মন্তব্যে প্রশ্ন বা মতামত রাখুন।', copyBtn:'কপি করুন', copied:'কপি হয়েছে!', copyNote:'উপরের URL কপি করুন এবং YouTube-এ খুঁজুন।' },
+  th: { title:'📮 ติดต่อและข้อเสนอแนะ', desc:'ฝากคำถามหรือข้อเสนอแนะในคอมเมนต์ช่อง YouTube', copyBtn:'คัดลอก', copied:'คัดลอกแล้ว!', copyNote:'คัดลอก URL ด้านบนแล้วค้นหาใน YouTube' },
+  ms: { title:'📮 Hubungi & Maklum Balas', desc:'Tinggalkan soalan atau maklum balas dalam komen saluran YouTube.', copyBtn:'Salin', copied:'Disalin!', copyNote:'Salin URL di atas dan cari di YouTube.' },
+  es: { title:'📮 Contacto y Comentarios', desc:'Deje preguntas o comentarios en los comentarios del canal de YouTube.', copyBtn:'Copiar', copied:'¡Copiado!', copyNote:'Copie la URL de arriba y búsquela en YouTube.' },
+  pt: { title:'📮 Contato e Feedback', desc:'Deixe perguntas ou feedback nos comentários do canal do YouTube.', copyBtn:'Copiar', copied:'Copiado!', copyNote:'Copie a URL acima e pesquise no YouTube.' },
+  fr: { title:'📮 Contact et Retours', desc:'Laissez vos questions ou commentaires dans les commentaires de la chaîne YouTube.', copyBtn:'Copier', copied:'Copié !', copyNote:"Copiez l'URL ci-dessus et recherchez sur YouTube." },
+  ru: { title:'📮 Связь и Отзывы', desc:'Оставляйте вопросы или отзывы в комментариях YouTube-канала.', copyBtn:'Копировать', copied:'Скопировано!', copyNote:'Скопируйте URL выше и найдите на YouTube.' },
+  tr: { title:'📮 İletişim ve Geri Bildirim', desc:'Sorularınızı veya geri bildiriminizi YouTube kanal yorumlarına bırakın.', copyBtn:'Kopyala', copied:'Kopyalandı!', copyNote:"Yukarıdaki URL'yi kopyalayıp YouTube'da arayın." },
+  ar: { title:'📮 التواصل والملاحظات', desc:'اترك أسئلتك أو ملاحظاتك في تعليقات قناة YouTube.', copyBtn:'نسخ', copied:'تم النسخ!', copyNote:'انسخ الرابط أعلاه وابحث عنه في YouTube.' },
+  sw: { title:'📮 Mawasiliano na Maoni', desc:'Acha maswali au maoni katika maoni ya channel ya YouTube.', copyBtn:'Nakili', copied:'Imenakiliwa!', copyNote:'Nakili URL hapo juu na utafute kwenye YouTube.' },
+};
+
 const HELP_CONTENT = {
   ko: {
     title: '도움말',
@@ -70,14 +91,6 @@ const HELP_CONTENT = {
         ],
       },
     ],
-    contact: {
-      title: '📮 문의 및 피드백',
-      desc: '의견이나 버그 제보는 유튜브 채널 댓글로 남겨주세요.',
-      channel: 'Hidden Strokes',
-      url: 'youtube.com/@hiddenstrokes-j5w',
-      copyBtn: '복사',
-      copied: '복사됨!',
-    },
     donation: {
       title: '💙 유틸 제작 지원',
       desc: '앱이 도움이 됐다면 소중한 후원 부탁드려요.<br>후원금은 앱 개발·운영·업데이트에 사용됩니다.',
@@ -154,14 +167,6 @@ const HELP_CONTENT = {
         ],
       },
     ],
-    contact: {
-      title: '📮 Contact & Feedback',
-      desc: 'Leave comments or bug reports on our YouTube channel.',
-      channel: 'Hidden Strokes',
-      url: 'youtube.com/@hiddenstrokes-j5w',
-      copyBtn: 'Copy',
-      copied: 'Copied!',
-    },
     donation: {
       title: '💙 Support Development',
       desc: 'If you enjoy the app, a small tip goes a long way.<br>All support goes toward app development and updates.',
@@ -222,14 +227,6 @@ const HELP_CONTENT = {
         ],
       },
     ],
-    contact: {
-      title: '📮 Kontak & Masukan',
-      desc: 'Tinggalkan komentar atau laporan bug di saluran YouTube kami.',
-      channel: 'Hidden Strokes',
-      url: 'youtube.com/@hiddenstrokes-j5w',
-      copyBtn: 'Salin',
-      copied: 'Tersalin!',
-    },
     donation: {
       title: '💙 Dukung Pengembangan',
       desc: 'Jika aplikasi ini bermanfaat, dukunganmu sangat berarti.<br>Semua dukungan digunakan untuk pengembangan aplikasi.',
@@ -242,7 +239,9 @@ const HELP_CONTENT = {
 
 function getContent() {
   const lang = getLang();
-  return HELP_CONTENT[lang] || HELP_CONTENT['en'];
+  const base = HELP_CONTENT[lang] || HELP_CONTENT['en'];
+  const contact = CONTACT_STRINGS[lang] || CONTACT_STRINGS['en'];
+  return { ...base, contact };
 }
 
 export function renderHelpModal(onClose) {
@@ -268,17 +267,21 @@ export function renderHelpModal(onClose) {
           </div>
         `).join('')}
 
-        <div class="help-contact">
-          <h3 class="help-section-title">${c.contact.title}</h3>
-          <p class="donation-desc">${c.contact.desc}</p>
-          <div class="help-contact-channel">
-            <span class="help-yt-icon">▶</span>
-            <span class="help-yt-name">${c.contact.channel}</span>
+        <div class="contact-card">
+          <div class="contact-title">${c.contact.title}</div>
+          <p class="contact-desc">${c.contact.desc}</p>
+          <div class="youtube-link">
+            <span class="yt-icon">▶</span>
+            <span class="yt-text">
+              <span class="yt-label">Hidden Strokes</span>
+              <span class="yt-sub">youtube.com/@hiddenstrokes-j5w</span>
+            </span>
           </div>
-          <div class="help-copy-row">
-            <span class="help-copy-url">${c.contact.url}</span>
-            <button class="btn-outline" id="btn-copy-yt-help">${c.contact.copyBtn}</button>
+          <div class="copy-url-row">
+            <span class="copy-url-text">youtube.com/@hiddenstrokes-j5w</span>
+            <button class="btn-outline btn-sm" id="btn-copy-yt-help">${c.contact.copyBtn}</button>
           </div>
+          <p class="contact-desc" style="margin-top:6px;font-size:11px;">${c.contact.copyNote}</p>
         </div>
 
         <div class="help-donation">
