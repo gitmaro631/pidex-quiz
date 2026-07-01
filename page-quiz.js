@@ -138,11 +138,13 @@ function renderModeHome(container) {
       </div>
 
       <button class="btn-primary btn-start-session" id="btn-start">${t('quiz.start')}</button>
+      <button class="btn-give-up" id="btn-give-up">🏳️ 포기하기</button>
       <button class="btn-ghost btn-change-mode" id="btn-change-mode">${t('mode.change')}</button>
     </div>
   `;
 
   container.querySelector('#btn-start').addEventListener('click', () => startSession(container));
+  container.querySelector('#btn-give-up').addEventListener('click', () => renderGiveUpDialog(container));
   container.querySelector('#btn-change-mode').addEventListener('click', () => {
     if (loadSession()) {
       renderModeChangeDialog(container);
@@ -184,6 +186,41 @@ function renderModeChangeDialog(container) {
   });
 
   overlay.querySelector('#btn-cancel-change').addEventListener('click', () => {
+    overlay.remove();
+  });
+}
+
+// ── 포기 확인 다이얼로그 ──────────────────────────────
+function renderGiveUpDialog(container) {
+  const mode  = getMode();
+  const cfg   = MODES[mode];
+  const score = getScore();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'mode-change-overlay';
+  overlay.innerHTML = `
+    <div class="mode-change-dialog">
+      <div class="mode-change-icon">🏳️</div>
+      <div class="mode-change-title">${cfg.icon} ${cfg.label} 모드를 포기할까요?</div>
+      <div class="mode-change-desc">지금까지 쌓은 <b>${score}점</b>으로<br>${cfg.label} 랭킹에 등록되고<br>새 모드를 선택하게 됩니다.</div>
+      <button class="btn-primary mode-change-btn" id="btn-confirm-give-up">포기하고 랭킹 등록</button>
+      <button class="btn-ghost mode-change-btn" id="btn-cancel-give-up">계속 진행하기</button>
+    </div>
+  `;
+  container.appendChild(overlay);
+
+  overlay.querySelector('#btn-confirm-give-up').addEventListener('click', async () => {
+    try { await submitLeaderboardScore(username, score, mode); } catch (e) { console.warn(e); }
+    clearSession();
+    resetGame();
+    session = null;
+    overlay.remove();
+    updateHeaderScore();
+    updateHeaderLives();
+    renderModeSelect(container);
+  });
+
+  overlay.querySelector('#btn-cancel-give-up').addEventListener('click', () => {
     overlay.remove();
   });
 }

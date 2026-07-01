@@ -267,6 +267,11 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
   width: 100%; padding: 10px; border: none; background: none;
   color: var(--muted); font-size: 13px; cursor: pointer;
 }
+.btn-give-up {
+  width: 100%; padding: 10px; border: 1px solid #c0392b44; border-radius: 12px;
+  background: none; color: #e05a5a; font-size: 13px; font-weight: 600; cursor: pointer;
+  margin-top: 8px; margin-bottom: 4px;
+}
 .btn-next { width: 100%; margin-top: 4px; }
 .btn-survey-submit { width: 100%; margin-bottom: 8px; }
 
