@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    'शुरुआती 2 जीवन\nहर 4 सर्वे पर +1 जीवन',
   'mode.validator.desc':  'कोई जीवन नहीं\nएक गलत उत्तर = तुरंत गेम ओवर\nउच्च स्कोर की चुनौती!',
   'mode.lives.none':      'कोई जीवन नहीं',
-  'mode.validator.fail':  'गलत — Validator मोड समाप्त!',
+  'mode.validator.fail':       'गलत — Validator मोड समाप्त!',
+  'mode.change.confirm.title': 'मोड बदलें?',
+  'mode.change.confirm.desc':  '{mode} मोड जारी है ({score} अंक)\nमोड बदलने से स्कोर और जीवन रीसेट हो जाएंगे।',
+  'mode.change.confirm.submit':'लीडरबोर्ड में दर्ज करें और मोड बदलें',
+  'mode.change.confirm.cancel':'रद्द करें (वर्तमान मोड बनाए रखें)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'जीवन समाप्त!',

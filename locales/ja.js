@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    '初期ライフ2個\nサーベイ4個ごとに+1ライフ',
   'mode.validator.desc':  'ライフなし\n1問でも間違えたら即終了\nハイスコアに挑戦！',
   'mode.lives.none':      'ライフなし',
-  'mode.validator.fail':  '不正解 — Validatorモード終了！',
+  'mode.validator.fail':       '不正解 — Validatorモード終了！',
+  'mode.change.confirm.title': 'モードを変更しますか？',
+  'mode.change.confirm.desc':  '{mode} モード進行中（{score} 点）\nモード変更するとスコアとライフがリセットされます。',
+  'mode.change.confirm.submit':'ランキング登録後にモード変更',
+  'mode.change.confirm.cancel':'キャンセル（現在のモードを維持）',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'ライフ切れ！',

@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    'เริ่มต้น 2 ชีวิต\n+1 ชีวิตทุก 4 แบบสอบถาม',
   'mode.validator.desc':  'ไม่มีชีวิต\nตอบผิดหนึ่งข้อ = เกมจบทันที\nท้าทายคะแนนสูง!',
   'mode.lives.none':      'ไม่มีชีวิต',
-  'mode.validator.fail':  'ผิด — โหมด Validator จบแล้ว!',
+  'mode.validator.fail':       'ผิด — โหมด Validator จบแล้ว!',
+  'mode.change.confirm.title': 'เปลี่ยนโหมดหรือไม่?',
+  'mode.change.confirm.desc':  'กำลังเล่นโหมด {mode} ({score} คะแนน)\nการเปลี่ยนโหมดจะรีเซ็ตคะแนนและชีวิต',
+  'mode.change.confirm.submit':'บันทึกกระดานอันดับแล้วเปลี่ยนโหมด',
+  'mode.change.confirm.cancel':'ยกเลิก (คงโหมดปัจจุบัน)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'ชีวิตหมด!',

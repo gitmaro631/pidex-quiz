@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    '2 vies initiales\n+1 vie par 4 sondages',
   'mode.validator.desc':  'Aucune vie\nUne mauvaise réponse = fin de jeu immédiate\nDéfiez le score le plus élevé !',
   'mode.lives.none':      'Aucune vie',
-  'mode.validator.fail':  'Incorrect — Mode Validator terminé !',
+  'mode.validator.fail':       'Incorrect — Mode Validator terminé !',
+  'mode.change.confirm.title': 'Changer de mode ?',
+  'mode.change.confirm.desc':  'Mode {mode} en cours ({score} pts)\nChanger de mode réinitialisera le score et les vies.',
+  'mode.change.confirm.submit':'Enregistrer au classement et changer de mode',
+  'mode.change.confirm.cancel':'Annuler (garder le mode actuel)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'Plus de Vies !',

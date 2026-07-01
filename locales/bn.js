@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    'শুরুতে ২টি জীবন\nপ্রতি ৪টি সার্ভেতে +১ জীবন',
   'mode.validator.desc':  'কোনো জীবন নেই\nএকটি ভুল উত্তর = তাৎক্ষণিক গেম ওভার\nউচ্চ স্কোরের চ্যালেঞ্জ!',
   'mode.lives.none':      'কোনো জীবন নেই',
-  'mode.validator.fail':  'ভুল — Validator মোড শেষ!',
+  'mode.validator.fail':       'ভুল — Validator মোড শেষ!',
+  'mode.change.confirm.title': 'মোড পরিবর্তন করবেন?',
+  'mode.change.confirm.desc':  '{mode} মোড চলছে ({score} পয়েন্ট)\nমোড পরিবর্তন করলে স্কোর ও জীবন রিসেট হবে।',
+  'mode.change.confirm.submit':'লিডারবোর্ডে জমা দিন ও মোড পরিবর্তন করুন',
+  'mode.change.confirm.cancel':'বাতিল (বর্তমান মোড বজায় রাখুন)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'জীবন শেষ!',

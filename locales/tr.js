@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    'Başlangıçta 2 can\nHer 4 ankette +1 can',
   'mode.validator.desc':  'Can yok\nBir yanlış cevap = anında oyun bitti\nYüksek puan mücadelesi!',
   'mode.lives.none':      'Can yok',
-  'mode.validator.fail':  'Yanlış — Validator modu sona erdi!',
+  'mode.validator.fail':       'Yanlış — Validator modu sona erdi!',
+  'mode.change.confirm.title': 'Mod değiştirilsin mi?',
+  'mode.change.confirm.desc':  '{mode} modu devam ediyor ({score} puan)\nMod değiştirme puan ve canları sıfırlar.',
+  'mode.change.confirm.submit':'Sıralamaya kaydet ve modu değiştir',
+  'mode.change.confirm.cancel':'İptal (mevcut modu koru)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'Canlar Bitti!',

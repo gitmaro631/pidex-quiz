@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    '2 nyawa awal\n+1 nyawa per 4 survei',
   'mode.validator.desc':  'Tanpa nyawa\nSatu jawaban salah = langsung game over\nTantangan skor tinggi!',
   'mode.lives.none':      'Tanpa nyawa',
-  'mode.validator.fail':  'Salah — Mode Validator berakhir!',
+  'mode.validator.fail':       'Salah — Mode Validator berakhir!',
+  'mode.change.confirm.title': 'Ganti mode?',
+  'mode.change.confirm.desc':  'Mode {mode} sedang berlangsung ({score} poin)\nGanti mode akan mereset skor dan nyawa.',
+  'mode.change.confirm.submit':'Daftar ke papan peringkat & ganti mode',
+  'mode.change.confirm.cancel':'Batal (pertahankan mode saat ini)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'Nyawa Habis!',

@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    '初始2条命\n每4次问卷+1命',
   'mode.validator.desc':  '无生命\n答错一题即游戏结束\n挑战高分！',
   'mode.lives.none':      '无生命',
-  'mode.validator.fail':  '答错 — Validator模式结束！',
+  'mode.validator.fail':       '答错 — Validator模式结束！',
+  'mode.change.confirm.title': '要切换模式吗？',
+  'mode.change.confirm.desc':  '正在进行 {mode} 模式（{score} 分）\n切换模式将重置分数和生命值。',
+  'mode.change.confirm.submit':'提交排行榜后切换模式',
+  'mode.change.confirm.cancel':'取消（保留当前模式）',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': '生命耗尽！',

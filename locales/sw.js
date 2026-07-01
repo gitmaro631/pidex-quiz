@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    'Maisha 2 ya awali\n+1 maisha kwa kila dodoso 4',
   'mode.validator.desc':  'Bila maisha\nJibu moja baya = mchezo unaisha mara moja\nChambulia alama za juu!',
   'mode.lives.none':      'Bila maisha',
-  'mode.validator.fail':  'Kosa — Hali ya Validator imeisha!',
+  'mode.validator.fail':       'Kosa — Hali ya Validator imeisha!',
+  'mode.change.confirm.title': 'Badilisha hali?',
+  'mode.change.confirm.desc':  'Hali ya {mode} inaendelea ({score} pointi)\nKubadilisha hali kutareset alama na maisha.',
+  'mode.change.confirm.submit':'Sajili kwenye ubao wa viongozi na ubadilishe hali',
+  'mode.change.confirm.cancel':'Ghairi (endelea na hali ya sasa)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'Maisha Yameisha!',

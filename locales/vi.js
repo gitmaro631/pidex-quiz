@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    '2 mạng ban đầu\n+1 mạng mỗi 4 khảo sát',
   'mode.validator.desc':  'Không có mạng\nSai một câu = kết thúc ngay\nThách thức điểm cao!',
   'mode.lives.none':      'Không có mạng',
-  'mode.validator.fail':  'Sai — Chế độ Validator kết thúc!',
+  'mode.validator.fail':       'Sai — Chế độ Validator kết thúc!',
+  'mode.change.confirm.title': 'Đổi chế độ?',
+  'mode.change.confirm.desc':  'Đang chơi chế độ {mode} ({score} điểm)\nĐổi chế độ sẽ đặt lại điểm và mạng.',
+  'mode.change.confirm.submit':'Đăng ký bảng xếp hạng & đổi chế độ',
+  'mode.change.confirm.cancel':'Hủy (giữ chế độ hiện tại)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'Hết mạng!',

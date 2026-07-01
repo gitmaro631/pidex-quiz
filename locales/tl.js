@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    '2 buhay sa simula\n+1 buhay bawat 4 survey',
   'mode.validator.desc':  'Walang buhay\nIsang maling sagot = agad na game over\nHamon para sa mataas na puntos!',
   'mode.lives.none':      'Walang buhay',
-  'mode.validator.fail':  'Mali — Natapos ang Validator mode!',
+  'mode.validator.fail':       'Mali — Natapos ang Validator mode!',
+  'mode.change.confirm.title': 'Palitan ang mode?',
+  'mode.change.confirm.desc':  'Kasalukuyang nasa {mode} mode ({score} puntos)\nAng pagpapalit ng mode ay mag-re-reset ng score at buhay.',
+  'mode.change.confirm.submit':'I-submit sa leaderboard at palitan ang mode',
+  'mode.change.confirm.cancel':'Kanselahin (panatilihin ang kasalukuyang mode)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'Wala nang Buhay!',

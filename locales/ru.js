@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    '2 начальные жизни\n+1 жизнь за каждые 4 опроса',
   'mode.validator.desc':  'Без жизней\nОдин неправильный ответ = немедленный конец игры\nПобедите в соревновании за высокий счёт!',
   'mode.lives.none':      'Без жизней',
-  'mode.validator.fail':  'Неправильно — Режим Validator завершён!',
+  'mode.validator.fail':       'Неправильно — Режим Validator завершён!',
+  'mode.change.confirm.title': 'Сменить режим?',
+  'mode.change.confirm.desc':  'Режим {mode} в процессе ({score} очков)\nСмена режима сбросит очки и жизни.',
+  'mode.change.confirm.submit':'Зарегистрировать в рейтинге и сменить режим',
+  'mode.change.confirm.cancel':'Отмена (оставить текущий режим)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'Жизни Закончились!',

@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    '2 nyawa permulaan\n+1 nyawa setiap 4 tinjauan',
   'mode.validator.desc':  'Tiada nyawa\nSatu jawapan salah = tamat permainan serta-merta\nCabar skor tinggi!',
   'mode.lives.none':      'Tiada nyawa',
-  'mode.validator.fail':  'Salah — Mod Validator tamat!',
+  'mode.validator.fail':       'Salah — Mod Validator tamat!',
+  'mode.change.confirm.title': 'Tukar mod?',
+  'mode.change.confirm.desc':  'Mod {mode} sedang berlangsung ({score} mata)\nTukar mod akan menetapkan semula skor dan nyawa.',
+  'mode.change.confirm.submit':'Daftar papan peringkat & tukar mod',
+  'mode.change.confirm.cancel':'Batal (kekalkan mod semasa)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'Nyawa Habis!',

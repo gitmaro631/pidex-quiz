@@ -38,7 +38,11 @@ export default {
   'mode.pioneer.desc':    'روحان في البداية\n+1 روح كل 4 استبيانات',
   'mode.validator.desc':  'لا أرواح\nإجابة خاطئة واحدة = انتهاء اللعبة فوراً\nتحدٍّ للحصول على أعلى نقاط!',
   'mode.lives.none':      'لا أرواح',
-  'mode.validator.fail':  'خطأ — انتهى وضع Validator!',
+  'mode.validator.fail':       'خطأ — انتهى وضع Validator!',
+  'mode.change.confirm.title': 'تغيير الوضع؟',
+  'mode.change.confirm.desc':  'وضع {mode} جارٍ ({score} نقطة)\nتغيير الوضع سيُعيد تعيين النقاط والأرواح.',
+  'mode.change.confirm.submit':'تسجيل في لوحة المتصدرين وتغيير الوضع',
+  'mode.change.confirm.cancel':'إلغاء (الاحتفاظ بالوضع الحالي)',
 
   // ── Game over ─────────────────────────────────────────
   'gameover.title': 'نفدت الأرواح!',
