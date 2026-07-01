@@ -256,6 +256,7 @@ export const surveyQuestions = [
     group: 'node',
     insertAfter: 15,
     type: 'grouped',
+    q: '파이 노드를 운영하고 계신가요?',
     ecosystemMsg: '노드 운영자는 파이 네트워크 탈중앙화의 핵심입니다. 여러분의 답변이 파이 생태계 발전에 직접 기여합니다 🌐',
     subQuestions: [
       {
