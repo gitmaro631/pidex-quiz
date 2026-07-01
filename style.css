@@ -242,6 +242,16 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .stats-loading { text-align: center; padding: 40px; color: var(--muted); }
 .stats-empty   { text-align: center; padding: 40px; color: var(--muted); line-height: 2; }
 
+.country-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.country-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.country-table thead tr { border-bottom: 1px solid var(--border); }
+.country-table th { font-size: 11px; font-weight: 600; color: var(--muted); padding: 6px 8px; text-align: right; }
+.country-table th.ct-country { text-align: left; }
+.country-table td { padding: 8px 8px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+.country-table tbody tr:last-child td { border-bottom: none; }
+.ct-country { text-align: left; min-width: 140px; }
+.ct-num { text-align: right; min-width: 54px; }
+
 /* ── 공통 버튼 ────────────────────────────────────── */
 .btn-primary {
   padding: 12px 24px; border: none; border-radius: 12px;

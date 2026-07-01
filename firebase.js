@@ -106,6 +106,18 @@ function aggregateStats(rows) {
   const sectionTotalAny = (field) =>
     rows.filter(r => Array.isArray(r[field]) && r[field].length > 0).length;
 
+  // 국가별 크로스탭
+  const byCountry = {};
+  for (const r of rows) {
+    const cc = r.S_COUNTRY;
+    if (!cc) continue;
+    if (!byCountry[cc]) byCountry[cc] = { total: 0, kycPassed: 0, kycTotal: 0, nodeRunning: 0, nodeTotal: 0 };
+    const c = byCountry[cc];
+    c.total++;
+    if (r.S_KYC)  { c.kycTotal++;  if (r.S_KYC === 'passed')   c.kycPassed++;  }
+    if (r.S_NODE) { c.nodeTotal++; if (r.S_NODE === 'running')  c.nodeRunning++; }
+  }
+
   return {
     total: rows.length,
     kyc: {
@@ -130,10 +142,7 @@ function aggregateStats(rows) {
       none:       countAny('S_TRADE_EXP', 'none'),
       _total:     sectionTotalAny('S_TRADE_EXP'),
     },
-    countries: rows.reduce((acc, r) => {
-      if (r.S_COUNTRY) acc[r.S_COUNTRY] = (acc[r.S_COUNTRY] ?? 0) + 1;
-      return acc;
-    }, {}),
+    byCountry,
     countriesTotal: sectionTotal('S_COUNTRY'),
   };
 }
