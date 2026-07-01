@@ -78,25 +78,12 @@ export async function fetchLeaderboard(mode, limit = 100) {
   }
 }
 
-// ── 설문 응답 집계용 저장 (통계 페이지용) ────────────
-export async function submitSurveyAnswers(answers) {
-  if (!db) return;
-  try {
-    await db.collection('survey_responses').add({
-      ...answers,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    });
-  } catch (e) {
-    console.error('설문 저장 실패:', e);
-  }
-}
-
-// ── 설문 집계 통계 조회 ───────────────────────────────
+// ── 설문 집계 통계 조회 (surveys 컬렉션 기반 — UID당 1문서로 중복 없음) ──
 export async function fetchSurveyStats() {
   if (!db) return null;
   try {
-    const snap = await db.collection('survey_responses').get();
-    const rows = snap.docs.map(d => d.data());
+    const snap = await db.collection('surveys').get();
+    const rows = snap.docs.map(d => d.data().answers ?? {});
     return aggregateStats(rows);
   } catch (e) {
     console.error('통계 조회 실패:', e);

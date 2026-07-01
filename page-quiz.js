@@ -381,7 +381,7 @@ export function renderSurveyQuestion(container, s, onDone) {
     updateHeaderLives();
 
     const uid = getCurrentUid();
-    if (uid) saveSurveyToFirestore(uid, getSurveyAnswers());
+    if (uid) saveSurveyToFirestore(uid, getSurveyAnswers(), getSurveyDone());
 
     if (onDone) {
       onDone();
@@ -469,7 +469,7 @@ export function renderGroupedSurvey(container, s, onDone) {
     updateHeaderLives();
 
     const uid = getCurrentUid();
-    if (uid) saveSurveyToFirestore(uid, getSurveyAnswers());
+    if (uid) saveSurveyToFirestore(uid, getSurveyAnswers(), getSurveyDone());
 
     if (onDone) {
       onDone();
