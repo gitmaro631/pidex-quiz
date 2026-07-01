@@ -5,7 +5,6 @@ import { renderStatsPage }  from './page-stats.js';
 import { renderSurveyPage } from './page-survey.js';
 import { getScore, getLives } from './util-storage.js';
 import { initLang, t, getLang, setLang, SUPPORTED_LANGS } from './util-i18n.js';
-import { renderIntroPage }  from './page-intro.js';
 import { renderHelpModal }  from './page-help.js';
 import { initFirebase, loadSurveyFromFirestore } from './firebase.js';
 import { mergeSurveyFromCloud } from './util-storage.js';
@@ -137,6 +136,54 @@ function buildLangPicker() {
   });
 }
 
+// ── 유틸모음 오버레이 ────────────────────────────────────
+function renderUtilsOverlay() {
+  const panel = document.getElementById('utils-panel');
+  if (!panel) return;
+  panel.innerHTML = `
+    <div class="utils-header">
+      <span class="utils-title">🔗 유틸모음</span>
+      <button class="utils-close-btn" id="utils-close-btn">닫기 ✕</button>
+    </div>
+
+    <a class="util-card" href="https://apppidexutillaac6961.pinet.com/" target="_blank">
+      <div class="util-card-icon">
+        <img src="https://apppidexutillaac6961.pinet.com/icon.png" width="64" height="64" style="border-radius:14px;display:block;object-fit:cover;" alt="PiDEX Util">
+      </div>
+      <div class="util-card-body">
+        <div class="util-card-name">PiDEX Util</div>
+        <div class="util-card-tags">
+          <span class="util-tag">Arbitrage Finder</span>
+          <span class="util-tag">LP Calculator</span>
+          <span class="util-tag">Swap Simulator</span>
+        </div>
+        <div class="util-card-desc">Pi DEX 유동성·차익·스왑 유틸 모음.<br><span class="util-card-desc-en">All-in-one Pi DEX utility — arbitrage, LP calculator &amp; swap simulator.</span></div>
+        <div class="util-card-link">Pi Browser로 열기 →</div>
+      </div>
+    </a>
+
+    <a class="util-card" href="https://mmstrategylabqge3450.pinet.com/" target="_blank">
+      <div class="util-card-icon">
+        <img src="https://mmstrategylabqge3450.pinet.com/icon.png" width="64" height="64" style="border-radius:14px;display:block;object-fit:cover;" alt="MM Strategy Lab">
+      </div>
+      <div class="util-card-body">
+        <div class="util-card-name">MM Strategy Lab</div>
+        <div class="util-card-tags">
+          <span class="util-tag">Orderbook MM</span>
+          <span class="util-tag">AMM</span>
+          <span class="util-tag">Auto Optimize</span>
+        </div>
+        <div class="util-card-desc">마켓메이킹 전략 백테스트 시뮬레이터.<br><span class="util-card-desc-en">Market making strategy backtest simulator.</span><br>Stellar 메인넷과 Pi DEX에서 실제 거래 데이터로 전략을 검증하세요.</div>
+        <div class="util-card-link">Pi Browser로 열기 →</div>
+      </div>
+    </a>
+  `;
+
+  panel.querySelector('#utils-close-btn').addEventListener('click', () => {
+    document.getElementById('utils-overlay').classList.add('hidden');
+  });
+}
+
 // ── 초기화 ────────────────────────────────────────────
 async function init() {
   initLang();
@@ -151,11 +198,17 @@ async function init() {
   const helpBtn = document.getElementById('btn-help');
   if (helpBtn) helpBtn.addEventListener('click', () => renderHelpModal());
 
-  const introOverlayBtn = document.getElementById('btn-intro-overlay');
-  if (introOverlayBtn) introOverlayBtn.addEventListener('click', () => {
-    const introContainer = document.getElementById('intro-screen');
-    introContainer.classList.remove('hidden');
-    renderIntroPage(introContainer, () => introContainer.classList.add('hidden'));
+  const utilsOverlayBtn = document.getElementById('btn-intro-overlay');
+  if (utilsOverlayBtn) utilsOverlayBtn.addEventListener('click', () => {
+    const overlay = document.getElementById('utils-overlay');
+    overlay.classList.toggle('hidden');
+    if (!overlay.classList.contains('hidden')) renderUtilsOverlay();
+  });
+
+  document.getElementById('utils-overlay')?.addEventListener('click', e => {
+    if (e.target === document.getElementById('utils-overlay')) {
+      document.getElementById('utils-overlay').classList.add('hidden');
+    }
   });
 
   buildLangPicker();

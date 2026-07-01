@@ -595,6 +595,73 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .donation-error   { color: var(--wrong); }
 
 /* ── 모드 변경 확인 다이얼로그 ───────────────────────── */
+/* ── 유틸모음 오버레이 ─────────────────────────────────── */
+.utils-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 20px; overflow-y: auto;
+}
+.utils-panel {
+  background: var(--surface); border-radius: 16px;
+  max-width: 400px; width: 100%;
+  margin-top: 20px; overflow: hidden;
+}
+.utils-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.utils-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.utils-close-btn {
+  background: none; border: none; color: var(--muted);
+  font-size: 14px; cursor: pointer; padding: 4px 10px;
+  border-radius: 6px; transition: background 0.15s;
+}
+.utils-close-btn:hover { background: var(--surface2); }
+.util-card {
+  display: flex; align-items: flex-start; gap: 14px;
+  text-decoration: none; padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.util-card:last-child { border-bottom: none; }
+.util-card:hover { background: var(--surface2); }
+.util-card-icon { flex-shrink: 0; width: 64px; height: 64px; border-radius: 14px; overflow: hidden; }
+.util-card-icon svg { display: block; }
+.util-card-body { flex: 1; min-width: 0; }
+.util-card-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.util-card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.util-tag {
+  font-size: 10px; font-weight: 600; color: var(--primary);
+  background: rgba(123,94,167,0.15); border-radius: 4px; padding: 2px 6px;
+}
+.util-card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 4px; }
+.util-card-desc-en { font-size: 11px; color: #606580; }
+.util-card-link { font-size: 11px; color: var(--accent); }
+
+/* ── 도움말 문의 섹션 ───────────────────────────────────── */
+.help-contact {
+  border-top: 1px solid var(--border); padding-top: 20px; margin-top: 4px; margin-bottom: 4px;
+}
+.help-contact-channel {
+  display: flex; align-items: center; gap: 10px;
+  margin: 10px 0 8px;
+}
+.help-yt-icon { font-size: 16px; color: #e05a5a; }
+.help-yt-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.help-copy-row {
+  display: flex; align-items: center; gap: 8px; margin-top: 6px;
+}
+.help-copy-url { font-size: 12px; color: var(--muted); flex: 1; word-break: break-all; }
+.btn-outline {
+  background: none; border: 1px solid var(--border);
+  color: var(--muted); border-radius: 6px; padding: 4px 10px;
+  font-size: 12px; cursor: pointer; white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-outline:hover { border-color: var(--primary); color: var(--text); }
+
+/* ── 모드 변경 확인 다이얼로그 ───────────────────────── */
 .mode-change-overlay {
   position: fixed; inset: 0; z-index: 200;
   background: rgba(0,0,0,0.7);

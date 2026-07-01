@@ -70,6 +70,14 @@ const HELP_CONTENT = {
         ],
       },
     ],
+    contact: {
+      title: '📮 문의 및 피드백',
+      desc: '의견이나 버그 제보는 유튜브 채널 댓글로 남겨주세요.',
+      channel: 'Hidden Strokes',
+      url: 'youtube.com/@hiddenstrokes-j5w',
+      copyBtn: '복사',
+      copied: '복사됨!',
+    },
     donation: {
       title: '💙 유틸 제작 지원',
       desc: '앱이 도움이 됐다면 소중한 후원 부탁드려요.<br>후원금은 앱 개발·운영·업데이트에 사용됩니다.',
@@ -146,6 +154,14 @@ const HELP_CONTENT = {
         ],
       },
     ],
+    contact: {
+      title: '📮 Contact & Feedback',
+      desc: 'Leave comments or bug reports on our YouTube channel.',
+      channel: 'Hidden Strokes',
+      url: 'youtube.com/@hiddenstrokes-j5w',
+      copyBtn: 'Copy',
+      copied: 'Copied!',
+    },
     donation: {
       title: '💙 Support Development',
       desc: 'If you enjoy the app, a small tip goes a long way.<br>All support goes toward app development and updates.',
@@ -206,6 +222,14 @@ const HELP_CONTENT = {
         ],
       },
     ],
+    contact: {
+      title: '📮 Kontak & Masukan',
+      desc: 'Tinggalkan komentar atau laporan bug di saluran YouTube kami.',
+      channel: 'Hidden Strokes',
+      url: 'youtube.com/@hiddenstrokes-j5w',
+      copyBtn: 'Salin',
+      copied: 'Tersalin!',
+    },
     donation: {
       title: '💙 Dukung Pengembangan',
       desc: 'Jika aplikasi ini bermanfaat, dukunganmu sangat berarti.<br>Semua dukungan digunakan untuk pengembangan aplikasi.',
@@ -244,6 +268,19 @@ export function renderHelpModal(onClose) {
           </div>
         `).join('')}
 
+        <div class="help-contact">
+          <h3 class="help-section-title">${c.contact.title}</h3>
+          <p class="donation-desc">${c.contact.desc}</p>
+          <div class="help-contact-channel">
+            <span class="help-yt-icon">▶</span>
+            <span class="help-yt-name">${c.contact.channel}</span>
+          </div>
+          <div class="help-copy-row">
+            <span class="help-copy-url">${c.contact.url}</span>
+            <button class="btn-outline" id="btn-copy-yt-help">${c.contact.copyBtn}</button>
+          </div>
+        </div>
+
         <div class="help-donation">
           <h3 class="help-section-title">${c.donation.title}</h3>
           <p class="donation-desc">${c.donation.desc}</p>
@@ -260,6 +297,14 @@ export function renderHelpModal(onClose) {
   `;
 
   document.body.appendChild(modal);
+
+  modal.querySelector('#btn-copy-yt-help').addEventListener('click', () => {
+    navigator.clipboard.writeText('youtube.com/@hiddenstrokes-j5w').then(() => {
+      const btn = modal.querySelector('#btn-copy-yt-help');
+      btn.textContent = c.contact.copied;
+      setTimeout(() => { btn.textContent = c.contact.copyBtn; }, 2000);
+    });
+  });
 
   modal.querySelector('#modal-close').addEventListener('click', () => {
     modal.remove();
