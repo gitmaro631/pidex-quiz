@@ -92,8 +92,7 @@ export async function fetchSurveyStats() {
 }
 
 function aggregateStats(rows) {
-  const total = rows.length;
-  if (total === 0) return { total: 0 };
+  if (rows.length === 0) return { total: 0 };
 
   const count = (field, value) =>
     rows.filter(r => r[field] === value).length;
@@ -101,19 +100,27 @@ function aggregateStats(rows) {
   const countAny = (field, value) =>
     rows.filter(r => Array.isArray(r[field]) ? r[field].includes(value) : r[field] === value).length;
 
+  const sectionTotal = (field) =>
+    rows.filter(r => r[field] !== undefined && r[field] !== null).length;
+
+  const sectionTotalAny = (field) =>
+    rows.filter(r => Array.isArray(r[field]) && r[field].length > 0).length;
+
   return {
-    total,
+    total: rows.length,
     kyc: {
       passed:     count('S_KYC', 'passed'),
       failed:     count('S_KYC', 'failed'),
       pending:    count('S_KYC', 'pending'),
       notTried:   count('S_KYC', 'notTried'),
+      _total:     sectionTotal('S_KYC'),
     },
     node: {
       running:    count('S_NODE', 'running'),
       stopped:    count('S_NODE', 'stopped'),
       planning:   count('S_NODE', 'planning'),
       noInterest: count('S_NODE', 'noInterest'),
+      _total:     sectionTotal('S_NODE'),
     },
     tradeExp: {
       p2p:        countAny('S_TRADE_EXP', 'p2p'),
@@ -121,10 +128,12 @@ function aggregateStats(rows) {
       barter:     countAny('S_TRADE_EXP', 'barter'),
       dexApp:     countAny('S_TRADE_EXP', 'dexApp'),
       none:       countAny('S_TRADE_EXP', 'none'),
+      _total:     sectionTotalAny('S_TRADE_EXP'),
     },
     countries: rows.reduce((acc, r) => {
       if (r.S_COUNTRY) acc[r.S_COUNTRY] = (acc[r.S_COUNTRY] ?? 0) + 1;
       return acc;
     }, {}),
+    countriesTotal: sectionTotal('S_COUNTRY'),
   };
 }
