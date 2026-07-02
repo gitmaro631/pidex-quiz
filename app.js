@@ -145,6 +145,7 @@ function renderUtilsOverlay() {
       <span class="utils-title">🔗 유틸모음</span>
       <button class="utils-close-btn" id="utils-close-btn">닫기 ✕</button>
     </div>
+    <div class="utils-body">
 
     <a class="util-card" href="https://apppidexutillaac6961.pinet.com/" target="_blank">
       <div class="util-card-icon">
@@ -177,6 +178,7 @@ function renderUtilsOverlay() {
         <div class="util-card-link">Pi Browser로 열기 →</div>
       </div>
     </a>
+    </div>
   `;
 
   panel.querySelector('#utils-close-btn').addEventListener('click', () => {
