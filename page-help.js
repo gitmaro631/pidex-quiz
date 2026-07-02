@@ -29,19 +29,19 @@ const HELP_CONTENT = {
       {
         title: '🎮 게임 방법',
         items: [
-          '난이도(초급·중급·고급)를 선택하고 퀴즈를 시작하세요.',
+          '게임 모드(⛏️ Miner · 🚀 Pioneer · 🔱 Validator)를 선택하고 퀴즈를 시작하세요.',
           '4지선다 문제에서 정답을 고르세요.',
           '정답 선택 후 해설을 확인하고 다음 문제로 넘어가세요.',
           '한 번 푼 문제는 다시 출제되지 않습니다.',
+          '모드 진행 중 \'포기하기\' 버튼으로 현재 점수를 랭킹에 등록하고 모드를 재선택할 수 있습니다.',
         ],
       },
       {
-        title: '❤️ 생명력 시스템',
+        title: '❤️ 생명력 시스템 (모드별)',
         items: [
-          '처음에 생명력 2개로 시작합니다.',
-          '오답을 선택하면 생명력 1개가 줄어듭니다.',
-          '설문에 5개 참여할 때마다 생명력 1개가 추가됩니다.',
-          '커뮤니티 통계 화면을 조회하면 1시간에 한 번 생명력 1개가 추가됩니다.',
+          '⛏️ Miner: 기본 2개 · 오답 시 -1 · 설문 4개 완료당 +1 · 퀴즈 10개 정답당 +1 · 통계/랭킹 조회 시 +1 (1시간마다)',
+          '🚀 Pioneer: 기본 2개 · 오답 시 -1 · 설문 4개 완료당 +1',
+          '🔱 Validator: 생명 없음 · 오답 1개로 즉시 게임 종료',
           '생명력이 0이 되면 점수가 리더보드에 기록되고 새 게임이 시작됩니다.',
         ],
       },
@@ -86,7 +86,7 @@ const HELP_CONTENT = {
         title: '❓ 자주 묻는 질문',
         items: [
           'Q: Pi Browser가 없으면 사용 못하나요?\nA: 네, Pi Browser에서만 Pi SDK 로그인이 가능합니다.',
-          'Q: 생명력이 0이 되면 기존 답변 기록은 사라지나요?\nA: 아니요. 점수·생명력만 초기화되고, 푼 문제 기록과 설문 답변은 유지됩니다.',
+          'Q: 게임이 끝나면 기존 답변 기록은 사라지나요?\nA: 아니요. 점수·생명력만 초기화되고, 푼 문제 기록과 설문 답변은 유지됩니다.',
           'Q: 리더보드에 내 점수가 보이지 않아요.\nA: Firestore 인덱스 생성에 약간 시간이 걸릴 수 있습니다. 잠시 후 새로고침해 보세요.',
         ],
       },
@@ -105,20 +105,20 @@ const HELP_CONTENT = {
       {
         title: '🎮 How to Play',
         items: [
-          'Choose a difficulty level (Beginner, Intermediate, Advanced) and start.',
+          'Select a game mode (⛏️ Miner · 🚀 Pioneer · 🔱 Validator) and start the quiz.',
           'Pick the correct answer from 4 options.',
           'After answering, read the explanation and move to the next question.',
           'Questions you\'ve already answered won\'t appear again.',
+          'Use the \'Give Up\' button to submit your current score to the leaderboard and switch modes.',
         ],
       },
       {
-        title: '❤️ Lives System',
+        title: '❤️ Lives System (per mode)',
         items: [
-          'You start with 2 lives.',
-          'Each wrong answer costs 1 life.',
-          'Every 5 surveys completed earns +1 life.',
-          'Viewing the community stats page earns +1 life (once per hour).',
-          'When lives hit 0, your score is saved to the leaderboard and a new game starts.',
+          '⛏️ Miner: 2 starting lives · Wrong answer -1 · +1 per 4 surveys · +1 per 10 correct answers · +1 per stats/ranking view (every 1 hr)',
+          '🚀 Pioneer: 2 starting lives · Wrong answer -1 · +1 per 4 surveys',
+          '🔱 Validator: No lives · One wrong answer ends the game immediately',
+          'When lives reach 0, your score is recorded to the leaderboard and a new game begins.',
         ],
       },
       {
@@ -162,7 +162,7 @@ const HELP_CONTENT = {
         title: '❓ FAQ',
         items: [
           'Q: Do I need Pi Browser?\nA: Yes — Pi SDK login only works inside Pi Browser.',
-          'Q: If I run out of lives, do I lose my answered questions?\nA: No. Only score and lives reset. Your question history and survey answers are kept.',
+          'Q: When the game ends, do I lose my answered questions?\nA: No. Only score and lives reset. Your question history and survey answers are kept.',
           'Q: My score isn\'t showing on the leaderboard.\nA: Firestore may take a moment to create the required index. Refresh after a minute.',
         ],
       },
@@ -181,19 +181,19 @@ const HELP_CONTENT = {
       {
         title: '🎮 Cara Bermain',
         items: [
-          'Pilih tingkat kesulitan (Pemula, Menengah, Mahir) dan mulailah.',
+          'Pilih mode permainan (⛏️ Miner · 🚀 Pioneer · 🔱 Validator) dan mulailah.',
           'Pilih jawaban yang benar dari 4 pilihan.',
           'Setelah menjawab, baca penjelasan dan lanjut ke soal berikutnya.',
           'Soal yang sudah dijawab tidak akan muncul lagi.',
+          'Gunakan tombol \'Menyerah\' untuk mengirim skor ke papan peringkat dan ganti mode.',
         ],
       },
       {
-        title: '❤️ Sistem Nyawa',
+        title: '❤️ Sistem Nyawa (per mode)',
         items: [
-          'Mulai dengan 2 nyawa.',
-          'Setiap jawaban salah mengurangi 1 nyawa.',
-          'Setiap 5 survei selesai mendapatkan +1 nyawa.',
-          'Melihat halaman statistik komunitas memberikan +1 nyawa (sekali per jam).',
+          '⛏️ Miner: 2 nyawa awal · Jawaban salah -1 · +1 per 4 survei · +1 per 10 jawaban benar · +1 per lihat statistik/ranking (tiap 1 jam)',
+          '🚀 Pioneer: 2 nyawa awal · Jawaban salah -1 · +1 per 4 survei',
+          '🔱 Validator: Tanpa nyawa · Satu jawaban salah langsung mengakhiri permainan',
           'Jika nyawa habis, skor disimpan ke papan peringkat dan permainan baru dimulai.',
         ],
       },
