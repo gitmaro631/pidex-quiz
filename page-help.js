@@ -1377,3 +1377,112 @@ const HELP_CONTENT = {
   },
 
 };
+
+function getContent() {
+  const lang = getLang();
+  const base = HELP_CONTENT[lang] || HELP_CONTENT['en'];
+  const contact = CONTACT_STRINGS[lang] || CONTACT_STRINGS['en'];
+  return { ...base, contact };
+}
+
+export function renderHelpModal(onClose) {
+  const c = getContent();
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-box help-modal">
+      <div class="modal-header">
+        <h2>${c.title}</h2>
+        <button class="modal-close" id="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        ${c.sections.map(s => `
+          <div class="help-section">
+            <h3 class="help-section-title">${s.title}</h3>
+            <ul class="help-list">
+              ${s.items.map(item => `
+                <li>${item.replace(/\n/g, '<br>')}</li>
+              `).join('')}
+            </ul>
+          </div>
+        `).join('')}
+
+        <div class="contact-card">
+          <div class="contact-title">${c.contact.title}</div>
+          <p class="contact-desc">${c.contact.desc}</p>
+          <div class="youtube-link">
+            <span class="yt-icon">▶</span>
+            <span class="yt-text">
+              <span class="yt-label">Hidden Strokes</span>
+              <span class="yt-sub">youtube.com/@hiddenstrokes-j5w</span>
+            </span>
+          </div>
+          <div class="copy-url-row">
+            <span class="copy-url-text">youtube.com/@hiddenstrokes-j5w</span>
+            <button class="btn-outline btn-sm" id="btn-copy-yt-help">${c.contact.copyBtn}</button>
+          </div>
+          <p class="contact-desc" style="margin-top:6px;font-size:11px;">${c.contact.copyNote}</p>
+        </div>
+
+        <div class="help-donation">
+          <h3 class="help-section-title">${c.donation.title}</h3>
+          <p class="donation-desc">${c.donation.desc}</p>
+          <div class="donation-btns">
+            ${[1, 5, 10].map((amount, i) => `
+              <button class="donation-btn" data-amount="${amount}">${c.donation.btns[i]}</button>
+            `).join('')}
+          </div>
+          <p class="donation-result" id="donation-result"></p>
+        </div>
+
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  modal.querySelector('#btn-copy-yt-help').addEventListener('click', () => {
+    navigator.clipboard.writeText('youtube.com/@hiddenstrokes-j5w').then(() => {
+      const btn = modal.querySelector('#btn-copy-yt-help');
+      btn.textContent = c.contact.copied;
+      setTimeout(() => { btn.textContent = c.contact.copyBtn; }, 2000);
+    });
+  });
+
+  modal.querySelector('#modal-close').addEventListener('click', () => {
+    modal.remove();
+    onClose?.();
+  });
+
+  modal.addEventListener('click', e => {
+    if (e.target === modal) {
+      modal.remove();
+      onClose?.();
+    }
+  });
+
+  modal.querySelectorAll('.donation-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const amount = parseInt(btn.dataset.amount);
+      const resultEl = modal.querySelector('#donation-result');
+      modal.querySelectorAll('.donation-btn').forEach(b => b.disabled = true);
+      try {
+        await createDonation(amount);
+        resultEl.textContent = c.donation.successMsg(amount);
+        resultEl.className = 'donation-result donation-success';
+      } catch (err) {
+        if (err.message === 'cancelled') {
+          resultEl.textContent = '';
+        } else {
+          resultEl.textContent = c.donation.errorMsg;
+          resultEl.className = 'donation-result donation-error';
+        }
+      } finally {
+        modal.querySelectorAll('.donation-btn').forEach(b => b.disabled = false);
+      }
+    });
+  });
+
+  return modal;
+}
