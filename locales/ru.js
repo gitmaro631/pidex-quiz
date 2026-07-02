@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'Участие в опросах даёт жизни и вносит вклад в статистику сообщества.',
   'survey.life.bonus':  '🎉 Завершено {n} опросов! +1 жизнь',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          'Загрузка статистики...',
+  'stats.nodata':           'Данных опроса пока нет.',
+  'stats.nodata.cta':       'Примите участие в опросе! 📋',
+  'stats.title':            '📊 Статистика Сообщества Pioneer',
+  'stats.total':            'Всего ответивших: {n}',
+  'stats.kyc.title':        'Статус KYC',
+  'stats.node.title':       'Статус ноды',
+  'stats.trade.title':      'Опыт торговли Pi',
+  'stats.country.title':    'Статистика по странам ({n} стран)',
+  'stats.col.country':      'Страна',
+  'stats.col.count':        'Ответов',
+  'stats.col.kyc':          'KYC пройден',
+  'stats.col.node':         'Нода',
+  'stats.note':             '* Подсчёт по числу ответивших в каждом разделе. Обновляется в реальном времени.',
+  'stats.resp':             '({n} ответов)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'Загрузка...',
   'lb.empty':       'Записей пока нет',

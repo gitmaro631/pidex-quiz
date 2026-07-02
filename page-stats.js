@@ -1,6 +1,7 @@
 import { initFirebase, fetchSurveyStats } from './firebase.js';
 import { addLives, getLastStatsViewTime, setLastStatsViewTime, getMode } from './util-storage.js';
 import { updateHeaderLives } from './app.js';
+import { t } from './util-i18n.js';
 
 const STATS_LIFE_COOLDOWN_MS = 60 * 60 * 1000;
 
@@ -53,7 +54,7 @@ const COUNTRY_INFO = {
 };
 
 export async function renderStatsPage(container) {
-  container.innerHTML = `<div class="stats-loading">통계 불러오는 중...</div>`;
+  container.innerHTML = `<div class="stats-loading">${t('stats.loading')}</div>`;
 
   const mode = getMode();
   if (mode === 'miner') {
@@ -72,8 +73,8 @@ export async function renderStatsPage(container) {
   if (!stats || stats.total === 0) {
     container.innerHTML = `
       <div class="stats-empty">
-        <p>아직 응답 데이터가 없어요.</p>
-        <p>설문에 참여해주세요! 📋</p>
+        <p>${t('stats.nodata')}</p>
+        <p>${t('stats.nodata.cta')}</p>
       </div>
     `;
     return;
@@ -85,40 +86,40 @@ export async function renderStatsPage(container) {
 
   container.innerHTML = `
     <div class="stats-page">
-      <h2 class="stats-title">📊 파이오니어 커뮤니티 통계</h2>
-      <p class="stats-total">총 참여자 <b>${stats.total.toLocaleString()}</b>명</p>
+      <h2 class="stats-title">${t('stats.title')}</h2>
+      <p class="stats-total">${t('stats.total').replace('{n}', `<b>${stats.total.toLocaleString()}</b>`)}</p>
 
       ${kycTotal > 0 ? `
       <div class="stats-section">
-        <h3>KYC 현황 <span class="stats-section-n">(${kycTotal}명 응답)</span></h3>
-        ${barRow('통과 완료', stats.kyc.passed,   kycTotal)}
-        ${barRow('대기 중',   stats.kyc.pending,  kycTotal)}
-        ${barRow('실패',      stats.kyc.failed,   kycTotal)}
-        ${barRow('미시도',    stats.kyc.notTried, kycTotal)}
+        <h3>${t('stats.kyc.title')} <span class="stats-section-n">${t('stats.resp').replace('{n}', kycTotal)}</span></h3>
+        ${barRow(t('S_KYC.passed'),   stats.kyc.passed,   kycTotal)}
+        ${barRow(t('S_KYC.pending'),  stats.kyc.pending,  kycTotal)}
+        ${barRow(t('S_KYC.failed'),   stats.kyc.failed,   kycTotal)}
+        ${barRow(t('S_KYC.notTried'), stats.kyc.notTried, kycTotal)}
       </div>` : ''}
 
       ${nodeTotal > 0 ? `
       <div class="stats-section">
-        <h3>노드 운영 현황 <span class="stats-section-n">(${nodeTotal}명 응답)</span></h3>
-        ${barRow('현재 운영 중', stats.node.running,    nodeTotal)}
-        ${barRow('돌리다 중단',  stats.node.stopped,    nodeTotal)}
-        ${barRow('운영 계획',    stats.node.planning,   nodeTotal)}
-        ${barRow('관심 없음',    stats.node.noInterest, nodeTotal)}
+        <h3>${t('stats.node.title')} <span class="stats-section-n">${t('stats.resp').replace('{n}', nodeTotal)}</span></h3>
+        ${barRow(t('S_NODE.running'),    stats.node.running,    nodeTotal)}
+        ${barRow(t('S_NODE.stopped'),    stats.node.stopped,    nodeTotal)}
+        ${barRow(t('S_NODE.planning'),   stats.node.planning,   nodeTotal)}
+        ${barRow(t('S_NODE.noInterest'), stats.node.noInterest, nodeTotal)}
       </div>` : ''}
 
       ${tradeTotal > 0 ? `
       <div class="stats-section">
-        <h3>파이 거래 경험 <span class="stats-section-n">(${tradeTotal}명 응답)</span></h3>
-        ${barRow('P2P 직거래',  stats.tradeExp.p2p,      tradeTotal)}
-        ${barRow('물물교환',     stats.tradeExp.barter,   tradeTotal)}
-        ${barRow('거래소 매매',  stats.tradeExp.exchange, tradeTotal)}
-        ${barRow('파이 앱 결제', stats.tradeExp.dexApp,   tradeTotal)}
-        ${barRow('경험 없음',    stats.tradeExp.none,     tradeTotal)}
+        <h3>${t('stats.trade.title')} <span class="stats-section-n">${t('stats.resp').replace('{n}', tradeTotal)}</span></h3>
+        ${barRow(t('S_TRADE_EXP.p2p'),      stats.tradeExp.p2p,      tradeTotal)}
+        ${barRow(t('S_TRADE_EXP.barter'),   stats.tradeExp.barter,   tradeTotal)}
+        ${barRow(t('S_TRADE_EXP.exchange'), stats.tradeExp.exchange,  tradeTotal)}
+        ${barRow(t('S_TRADE_EXP.dexApp'),   stats.tradeExp.dexApp,   tradeTotal)}
+        ${barRow(t('S_TRADE_EXP.none'),     stats.tradeExp.none,     tradeTotal)}
       </div>` : ''}
 
       ${countryTableHTML(stats.byCountry)}
 
-      <p class="stats-note">* 항목별 응답자 기준 집계. 실시간 업데이트.</p>
+      <p class="stats-note">${t('stats.note')}</p>
     </div>
   `;
 }
@@ -156,15 +157,15 @@ function countryTableHTML(byCountry) {
 
   return `
     <div class="stats-section">
-      <h3>국가별 통계 <span class="stats-section-n">(${entries.length}개국)</span></h3>
+      <h3>${t('stats.country.title').replace('{n}', entries.length)}</h3>
       <div class="country-table-wrap">
         <table class="country-table">
           <thead>
             <tr>
-              <th class="ct-country">국가</th>
-              <th class="ct-num">응답</th>
-              <th class="ct-num">KYC통과</th>
-              <th class="ct-num">노드운영</th>
+              <th class="ct-country">${t('stats.col.country')}</th>
+              <th class="ct-num">${t('stats.col.count')}</th>
+              <th class="ct-num">${t('stats.col.kyc')}</th>
+              <th class="ct-num">${t('stats.col.node')}</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>

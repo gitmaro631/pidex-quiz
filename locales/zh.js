@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   '参与问卷可获得生命并为社区统计作贡献。',
   'survey.life.bonus':  '🎉 已完成{n}份问卷！+1条命',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':       '正在加载统计...',
+  'stats.nodata':        '暂无调查数据。',
+  'stats.nodata.cta':    '请参与调查！📋',
+  'stats.title':         '📊 先锋社区统计',
+  'stats.total':         '总受访者：{n}人',
+  'stats.kyc.title':     'KYC 状态',
+  'stats.node.title':    '节点运营状态',
+  'stats.trade.title':   'Pi 交易经验',
+  'stats.country.title': '按国家统计（{n}个国家）',
+  'stats.col.country':   '国家',
+  'stats.col.count':     '受访者',
+  'stats.col.kyc':       'KYC通过',
+  'stats.col.node':      '节点',
+  'stats.note':          '* 按各项受访者统计。实时更新。',
+  'stats.resp':          '（{n}人回答）',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     '加载中...',
   'lb.empty':       '暂无记录',

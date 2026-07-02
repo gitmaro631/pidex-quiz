@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'Completar pesquisas concede vidas e contribui para as estatísticas da comunidade.',
   'survey.life.bonus':  '🎉 {n} pesquisas concluídas! +1 vida',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          'Carregando estatísticas...',
+  'stats.nodata':           'Ainda não há dados de pesquisa.',
+  'stats.nodata.cta':       'Participe da pesquisa! 📋',
+  'stats.title':            '📊 Estatísticas da Comunidade Pioneer',
+  'stats.total':            'Total de respondentes: {n}',
+  'stats.kyc.title':        'Status do KYC',
+  'stats.node.title':       'Status do Nó',
+  'stats.trade.title':      'Experiência de Negociação Pi',
+  'stats.country.title':    'Estatísticas por País ({n} países)',
+  'stats.col.country':      'País',
+  'stats.col.count':        'Respostas',
+  'stats.col.kyc':          'KYC aprovado',
+  'stats.col.node':         'Nó',
+  'stats.note':             '* Contado por respondente por seção. Atualização em tempo real.',
+  'stats.resp':             '({n} respostas)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'Carregando...',
   'lb.empty':       'Nenhum registro ainda',

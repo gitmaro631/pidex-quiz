@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'Ang pagsali sa survey ay nagbibigay ng buhay at nag-aambag sa istatistika ng komunidad.',
   'survey.life.bonus':  '🎉 {n} survey na natapos! +1 buhay',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          'Nilo-load ang mga istatistika...',
+  'stats.nodata':           'Wala pang data ng survey.',
+  'stats.nodata.cta':       'Sumali sa survey! 📋',
+  'stats.title':            '📊 Istatistika ng Komunidad ng Pioneer',
+  'stats.total':            'Kabuuang sumasagot: {n}',
+  'stats.kyc.title':        'Katayuan ng KYC',
+  'stats.node.title':       'Katayuan ng Node',
+  'stats.trade.title':      'Karanasan sa Pi Trading',
+  'stats.country.title':    'Istatistika ayon sa Bansa ({n} bansa)',
+  'stats.col.country':      'Bansa',
+  'stats.col.count':        'Bilang',
+  'stats.col.kyc':          'KYC Passed',
+  'stats.col.node':         'Node',
+  'stats.note':             '* Binibilang bawat sumasagot. Ina-update nang real time.',
+  'stats.resp':             '({n} na sagot)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'Naglo-load...',
   'lb.empty':       'Wala pang rekord',

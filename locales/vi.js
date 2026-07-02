@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'Tham gia khảo sát để nhận mạng và đóng góp vào thống kê cộng đồng.',
   'survey.life.bonus':  '🎉 Hoàn thành {n} khảo sát! +1 mạng',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':       'Đang tải thống kê...',
+  'stats.nodata':        'Chưa có dữ liệu khảo sát.',
+  'stats.nodata.cta':    'Hãy tham gia khảo sát! 📋',
+  'stats.title':         '📊 Thống Kê Cộng Đồng Pioneer',
+  'stats.total':         'Tổng số người trả lời: {n}',
+  'stats.kyc.title':     'Trạng Thái KYC',
+  'stats.node.title':    'Trạng Thái Node',
+  'stats.trade.title':   'Kinh Nghiệm Giao Dịch Pi',
+  'stats.country.title': 'Thống Kê Theo Quốc Gia ({n} quốc gia)',
+  'stats.col.country':   'Quốc gia',
+  'stats.col.count':     'Số phản hồi',
+  'stats.col.kyc':       'KYC đạt',
+  'stats.col.node':      'Node',
+  'stats.note':          '* Thống kê theo từng người trả lời. Cập nhật theo thời gian thực.',
+  'stats.resp':          '({n} phản hồi)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'Đang tải...',
   'lb.empty':       'Chưa có dữ liệu',

@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'সার্ভেতে অংশ নিলে জীবন পাবেন এবং কমিউনিটি পরিসংখ্যানে অবদান রাখতে পারবেন।',
   'survey.life.bonus':  '🎉 {n}টি সার্ভে সম্পন্ন! +১ জীবন',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          'পরিসংখ্যান লোড হচ্ছে...',
+  'stats.nodata':           'এখনো কোনো জরিপ ডেটা নেই।',
+  'stats.nodata.cta':       'জরিপে অংশ নিন! 📋',
+  'stats.title':            '📊 পাইওনিয়ার কমিউনিটি পরিসংখ্যান',
+  'stats.total':            'মোট উত্তরদাতা: {n}',
+  'stats.kyc.title':        'KYC অবস্থা',
+  'stats.node.title':       'নোড অবস্থা',
+  'stats.trade.title':      'Pi ট্রেডিং অভিজ্ঞতা',
+  'stats.country.title':    'দেশ অনুযায়ী পরিসংখ্যান ({n}টি দেশ)',
+  'stats.col.country':      'দেশ',
+  'stats.col.count':        'উত্তর',
+  'stats.col.kyc':          'KYC পাস',
+  'stats.col.node':         'নোড',
+  'stats.note':             '* প্রতিটি উত্তরদাতার ভিত্তিতে গণনা। রিয়েল টাইম আপডেট।',
+  'stats.resp':             '({n}জন উত্তর দিয়েছেন)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'লোড হচ্ছে...',
   'lb.empty':       'এখনো কোনো রেকর্ড নেই',

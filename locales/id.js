@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'Mengisi survei akan memberikan nyawa dan berkontribusi pada statistik komunitas.',
   'survey.life.bonus':  '🎉 {n} survei selesai! +1 nyawa',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':       'Memuat statistik...',
+  'stats.nodata':        'Belum ada data survei.',
+  'stats.nodata.cta':    'Ikuti survei! 📋',
+  'stats.title':         '📊 Statistik Komunitas Pioneer',
+  'stats.total':         'Total responden: {n}',
+  'stats.kyc.title':     'Status KYC',
+  'stats.node.title':    'Status Node',
+  'stats.trade.title':   'Pengalaman Trading Pi',
+  'stats.country.title': 'Statistik per Negara ({n} negara)',
+  'stats.col.country':   'Negara',
+  'stats.col.count':     'Responden',
+  'stats.col.kyc':       'KYC Lulus',
+  'stats.col.node':      'Node',
+  'stats.note':          '* Dihitung per responden per bagian. Diperbarui secara real time.',
+  'stats.resp':          '({n} responden)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'Memuat...',
   'lb.empty':       'Belum ada catatan',

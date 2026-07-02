@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'सर्वे में भाग लेने से जीवन मिलता है और समुदाय के आँकड़ों में योगदान होता है।',
   'survey.life.bonus':  '🎉 {n} सर्वे पूरे! +1 जीवन',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          'आँकड़े लोड हो रहे हैं...',
+  'stats.nodata':           'अभी तक कोई सर्वेक्षण डेटा नहीं है।',
+  'stats.nodata.cta':       'सर्वेक्षण में भाग लें! 📋',
+  'stats.title':            '📊 पायनियर समुदाय के आँकड़े',
+  'stats.total':            'कुल उत्तरदाता: {n}',
+  'stats.kyc.title':        'KYC स्थिति',
+  'stats.node.title':       'नोड स्थिति',
+  'stats.trade.title':      'Pi ट्रेडिंग अनुभव',
+  'stats.country.title':    'देश के अनुसार आँकड़े ({n} देश)',
+  'stats.col.country':      'देश',
+  'stats.col.count':        'उत्तर',
+  'stats.col.kyc':          'KYC पास',
+  'stats.col.node':         'नोड',
+  'stats.note':             '* प्रत्येक उत्तरदाता के आधार पर गिना गया। रियल टाइम अपडेट।',
+  'stats.resp':             '({n} उत्तर)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'लोड हो रहा है...',
   'lb.empty':       'अभी कोई रिकॉर्ड नहीं',

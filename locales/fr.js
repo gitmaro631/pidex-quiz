@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'Compléter des sondages octroie des vies et contribue aux statistiques de la communauté.',
   'survey.life.bonus':  '🎉 {n} sondages terminés ! +1 vie',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          'Chargement des statistiques...',
+  'stats.nodata':           'Aucune donnée de sondage pour l\'instant.',
+  'stats.nodata.cta':       'Participez au sondage ! 📋',
+  'stats.title':            '📊 Statistiques de la Communauté Pioneer',
+  'stats.total':            'Total des répondants : {n}',
+  'stats.kyc.title':        'Statut KYC',
+  'stats.node.title':       'Statut du Nœud',
+  'stats.trade.title':      'Expérience de Trading Pi',
+  'stats.country.title':    'Statistiques par Pays ({n} pays)',
+  'stats.col.country':      'Pays',
+  'stats.col.count':        'Réponses',
+  'stats.col.kyc':          'KYC validé',
+  'stats.col.node':         'Nœud',
+  'stats.note':             '* Compté par répondant par section. Mis à jour en temps réel.',
+  'stats.resp':             '({n} réponses)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'Chargement...',
   'lb.empty':       'Aucun enregistrement pour l\'instant',

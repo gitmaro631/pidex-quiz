@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   '설문에 참여하면 생명력을 획득하고 커뮤니티 통계에 기여합니다.',
   'survey.life.bonus':  '🎉 설문 {n}개 완료! 생명력 +1',
 
+  // ── 커뮤니티 통계 ─────────────────────────────────────
+  'stats.loading':       '통계 불러오는 중...',
+  'stats.nodata':        '아직 응답 데이터가 없어요.',
+  'stats.nodata.cta':    '설문에 참여해주세요! 📋',
+  'stats.title':         '📊 파이오니어 커뮤니티 통계',
+  'stats.total':         '총 응답자 {n}명',
+  'stats.kyc.title':     'KYC 현황',
+  'stats.node.title':    '노드 운영 현황',
+  'stats.trade.title':   '파이 거래 경험',
+  'stats.country.title': '국가별 통계 {n}개국',
+  'stats.col.country':   '국가',
+  'stats.col.count':     '응답',
+  'stats.col.kyc':       'KYC통과',
+  'stats.col.node':      '노드운영',
+  'stats.note':          '* 항목별 응답자 기준 집계. 실시간 업데이트.',
+  'stats.resp':          '({n}명 응답)',
+
   // ── 리더보드 ──────────────────────────────────────────
   'lb.loading':     '불러오는 중...',
   'lb.empty':       '아직 등록된 기록이 없어요',

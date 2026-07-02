@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'การทำแบบสอบถามจะได้รับชีวิตและมีส่วนร่วมในสถิติชุมชน',
   'survey.life.bonus':  '🎉 ทำแบบสอบถามครบ {n} ข้อ! +1 ชีวิต',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          'กำลังโหลดสถิติ...',
+  'stats.nodata':           'ยังไม่มีข้อมูลแบบสำรวจ',
+  'stats.nodata.cta':       'เข้าร่วมแบบสำรวจ! 📋',
+  'stats.title':            '📊 สถิติชุมชน Pioneer',
+  'stats.total':            'ผู้ตอบแบบสำรวจทั้งหมด {n} คน',
+  'stats.kyc.title':        'สถานะ KYC',
+  'stats.node.title':       'สถานะ Node',
+  'stats.trade.title':      'ประสบการณ์การซื้อขาย Pi',
+  'stats.country.title':    'สถิติตามประเทศ ({n} ประเทศ)',
+  'stats.col.country':      'ประเทศ',
+  'stats.col.count':        'จำนวน',
+  'stats.col.kyc':          'KYC ผ่าน',
+  'stats.col.node':         'Node',
+  'stats.note':             '* นับตามผู้ตอบในแต่ละหมวด อัปเดตแบบเรียลไทม์',
+  'stats.resp':             '({n} คนตอบ)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'กำลังโหลด...',
   'lb.empty':       'ยังไม่มีบันทึก',

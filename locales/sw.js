@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'Kushiriki katika dodoso kutakupa maisha na kuchangia takwimu za jamii.',
   'survey.life.bonus':  '🎉 Dodoso {n} zimekamilika! +1 maisha',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          'Inapakia takwimu...',
+  'stats.nodata':           'Bado hakuna data ya utafiti.',
+  'stats.nodata.cta':       'Shiriki katika utafiti! 📋',
+  'stats.title':            '📊 Takwimu za Jamii ya Pioneer',
+  'stats.total':            'Jumla ya washiriki: {n}',
+  'stats.kyc.title':        'Hali ya KYC',
+  'stats.node.title':       'Hali ya Node',
+  'stats.trade.title':      'Uzoefu wa Biashara ya Pi',
+  'stats.country.title':    'Takwimu kwa Nchi ({n} nchi)',
+  'stats.col.country':      'Nchi',
+  'stats.col.count':        'Majibu',
+  'stats.col.kyc':          'KYC Imepita',
+  'stats.col.node':         'Node',
+  'stats.note':             '* Imehesabiwa kwa kila mjibu kwa kila sehemu. Inasasishwa wakati halisi.',
+  'stats.resp':             '({n} majibu)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'Inapakia...',
   'lb.empty':       'Bado hakuna rekodi',

@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'サーベイに参加するとライフを獲得し、コミュニティ統計に貢献できます。',
   'survey.life.bonus':  '🎉 {n}件のサーベイ完了！+1ライフ',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          '統計を読み込み中...',
+  'stats.nodata':           'まだ回答データがありません。',
+  'stats.nodata.cta':       'アンケートに参加してください！📋',
+  'stats.title':            '📊 パイオニアコミュニティ統計',
+  'stats.total':            '総回答者 {n}人',
+  'stats.kyc.title':        'KYC 状況',
+  'stats.node.title':       'ノード運営状況',
+  'stats.trade.title':      'Pi取引経験',
+  'stats.country.title':    '国別統計（{n}か国）',
+  'stats.col.country':      '国',
+  'stats.col.count':        '回答数',
+  'stats.col.kyc':          'KYC通過',
+  'stats.col.node':         'ノード',
+  'stats.note':             '* 項目別回答者基準で集計。リアルタイム更新。',
+  'stats.resp':             '（{n}人回答）',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     '読み込み中...',
   'lb.empty':       'まだ記録がありません',

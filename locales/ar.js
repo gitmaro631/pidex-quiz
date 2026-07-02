@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'المشاركة في الاستبيانات تمنحك أرواحاً وتساهم في إحصاءات المجتمع.',
   'survey.life.bonus':  '🎉 اكتملت {n} استبيانات! +1 روح',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          'جارٍ تحميل الإحصاءات...',
+  'stats.nodata':           'لا توجد بيانات استطلاع بعد.',
+  'stats.nodata.cta':       'شارك في الاستطلاع! 📋',
+  'stats.title':            '📊 إحصاءات مجتمع بايونير',
+  'stats.total':            'إجمالي المشاركين: {n}',
+  'stats.kyc.title':        'حالة KYC',
+  'stats.node.title':       'حالة العقدة',
+  'stats.trade.title':      'تجربة تداول Pi',
+  'stats.country.title':    'إحصاءات حسب الدولة ({n} دول)',
+  'stats.col.country':      'الدولة',
+  'stats.col.count':        'إجابات',
+  'stats.col.kyc':          'اجتاز KYC',
+  'stats.col.node':         'عقدة',
+  'stats.note':             '* يُحسب وفقًا لعدد المجيبين في كل قسم. تحديث فوري.',
+  'stats.resp':             '({n} إجابة)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'جارٍ التحميل...',
   'lb.empty':       'لا توجد سجلات حتى الآن',

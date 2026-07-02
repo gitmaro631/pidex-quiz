@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'Completing surveys earns lives and contributes to community statistics.',
   'survey.life.bonus':  '🎉 {n} surveys done! +1 life',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':       'Loading stats...',
+  'stats.nodata':        'No survey data yet.',
+  'stats.nodata.cta':    'Take the survey! 📋',
+  'stats.title':         '📊 Pioneer Community Stats',
+  'stats.total':         'Total respondents: {n}',
+  'stats.kyc.title':     'KYC Status',
+  'stats.node.title':    'Node Status',
+  'stats.trade.title':   'Pi Trading Experience',
+  'stats.country.title': 'Stats by Country ({n} countries)',
+  'stats.col.country':   'Country',
+  'stats.col.count':     'Count',
+  'stats.col.kyc':       'KYC Pass',
+  'stats.col.node':      'Node',
+  'stats.note':          '* Counted per respondent per section. Updated in real time.',
+  'stats.resp':          '({n} responses)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'Loading...',
   'lb.empty':       'No records yet',

@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'Menyertai tinjauan memberikan nyawa dan menyumbang kepada statistik komuniti.',
   'survey.life.bonus':  '🎉 {n} tinjauan selesai! +1 nyawa',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          'Memuatkan statistik...',
+  'stats.nodata':           'Belum ada data tinjauan.',
+  'stats.nodata.cta':       'Sertai tinjauan! 📋',
+  'stats.title':            '📊 Statistik Komuniti Pioneer',
+  'stats.total':            'Jumlah responden: {n}',
+  'stats.kyc.title':        'Status KYC',
+  'stats.node.title':       'Status Nod',
+  'stats.trade.title':      'Pengalaman Dagangan Pi',
+  'stats.country.title':    'Statistik mengikut Negara ({n} negara)',
+  'stats.col.country':      'Negara',
+  'stats.col.count':        'Responden',
+  'stats.col.kyc':          'KYC Lulus',
+  'stats.col.node':         'Nod',
+  'stats.note':             '* Dikira mengikut responden bagi setiap item. Dikemas kini masa nyata.',
+  'stats.resp':             '({n} responden)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'Memuatkan...',
   'lb.empty':       'Belum ada rekod',

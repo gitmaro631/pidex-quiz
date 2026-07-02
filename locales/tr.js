@@ -62,6 +62,23 @@ export default {
   'survey.page.desc':   'Ankete katılmak can kazandırır ve topluluk istatistiklerine katkı sağlar.',
   'survey.life.bonus':  '🎉 {n} anket tamamlandı! +1 can',
 
+  // ── Community Stats ───────────────────────────────────
+  'stats.loading':          'İstatistikler yükleniyor...',
+  'stats.nodata':           'Henüz anket verisi yok.',
+  'stats.nodata.cta':       'Ankete katılın! 📋',
+  'stats.title':            '📊 Pioneer Topluluk İstatistikleri',
+  'stats.total':            'Toplam katılımcı: {n}',
+  'stats.kyc.title':        'KYC Durumu',
+  'stats.node.title':       'Node Durumu',
+  'stats.trade.title':      'Pi Ticaret Deneyimi',
+  'stats.country.title':    'Ülkeye Göre İstatistikler ({n} ülke)',
+  'stats.col.country':      'Ülke',
+  'stats.col.count':        'Yanıt',
+  'stats.col.kyc':          'KYC Geçti',
+  'stats.col.node':         'Node',
+  'stats.note':             '* Her bölüm için katılımcı sayısına göre hesaplanır. Gerçek zamanlı güncellenir.',
+  'stats.resp':             '({n} yanıt)',
+
   // ── Leaderboard ──────────────────────────────────────
   'lb.loading':     'Yükleniyor...',
   'lb.empty':       'Henüz kayıt yok',
