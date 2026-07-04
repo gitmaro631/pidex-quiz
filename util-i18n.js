@@ -66,18 +66,16 @@ export function initLang() {
 }
 
 // ── 국가 감지 & 국기 ──────────────────────────────────
-const LANG_TO_COUNTRY = {
-  ko: 'KR', ja: 'JP', zh: 'CN', th: 'TH', vi: 'VN',
-  id: 'ID', ms: 'MY', tl: 'PH', hi: 'IN', bn: 'BD',
-  ar: 'SA', sw: 'KE', tr: 'TR', ru: 'RU', fr: 'FR',
-  es: 'ES', pt: 'BR', en: 'US',
-};
-
 export function detectCountry() {
-  const locale = navigator.languages?.[0] || navigator.language || '';
-  const parts  = locale.split('-');
-  if (parts.length >= 2) return parts[parts.length - 1].toUpperCase();
-  return LANG_TO_COUNTRY[parts[0]] || '';
+  const langs = navigator.languages?.length ? [...navigator.languages] : [navigator.language || ''];
+  for (const locale of langs) {
+    const parts = locale.split('-');
+    if (parts.length >= 2) {
+      const code = parts[parts.length - 1].toUpperCase();
+      if (/^[A-Z]{2}$/.test(code)) return code;
+    }
+  }
+  return '';
 }
 
 export function countryToFlag(code) {
