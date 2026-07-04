@@ -142,7 +142,7 @@ function renderUtilsOverlay() {
   if (!panel) return;
   panel.innerHTML = `
     <div class="utils-header">
-      <span class="utils-title">🔗 유틸모음</span>
+      <span class="utils-title">🚀 Pi Hub</span>
       <button class="utils-close-btn" id="utils-close-btn">닫기 ✕</button>
     </div>
     <div class="utils-body">
