@@ -11,9 +11,6 @@
 </head>
 <body>
 
-  <!-- 인트로 화면 (최초 방문 시) -->
-  <div id="intro-screen" class="screen hidden"></div>
-
   <!-- 로그인 화면 -->
   <div id="login-screen" class="screen">
     <div class="login-box">
@@ -26,7 +23,6 @@
       </button>
       <p id="login-note" class="login-note">Requires Pi Browser · Pi Browser 전용</p>
       <p id="login-error" class="login-error-msg" style="display:none;"></p>
-      <button class="btn-ghost btn-show-intro" id="btn-show-intro">📖 앱 소개 보기</button>
     </div>
   </div>
 
@@ -84,18 +80,5 @@
   </div>
 
   <script type="module" src="app.js"></script>
-  <script type="module">
-    // 로그인 화면에서 '앱 소개 보기' 버튼
-    import { renderIntroPage } from './page-intro.js';
-    document.getElementById('btn-show-intro')?.addEventListener('click', () => {
-      const intro = document.getElementById('intro-screen');
-      intro.classList.remove('hidden');
-      document.getElementById('login-screen').classList.add('hidden');
-      renderIntroPage(intro, () => {
-        intro.classList.add('hidden');
-        document.getElementById('login-screen').classList.remove('hidden');
-      });
-    });
-  </script>
 </body>
 </html>
