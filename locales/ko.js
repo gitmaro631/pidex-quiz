@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 최고 등급!',
   'quiz.allDone':   '모든 문항을 풀었어요! 🎉',
   'quiz.start':     '퀴즈 시작',
+  'quiz.question_no':   '문제 {i} / {t}',
+  'quiz.score_unit':    '점',
+  'quiz.streak_msg':    '🔥 {n}연속 정답!',
+  'quiz.give_up':       '포기하기',
+  'quiz.give_up.title': '{icon} {mode} 모드를 포기할까요?',
+  'quiz.give_up.desc':  '지금까지 쌓은 {score}으로\n{mode} 랭킹에 등록되고\n새 모드를 선택하게 됩니다.',
+  'quiz.give_up.confirm': '포기하고 랭킹 등록',
+  'quiz.give_up.cancel':  '계속 진행하기',
+  'mode.suffix':    '모드',
 
   // ── 모드 ─────────────────────────────────────────────
   'mode.select.title':    '게임 모드를 선택하세요',

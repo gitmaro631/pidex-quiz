@@ -131,14 +131,14 @@ function renderModeHome(container) {
   container.innerHTML = `
     <div class="quiz-home">
       <div class="rank-badge">
-        <div class="mode-badge">${cfg.icon} ${cfg.label} 모드</div>
+        <div class="mode-badge">${cfg.icon} ${cfg.label} ${t('mode.suffix')}</div>
         <div class="rank-label">${rank.label}</div>
-        <div class="rank-score">${score}점 · ${nextTxt}</div>
+        <div class="rank-score">${score}${t('quiz.score_unit')} · ${nextTxt}</div>
         <div class="rank-lives">${livesDisplay}</div>
       </div>
 
       <button class="btn-primary btn-start-session" id="btn-start">${t('quiz.start')}</button>
-      <button class="btn-give-up" id="btn-give-up">🏳️ 포기하기</button>
+      <button class="btn-give-up" id="btn-give-up">🏳️ ${t('quiz.give_up')}</button>
       <button class="btn-ghost btn-change-mode" id="btn-change-mode">${t('mode.change')}</button>
     </div>
   `;
@@ -201,10 +201,10 @@ function renderGiveUpDialog(container) {
   overlay.innerHTML = `
     <div class="mode-change-dialog">
       <div class="mode-change-icon">🏳️</div>
-      <div class="mode-change-title">${cfg.icon} ${cfg.label} 모드를 포기할까요?</div>
-      <div class="mode-change-desc">지금까지 쌓은 <b>${score}점</b>으로<br>${cfg.label} 랭킹에 등록되고<br>새 모드를 선택하게 됩니다.</div>
-      <button class="btn-primary mode-change-btn" id="btn-confirm-give-up">포기하고 랭킹 등록</button>
-      <button class="btn-ghost mode-change-btn" id="btn-cancel-give-up">계속 진행하기</button>
+      <div class="mode-change-title">${t('quiz.give_up.title').replace('{icon}', cfg.icon).replace('{mode}', cfg.label)}</div>
+      <div class="mode-change-desc">${t('quiz.give_up.desc').replace('{score}', `<b>${score}${t('quiz.score_unit')}</b>`).replace('{mode}', cfg.label).replace(/\n/g, '<br>')}</div>
+      <button class="btn-primary mode-change-btn" id="btn-confirm-give-up">${t('quiz.give_up.confirm')}</button>
+      <button class="btn-ghost mode-change-btn" id="btn-cancel-give-up">${t('quiz.give_up.cancel')}</button>
     </div>
   `;
   container.appendChild(overlay);
@@ -307,9 +307,9 @@ function renderQuestion(container, q) {
     <div class="quiz-card">
       <div class="quiz-progress">
         <button class="btn-quiz-exit" id="btn-exit-quiz">⏸</button>
-        <span>문제 ${session.index + 1} / ${session.queue.length}</span>
+        <span>${t('quiz.question_no').replace('{i}', session.index + 1).replace('{t}', session.queue.length)}</span>
         ${livesHTML}
-        <span class="quiz-pts-badge">+${pts}점</span>
+        <span class="quiz-pts-badge">+${pts}${t('quiz.score_unit')}</span>
       </div>
       <div class="quiz-question">${quizQ(q)}</div>
       <div class="quiz-choices">
@@ -409,8 +409,8 @@ function handleAnswer(container, q, selectedIndex, pts) {
   card.insertAdjacentHTML('beforeend', `
     <div class="quiz-result ${correct ? 'result-correct' : 'result-wrong'}">
       <div class="result-icon">${correct ? '✅' : '❌'}</div>
-      <div class="result-msg">${correct ? `${t('quiz.correct')} +${earned}점` : `${t('quiz.wrong')} — ❤️ ${'❤️'.repeat(livesLeft)}`}</div>
-      ${newStreak >= 3 && correct ? `<div class="streak-msg">🔥 ${newStreak}연속 정답!</div>` : ''}
+      <div class="result-msg">${correct ? `${t('quiz.correct')} +${earned}${t('quiz.score_unit')}` : `${t('quiz.wrong')} — ❤️ ${'❤️'.repeat(livesLeft)}`}</div>
+      ${newStreak >= 3 && correct ? `<div class="streak-msg">${t('quiz.streak_msg').replace('{n}', newStreak)}</div>` : ''}
       ${bonusMsg}
       <div class="result-explanation">${quizExplain(q)}</div>
       <button class="btn-primary btn-next" id="btn-next">${t('btn.next')}</button>
@@ -438,7 +438,7 @@ function renderValidatorFail(container, q, selectedIndex) {
       <div class="result-icon">💀</div>
       <div class="result-msg">${t('mode.validator.fail')}</div>
       <div class="result-explanation">${quizExplain(q)}</div>
-      <button class="btn-primary btn-next" id="btn-vfail">결과 보기</button>
+      <button class="btn-primary btn-next" id="btn-vfail">${t('quiz.see_result')}</button>
     </div>
   `);
   card.querySelector('#btn-vfail').addEventListener('click', () => renderGameOver(container));
@@ -652,7 +652,7 @@ function renderSessionEnd(container) {
     <div class="session-end">
       <div class="mode-badge">${cfg.icon} ${cfg.label}</div>
       <div class="session-rank">${rank.label}</div>
-      <div class="session-score">${score}점</div>
+      <div class="session-score">${score}${t('quiz.score_unit')}</div>
       ${livesDisplay}
       <div class="session-stats">${t('quiz.session_stats').replace('{c}', session.correct).replace('{t}', session.total).replace('{p}', pct)}</div>
       ${next
@@ -686,7 +686,7 @@ async function renderGameOver(container) {
       <div class="mode-badge">${cfg.icon} ${cfg.label}</div>
       <div class="game-over-icon">${mode === 'validator' ? '🔱' : '💀'}</div>
       <div class="game-over-title">${t('gameover.title')}</div>
-      <div class="game-over-score">${finalScore}점</div>
+      <div class="game-over-score">${finalScore}${t('quiz.score_unit')}</div>
       <div class="game-over-rank">${rank.label}</div>
       ${finalScore > highScore
         ? `<div class="game-over-best">${t('gameover.best')}</div>`

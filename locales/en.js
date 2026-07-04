@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 Max rank reached!',
   'quiz.allDone':   'All questions answered! 🎉',
   'quiz.start':     'Start Quiz',
+  'quiz.question_no':   'Q {i} / {t}',
+  'quiz.score_unit':    ' pts',
+  'quiz.streak_msg':    '🔥 {n}-streak!',
+  'quiz.give_up':       'Give Up',
+  'quiz.give_up.title': '{icon} {mode} — Give up?',
+  'quiz.give_up.desc':  'Your {score} will be submitted to the {mode} leaderboard\nand you will select a new mode.',
+  'quiz.give_up.confirm': 'Submit & Give Up',
+  'quiz.give_up.cancel':  'Keep Going',
+  'mode.suffix':    'Mode',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'Select Game Mode',
