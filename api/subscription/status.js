@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   if (!uid) return res.status(400).json({ error: 'uid required' });
   const url = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
-  if (!url || !token) return res.status(200).json({ active: false });
+  if (!url || !token) return res.status(500).json({ error: 'Redis not configured' });
   try {
     const response = await fetch(`${url}/get/${encodeURIComponent('sub:' + uid)}`, {
       headers: { Authorization: `Bearer ${token}` },

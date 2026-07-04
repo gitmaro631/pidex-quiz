@@ -112,6 +112,12 @@ function buildLangPicker() {
   const dropdown = document.getElementById('lang-dropdown');
   if (!btn || !dropdown) return;
 
+  function updateBtn() {
+    const cur = SUPPORTED_LANGS.find(l => l.code === getLang()) ?? SUPPORTED_LANGS[0];
+    btn.innerHTML = `<span>${cur.flag}</span><span>${cur.label}</span><span class="lang-arrow">▾</span>`;
+  }
+  updateBtn();
+
   dropdown.innerHTML = SUPPORTED_LANGS.map(l => `
     <button class="lang-option ${l.code === getLang() ? 'active' : ''}" data-lang="${l.code}">
       ${l.flag} ${l.label}
@@ -131,6 +137,7 @@ function buildLangPicker() {
       dropdown.classList.remove('open');
       dropdown.querySelectorAll('.lang-option').forEach(o => o.classList.remove('active'));
       opt.classList.add('active');
+      updateBtn();
       applyNavLabels();
     });
   });

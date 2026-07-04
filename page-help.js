@@ -12,6 +12,7 @@ const SUB_STRINGS = {
     ok: '이용권이 활성화되었습니다!',
     restoreOk: '이용권 복구 완료!',
     restoreNone: '서버에 이용권 정보가 없습니다.',
+    restoreErr: '서버 연결 오류. 잠시 후 다시 시도해 주세요.',
     err: 'Pi Browser에서만 결제가 가능합니다.',
   },
   en: {
@@ -23,6 +24,7 @@ const SUB_STRINGS = {
     ok: 'Pass activated!',
     restoreOk: 'Pass restored!',
     restoreNone: 'No pass found on server.',
+    restoreErr: 'Server error. Please try again later.',
     err: 'Payment is only available inside Pi Browser.',
   },
   id: {
@@ -34,6 +36,7 @@ const SUB_STRINGS = {
     ok: 'Paket diaktifkan!',
     restoreOk: 'Paket berhasil dipulihkan!',
     restoreNone: 'Tidak ada paket di server.',
+    restoreErr: 'Kesalahan server. Coba lagi nanti.',
     err: 'Pembayaran hanya tersedia di Pi Browser.',
   },
   vi: {
@@ -45,6 +48,7 @@ const SUB_STRINGS = {
     ok: 'Gói đã được kích hoạt!',
     restoreOk: 'Khôi phục gói thành công!',
     restoreNone: 'Không tìm thấy gói trên máy chủ.',
+    restoreErr: 'Lỗi máy chủ. Vui lòng thử lại sau.',
     err: 'Thanh toán chỉ khả dụng trong Pi Browser.',
   },
   zh: {
@@ -56,6 +60,7 @@ const SUB_STRINGS = {
     ok: '使用权已激活！',
     restoreOk: '使用权恢复完成！',
     restoreNone: '服务器上没有使用权信息。',
+    restoreErr: '服务器错误，请稍后重试。',
     err: '仅可在Pi Browser内付款。',
   },
   ja: {
@@ -67,6 +72,7 @@ const SUB_STRINGS = {
     ok: '利用券が有効になりました！',
     restoreOk: '利用券の復元完了！',
     restoreNone: 'サーバーに利用券情報がありません。',
+    restoreErr: 'サーバーエラー。しばらくしてから再試行してください。',
     err: 'Pi Browser内でのみお支払いが可能です。',
   },
   tl: {
@@ -78,6 +84,7 @@ const SUB_STRINGS = {
     ok: 'Na-activate ang pass!',
     restoreOk: 'Na-restore ang pass!',
     restoreNone: 'Walang pass na nahanap sa server.',
+    restoreErr: 'Server error. Subukan muli mamaya.',
     err: 'Available lang ang bayad sa loob ng Pi Browser.',
   },
   hi: {
@@ -89,6 +96,7 @@ const SUB_STRINGS = {
     ok: 'पास सक्रिय हो गया!',
     restoreOk: 'पास पुनर्स्थापित हुआ!',
     restoreNone: 'सर्वर पर कोई पास नहीं मिला।',
+    restoreErr: 'सर्वर त्रुटि। बाद में पुनः प्रयास करें।',
     err: 'भुगतान केवल Pi Browser में उपलब्ध है।',
   },
   es: {
@@ -100,6 +108,7 @@ const SUB_STRINGS = {
     ok: '¡Pase activado!',
     restoreOk: '¡Pase restaurado!',
     restoreNone: 'No se encontró pase en el servidor.',
+    restoreErr: 'Error de servidor. Inténtalo de nuevo más tarde.',
     err: 'El pago solo está disponible dentro de Pi Browser.',
   },
   pt: {
@@ -111,6 +120,7 @@ const SUB_STRINGS = {
     ok: 'Passe ativado!',
     restoreOk: 'Passe restaurado!',
     restoreNone: 'Nenhum passe encontrado no servidor.',
+    restoreErr: 'Erro no servidor. Tente novamente mais tarde.',
     err: 'O pagamento só está disponível no Pi Browser.',
   },
   fr: {
@@ -122,6 +132,7 @@ const SUB_STRINGS = {
     ok: 'Pass activé !',
     restoreOk: 'Pass restauré !',
     restoreNone: 'Aucun pass trouvé sur le serveur.',
+    restoreErr: 'Erreur serveur. Veuillez réessayer plus tard.',
     err: 'Le paiement n\'est disponible que dans Pi Browser.',
   },
   ru: {
@@ -133,6 +144,7 @@ const SUB_STRINGS = {
     ok: 'Пропуск активирован!',
     restoreOk: 'Пропуск восстановлен!',
     restoreNone: 'Пропуск не найден на сервере.',
+    restoreErr: 'Ошибка сервера. Повторите попытку позже.',
     err: 'Оплата доступна только в Pi Browser.',
   },
   tr: {
@@ -144,6 +156,7 @@ const SUB_STRINGS = {
     ok: 'Geçiş etkinleştirildi!',
     restoreOk: 'Geçiş geri yüklendi!',
     restoreNone: 'Sunucuda geçiş bulunamadı.',
+    restoreErr: 'Sunucu hatası. Lütfen daha sonra tekrar deneyin.',
     err: 'Ödeme yalnızca Pi Browser içinde mevcuttur.',
   },
   ar: {
@@ -155,6 +168,7 @@ const SUB_STRINGS = {
     ok: 'تم تفعيل التصريح!',
     restoreOk: 'تم استعادة التصريح!',
     restoreNone: 'لم يُعثر على تصريح في الخادم.',
+    restoreErr: 'خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.',
     err: 'الدفع متاح فقط داخل Pi Browser.',
   },
 };
@@ -1683,7 +1697,9 @@ export function renderHelpModal(onClose) {
       try {
         const uid = currentUser?.uid;
         if (!uid) throw new Error('no uid');
-        let status = await fetch(`/api/subscription/status?uid=${encodeURIComponent(uid)}`).then(r => r.json());
+        const statusRes = await fetch(`/api/subscription/status?uid=${encodeURIComponent(uid)}`);
+        if (!statusRes.ok) throw new Error('server_error');
+        let status = await statusRes.json();
         if (!status.active) {
           const localExpiry = localStorage.getItem('quiz_sub_expiry');
           if (localExpiry && new Date(localExpiry) > new Date()) {
@@ -1706,9 +1722,9 @@ export function renderHelpModal(onClose) {
           resultEl.classList.add('donation-error');
           restoreBtn.disabled = false;
         }
-      } catch {
+      } catch (err) {
         const s2 = getSubStrings();
-        resultEl.textContent = s2.restoreNone;
+        resultEl.textContent = err?.message === 'server_error' ? s2.restoreErr : s2.restoreNone;
         resultEl.classList.add('donation-error');
         restoreBtn.disabled = false;
       }
