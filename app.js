@@ -74,7 +74,7 @@ async function doLogin() {
   const btn   = document.getElementById('btn-login');
   const errEl = document.getElementById('login-error');
   btn.disabled = true;
-  btn.innerHTML = `${t('login.connecting')}<br><span class="login-btn-en">Connecting...</span>`;
+  btn.textContent = t('login.connecting');
   if (errEl) errEl.style.display = 'none';
   try {
     const auth = await authenticate();
@@ -100,7 +100,7 @@ async function doLogin() {
     switchPage('quiz');
   } catch (e) {
     btn.disabled = false;
-    btn.innerHTML = t('login.btn') + '<br><span class="login-btn-en">Start Quiz</span>';
+    btn.textContent = t('login.btn');
     if (errEl) { errEl.textContent = t('login.fail'); errEl.style.display = 'block'; }
     console.error(e);
   }
@@ -195,8 +195,20 @@ function renderUtilsOverlay() {
 }
 
 // ── 초기화 ────────────────────────────────────────────
+function initLoginScreen() {
+  const titleEl = document.getElementById('login-title');
+  const subEl   = document.getElementById('login-sub');
+  const btn     = document.getElementById('btn-login');
+  const note    = document.getElementById('login-note');
+  if (titleEl) titleEl.textContent = t('app.title');
+  if (subEl)   subEl.textContent   = t('login.sub');
+  if (btn)     btn.textContent     = t('login.btn');
+  if (note)    note.textContent    = t('login.note');
+}
+
 async function init() {
   initLang();
+  initLoginScreen();
   await initPiSDK();
 
   document.querySelectorAll('.nav-tab').forEach(btn => {
