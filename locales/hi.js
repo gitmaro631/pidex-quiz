@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 सर्वोच्च रैंक प्राप्त!',
   'quiz.allDone':   'सभी प्रश्न पूरे हो गए! 🎉',
   'quiz.start':     'क्विज़ शुरू करें',
+  'quiz.question_no':   'प्रश्न {i} / {t}',
+  'quiz.score_unit':    ' अंक',
+  'quiz.streak_msg':    '🔥 {n} लगातार सही!',
+  'quiz.give_up':       'हार मानें',
+  'quiz.give_up.title': '{icon} {mode} — हार मानें?',
+  'quiz.give_up.desc':  'आपका {score} {mode} लीडरबोर्ड में दर्ज होगा\nऔर आप नया मोड चुनेंगे।',
+  'quiz.give_up.confirm': 'दर्ज करें और हार मानें',
+  'quiz.give_up.cancel':  'जारी रखें',
+  'mode.suffix':    'मोड',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'गेम मोड चुनें',

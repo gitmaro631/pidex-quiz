@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 อันดับสูงสุด!',
   'quiz.allDone':   'ตอบครบทุกข้อแล้ว! 🎉',
   'quiz.start':     'เริ่มควิซ',
+  'quiz.question_no':   'ข้อ {i} / {t}',
+  'quiz.score_unit':    ' คะแนน',
+  'quiz.streak_msg':    '🔥 ตอบถูก {n} ข้อติดต่อกัน!',
+  'quiz.give_up':       'ยอมแพ้',
+  'quiz.give_up.title': '{icon} {mode} — ยอมแพ้?',
+  'quiz.give_up.desc':  'คะแนน {score} ของคุณจะถูกบันทึกในลีดเดอร์บอร์ด {mode}\nและคุณจะเลือกโหมดใหม่',
+  'quiz.give_up.confirm': 'บันทึกแล้วยอมแพ้',
+  'quiz.give_up.cancel':  'เล่นต่อ',
+  'mode.suffix':    'โหมด',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'เลือกโหมดเกม',

@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 সর্বোচ্চ র‍্যাংক অর্জিত!',
   'quiz.allDone':   'সব প্রশ্ন শেষ! 🎉',
   'quiz.start':     'কুইজ শুরু করুন',
+  'quiz.question_no':   'প্রশ্ন {i} / {t}',
+  'quiz.score_unit':    ' পয়েন্ট',
+  'quiz.streak_msg':    '🔥 {n}টি পরপর সঠিক!',
+  'quiz.give_up':       'ছেড়ে দিন',
+  'quiz.give_up.title': '{icon} {mode} — ছেড়ে দেবেন?',
+  'quiz.give_up.desc':  'আপনার {score} {mode} লিডারবোর্ডে জমা হবে\nএবং আপনি নতুন মোড বেছে নেবেন।',
+  'quiz.give_up.confirm': 'জমা দিন ও ছেড়ে দিন',
+  'quiz.give_up.cancel':  'চালিয়ে যান',
+  'mode.suffix':    'মোড',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'গেম মোড বেছে নিন',

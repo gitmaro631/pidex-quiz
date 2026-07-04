@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 已达最高等级！',
   'quiz.allDone':   '所有题目已完成！🎉',
   'quiz.start':     '开始测验',
+  'quiz.question_no':   '题 {i} / {t}',
+  'quiz.score_unit':    '分',
+  'quiz.streak_msg':    '🔥 连续答对{n}题！',
+  'quiz.give_up':       '放弃',
+  'quiz.give_up.title': '{icon} {mode} — 确认放弃？',
+  'quiz.give_up.desc':  '您的{score}将提交到{mode}排行榜\n然后您将选择新模式。',
+  'quiz.give_up.confirm': '提交并放弃',
+  'quiz.give_up.cancel':  '继续挑战',
+  'mode.suffix':    '模式',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    '选择游戏模式',

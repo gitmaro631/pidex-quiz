@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 Pangkat tertinggi!',
   'quiz.allDone':   'Semua soalan selesai! 🎉',
   'quiz.start':     'Mulakan Kuiz',
+  'quiz.question_no':   'Soal {i} / {t}',
+  'quiz.score_unit':    ' mata',
+  'quiz.streak_msg':    '🔥 {n} betul berturut-turut!',
+  'quiz.give_up':       'Mengalah',
+  'quiz.give_up.title': '{icon} {mode} — Mengalah?',
+  'quiz.give_up.desc':  'Skor {score} anda akan didaftarkan ke papan markah {mode}\ndan anda akan memilih mod baharu.',
+  'quiz.give_up.confirm': 'Daftar & Mengalah',
+  'quiz.give_up.cancel':  'Teruskan',
+  'mode.suffix':    'Mod',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'Pilih Mod Permainan',

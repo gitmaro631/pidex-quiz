@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 Pinakamataas na ranggo!',
   'quiz.allDone':   'Natapos na ang lahat ng tanong! 🎉',
   'quiz.start':     'Simulan ang Quiz',
+  'quiz.question_no':   'Tanong {i} / {t}',
+  'quiz.score_unit':    ' pts',
+  'quiz.streak_msg':    '🔥 {n} sunod na tama!',
+  'quiz.give_up':       'Sumuko',
+  'quiz.give_up.title': '{icon} {mode} — Sumuko?',
+  'quiz.give_up.desc':  'Ang {score} mo ay isasumite sa {mode} leaderboard\nat pipili ka ng bagong mode.',
+  'quiz.give_up.confirm': 'Isumite at Sumuko',
+  'quiz.give_up.cancel':  'Ituloy',
+  'mode.suffix':    'Mode',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'Piliin ang Mode ng Laro',

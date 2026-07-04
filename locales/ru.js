@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 Максимальный ранг достигнут!',
   'quiz.allDone':   'Все вопросы завершены! 🎉',
   'quiz.start':     'Начать Викторину',
+  'quiz.question_no':   'Вопрос {i} / {t}',
+  'quiz.score_unit':    ' очков',
+  'quiz.streak_msg':    '🔥 {n} подряд!',
+  'quiz.give_up':       'Сдаться',
+  'quiz.give_up.title': '{icon} {mode} — Сдаться?',
+  'quiz.give_up.desc':  'Ваш результат {score} будет записан в таблицу {mode}\nи вы выберете новый режим.',
+  'quiz.give_up.confirm': 'Записать и сдаться',
+  'quiz.give_up.cancel':  'Продолжить',
+  'mode.suffix':    'Режим',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'Выбрать Режим Игры',

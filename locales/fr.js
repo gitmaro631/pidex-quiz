@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 Rang maximum atteint !',
   'quiz.allDone':   'Toutes les questions répondues ! 🎉',
   'quiz.start':     'Démarrer le Quiz',
+  'quiz.question_no':   'Q {i} / {t}',
+  'quiz.score_unit':    ' pts',
+  'quiz.streak_msg':    '🔥 {n} d\'affilée !',
+  'quiz.give_up':       'Abandonner',
+  'quiz.give_up.title': '{icon} {mode} — Abandonner ?',
+  'quiz.give_up.desc':  'Votre {score} sera soumis au classement {mode}\net vous choisirez un nouveau mode.',
+  'quiz.give_up.confirm': 'Soumettre et Abandonner',
+  'quiz.give_up.cancel':  'Continuer',
+  'mode.suffix':    'Mode',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'Sélectionner le Mode de Jeu',

@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 Maksimum sıraya ulaşıldı!',
   'quiz.allDone':   'Tüm sorular tamamlandı! 🎉',
   'quiz.start':     'Sınavı Başlat',
+  'quiz.question_no':   'Soru {i} / {t}',
+  'quiz.score_unit':    ' puan',
+  'quiz.streak_msg':    '🔥 {n} üst üste doğru!',
+  'quiz.give_up':       'Pes Et',
+  'quiz.give_up.title': '{icon} {mode} — Pes Et?',
+  'quiz.give_up.desc':  '{score} puanınız {mode} lider tablosuna kaydedilecek\nve yeni bir mod seçeceksiniz.',
+  'quiz.give_up.confirm': 'Kaydet ve Pes Et',
+  'quiz.give_up.cancel':  'Devam Et',
+  'mode.suffix':    'Mod',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'Oyun Modunu Seç',

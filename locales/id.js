@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 Peringkat tertinggi!',
   'quiz.allDone':   'Semua soal selesai! 🎉',
   'quiz.start':     'Mulai Kuis',
+  'quiz.question_no':   'Soal {i} / {t}',
+  'quiz.score_unit':    ' poin',
+  'quiz.streak_msg':    '🔥 {n} benar beruntun!',
+  'quiz.give_up':       'Menyerah',
+  'quiz.give_up.title': '{icon} {mode} — Menyerah?',
+  'quiz.give_up.desc':  'Skor {score} Anda akan didaftarkan ke papan peringkat {mode}\ndan Anda akan memilih mode baru.',
+  'quiz.give_up.confirm': 'Daftar & Menyerah',
+  'quiz.give_up.cancel':  'Terus Bermain',
+  'mode.suffix':    'Mode',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'Pilih Mode Permainan',

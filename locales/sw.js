@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 Nafasi ya juu kabisa!',
   'quiz.allDone':   'Maswali yote yamekamilika! 🎉',
   'quiz.start':     'Anza Maswali',
+  'quiz.question_no':   'Swali {i} / {t}',
+  'quiz.score_unit':    ' pts',
+  'quiz.streak_msg':    '🔥 {n} sahihi mfululizo!',
+  'quiz.give_up':       'Acha',
+  'quiz.give_up.title': '{icon} {mode} — Acha?',
+  'quiz.give_up.desc':  'Pointi {score} zako zitaandikishwa kwenye ubao wa {mode}\nna utachagua hali mpya.',
+  'quiz.give_up.confirm': 'Andikisha na Acha',
+  'quiz.give_up.cancel':  'Endelea',
+  'mode.suffix':    'Hali',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'Chagua Hali ya Mchezo',

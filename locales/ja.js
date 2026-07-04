@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 最高ランク達成！',
   'quiz.allDone':   '全問完了！🎉',
   'quiz.start':     'クイズをはじめる',
+  'quiz.question_no':   '問題 {i} / {t}',
+  'quiz.score_unit':    '点',
+  'quiz.streak_msg':    '🔥 {n}問連続正解！',
+  'quiz.give_up':       'ギブアップ',
+  'quiz.give_up.title': '{icon} {mode} — ギブアップしますか？',
+  'quiz.give_up.desc':  '{score}が{mode}ランキングに登録され\n新しいモードを選択します。',
+  'quiz.give_up.confirm': '登録してギブアップ',
+  'quiz.give_up.cancel':  'このまま続ける',
+  'mode.suffix':    'モード',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'ゲームモードを選択',

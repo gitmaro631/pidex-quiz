@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 تم الوصول إلى أعلى مستوى!',
   'quiz.allDone':   'تمت الإجابة على جميع الأسئلة! 🎉',
   'quiz.start':     'ابدأ الاختبار',
+  'quiz.question_no':   'سؤال {i} / {t}',
+  'quiz.score_unit':    ' نقطة',
+  'quiz.streak_msg':    '🔥 {n} إجابات صحيحة متتالية!',
+  'quiz.give_up':       'الاستسلام',
+  'quiz.give_up.title': '{icon} {mode} — الاستسلام؟',
+  'quiz.give_up.desc':  'ستُسجَّل نتيجتك {score} في لوحة {mode}\nوستختار وضعاً جديداً.',
+  'quiz.give_up.confirm': 'تسجيل والاستسلام',
+  'quiz.give_up.cancel':  'متابعة اللعب',
+  'mode.suffix':    'الوضع',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'اختر وضع اللعبة',

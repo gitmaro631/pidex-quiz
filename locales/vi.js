@@ -29,6 +29,15 @@ export default {
   'quiz.max_rank':  '🎉 Xếp hạng cao nhất!',
   'quiz.allDone':   'Đã hoàn thành tất cả câu hỏi! 🎉',
   'quiz.start':     'Bắt đầu Quiz',
+  'quiz.question_no':   'Câu {i} / {t}',
+  'quiz.score_unit':    ' điểm',
+  'quiz.streak_msg':    '🔥 {n} đúng liên tiếp!',
+  'quiz.give_up':       'Bỏ cuộc',
+  'quiz.give_up.title': '{icon} {mode} — Bỏ cuộc?',
+  'quiz.give_up.desc':  'Điểm {score} của bạn sẽ đăng ký vào bảng {mode}\nvà bạn sẽ chọn chế độ mới.',
+  'quiz.give_up.confirm': 'Đăng ký & Bỏ cuộc',
+  'quiz.give_up.cancel':  'Tiếp tục chơi',
+  'mode.suffix':    'Chế độ',
 
   // ── Mode ─────────────────────────────────────────────
   'mode.select.title':    'Chọn chế độ chơi',
