@@ -44,7 +44,7 @@ export function rerenderPage(pageKey) {
 // ── 헤더 업데이트 ─────────────────────────────────────
 export function updateHeaderScore() {
   const el = document.getElementById('header-score');
-  if (el) el.textContent = `${getScore()}점`;
+  if (el) el.textContent = `${getScore()}${t('quiz.score_unit')}`;
 }
 
 export function updateHeaderLives() {
@@ -67,6 +67,8 @@ function applyNavLabels() {
   if (surveyTab) surveyTab.textContent = t('nav.survey');
   if (rankTab)   rankTab.textContent   = t('nav.rank');
   if (statsTab)  statsTab.textContent  = t('nav.stats');
+  const helpBtn = document.getElementById('btn-help');
+  if (helpBtn) helpBtn.textContent = `❓ ${t('btn.help')}`;
 }
 
 // ── 로그인 ────────────────────────────────────────────
