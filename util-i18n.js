@@ -58,7 +58,7 @@ export function setLang(code) {
   currentLang = code;
   localStorage.setItem('quiz_lang', code);
   document.documentElement.lang = code;
-  document.documentElement.dir = code === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.dir = 'ltr';
 }
 
 export function initLang() {
