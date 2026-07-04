@@ -2,7 +2,7 @@ import { quizBeginner }  from './data/quiz-beginner.js';
 import { quizMid }       from './data/quiz-mid.js';
 import { quizAdvanced }  from './data/quiz-advanced.js';
 import { surveyQuestions } from './data/survey.js';
-import { t, tf, getLang } from './util-i18n.js';
+import { t, tf, getLang, detectCountry } from './util-i18n.js';
 import {
   getScore, addScore, getHighScore,
   getStreak, setStreak,
@@ -175,7 +175,7 @@ function renderModeChangeDialog(container) {
   container.appendChild(overlay);
 
   overlay.querySelector('#btn-submit-change').addEventListener('click', async () => {
-    try { await submitLeaderboardScore(username, score, mode); } catch (e) { console.warn(e); }
+    try { await submitLeaderboardScore(username, score, mode, detectCountry()); } catch (e) { console.warn(e); }
     clearSession();
     resetGame();
     session = null;
@@ -210,7 +210,7 @@ function renderGiveUpDialog(container) {
   container.appendChild(overlay);
 
   overlay.querySelector('#btn-confirm-give-up').addEventListener('click', async () => {
-    try { await submitLeaderboardScore(username, score, mode); } catch (e) { console.warn(e); }
+    try { await submitLeaderboardScore(username, score, mode, detectCountry()); } catch (e) { console.warn(e); }
     clearSession();
     resetGame();
     session = null;

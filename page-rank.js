@@ -1,6 +1,7 @@
 import { getScore, getRank, getNextRank, getStats, getHighScore, getLives, getMode, MODES, RANKS, addLives, getLastLeaderboardViewTime, setLastLeaderboardViewTime } from './util-storage.js';
 import { shareResult } from './util-share.js';
-import { fetchLeaderboard, initFirebase } from './firebase.js';
+import { fetchLeaderboard, initFirebase, migrateLeaderboard } from './firebase.js';
+import { countryToFlag } from './util-i18n.js';
 import { t } from './util-i18n.js';
 import { updateHeaderLives } from './app.js';
 
@@ -92,8 +93,13 @@ export async function renderRankPage(container) {
     showToast(container, msg);
   });
 
-  // 리더보드 탭 전환
+  // 일회성 DB 마이그레이션 (중복 제거 + username doc ID 통일)
   initFirebase();
+  if (!localStorage.getItem('lb_migrated_v2')) {
+    migrateLeaderboard()
+      .then(() => localStorage.setItem('lb_migrated_v2', '1'))
+      .catch(console.warn);
+  }
   const listEl = container.querySelector('#leaderboard-list');
 
   async function loadLeaderboard(lbMode) {
@@ -103,13 +109,15 @@ export async function renderRankPage(container) {
       if (rows.length === 0) {
         listEl.innerHTML = `<div class="leaderboard-empty">${t('lb.empty')}</div>`;
       } else {
-        listEl.innerHTML = rows.map((r, i) => `
+        listEl.innerHTML = rows.map((r, i) => {
+          const flag = r.country ? countryToFlag(r.country) : '';
+          return `
           <div class="leaderboard-row ${r.username === username ? 'leaderboard-me' : ''}">
             <span class="lb-rank">${i + 1}</span>
-            <span class="lb-user">${r.username}</span>
+            <span class="lb-user">${flag ? `${flag} ` : ''}${r.username}</span>
             <span class="lb-score">${r.score}${unit}</span>
           </div>
-        `).join('');
+        `}).join('');
       }
     } catch {
       listEl.innerHTML = `<div class="leaderboard-empty">${t('lb.fail')}</div>`;

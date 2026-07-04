@@ -65,6 +65,28 @@ export function initLang() {
   setLang(detectLang());
 }
 
+// ── 국가 감지 & 국기 ──────────────────────────────────
+const LANG_TO_COUNTRY = {
+  ko: 'KR', ja: 'JP', zh: 'CN', th: 'TH', vi: 'VN',
+  id: 'ID', ms: 'MY', tl: 'PH', hi: 'IN', bn: 'BD',
+  ar: 'SA', sw: 'KE', tr: 'TR', ru: 'RU', fr: 'FR',
+  es: 'ES', pt: 'BR', en: 'US',
+};
+
+export function detectCountry() {
+  const locale = navigator.languages?.[0] || navigator.language || '';
+  const parts  = locale.split('-');
+  if (parts.length >= 2) return parts[parts.length - 1].toUpperCase();
+  return LANG_TO_COUNTRY[parts[0]] || '';
+}
+
+export function countryToFlag(code) {
+  if (!code || code.length !== 2) return '';
+  return [...code.toUpperCase()].map(c =>
+    String.fromCodePoint(0x1F1E6 + c.charCodeAt(0) - 65)
+  ).join('');
+}
+
 // 번역 조회 — 없으면 key 반환
 export function t(key) {
   return T[currentLang]?.[key] ?? T.en?.[key] ?? T.ko?.[key] ?? key;
