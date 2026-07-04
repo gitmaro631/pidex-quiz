@@ -9,13 +9,39 @@ async function serverApprove(paymentId) {
   if (!res.ok) throw new Error(`approve failed: ${res.status}`);
 }
 
-async function serverComplete(paymentId, txid) {
+async function serverComplete(paymentId, txid, uid) {
   const res = await fetch('/api/payments/complete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ paymentId, txid }),
+    body: JSON.stringify({ paymentId, txid, uid }),
   });
   if (!res.ok) throw new Error(`complete failed: ${res.status}`);
+}
+
+async function syncSubscription(uid) {
+  try {
+    const res = await fetch(`/api/subscription/status?uid=${encodeURIComponent(uid)}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.active && data.expiry) {
+      localStorage.setItem('quiz_sub_expiry', data.expiry);
+      window.dispatchEvent(new CustomEvent('sub:synced'));
+    } else if (!data.active) {
+      const localExpiry = localStorage.getItem('quiz_sub_expiry');
+      if (localExpiry && new Date(localExpiry) > new Date()) {
+        await fetch('/api/subscription/restore', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid, expiry: localExpiry }),
+        });
+        const confirm = await fetch(`/api/subscription/status?uid=${encodeURIComponent(uid)}`).then(r => r.json());
+        if (confirm.active && confirm.expiry) {
+          localStorage.setItem('quiz_sub_expiry', confirm.expiry);
+          window.dispatchEvent(new CustomEvent('sub:synced'));
+        }
+      }
+    }
+  } catch { }
 }
 
 async function onIncompletePaymentFound(payment) {
@@ -38,8 +64,45 @@ export async function initPiSDK() {
 export async function authenticate() {
   return new Promise((resolve, reject) => {
     Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
-      .then(auth => { currentUser = auth.user; resolve(auth); })
+      .then(auth => {
+        currentUser = auth.user;
+        const uid = currentUser?.uid;
+        if (uid) syncSubscription(uid);
+        resolve(auth);
+      })
       .catch(reject);
+  });
+}
+
+export function createSubscriptionPayment() {
+  if (typeof Pi === 'undefined') {
+    return Promise.reject(new Error('Pi SDK를 찾을 수 없어요. Pi Browser에서 실행해주세요.'));
+  }
+  return new Promise((resolve, reject) => {
+    Pi.createPayment(
+      { amount: 1, memo: 'PiDEX 퀴즈 1개월 이용권', metadata: { app: 'quizpi', type: 'subscription' } },
+      {
+        onReadyForServerApproval: async (paymentId) => {
+          try { await serverApprove(paymentId); } catch (err) { reject(err); }
+        },
+        onReadyForServerCompletion: async (paymentId, txid) => {
+          try {
+            await serverComplete(paymentId, txid, currentUser?.uid);
+            const _exp = localStorage.getItem('quiz_sub_expiry');
+            if (currentUser?.uid && _exp) {
+              fetch('/api/subscription/restore', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: currentUser.uid, expiry: _exp }),
+              }).catch(() => {});
+            }
+            resolve({ paymentId, txid });
+          } catch (err) { reject(err); }
+        },
+        onCancel: () => reject(new Error('cancelled')),
+        onError: (err) => reject(err),
+      }
+    );
   });
 }
 

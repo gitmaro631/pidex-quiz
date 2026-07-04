@@ -1,5 +1,35 @@
 import { t, getLang } from './util-i18n.js';
-import { createDonation } from './pi-sdk.js';
+import { createDonation, createSubscriptionPayment, currentUser } from './pi-sdk.js';
+import { isSubscribed, setSubscription, getSubscriptionExpiry } from './util-storage.js';
+
+const SUB_STRINGS = {
+  ko: {
+    title: '⭐ 월간 이용권',
+    desc: '1π로 1개월 이용권을 구매하세요.',
+    expiry: '만료일',
+    buyBtn: '1π 이용권 구매 (1개월)',
+    restoreBtn: '이용권 복구',
+    ok: '이용권이 활성화되었습니다!',
+    restoreOk: '이용권 복구 완료!',
+    restoreNone: '서버에 이용권 정보가 없습니다.',
+    err: 'Pi Browser에서만 결제가 가능합니다.',
+  },
+  en: {
+    title: '⭐ Monthly Pass',
+    desc: 'Buy a 1-month pass for 1π.',
+    expiry: 'Expires',
+    buyBtn: 'Buy 1-Month Pass · 1π',
+    restoreBtn: 'Restore Pass',
+    ok: 'Pass activated!',
+    restoreOk: 'Pass restored!',
+    restoreNone: 'No pass found on server.',
+    err: 'Payment is only available inside Pi Browser.',
+  },
+};
+function getSubStrings() {
+  const lang = getLang();
+  return SUB_STRINGS[lang] || SUB_STRINGS['en'];
+}
 
 const CONTACT_STRINGS = {
   ko: { title:'📮 문의 및 피드백', desc:'사용 중 문의사항이나 피드백은 유튜브 채널 댓글로 남겨주세요.', copyBtn:'복사', copied:'복사됨', copyNote:'위 주소를 복사 후 유튜브에서 검색해주세요.' },
@@ -1425,6 +1455,17 @@ export function renderHelpModal(onClose) {
           <p class="contact-desc" style="margin-top:6px;font-size:11px;">${c.contact.copyNote}</p>
         </div>
 
+        <div class="help-donation" id="help-sub-section">
+          <h3 class="help-section-title">${getSubStrings().title}</h3>
+          ${isSubscribed()
+            ? `<p class="donation-desc">${getSubStrings().expiry}: ${new Date(getSubscriptionExpiry()).toLocaleDateString()}</p>`
+            : `<p class="donation-desc">${getSubStrings().desc}</p>
+               <button class="donation-btn" id="help-sub-btn" style="width:100%;margin-bottom:6px;">${getSubStrings().buyBtn}</button>`
+          }
+          <button class="donation-btn" id="help-restore-btn" style="width:100%;background:#4a5568;font-size:0.82rem;">${getSubStrings().restoreBtn}</button>
+          <p class="donation-result" id="help-sub-result"></p>
+        </div>
+
         <div class="help-donation">
           <h3 class="help-section-title">${c.donation.title}</h3>
           <p class="donation-desc">${c.donation.desc}</p>
@@ -1461,6 +1502,86 @@ export function renderHelpModal(onClose) {
       onClose?.();
     }
   });
+
+  const subBtn = modal.querySelector('#help-sub-btn');
+  if (subBtn) {
+    subBtn.addEventListener('click', async () => {
+      const s = getSubStrings();
+      const resultEl = modal.querySelector('#help-sub-result');
+      subBtn.disabled = true;
+      resultEl.textContent = '';
+      resultEl.className = 'donation-result';
+      try {
+        await createSubscriptionPayment();
+        setSubscription(1);
+        const _uid = currentUser?.uid;
+        const _exp = getSubscriptionExpiry();
+        if (_uid && _exp) {
+          fetch('/api/subscription/restore', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: _uid, expiry: _exp }),
+          }).catch(() => {});
+        }
+        resultEl.textContent = s.ok;
+        resultEl.classList.add('donation-success');
+        modal.querySelector('#help-sub-section').innerHTML = `
+          <h3 class="help-section-title">${s.title}</h3>
+          <p class="donation-desc">${s.expiry}: ${new Date(getSubscriptionExpiry()).toLocaleDateString()}</p>
+          <p class="donation-result donation-success">${s.ok}</p>
+        `;
+      } catch (err) {
+        if (err.message !== 'cancelled') {
+          resultEl.textContent = s.err;
+          resultEl.classList.add('donation-error');
+        }
+        subBtn.disabled = false;
+      }
+    });
+  }
+
+  const restoreBtn = modal.querySelector('#help-restore-btn');
+  if (restoreBtn) {
+    restoreBtn.addEventListener('click', async () => {
+      const s = getSubStrings();
+      const resultEl = modal.querySelector('#help-sub-result');
+      restoreBtn.disabled = true;
+      resultEl.textContent = '';
+      resultEl.className = 'donation-result';
+      try {
+        const uid = currentUser?.uid;
+        if (!uid) throw new Error('no uid');
+        let status = await fetch(`/api/subscription/status?uid=${encodeURIComponent(uid)}`).then(r => r.json());
+        if (!status.active) {
+          const localExpiry = localStorage.getItem('quiz_sub_expiry');
+          if (localExpiry && new Date(localExpiry) > new Date()) {
+            const restoreRes = await fetch('/api/subscription/restore', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ uid, expiry: localExpiry }),
+            });
+            if (!restoreRes.ok) throw new Error('restore_failed');
+            status = await fetch(`/api/subscription/status?uid=${encodeURIComponent(uid)}`).then(r => r.json());
+          }
+        }
+        if (status.active && status.expiry) {
+          localStorage.setItem('quiz_sub_expiry', status.expiry);
+          resultEl.textContent = s.restoreOk;
+          resultEl.classList.add('donation-success');
+          restoreBtn.disabled = false;
+        } else {
+          resultEl.textContent = s.restoreNone;
+          resultEl.classList.add('donation-error');
+          restoreBtn.disabled = false;
+        }
+      } catch {
+        const s2 = getSubStrings();
+        resultEl.textContent = s2.restoreNone;
+        resultEl.classList.add('donation-error');
+        restoreBtn.disabled = false;
+      }
+    });
+  }
 
   modal.querySelectorAll('.donation-btn').forEach(btn => {
     btn.addEventListener('click', async () => {

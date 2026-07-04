@@ -254,3 +254,18 @@ export function getNextRank(score) {
   }
   return null;
 }
+
+// ── 구독 ──────────────────────────────────────────────
+const SUB_KEY = 'quiz_sub_expiry';
+export function isSubscribed() {
+  const expiry = localStorage.getItem(SUB_KEY);
+  return expiry ? new Date(expiry) > new Date() : false;
+}
+export function setSubscription(months = 1) {
+  const expiry = new Date();
+  expiry.setMonth(expiry.getMonth() + months);
+  localStorage.setItem(SUB_KEY, expiry.toISOString());
+}
+export function getSubscriptionExpiry() {
+  return localStorage.getItem(SUB_KEY);
+}
