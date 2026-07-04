@@ -3,7 +3,7 @@ import { renderQuizPage }   from './page-quiz.js';
 import { renderRankPage }   from './page-rank.js';
 import { renderStatsPage }  from './page-stats.js';
 import { renderSurveyPage } from './page-survey.js';
-import { getScore, getLives } from './util-storage.js';
+import { getScore, getLives, isSubscribed } from './util-storage.js';
 import { initLang, t, getLang, setLang, SUPPORTED_LANGS } from './util-i18n.js';
 import { renderHelpModal }  from './page-help.js';
 import { initFirebase, loadSurveyFromFirestore } from './firebase.js';
@@ -42,6 +42,13 @@ export function rerenderPage(pageKey) {
 }
 
 // ── 헤더 업데이트 ─────────────────────────────────────
+let _headerUsername = 'Pioneer';
+export function updateHeaderUsername(name) {
+  if (name) _headerUsername = name;
+  const el = document.getElementById('header-username');
+  if (el) el.textContent = isSubscribed() ? `⭐ ${_headerUsername}` : _headerUsername;
+}
+
 export function updateHeaderScore() {
   const el = document.getElementById('header-score');
   if (el) el.textContent = `${getScore()}${t('quiz.score_unit')}`;
@@ -83,7 +90,7 @@ async function doLogin() {
     const user = auth.user;
     currentUid = user?.uid ?? user?.username ?? null;
 
-    document.getElementById('header-username').textContent = user?.username ?? 'Pioneer';
+    updateHeaderUsername(user?.username ?? 'Pioneer');
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app-screen').classList.remove('hidden');
 
@@ -236,6 +243,9 @@ async function init() {
   });
 
   buildLangPicker();
+
+  // 구독 동기화 완료 시 헤더 업데이트
+  window.addEventListener('sub:synced', () => updateHeaderUsername());
 }
 
 init();

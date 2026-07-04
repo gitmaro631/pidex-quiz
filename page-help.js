@@ -1,6 +1,7 @@
 import { t, getLang } from './util-i18n.js';
 import { createDonation, createSubscriptionPayment, currentUser } from './pi-sdk.js';
 import { isSubscribed, setSubscription, getSubscriptionExpiry } from './util-storage.js';
+import { updateHeaderUsername } from './app.js';
 
 const SUB_STRINGS = {
   ko: {
@@ -1737,6 +1738,7 @@ export function renderHelpModal(onClose) {
         }
         resultEl.textContent = s.ok;
         resultEl.classList.add('donation-success');
+        updateHeaderUsername();
         modal.querySelector('#help-sub-section').innerHTML = `
           <h3 class="help-section-title">${s.title}</h3>
           <p class="donation-desc">${s.expiry}: ${new Date(getSubscriptionExpiry()).toLocaleDateString()}</p>
@@ -1781,6 +1783,7 @@ export function renderHelpModal(onClose) {
           localStorage.setItem('quiz_sub_expiry', status.expiry);
           resultEl.textContent = s.restoreOk;
           resultEl.classList.add('donation-success');
+          updateHeaderUsername();
           restoreBtn.disabled = false;
         } else {
           resultEl.textContent = s.restoreNone;
