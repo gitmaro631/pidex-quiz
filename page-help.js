@@ -11,6 +11,7 @@ const SUB_STRINGS = {
     restoreBtn: '이용권 복구',
     ok: '이용권이 활성화되었습니다!',
     restoreOk: '이용권 복구 완료!',
+    restoreAlready: '이미 이용권이 활성화되어 있습니다.',
     restoreNone: '서버에 이용권 정보가 없습니다.',
     restoreErr: '서버 연결 오류. 잠시 후 다시 시도해 주세요.',
     err: 'Pi Browser에서만 결제가 가능합니다.',
@@ -23,6 +24,7 @@ const SUB_STRINGS = {
     restoreBtn: 'Restore Pass',
     ok: 'Pass activated!',
     restoreOk: 'Pass restored!',
+    restoreAlready: 'Pass is already active.',
     restoreNone: 'No pass found on server.',
     restoreErr: 'Server error. Please try again later.',
     err: 'Payment is only available inside Pi Browser.',
@@ -35,6 +37,7 @@ const SUB_STRINGS = {
     restoreBtn: 'Pulihkan Paket',
     ok: 'Paket diaktifkan!',
     restoreOk: 'Paket berhasil dipulihkan!',
+    restoreAlready: 'Paket sudah aktif.',
     restoreNone: 'Tidak ada paket di server.',
     restoreErr: 'Kesalahan server. Coba lagi nanti.',
     err: 'Pembayaran hanya tersedia di Pi Browser.',
@@ -47,6 +50,7 @@ const SUB_STRINGS = {
     restoreBtn: 'Khôi phục Gói',
     ok: 'Gói đã được kích hoạt!',
     restoreOk: 'Khôi phục gói thành công!',
+    restoreAlready: 'Gói đã được kích hoạt.',
     restoreNone: 'Không tìm thấy gói trên máy chủ.',
     restoreErr: 'Lỗi máy chủ. Vui lòng thử lại sau.',
     err: 'Thanh toán chỉ khả dụng trong Pi Browser.',
@@ -59,6 +63,7 @@ const SUB_STRINGS = {
     restoreBtn: '恢复使用权',
     ok: '使用权已激活！',
     restoreOk: '使用权恢复完成！',
+    restoreAlready: '使用权已激活。',
     restoreNone: '服务器上没有使用权信息。',
     restoreErr: '服务器错误，请稍后重试。',
     err: '仅可在Pi Browser内付款。',
@@ -71,6 +76,7 @@ const SUB_STRINGS = {
     restoreBtn: '利用券を復元',
     ok: '利用券が有効になりました！',
     restoreOk: '利用券の復元完了！',
+    restoreAlready: '利用券はすでに有効です。',
     restoreNone: 'サーバーに利用券情報がありません。',
     restoreErr: 'サーバーエラー。しばらくしてから再試行してください。',
     err: 'Pi Browser内でのみお支払いが可能です。',
@@ -83,6 +89,7 @@ const SUB_STRINGS = {
     restoreBtn: 'I-restore ang Pass',
     ok: 'Na-activate ang pass!',
     restoreOk: 'Na-restore ang pass!',
+    restoreAlready: 'Aktibo na ang pass.',
     restoreNone: 'Walang pass na nahanap sa server.',
     restoreErr: 'Server error. Subukan muli mamaya.',
     err: 'Available lang ang bayad sa loob ng Pi Browser.',
@@ -95,6 +102,7 @@ const SUB_STRINGS = {
     restoreBtn: 'पास पुनर्स्थापित करें',
     ok: 'पास सक्रिय हो गया!',
     restoreOk: 'पास पुनर्स्थापित हुआ!',
+    restoreAlready: 'पास पहले से सक्रिय है।',
     restoreNone: 'सर्वर पर कोई पास नहीं मिला।',
     restoreErr: 'सर्वर त्रुटि। बाद में पुनः प्रयास करें।',
     err: 'भुगतान केवल Pi Browser में उपलब्ध है।',
@@ -107,6 +115,7 @@ const SUB_STRINGS = {
     restoreBtn: 'Restaurar Pase',
     ok: '¡Pase activado!',
     restoreOk: '¡Pase restaurado!',
+    restoreAlready: 'El pase ya está activo.',
     restoreNone: 'No se encontró pase en el servidor.',
     restoreErr: 'Error de servidor. Inténtalo de nuevo más tarde.',
     err: 'El pago solo está disponible dentro de Pi Browser.',
@@ -119,6 +128,7 @@ const SUB_STRINGS = {
     restoreBtn: 'Restaurar Passe',
     ok: 'Passe ativado!',
     restoreOk: 'Passe restaurado!',
+    restoreAlready: 'O passe já está ativo.',
     restoreNone: 'Nenhum passe encontrado no servidor.',
     restoreErr: 'Erro no servidor. Tente novamente mais tarde.',
     err: 'O pagamento só está disponível no Pi Browser.',
@@ -131,6 +141,7 @@ const SUB_STRINGS = {
     restoreBtn: 'Restaurer le Pass',
     ok: 'Pass activé !',
     restoreOk: 'Pass restauré !',
+    restoreAlready: 'Le pass est déjà actif.',
     restoreNone: 'Aucun pass trouvé sur le serveur.',
     restoreErr: 'Erreur serveur. Veuillez réessayer plus tard.',
     err: 'Le paiement n\'est disponible que dans Pi Browser.',
@@ -143,6 +154,7 @@ const SUB_STRINGS = {
     restoreBtn: 'Восстановить пропуск',
     ok: 'Пропуск активирован!',
     restoreOk: 'Пропуск восстановлен!',
+    restoreAlready: 'Пропуск уже активен.',
     restoreNone: 'Пропуск не найден на сервере.',
     restoreErr: 'Ошибка сервера. Повторите попытку позже.',
     err: 'Оплата доступна только в Pi Browser.',
@@ -155,6 +167,7 @@ const SUB_STRINGS = {
     restoreBtn: 'Geçişi Geri Yükle',
     ok: 'Geçiş etkinleştirildi!',
     restoreOk: 'Geçiş geri yüklendi!',
+    restoreAlready: 'Geçiş zaten aktif.',
     restoreNone: 'Sunucuda geçiş bulunamadı.',
     restoreErr: 'Sunucu hatası. Lütfen daha sonra tekrar deneyin.',
     err: 'Ödeme yalnızca Pi Browser içinde mevcuttur.',
@@ -167,6 +180,7 @@ const SUB_STRINGS = {
     restoreBtn: 'استعادة التصريح',
     ok: 'تم تفعيل التصريح!',
     restoreOk: 'تم استعادة التصريح!',
+    restoreAlready: 'التصريح مفعّل بالفعل.',
     restoreNone: 'لم يُعثر على تصريح في الخادم.',
     restoreErr: 'خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقاً.',
     err: 'الدفع متاح فقط داخل Pi Browser.',
@@ -179,6 +193,7 @@ const SUB_STRINGS = {
     restoreBtn: 'পাস পুনরুদ্ধার করুন',
     ok: 'পাস সক্রিয় হয়েছে!',
     restoreOk: 'পাস পুনরুদ্ধার হয়েছে!',
+    restoreAlready: 'পাস ইতিমধ্যে সক্রিয় আছে।',
     restoreNone: 'সার্ভারে কোনো পাস পাওয়া যায়নি।',
     restoreErr: 'সার্ভার ত্রুটি। পরে আবার চেষ্টা করুন।',
     err: 'পেমেন্ট শুধুমাত্র Pi Browser-এর ভেতরে উপলব্ধ।',
@@ -191,6 +206,7 @@ const SUB_STRINGS = {
     restoreBtn: 'กู้คืนพาส',
     ok: 'เปิดใช้พาสแล้ว!',
     restoreOk: 'กู้คืนพาสสำเร็จ!',
+    restoreAlready: 'พาสเปิดใช้งานอยู่แล้ว',
     restoreNone: 'ไม่พบพาสบนเซิร์ฟเวอร์',
     restoreErr: 'เซิร์ฟเวอร์ขัดข้อง กรุณาลองใหม่ภายหลัง',
     err: 'ชำระเงินได้เฉพาะใน Pi Browser เท่านั้น',
@@ -203,6 +219,7 @@ const SUB_STRINGS = {
     restoreBtn: 'Pulihkan Pas',
     ok: 'Pas diaktifkan!',
     restoreOk: 'Pas berjaya dipulihkan!',
+    restoreAlready: 'Pas sudah aktif.',
     restoreNone: 'Tiada pas dijumpai di pelayan.',
     restoreErr: 'Ralat pelayan. Sila cuba lagi kemudian.',
     err: 'Pembayaran hanya tersedia di dalam Pi Browser.',
@@ -215,6 +232,7 @@ const SUB_STRINGS = {
     restoreBtn: 'Rejesha Pasi',
     ok: 'Pasi imeamilishwa!',
     restoreOk: 'Pasi imerejeshlewa!',
+    restoreAlready: 'Pasi tayari iko hai.',
     restoreNone: 'Hakuna pasi iliyopatikana kwenye seva.',
     restoreErr: 'Hitilafu ya seva. Tafadhali jaribu tena baadaye.',
     err: 'Malipo yanapatikana tu ndani ya Pi Browser.',
@@ -1656,7 +1674,7 @@ export function renderHelpModal(onClose) {
             : `<p class="donation-desc">${getSubStrings().desc}</p>
                <button class="donation-btn" id="help-sub-btn" style="width:100%;margin-bottom:6px;">${getSubStrings().buyBtn}</button>`
           }
-          <button class="donation-btn" id="help-restore-btn" style="width:100%;background:#4a5568;font-size:0.82rem;">${getSubStrings().restoreBtn}</button>
+          <button class="restore-btn" id="help-restore-btn" style="width:100%;background:#4a5568;font-size:0.82rem;">${getSubStrings().restoreBtn}</button>
           <p class="donation-result" id="help-sub-result"></p>
         </div>
 
@@ -1743,23 +1761,22 @@ export function renderHelpModal(onClose) {
       resultEl.textContent = '';
       resultEl.className = 'donation-result';
       try {
-        const uid = currentUser?.uid;
-        if (!uid) throw new Error('no uid');
-        const statusRes = await fetch(`/api/subscription/status?uid=${encodeURIComponent(uid)}`);
-        if (!statusRes.ok) throw new Error('server_error');
-        let status = await statusRes.json();
-        if (!status.active) {
-          const localExpiry = localStorage.getItem('quiz_sub_expiry');
-          if (localExpiry && new Date(localExpiry) > new Date()) {
-            const restoreRes = await fetch('/api/subscription/restore', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ uid, expiry: localExpiry }),
-            });
-            if (!restoreRes.ok) throw new Error('restore_failed');
-            status = await fetch(`/api/subscription/status?uid=${encodeURIComponent(uid)}`).then(r => r.json());
-          }
+        const username = currentUser?.username;
+        if (!username) throw new Error('no username');
+
+        // 1. 로컬 먼저 확인
+        const localExpiry = localStorage.getItem('quiz_sub_expiry');
+        if (localExpiry && new Date(localExpiry) > new Date()) {
+          resultEl.textContent = s.restoreAlready;
+          resultEl.classList.add('donation-success');
+          restoreBtn.disabled = false;
+          return;
         }
+
+        // 2. 로컬 없으면 서버 확인
+        const statusRes = await fetch(`/api/subscription/status?username=${encodeURIComponent(username)}`);
+        if (!statusRes.ok) throw new Error('server_error');
+        const status = await statusRes.json();
         if (status.active && status.expiry) {
           localStorage.setItem('quiz_sub_expiry', status.expiry);
           resultEl.textContent = s.restoreOk;

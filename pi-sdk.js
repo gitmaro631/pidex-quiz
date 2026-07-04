@@ -9,32 +9,33 @@ async function serverApprove(paymentId) {
   if (!res.ok) throw new Error(`approve failed: ${res.status}`);
 }
 
-async function serverComplete(paymentId, txid, uid) {
+async function serverComplete(paymentId, txid, username) {
   const res = await fetch('/api/payments/complete', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ paymentId, txid, uid }),
+    body: JSON.stringify({ paymentId, txid, username }),
   });
   if (!res.ok) throw new Error(`complete failed: ${res.status}`);
 }
 
-async function syncSubscription(uid) {
+async function syncSubscription(username) {
   try {
-    const res = await fetch(`/api/subscription/status?uid=${encodeURIComponent(uid)}`);
+    const res = await fetch(`/api/subscription/status?username=${encodeURIComponent(username)}`);
     if (!res.ok) return;
     const data = await res.json();
     if (data.active && data.expiry) {
       localStorage.setItem('quiz_sub_expiry', data.expiry);
       window.dispatchEvent(new CustomEvent('sub:synced'));
     } else if (!data.active) {
+      // 서버에 없고 로컬에 유효한 구독이 있으면 서버에 등록 (마이그레이션)
       const localExpiry = localStorage.getItem('quiz_sub_expiry');
       if (localExpiry && new Date(localExpiry) > new Date()) {
         await fetch('/api/subscription/restore', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid, expiry: localExpiry }),
+          body: JSON.stringify({ username, expiry: localExpiry }),
         });
-        const confirm = await fetch(`/api/subscription/status?uid=${encodeURIComponent(uid)}`).then(r => r.json());
+        const confirm = await fetch(`/api/subscription/status?username=${encodeURIComponent(username)}`).then(r => r.json());
         if (confirm.active && confirm.expiry) {
           localStorage.setItem('quiz_sub_expiry', confirm.expiry);
           window.dispatchEvent(new CustomEvent('sub:synced'));
@@ -66,8 +67,8 @@ export async function authenticate() {
     Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
       .then(auth => {
         currentUser = auth.user;
-        const uid = currentUser?.uid;
-        if (uid) syncSubscription(uid);
+        const username = currentUser?.username;
+        if (username) syncSubscription(username);
         resolve(auth);
       })
       .catch(reject);
@@ -87,15 +88,7 @@ export function createSubscriptionPayment() {
         },
         onReadyForServerCompletion: async (paymentId, txid) => {
           try {
-            await serverComplete(paymentId, txid, currentUser?.uid);
-            const _exp = localStorage.getItem('quiz_sub_expiry');
-            if (currentUser?.uid && _exp) {
-              fetch('/api/subscription/restore', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid: currentUser.uid, expiry: _exp }),
-              }).catch(() => {});
-            }
+            await serverComplete(paymentId, txid, currentUser?.username);
             resolve({ paymentId, txid });
           } catch (err) { reject(err); }
         },
