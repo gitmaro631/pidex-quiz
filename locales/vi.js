@@ -13,6 +13,9 @@ export default {
   'btn.help':       'Trợ giúp',
   'btn.lang':       'Ngôn ngữ',
   'btn.close':      'Đóng',
+  'hub.open':       'Mở trong Pi Browser →',
+  'hub.pidex.desc': 'Tiện ích toàn diện Pi DEX — arbitrage, LP calculator & swap.',
+  'hub.mmlab.desc': 'Mô phỏng backtest chiến lược market making. Kiểm tra với dữ liệu thực từ Stellar & Pi DEX.',
   'btn.start':      'Bắt đầu',
 
   // ── Login ─────────────────────────────────────────────

@@ -13,6 +13,9 @@ export default {
   'btn.help':       'Yardım',
   'btn.lang':       'Dil',
   'btn.close':      'Kapat',
+  'hub.open':       "Pi Browser'da Aç →",
+  'hub.pidex.desc': 'Pi DEX hepsi bir arada — arbitraj, LP hesaplayıcı ve swap.',
+  'hub.mmlab.desc': 'Market making backtest simülatörü. Stellar ve Pi DEX gerçek verileriyle test edin.',
   'btn.start':      'Başla',
 
   // ── Login ─────────────────────────────────────────────

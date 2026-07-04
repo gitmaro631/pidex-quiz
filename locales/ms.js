@@ -13,6 +13,9 @@ export default {
   'btn.help':       'Bantuan',
   'btn.lang':       'Bahasa',
   'btn.close':      'Tutup',
+  'hub.open':       'Buka dalam Pi Browser →',
+  'hub.pidex.desc': 'Utiliti lengkap Pi DEX — arbitraj, kalkulator LP & simulator swap.',
+  'hub.mmlab.desc': 'Simulator backtest strategi market making. Uji dengan data nyata dari Stellar & Pi DEX.',
   'btn.start':      'Mulakan',
 
   // ── Login ─────────────────────────────────────────────

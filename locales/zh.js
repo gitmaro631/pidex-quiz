@@ -13,6 +13,9 @@ export default {
   'btn.help':       '帮助',
   'btn.lang':       '语言',
   'btn.close':      '关闭',
+  'hub.open':       '在 Pi Browser 中打开 →',
+  'hub.pidex.desc': 'Pi DEX 一体化工具 — 套利、LP 计算器和兑换模拟器。',
+  'hub.mmlab.desc': '做市策略回测模拟器。使用 Stellar 主网和 Pi DEX 的真实数据验证策略。',
   'btn.start':      '开始',
 
   // ── Login ─────────────────────────────────────────────

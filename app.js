@@ -166,8 +166,8 @@ function renderUtilsOverlay() {
           <span class="util-tag">LP Calculator</span>
           <span class="util-tag">Swap Simulator</span>
         </div>
-        <div class="util-card-desc">Pi DEX 유동성·차익·스왑 유틸 모음.<br><span class="util-card-desc-en">All-in-one Pi DEX utility — arbitrage, LP calculator &amp; swap simulator.</span></div>
-        <div class="util-card-link">Pi Browser로 열기 →</div>
+        <div class="util-card-desc">${t('hub.pidex.desc')}</div>
+        <div class="util-card-link">${t('hub.open')}</div>
       </div>
     </a>
 
@@ -182,8 +182,8 @@ function renderUtilsOverlay() {
           <span class="util-tag">AMM</span>
           <span class="util-tag">Auto Optimize</span>
         </div>
-        <div class="util-card-desc">마켓메이킹 전략 백테스트 시뮬레이터.<br><span class="util-card-desc-en">Market making strategy backtest simulator.</span><br>Stellar 메인넷과 Pi DEX에서 실제 거래 데이터로 전략을 검증하세요.</div>
-        <div class="util-card-link">Pi Browser로 열기 →</div>
+        <div class="util-card-desc">${t('hub.mmlab.desc')}</div>
+        <div class="util-card-link">${t('hub.open')}</div>
       </div>
     </a>
     </div>

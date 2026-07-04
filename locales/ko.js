@@ -13,6 +13,9 @@ export default {
   'btn.help':       '도움말',
   'btn.lang':       '언어',
   'btn.close':      '닫기',
+  'hub.open':       'Pi Browser로 열기 →',
+  'hub.pidex.desc': 'Pi DEX 유동성·차익·스왑 유틸 모음.',
+  'hub.mmlab.desc': '마켓메이킹 전략 백테스트 시뮬레이터. Stellar 메인넷과 Pi DEX에서 실제 거래 데이터로 전략을 검증하세요.',
   'btn.start':      '시작하기',
 
   // ── 로그인 ───────────────────────────────────────────

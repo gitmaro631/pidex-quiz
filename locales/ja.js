@@ -13,6 +13,9 @@ export default {
   'btn.help':       'ヘルプ',
   'btn.lang':       '言語',
   'btn.close':      '閉じる',
+  'hub.open':       'Pi Browserで開く →',
+  'hub.pidex.desc': 'Pi DEX オールインワン — アービトラージ・LP計算・スワップ。',
+  'hub.mmlab.desc': 'マーケットメイキング戦略バックテスト。Stellar・Pi DEXの実取引データで検証。',
   'btn.start':      'はじめる',
 
   // ── Login ─────────────────────────────────────────────

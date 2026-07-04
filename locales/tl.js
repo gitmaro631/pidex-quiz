@@ -13,6 +13,9 @@ export default {
   'btn.help':       'Tulong',
   'btn.lang':       'Wika',
   'btn.close':      'Isara',
+  'hub.open':       'Buksan sa Pi Browser →',
+  'hub.pidex.desc': 'All-in-one utility ng Pi DEX — arbitrage, LP calculator at swap simulator.',
+  'hub.mmlab.desc': 'Backtest simulator ng market making strategy. Subukan gamit ang tunay na datos mula sa Stellar & Pi DEX.',
   'btn.start':      'Magsimula',
 
   // ── Login ─────────────────────────────────────────────

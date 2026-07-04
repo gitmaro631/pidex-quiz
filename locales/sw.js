@@ -13,6 +13,9 @@ export default {
   'btn.help':       'Msaada',
   'btn.lang':       'Lugha',
   'btn.close':      'Funga',
+  'hub.open':       'Fungua katika Pi Browser →',
+  'hub.pidex.desc': 'Zana kamili ya Pi DEX — arbitrage, LP calculator na swap.',
+  'hub.mmlab.desc': 'Simulator ya backtest ya market making. Jaribu na data halisi kutoka Stellar & Pi DEX.',
   'btn.start':      'Anza',
 
   // ── Login ─────────────────────────────────────────────

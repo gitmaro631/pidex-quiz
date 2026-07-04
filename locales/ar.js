@@ -13,6 +13,9 @@ export default {
   'btn.help':       'مساعدة',
   'btn.lang':       'اللغة',
   'btn.close':      'إغلاق',
+  'hub.open':       'افتح في Pi Browser →',
+  'hub.pidex.desc': 'أداة Pi DEX الشاملة — المراجحة وحاسبة LP ومحاكي التبادل.',
+  'hub.mmlab.desc': 'محاكي اختبار market making. اختبر ببيانات Stellar وPi DEX الحقيقية.',
   'btn.start':      'ابدأ',
 
   // ── Login ─────────────────────────────────────────────

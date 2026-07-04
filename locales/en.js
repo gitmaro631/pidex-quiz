@@ -13,6 +13,9 @@ export default {
   'btn.help':       'Help',
   'btn.lang':       'Language',
   'btn.close':      'Close',
+  'hub.open':       'Open in Pi Browser →',
+  'hub.pidex.desc': 'Pi DEX all-in-one utility — arbitrage, LP calculator & swap simulator.',
+  'hub.mmlab.desc': 'Market making strategy backtest simulator. Test with real trade data from Stellar Mainnet & Pi DEX.',
   'btn.start':      'Get Started',
 
   // ── Login ─────────────────────────────────────────────

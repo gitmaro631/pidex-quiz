@@ -13,6 +13,9 @@ export default {
   'btn.help':       'सहायता',
   'btn.lang':       'भाषा',
   'btn.close':      'बंद करें',
+  'hub.open':       'Pi Browser में खोलें →',
+  'hub.pidex.desc': 'Pi DEX ऑल-इन-वन — आर्बिट्राज, LP कैलकुलेटर व स्वैप।',
+  'hub.mmlab.desc': 'मार्केट मेकिंग बैकटेस्ट सिम्युलेटर। Stellar Mainnet व Pi DEX के असली डेटा से परीक्षण।',
   'btn.start':      'शुरू करें',
 
   // ── Login ─────────────────────────────────────────────
