@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX কুইজ',
   'nav.quiz':       'কুইজ',
+  'nav.survey':     'জরিপ',
   'nav.rank':       'আমার র‍্যাংক',
   'nav.stats':      'কমিউনিটি পরিসংখ্যান',
   'btn.next':       'পরবর্তী →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'আপনার DEX জ্ঞান পরীক্ষা করুন ও র‍্যাংক অর্জন করুন',
-  'login.btn':      'কুইজ শুরু করুন',
-  'login.note':     'শুধুমাত্র Pi Browser-এর জন্য',
+  'login.btn':        'কুইজ শুরু করুন',
+  'login.connecting': 'সংযোগ হচ্ছে...',
+  'login.note':       'শুধুমাত্র Pi Browser-এর জন্য',
   'login.fail':     'সংযোগ ব্যর্থ। আবার চেষ্টা করুন।',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':             '({n}জন উত্তর দিয়েছেন)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} প্রশ্ন · নির্ভুলতা {pct}% · সর্বোচ্চ {high}{unit}',
+  'rank.next':           '{label} পর্যন্ত আরও {n}',
+  'rank.max':            '🎉 সর্বোচ্চ র‌্যাংক অর্জন!',
+  'rank.shareHint':      'Telegram · X-এ শেয়ার করুন',
+  'rank.leaderboard':    '🏆 লিডারবোর্ড',
+  'rank.shared':         'শেয়ার করা হয়েছে!',
+  'rank.copied':         'ক্লিপবোর্ডে কপি হয়েছে!',
+  'rank.grade.explorer': '🌱 অন্বেষক',
+  'rank.grade.analyst':  '📊 বিশ্লেষক',
+  'rank.grade.trader':   '⚡ ট্রেডার',
+  'rank.grade.maker':    '🏦 মার্কেট মেকার',
+  'rank.grade.strategist':'🔱 কৌশলবিদ',
+
   'lb.loading':     'লোড হচ্ছে...',
   'lb.empty':       'এখনো কোনো রেকর্ড নেই',
   'lb.fail':        'লোড ব্যর্থ',

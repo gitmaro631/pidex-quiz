@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX Quiz',
   'nav.quiz':       'Quiz',
+  'nav.survey':     'Survey',
   'nav.rank':       'Aking Ranggo',
   'nav.stats':      'Istatistika ng Komunidad',
   'btn.next':       'Susunod →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'Subukan ang iyong kaalaman sa DEX at makakuha ng ranggo',
-  'login.btn':      'Simulan ang Quiz',
-  'login.note':     'Para sa Pi Browser lamang',
+  'login.btn':        'Simulan ang Quiz',
+  'login.connecting': 'Kumokonekta...',
+  'login.note':       'Para sa Pi Browser lamang',
   'login.fail':     'Nabigo ang koneksyon. Subukang muli.',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':             '({n} na sagot)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} tanong · Katumpakan {pct}% · Pinakamataas {high}{unit}',
+  'rank.next':           '{n} pts pa para sa {label}',
+  'rank.max':            '🎉 Pinakamataas na ranggo!',
+  'rank.shareHint':      'Ibahagi sa Telegram · X · atbp.',
+  'rank.leaderboard':    '🏆 Leaderboard',
+  'rank.shared':         'Naibahagi!',
+  'rank.copied':         'Nakopya sa clipboard!',
+  'rank.grade.explorer': '🌱 Explorer',
+  'rank.grade.analyst':  '📊 Analyst',
+  'rank.grade.trader':   '⚡ Trader',
+  'rank.grade.maker':    '🏦 Market Maker',
+  'rank.grade.strategist':'🔱 Strategist',
+
   'lb.loading':     'Naglo-load...',
   'lb.empty':       'Wala pang rekord',
   'lb.fail':        'Nabigo ang pag-load',

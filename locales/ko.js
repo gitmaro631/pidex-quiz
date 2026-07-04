@@ -2,6 +2,7 @@ export default {
   // ── 앱 공통 ──────────────────────────────────────────
   'app.title':      'PiDEX 퀴즈',
   'nav.quiz':       '퀴즈',
+  'nav.survey':     '설문',
   'nav.rank':       '내 등급',
   'nav.stats':      '커뮤니티 통계',
   'btn.next':       '다음 →',
@@ -15,10 +16,11 @@ export default {
   'btn.start':      '시작하기',
 
   // ── 로그인 ───────────────────────────────────────────
-  'login.sub':      'DEX 지식을 테스트하고 등급을 받아보세요',
-  'login.btn':      '퀴즈 시작하기',
-  'login.note':     'Pi Browser 전용',
-  'login.fail':     '연결 실패. 다시 시도해주세요.',
+  'login.sub':        'DEX 지식을 테스트하고 등급을 받아보세요',
+  'login.btn':        '퀴즈 시작하기',
+  'login.connecting': '연결 중...',
+  'login.note':       'Pi Browser 전용',
+  'login.fail':       '연결 실패. 다시 시도해주세요.',
 
   // ── 퀴즈 ─────────────────────────────────────────────
   'quiz.correct':   '정답!',
@@ -87,6 +89,20 @@ export default {
   'stats.col.node':      '노드운영',
   'stats.note':          '* 항목별 응답자 기준 집계. 실시간 업데이트.',
   'stats.resp':          '({n}명 응답)',
+
+  // ── 내 등급 ───────────────────────────────────────────
+  'rank.stats':          '총 {seen}문제 · 정답률 {pct}% · 최고 {high}{unit}',
+  'rank.next':           '{label} 등급까지 {n} 남았어요',
+  'rank.max':            '🎉 최고 등급 달성!',
+  'rank.shareHint':      '텔레그램 · X · 카카오 등에 공유하세요',
+  'rank.leaderboard':    '🏆 리더보드',
+  'rank.shared':         '공유 완료!',
+  'rank.copied':         '클립보드에 복사됐어요!',
+  'rank.grade.explorer': '🌱 탐색자',
+  'rank.grade.analyst':  '📊 분석가',
+  'rank.grade.trader':   '⚡ 트레이더',
+  'rank.grade.maker':    '🏦 마켓메이커',
+  'rank.grade.strategist':'🔱 전략가',
 
   // ── 리더보드 ──────────────────────────────────────────
   'lb.loading':     '불러오는 중...',

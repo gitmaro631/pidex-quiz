@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX Sınav',
   'nav.quiz':       'Sınav',
+  'nav.survey':     'Anket',
   'nav.rank':       'Sıralamam',
   'nav.stats':      'Topluluk İstatistikleri',
   'btn.next':       'Sonraki →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'DEX bilginizi test edin ve sıralamada yerinizi alın',
-  'login.btn':      'Sınavı Başlat',
-  'login.note':     'Yalnızca Pi Browser için',
+  'login.btn':        'Sınavı Başlat',
+  'login.connecting': 'Bağlanıyor...',
+  'login.note':       'Yalnızca Pi Browser için',
   'login.fail':     'Bağlantı başarısız. Lütfen tekrar deneyin.',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':             '({n} yanıt)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} soru · Doğruluk {pct}% · En iyi {high}{unit}',
+  'rank.next':           '{label} için {n} daha',
+  'rank.max':            '🎉 En yüksek sıraya ulaşıldı!',
+  'rank.shareHint':      'Telegram · X\'te paylaş',
+  'rank.leaderboard':    '🏆 Liderlik Tablosu',
+  'rank.shared':         'Paylaşıldı!',
+  'rank.copied':         'Panoya kopyalandı!',
+  'rank.grade.explorer': '🌱 Kaşif',
+  'rank.grade.analyst':  '📊 Analist',
+  'rank.grade.trader':   '⚡ Trader',
+  'rank.grade.maker':    '🏦 Piyasa Yapıcı',
+  'rank.grade.strategist':'🔱 Stratejist',
+
   'lb.loading':     'Yükleniyor...',
   'lb.empty':       'Henüz kayıt yok',
   'lb.fail':        'Yükleme başarısız',

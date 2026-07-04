@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX Maswali',
   'nav.quiz':       'Maswali',
+  'nav.survey':     'Utafiti',
   'nav.rank':       'Nafasi Yangu',
   'nav.stats':      'Takwimu za Jamii',
   'btn.next':       'Ifuatayo →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'Jaribu ujuzi wako wa DEX na upate nafasi yako',
-  'login.btn':      'Anza Maswali',
-  'login.note':     'Kwa Pi Browser pekee',
+  'login.btn':        'Anza Maswali',
+  'login.connecting': 'Inaunganisha...',
+  'login.note':       'Kwa Pi Browser pekee',
   'login.fail':     'Muunganisho umeshindwa. Tafadhali jaribu tena.',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':             '({n} majibu)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} maswali · Usahihi {pct}% · Bora {high}{unit}',
+  'rank.next':           '{n} zaidi kwa {label}',
+  'rank.max':            '🎉 Kiwango cha juu kimefikiwa!',
+  'rank.shareHint':      'Shiriki kwenye Telegram · X n.k.',
+  'rank.leaderboard':    '🏆 Ubao wa Viongozi',
+  'rank.shared':         'Imeshirikiwa!',
+  'rank.copied':         'Imenakiliwa kwenye ubao wa kunakili!',
+  'rank.grade.explorer': '🌱 Mchunguzi',
+  'rank.grade.analyst':  '📊 Mchambuzi',
+  'rank.grade.trader':   '⚡ Mfanyabiashara',
+  'rank.grade.maker':    '🏦 Muunda Soko',
+  'rank.grade.strategist':'🔱 Mkakati',
+
   'lb.loading':     'Inapakia...',
   'lb.empty':       'Bado hakuna rekodi',
   'lb.fail':        'Imeshindwa kupakia',

@@ -1,4 +1,4 @@
-import { getScore, getRank, getNextRank, getStats, getHighScore, getLives, getMode, MODES, addLives, getLastLeaderboardViewTime, setLastLeaderboardViewTime } from './util-storage.js';
+import { getScore, getRank, getNextRank, getStats, getHighScore, getLives, getMode, MODES, RANKS, addLives, getLastLeaderboardViewTime, setLastLeaderboardViewTime } from './util-storage.js';
 import { shareResult } from './util-share.js';
 import { fetchLeaderboard, initFirebase } from './firebase.js';
 import { t } from './util-i18n.js';
@@ -35,18 +35,31 @@ export async function renderRankPage(container) {
   const modeCfg = mode ? MODES[mode] : null;
   const modeBadge = modeCfg ? `<div class="mode-badge">${modeCfg.icon} ${modeCfg.label}</div>` : '';
 
+  const unit = t('quiz.score_unit');
+  const statsText = t('rank.stats')
+    .replace('{seen}', seen)
+    .replace('{pct}', pct)
+    .replace('{high}', highScore)
+    .replace('{unit}', unit);
+
+  const nextHintHTML = next
+    ? `<div class="rank-next-hint">${
+        t('rank.next')
+          .replace('{label}', `<b>${t(next.key)}</b>`)
+          .replace('{n}', `<b>${next.min - score}${unit}</b>`)
+      }</div>`
+    : `<div class="rank-next-hint">${t('rank.max')}</div>`;
+
   container.innerHTML = `
     <div class="rank-page">
 
       <div class="rank-card">
-        <div class="rank-card-title">PiDEX 퀴즈</div>
+        <div class="rank-card-title">${t('app.title')}</div>
         ${modeBadge}
-        <div class="rank-card-rank">${rank.label}</div>
-        <div class="rank-card-score">${score}점</div>
+        <div class="rank-card-rank">${t(rank.key)}</div>
+        <div class="rank-card-score">${score}${unit}</div>
         ${livesDisplay}
-        <div class="rank-card-stats">
-          총 ${seen}문제 · 정답률 ${pct}% · 최고 ${highScore}점
-        </div>
+        <div class="rank-card-stats">${statsText}</div>
         <div class="rank-card-user">Pioneer: ${username}</div>
       </div>
 
@@ -54,24 +67,20 @@ export async function renderRankPage(container) {
         ${getRankProgressHTML(score)}
       </div>
 
-      ${next ? `
-        <div class="rank-next-hint">
-          <b>${next.label}</b> 등급까지 <b>${next.min - score}점</b> 남았어요
-        </div>
-      ` : '<div class="rank-next-hint">🎉 최고 등급 달성!</div>'}
+      ${nextHintHTML}
 
       <button class="btn-share" id="btn-share">${t('btn.share')}</button>
-      <p class="share-hint">텔레그램 · X · 카카오 등에 공유하세요</p>
+      <p class="share-hint">${t('rank.shareHint')}</p>
 
       <!-- 리더보드 모드 탭 -->
       <div class="leaderboard-section">
-        <h3 class="leaderboard-title">🏆 리더보드</h3>
+        <h3 class="leaderboard-title">${t('rank.leaderboard')}</h3>
         <div class="lb-mode-tabs">
           <button class="lb-tab active" data-mode="miner">⛏️ Miner</button>
           <button class="lb-tab" data-mode="pioneer">🚀 Pioneer</button>
           <button class="lb-tab" data-mode="validator">🔱 Validator</button>
         </div>
-        <div id="leaderboard-list" class="leaderboard-loading">불러오는 중...</div>
+        <div id="leaderboard-list" class="leaderboard-loading">${t('lb.loading')}</div>
       </div>
 
     </div>
@@ -79,7 +88,7 @@ export async function renderRankPage(container) {
 
   container.querySelector('#btn-share').addEventListener('click', async () => {
     const result = await shareResult(username);
-    const msg = result === 'shared' ? '공유 완료!' : '클립보드에 복사됐어요!';
+    const msg = result === 'shared' ? t('rank.shared') : t('rank.copied');
     showToast(container, msg);
   });
 
@@ -88,22 +97,22 @@ export async function renderRankPage(container) {
   const listEl = container.querySelector('#leaderboard-list');
 
   async function loadLeaderboard(lbMode) {
-    listEl.innerHTML = '<div class="leaderboard-loading">불러오는 중...</div>';
+    listEl.innerHTML = `<div class="leaderboard-loading">${t('lb.loading')}</div>`;
     try {
       const rows = await fetchLeaderboard(lbMode, 100);
       if (rows.length === 0) {
-        listEl.innerHTML = `<div class="leaderboard-empty">아직 등록된 기록이 없어요</div>`;
+        listEl.innerHTML = `<div class="leaderboard-empty">${t('lb.empty')}</div>`;
       } else {
         listEl.innerHTML = rows.map((r, i) => `
           <div class="leaderboard-row ${r.username === username ? 'leaderboard-me' : ''}">
             <span class="lb-rank">${i + 1}</span>
             <span class="lb-user">${r.username}</span>
-            <span class="lb-score">${r.score}점</span>
+            <span class="lb-score">${r.score}${unit}</span>
           </div>
         `).join('');
       }
     } catch {
-      listEl.innerHTML = `<div class="leaderboard-empty">불러오기 실패</div>`;
+      listEl.innerHTML = `<div class="leaderboard-empty">${t('lb.fail')}</div>`;
     }
   }
 
@@ -126,16 +135,8 @@ export async function renderRankPage(container) {
 }
 
 function getRankProgressHTML(score) {
-  const ranks = [
-    { min: 0,    label: '🌱 탐색자' },
-    { min: 201,  label: '📊 분석가' },
-    { min: 501,  label: '⚡ 트레이더' },
-    { min: 1001, label: '🏦 마켓메이커' },
-    { min: 2001, label: '🔱 전략가' },
-  ];
-
-  return ranks.map((r, i) => {
-    const next    = ranks[i + 1];
+  return RANKS.map((r, i) => {
+    const next    = RANKS[i + 1];
     const active  = score >= r.min;
     const current = active && (!next || score < next.min);
     const pct     = next
@@ -144,7 +145,7 @@ function getRankProgressHTML(score) {
 
     return `
       <div class="rank-step ${active ? 'active' : ''} ${current ? 'current' : ''}">
-        <div class="rank-step-label">${r.label}</div>
+        <div class="rank-step-label">${t(r.key)}</div>
         ${current && next ? `
           <div class="rank-bar-wrap">
             <div class="rank-bar" style="width:${pct}%"></div>

@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX Kuiz',
   'nav.quiz':       'Kuiz',
+  'nav.survey':     'Tinjauan',
   'nav.rank':       'Pangkat Saya',
   'nav.stats':      'Statistik Komuniti',
   'btn.next':       'Seterusnya →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'Uji pengetahuan DEX anda & dapatkan pangkat',
-  'login.btn':      'Mulakan Kuiz',
-  'login.note':     'Khusus untuk Pi Browser',
+  'login.btn':        'Mulakan Kuiz',
+  'login.connecting': 'Menyambung...',
+  'login.note':       'Khusus untuk Pi Browser',
   'login.fail':     'Sambungan gagal. Sila cuba lagi.',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':             '({n} responden)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} soalan · Ketepatan {pct}% · Terbaik {high}{unit}',
+  'rank.next':           '{n} lagi ke {label}',
+  'rank.max':            '🎉 Pangkat tertinggi dicapai!',
+  'rank.shareHint':      'Kongsi di Telegram · X · dll',
+  'rank.leaderboard':    '🏆 Papan Pemimpin',
+  'rank.shared':         'Dikongsi!',
+  'rank.copied':         'Disalin ke papan klip!',
+  'rank.grade.explorer': '🌱 Peneroka',
+  'rank.grade.analyst':  '📊 Analis',
+  'rank.grade.trader':   '⚡ Pedagang',
+  'rank.grade.maker':    '🏦 Pembuat Pasaran',
+  'rank.grade.strategist':'🔱 Ahli Strategi',
+
   'lb.loading':     'Memuatkan...',
   'lb.empty':       'Belum ada rekod',
   'lb.fail':        'Gagal memuatkan',

@@ -64,7 +64,7 @@ function applyNavLabels() {
   const rankTab   = document.querySelector('.nav-tab[data-page="rank"] .nav-label');
   const statsTab  = document.querySelector('.nav-tab[data-page="stats"] .nav-label');
   if (quizTab)   quizTab.textContent   = t('nav.quiz');
-  if (surveyTab) surveyTab.textContent = '설문';
+  if (surveyTab) surveyTab.textContent = t('nav.survey');
   if (rankTab)   rankTab.textContent   = t('nav.rank');
   if (statsTab)  statsTab.textContent  = t('nav.stats');
 }
@@ -74,7 +74,7 @@ async function doLogin() {
   const btn   = document.getElementById('btn-login');
   const errEl = document.getElementById('login-error');
   btn.disabled = true;
-  btn.innerHTML = '연결 중... / Connecting...';
+  btn.innerHTML = `${t('login.connecting')}<br><span class="login-btn-en">Connecting...</span>`;
   if (errEl) errEl.style.display = 'none';
   try {
     const auth = await authenticate();
@@ -139,6 +139,7 @@ function buildLangPicker() {
       opt.classList.add('active');
       updateBtn();
       applyNavLabels();
+      rerenderPage(activePage);
     });
   });
 }
@@ -150,7 +151,7 @@ function renderUtilsOverlay() {
   panel.innerHTML = `
     <div class="utils-header">
       <span class="utils-title">🚀 Pi Hub</span>
-      <button class="utils-close-btn" id="utils-close-btn">닫기 ✕</button>
+      <button class="utils-close-btn" id="utils-close-btn">${t('btn.close')} ✕</button>
     </div>
     <div class="utils-body">
 

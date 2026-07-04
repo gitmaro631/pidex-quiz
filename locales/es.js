@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX Quiz',
   'nav.quiz':       'Quiz',
+  'nav.survey':     'Encuesta',
   'nav.rank':       'Mi Rango',
   'nav.stats':      'Estadísticas de la Comunidad',
   'btn.next':       'Siguiente →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'Pon a prueba tu conocimiento DEX y obtén tu rango',
-  'login.btn':      'Iniciar Quiz',
-  'login.note':     'Solo para Pi Browser',
+  'login.btn':        'Iniciar Quiz',
+  'login.connecting': 'Conectando...',
+  'login.note':       'Solo para Pi Browser',
   'login.fail':     'Error de conexión. Inténtalo de nuevo.',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':             '({n} respuestas)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} preguntas · Precisión {pct}% · Máximo {high}{unit}',
+  'rank.next':           '{n} más para {label}',
+  'rank.max':            '🎉 ¡Rango máximo alcanzado!',
+  'rank.shareHint':      'Comparte en Telegram · X · etc.',
+  'rank.leaderboard':    '🏆 Tabla de Clasificación',
+  'rank.shared':         '¡Compartido!',
+  'rank.copied':         '¡Copiado al portapapeles!',
+  'rank.grade.explorer': '🌱 Explorador',
+  'rank.grade.analyst':  '📊 Analista',
+  'rank.grade.trader':   '⚡ Trader',
+  'rank.grade.maker':    '🏦 Creador de Mercado',
+  'rank.grade.strategist':'🔱 Estratega',
+
   'lb.loading':     'Cargando...',
   'lb.empty':       'Aún no hay registros',
   'lb.fail':        'Error al cargar',

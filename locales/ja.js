@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX クイズ',
   'nav.quiz':       'クイズ',
+  'nav.survey':     'アンケート',
   'nav.rank':       'マイランク',
   'nav.stats':      'コミュニティ統計',
   'btn.next':       '次へ →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'DEX知識をテストしてランクを獲得しよう',
-  'login.btn':      'クイズをはじめる',
-  'login.note':     'Pi Browser専用',
+  'login.btn':        'クイズをはじめる',
+  'login.connecting': '接続中...',
+  'login.note':       'Pi Browser専用',
   'login.fail':     '接続に失敗しました。もう一度お試しください。',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':             '（{n}人回答）',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen}問 · 正答率 {pct}% · 最高 {high}{unit}',
+  'rank.next':           '{label}まであと{n}',
+  'rank.max':            '🎉 最高ランク達成！',
+  'rank.shareHint':      'Telegram · X などでシェア',
+  'rank.leaderboard':    '🏆 リーダーボード',
+  'rank.shared':         'シェアしました！',
+  'rank.copied':         'クリップボードにコピーしました！',
+  'rank.grade.explorer': '🌱 探索者',
+  'rank.grade.analyst':  '📊 アナリスト',
+  'rank.grade.trader':   '⚡ トレーダー',
+  'rank.grade.maker':    '🏦 マーケットメーカー',
+  'rank.grade.strategist':'🔱 ストラテジスト',
+
   'lb.loading':     '読み込み中...',
   'lb.empty':       'まだ記録がありません',
   'lb.fail':        '読み込み失敗',

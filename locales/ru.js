@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX Викторина',
   'nav.quiz':       'Викторина',
+  'nav.survey':     'Опрос',
   'nav.rank':       'Мой Ранг',
   'nav.stats':      'Статистика Сообщества',
   'btn.next':       'Далее →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'Проверьте знания DEX и получите свой ранг',
-  'login.btn':      'Начать Викторину',
-  'login.note':     'Только для Pi Browser',
+  'login.btn':        'Начать Викторину',
+  'login.connecting': 'Подключение...',
+  'login.note':       'Только для Pi Browser',
   'login.fail':     'Ошибка подключения. Попробуйте снова.',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':             '({n} ответов)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} вопросов · Точность {pct}% · Лучший {high}{unit}',
+  'rank.next':           'До {label} ещё {n}',
+  'rank.max':            '🎉 Высший ранг достигнут!',
+  'rank.shareHint':      'Поделиться в Telegram · X и др.',
+  'rank.leaderboard':    '🏆 Таблица лидеров',
+  'rank.shared':         'Поделились!',
+  'rank.copied':         'Скопировано в буфер обмена!',
+  'rank.grade.explorer': '🌱 Исследователь',
+  'rank.grade.analyst':  '📊 Аналитик',
+  'rank.grade.trader':   '⚡ Трейдер',
+  'rank.grade.maker':    '🏦 Маркет-мейкер',
+  'rank.grade.strategist':'🔱 Стратег',
+
   'lb.loading':     'Загрузка...',
   'lb.empty':       'Записей пока нет',
   'lb.fail':        'Ошибка загрузки',

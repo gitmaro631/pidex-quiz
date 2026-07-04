@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX Quiz',
   'nav.quiz':       'Quiz',
+  'nav.survey':     'Survey',
   'nav.rank':       'My Rank',
   'nav.stats':      'Community Stats',
   'btn.next':       'Next →',
@@ -15,10 +16,11 @@ export default {
   'btn.start':      'Get Started',
 
   // ── Login ─────────────────────────────────────────────
-  'login.sub':      'Test your DEX knowledge & earn your rank',
-  'login.btn':      'Start Quiz',
-  'login.note':     'Pi Browser only',
-  'login.fail':     'Connection failed. Please try again.',
+  'login.sub':        'Test your DEX knowledge & earn your rank',
+  'login.btn':        'Start Quiz',
+  'login.connecting': 'Connecting...',
+  'login.note':       'Pi Browser only',
+  'login.fail':       'Connection failed. Please try again.',
 
   // ── Quiz ─────────────────────────────────────────────
   'quiz.correct':   'Correct!',
@@ -89,6 +91,19 @@ export default {
   'stats.resp':          '({n} responses)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} Q · Accuracy {pct}% · Best {high}{unit}',
+  'rank.next':           '{n} more to {label}',
+  'rank.max':            '🎉 Top rank achieved!',
+  'rank.shareHint':      'Share on Telegram · X · etc.',
+  'rank.leaderboard':    '🏆 Leaderboard',
+  'rank.shared':         'Shared!',
+  'rank.copied':         'Copied to clipboard!',
+  'rank.grade.explorer': '🌱 Explorer',
+  'rank.grade.analyst':  '📊 Analyst',
+  'rank.grade.trader':   '⚡ Trader',
+  'rank.grade.maker':    '🏦 Market Maker',
+  'rank.grade.strategist':'🔱 Strategist',
+
   'lb.loading':     'Loading...',
   'lb.empty':       'No records yet',
   'lb.fail':        'Failed to load',

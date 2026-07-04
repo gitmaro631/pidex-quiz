@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX Quiz',
   'nav.quiz':       'Câu hỏi',
+  'nav.survey':     'Khảo sát',
   'nav.rank':       'Xếp hạng',
   'nav.stats':      'Thống kê cộng đồng',
   'btn.next':       'Tiếp theo →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'Kiểm tra kiến thức DEX & nhận xếp hạng của bạn',
-  'login.btn':      'Bắt đầu Quiz',
-  'login.note':     'Chỉ dành cho Pi Browser',
+  'login.btn':        'Bắt đầu Quiz',
+  'login.connecting': 'Đang kết nối...',
+  'login.note':       'Chỉ dành cho Pi Browser',
   'login.fail':     'Kết nối thất bại. Vui lòng thử lại.',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':          '({n} phản hồi)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} câu · Độ chính xác {pct}% · Cao nhất {high}{unit}',
+  'rank.next':           'Còn {n} điểm nữa đến {label}',
+  'rank.max':            '🎉 Đạt hạng cao nhất!',
+  'rank.shareHint':      'Chia sẻ qua Telegram · X · v.v.',
+  'rank.leaderboard':    '🏆 Bảng Xếp Hạng',
+  'rank.shared':         'Đã chia sẻ!',
+  'rank.copied':         'Đã sao chép vào clipboard!',
+  'rank.grade.explorer': '🌱 Nhà Khám Phá',
+  'rank.grade.analyst':  '📊 Nhà Phân Tích',
+  'rank.grade.trader':   '⚡ Trader',
+  'rank.grade.maker':    '🏦 Market Maker',
+  'rank.grade.strategist':'🔱 Chiến Lược Gia',
+
   'lb.loading':     'Đang tải...',
   'lb.empty':       'Chưa có dữ liệu',
   'lb.fail':        'Tải thất bại',

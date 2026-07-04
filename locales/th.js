@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX ควิซ',
   'nav.quiz':       'ควิซ',
+  'nav.survey':     'แบบสำรวจ',
   'nav.rank':       'อันดับของฉัน',
   'nav.stats':      'สถิติชุมชน',
   'btn.next':       'ถัดไป →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'ทดสอบความรู้ DEX และรับอันดับของคุณ',
-  'login.btn':      'เริ่มควิซ',
-  'login.note':     'สำหรับ Pi Browser เท่านั้น',
+  'login.btn':        'เริ่มควิซ',
+  'login.connecting': 'กำลังเชื่อมต่อ...',
+  'login.note':       'สำหรับ Pi Browser เท่านั้น',
   'login.fail':     'การเชื่อมต่อล้มเหลว กรุณาลองอีกครั้ง',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':             '({n} คนตอบ)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} ข้อ · ความแม่นยำ {pct}% · สูงสุด {high}{unit}',
+  'rank.next':           'อีก {n} ถึง {label}',
+  'rank.max':            '🎉 ถึงระดับสูงสุดแล้ว!',
+  'rank.shareHint':      'แชร์ผ่าน Telegram · X ฯลฯ',
+  'rank.leaderboard':    '🏆 ลีดเดอร์บอร์ด',
+  'rank.shared':         'แชร์แล้ว!',
+  'rank.copied':         'คัดลอกไปยังคลิปบอร์ดแล้ว!',
+  'rank.grade.explorer': '🌱 นักสำรวจ',
+  'rank.grade.analyst':  '📊 นักวิเคราะห์',
+  'rank.grade.trader':   '⚡ เทรดเดอร์',
+  'rank.grade.maker':    '🏦 มาร์เก็ตเมกเกอร์',
+  'rank.grade.strategist':'🔱 นักยุทธศาสตร์',
+
   'lb.loading':     'กำลังโหลด...',
   'lb.empty':       'ยังไม่มีบันทึก',
   'lb.fail':        'โหลดไม่สำเร็จ',

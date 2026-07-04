@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX 测验',
   'nav.quiz':       '测验',
+  'nav.survey':     '调查',
   'nav.rank':       '我的等级',
   'nav.stats':      '社区统计',
   'btn.next':       '下一题 →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      '测试您的DEX知识并获得等级',
-  'login.btn':      '开始测验',
-  'login.note':     '仅限Pi浏览器',
+  'login.btn':        '开始测验',
+  'login.connecting': '连接中...',
+  'login.note':       '仅限Pi浏览器',
   'login.fail':     '连接失败，请重试。',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':          '（{n}人回答）',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen}题 · 正确率 {pct}% · 最高 {high}{unit}',
+  'rank.next':           '距{label}还差{n}',
+  'rank.max':            '🎉 已达最高等级！',
+  'rank.shareHint':      '分享到 Telegram · X 等',
+  'rank.leaderboard':    '🏆 排行榜',
+  'rank.shared':         '已分享！',
+  'rank.copied':         '已复制到剪贴板！',
+  'rank.grade.explorer': '🌱 探索者',
+  'rank.grade.analyst':  '📊 分析师',
+  'rank.grade.trader':   '⚡ 交易者',
+  'rank.grade.maker':    '🏦 做市商',
+  'rank.grade.strategist':'🔱 战略家',
+
   'lb.loading':     '加载中...',
   'lb.empty':       '暂无记录',
   'lb.fail':        '加载失败',

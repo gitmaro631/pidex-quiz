@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'PiDEX क्विज़',
   'nav.quiz':       'क्विज़',
+  'nav.survey':     'सर्वेक्षण',
   'nav.rank':       'मेरी रैंक',
   'nav.stats':      'समुदाय आँकड़े',
   'btn.next':       'अगला →',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'अपना DEX ज्ञान परखें और रैंक पाएं',
-  'login.btn':      'क्विज़ शुरू करें',
-  'login.note':     'केवल Pi Browser के लिए',
+  'login.btn':        'क्विज़ शुरू करें',
+  'login.connecting': 'कनेक्ट हो रहा है...',
+  'login.note':       'केवल Pi Browser के लिए',
   'login.fail':     'कनेक्शन विफल। कृपया पुनः प्रयास करें।',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':             '({n} उत्तर)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} प्रश्न · सटीकता {pct}% · सर्वश्रेष्ठ {high}{unit}',
+  'rank.next':           '{label} तक {n} और',
+  'rank.max':            '🎉 सर्वोच्च रैंक!',
+  'rank.shareHint':      'Telegram · X पर साझा करें',
+  'rank.leaderboard':    '🏆 लीडरबोर्ड',
+  'rank.shared':         'साझा किया!',
+  'rank.copied':         'क्लिपबोर्ड पर कॉपी!',
+  'rank.grade.explorer': '🌱 खोजकर्ता',
+  'rank.grade.analyst':  '📊 विश्लेषक',
+  'rank.grade.trader':   '⚡ व्यापारी',
+  'rank.grade.maker':    '🏦 मार्केट मेकर',
+  'rank.grade.strategist':'🔱 रणनीतिकार',
+
   'lb.loading':     'लोड हो रहा है...',
   'lb.empty':       'अभी कोई रिकॉर्ड नहीं',
   'lb.fail':        'लोड विफल',

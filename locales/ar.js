@@ -2,6 +2,7 @@ export default {
   // ── App common ────────────────────────────────────────
   'app.title':      'اختبار PiDEX',
   'nav.quiz':       'اختبار',
+  'nav.survey':     'استطلاع',
   'nav.rank':       'ترتيبي',
   'nav.stats':      'إحصاءات المجتمع',
   'btn.next':       '→ التالي',
@@ -16,8 +17,9 @@ export default {
 
   // ── Login ─────────────────────────────────────────────
   'login.sub':      'اختبر معرفتك بـ DEX واحصل على ترتيبك',
-  'login.btn':      'ابدأ الاختبار',
-  'login.note':     'لمتصفح Pi Browser فقط',
+  'login.btn':        'ابدأ الاختبار',
+  'login.connecting': 'جارٍ الاتصال...',
+  'login.note':       'لمتصفح Pi Browser فقط',
   'login.fail':     'فشل الاتصال. يرجى المحاولة مرة أخرى.',
 
   // ── Quiz ─────────────────────────────────────────────
@@ -89,6 +91,19 @@ export default {
   'stats.resp':             '({n} إجابة)',
 
   // ── Leaderboard ──────────────────────────────────────
+  'rank.stats':          '{seen} سؤال · الدقة {pct}% · الأفضل {high}{unit}',
+  'rank.next':           '{n} نقطة للوصول إلى {label}',
+  'rank.max':            '🎉 تم الوصول للمرتبة الأعلى!',
+  'rank.shareHint':      'شارك على Telegram · X وغيرها',
+  'rank.leaderboard':    '🏆 لوحة المتصدرين',
+  'rank.shared':         'تم المشاركة!',
+  'rank.copied':         'تم النسخ إلى الحافظة!',
+  'rank.grade.explorer': '🌱 مستكشف',
+  'rank.grade.analyst':  '📊 محلل',
+  'rank.grade.trader':   '⚡ متداول',
+  'rank.grade.maker':    '🏦 صانع سوق',
+  'rank.grade.strategist':'🔱 استراتيجي',
+
   'lb.loading':     'جارٍ التحميل...',
   'lb.empty':       'لا توجد سجلات حتى الآن',
   'lb.fail':        'فشل التحميل',

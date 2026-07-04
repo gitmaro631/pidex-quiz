@@ -232,12 +232,12 @@ export function resetGame() {
 }
 
 // ── 등급 계산 ─────────────────────────────────────────
-const RANKS = [
-  { min: 0,    label: '🌱 탐색자',    labelEn: 'Explorer' },
-  { min: 201,  label: '📊 분석가',    labelEn: 'Analyst' },
-  { min: 501,  label: '⚡ 트레이더',  labelEn: 'Trader' },
-  { min: 1001, label: '🏦 마켓메이커', labelEn: 'Market Maker' },
-  { min: 2001, label: '🔱 전략가',    labelEn: 'Strategist' },
+export const RANKS = [
+  { min: 0,    key: 'rank.grade.explorer',   label: '🌱 탐색자',    labelEn: 'Explorer' },
+  { min: 201,  key: 'rank.grade.analyst',    label: '📊 분석가',    labelEn: 'Analyst' },
+  { min: 501,  key: 'rank.grade.trader',     label: '⚡ 트레이더',  labelEn: 'Trader' },
+  { min: 1001, key: 'rank.grade.maker',      label: '🏦 마켓메이커', labelEn: 'Market Maker' },
+  { min: 2001, key: 'rank.grade.strategist', label: '🔱 전략가',    labelEn: 'Strategist' },
 ];
 
 export function getRank(score) {
