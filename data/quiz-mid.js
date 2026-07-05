@@ -479,4 +479,145 @@ export const quizMid = [
     source: 'korean_ep12',
   },
 
+  // ── Pi2Day 2026 ──────────────────────────────────────
+  {
+    id: 'M035',
+    q: 'SoloHost의 분산 컴퓨팅에 우선 참여할 수 있는 조건은?',
+    choices: [
+      'KYC 인증 완료 파이오니어 전원',
+      '상위 약 100명의 노드 운영자',
+      'Pi 1,000개 이상 보유자',
+      'Pi Browser 앱 설치자',
+    ],
+    answer: 1,
+    explanation: 'SoloHost의 분산 컴퓨팅 기능은 상위 약 100명의 노드 운영자가 먼저 유휴 컴퓨팅 자원을 AI 작업에 기여할 수 있도록 설계되었습니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'M036',
+    q: 'PiVerify를 이용한 외부 기업이 서비스 비용을 지불하는 수단은?',
+    choices: [
+      '달러(USD)',
+      '이더리움(ETH)',
+      'Pi 암호화폐',
+      '비트코인(BTC)',
+    ],
+    answer: 2,
+    explanation: 'PiVerify를 이용하는 외부 기업은 인증 서비스 비용을 Pi로 지불합니다. 이는 Pi 생태계 외부에서 실제 Pi 사용 수요를 창출합니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'M037',
+    q: 'SoloHost 앱 게시 및 실행 순서로 올바른 것은?',
+    choices: [
+      '사용자 설치 → 개발자 빌드 → Pi Desktop 게시 → 로컬 실행',
+      '개발자 빌드 → Pi Desktop 게시 → 사용자 설치 → 로컬 실행',
+      'Pi Desktop 게시 → 개발자 빌드 → 로컬 실행 → 사용자 설치',
+      'Pi Cloud 업로드 → 사용자 다운로드 → 원격 실행',
+    ],
+    answer: 1,
+    explanation: 'SoloHost는 개발자가 앱을 빌드하고 Pi Desktop에 게시하면, 사용자가 검색·설치 후 자신의 기기에서 로컬로 실행하는 방식입니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'M038',
+    q: 'SoloHost가 기존 클라우드 서비스와 다른 핵심 차이는?',
+    choices: [
+      '앱이 Pi Core Team 서버에서 중앙 실행된다',
+      '앱이 원격 클라우드가 아닌 사용자 기기에서 로컬 실행된다',
+      'Pi 결제 없이 무료로 사용 가능하다',
+      'Pi Browser 안에서만 동작한다',
+    ],
+    answer: 1,
+    explanation: 'SoloHost는 앱이 원격 서버가 아닌 사용자 자신의 컴퓨터에서 로컬로 실행됩니다. 이는 탈중앙화·프라이버시 측면에서 클라우드 방식과 근본적으로 다릅니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'M039',
+    q: 'Pi2Day 2026 기준 SoloHost의 현재 출시 상태는?',
+    choices: [
+      '정식 출시 완료',
+      '개발 예정 단계',
+      '베타 출시, 분산 컴퓨팅은 출시 예정',
+      '테스트넷 전용',
+    ],
+    answer: 2,
+    explanation: 'SoloHost는 Pi2Day 2026에 베타로 출시되었으며, 분산 컴퓨팅 기능은 아직 "출시 예정(Coming Soon)" 상태입니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'M040',
+    q: 'Pi 메인넷 V23 업그레이드로 도입된 DeFi 기능 두 가지는?',
+    choices: [
+      'Pi KYC와 Pi Bridge',
+      'Pi Staking과 Pi Lending',
+      'DEX와 AMM',
+      'Pi Chat과 Pi Social',
+    ],
+    answer: 2,
+    explanation: 'Pi 메인넷 V23 업그레이드는 탈중앙화 거래소(DEX)와 자동화 마켓 메이커(AMM) 기능을 Pi 생태계에 도입했습니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'M041',
+    q: 'Pi 노드가 분산 컴퓨팅에 참여하는 방식은?',
+    choices: [
+      '강제 참여, 모든 노드가 자동 배정',
+      '노드 운영자가 자발적으로 옵트인(opt-in)',
+      'Pi Core Team이 무작위 선정',
+      'Pi 보유량 기준 자동 참여',
+    ],
+    answer: 1,
+    explanation: '분산 컴퓨팅 참여는 노드 운영자가 자발적으로 옵트인(opt-in)하는 방식입니다. 참여 시 유휴 컴퓨팅 자원을 제공하고 Pi 보상을 받을 수 있습니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'M042',
+    q: 'PiVerify의 신뢰도 기반이 되는 Pi의 자산은?',
+    choices: [
+      'Pi의 시가총액',
+      '전 세계 1,800만 명 이상의 인증된 파이오니어 데이터베이스',
+      'Pi Core Team의 특허 기술',
+      'Pi 노드 네트워크의 연산 능력',
+    ],
+    answer: 1,
+    explanation: 'PiVerify는 수년간 실제 KYC 처리를 통해 구축한 1,800만 명 이상의 인증된 파이오니어 데이터베이스를 신뢰도의 기반으로 활용합니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'M043',
+    q: 'Pi Browser가 Pi 생태계에서 수행하는 역할은?',
+    choices: [
+      'Pi 채굴 전용 앱',
+      'Pi 생태계 내 탈중앙화 앱(dApp)의 주요 게이트웨이',
+      'Pi 노드 운영 관리 도구',
+      'Pi KYC 인증 전용 브라우저',
+    ],
+    answer: 1,
+    explanation: 'Pi Browser는 Pi 생태계 내 탈중앙화 앱(dApp)의 주요 게이트웨이 역할을 합니다. Pi Sign-In은 이 브라우저 밖에서도 Pi 계정을 활용할 수 있도록 확장한 기능입니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'M044',
+    q: 'Pi Launchpad가 DEX 유동성을 생성하는 방식은?',
+    choices: [
+      'Pi Core Team이 직접 유동성을 공급',
+      '토큰 출시 시 모인 Pi를 해당 토큰과 페어링하여 유동성 풀 구성',
+      '파이오니어가 수동으로 Pi를 예치',
+      '외부 거래소에서 유동성을 차입',
+    ],
+    answer: 1,
+    explanation: 'Pi Launchpad는 토큰 출시 과정에서 모인 Pi를 해당 토큰과 페어링하여 Pi DEX의 유동성 풀을 자동으로 구성합니다. 이를 통해 토큰 출시와 DEX 거래 환경이 동시에 만들어집니다.',
+    source: 'pi2day_2026',
+  },
+
 ];

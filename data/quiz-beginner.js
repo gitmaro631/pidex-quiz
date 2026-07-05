@@ -552,4 +552,145 @@ export const quizBeginner = [
     source: 'korean_ep12',
   },
 
+  // ── Pi2Day 2026 ──────────────────────────────────────
+  {
+    id: 'B030',
+    q: 'Pi2Day 2026에서 발표된 3가지 신기능은 무엇인가요?',
+    choices: [
+      'Pi Wallet, Pi Chat, Pi Browser',
+      'SoloHost, PiVerify, Pi Sign-In',
+      'Pi DEX, Pi Launchpad, Pi Node',
+      'Pi KYC, Pi Staking, Pi Bridge',
+    ],
+    answer: 1,
+    explanation: 'Pi Core Team은 Pi2Day 2026(6월 28일)에 SoloHost, PiVerify, Pi Sign-In 세 가지 신기능을 발표했습니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'B031',
+    q: 'Pi2Day는 매년 몇 월 며칠인가요?',
+    choices: [
+      '3월 14일',
+      '6월 14일',
+      '6월 28일',
+      '12월 28일',
+    ],
+    answer: 2,
+    explanation: 'Pi2Day는 파이(π)의 날인 3월 14일(Pi Day)의 2배인 6월 28일입니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'B032',
+    q: 'Pi Sign-In은 어떤 서비스와 유사한 방식인가요?',
+    choices: [
+      'Pi 지갑 자동 연동',
+      'Sign in with Google',
+      'Pi KYC 인증',
+      'Pi DEX 자동 거래',
+    ],
+    answer: 1,
+    explanation: 'Pi Sign-In은 "Sign in with Google"처럼 Pi 계정 하나로 외부 앱·웹사이트에 로그인할 수 있는 서비스입니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'B033',
+    q: 'SoloHost는 어느 플랫폼에서 실행되나요?',
+    choices: [
+      'Pi Browser',
+      'Pi Mobile App',
+      'Pi Desktop',
+      'Pi Node Web UI',
+    ],
+    answer: 2,
+    explanation: 'SoloHost는 Pi Desktop에서 실행되는 프레임워크로, 파이오니어가 자신의 컴퓨터에서 로컬 앱을 실행할 수 있게 해줍니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'B034',
+    q: '2026년 5월 기준 활성 Pi 노드 수는 약 몇 개인가요?',
+    choices: [
+      '약 4만 2천 개',
+      '약 42만 1천 개',
+      '약 4백만 개',
+      '약 420개',
+    ],
+    answer: 1,
+    explanation: '2026년 5월 기준 Pi 노드 수는 421,000개 이상으로, 파이오니어들이 운영하는 대규모 분산 네트워크입니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'B035',
+    q: 'PiVerify가 외부 플랫폼에 제공하는 핵심 서비스는?',
+    choices: [
+      'Pi 결제 처리',
+      '실제 인간 인증(KYC) 서비스',
+      'Pi 채굴 위임',
+      'Pi 지갑 생성',
+    ],
+    answer: 1,
+    explanation: 'PiVerify는 Pi가 구축한 실제 인간 인증 능력을 외부 서드파티 플랫폼에 KYC 서비스로 제공합니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'B036',
+    q: 'Pi2Day 2026 Ecosystem Quest를 완료하면 받는 보상은?',
+    choices: [
+      'Pi 코인 지급',
+      '채굴 속도 2배 부스터',
+      '인앱 특별 배지',
+      'Pi DEX 수수료 면제',
+    ],
+    answer: 2,
+    explanation: 'Pi2Day 2026 Ecosystem Quest를 완료하면 Pi Chats·Pi Social Profiles에서 사용할 수 있는 특별 에디션 배지를 받을 수 있습니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'B037',
+    q: 'Pi 메인넷의 평균 블록 생성 시간은?',
+    choices: [
+      '약 1초',
+      '약 5초',
+      '약 10분',
+      '약 1시간',
+    ],
+    answer: 1,
+    explanation: 'Pi 메인넷의 블록 생성 시간은 평균 약 5초로, 빠른 트랜잭션 처리를 지원합니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'B038',
+    q: 'Pi Launchpad의 주요 역할은?',
+    choices: [
+      'Pi 채굴 속도를 높이는 부스터',
+      '파이오니어 간 Pi 전송 서비스',
+      '생태계 토큰 출시 및 DEX 유동성 풀 연결',
+      'Pi KYC 인증 처리',
+    ],
+    answer: 2,
+    explanation: 'Pi Launchpad는 프로젝트가 생태계 토큰을 출시하고, 모인 Pi를 해당 토큰과 페어링하여 Pi DEX의 유동성 풀을 만드는 역할을 합니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'B039',
+    q: 'Pi Sign-In이 Pi Browser 외부에서도 동작한다는 것의 의미는?',
+    choices: [
+      'Pi 없이도 채굴이 가능하다',
+      '외부 웹사이트·앱에서 Pi 계정으로 로그인할 수 있다',
+      'Pi Browser가 더 이상 필요 없다',
+      'Pi 지갑이 자동으로 외부 앱에 연결된다',
+    ],
+    answer: 1,
+    explanation: 'Pi Sign-In은 Pi Browser 없이도 Pi 계정으로 외부 서드파티 앱과 웹사이트에 로그인할 수 있게 해줘, Pi의 활용 범위를 Web2 플랫폼까지 확장합니다.',
+    source: 'pi2day_2026',
+  },
+
 ];

@@ -214,4 +214,75 @@ export const quizAdvanced = [
     source: 'korean_ep11',
   },
 
+  // ── Pi2Day 2026 ──────────────────────────────────────
+  {
+    id: 'A020',
+    q: 'Pi2Day 2026 세 가지 발표(SoloHost·PiVerify·Pi Sign-In)를 관통하는 공통 전략 방향은?',
+    choices: [
+      'Pi 채굴 속도와 보상을 극대화하는 방향',
+      'Pi 인프라(컴퓨팅·신원인증)를 외부 세계에 개방하여 실제 유틸리티 창출',
+      'Pi를 기존 금융 시스템에 완전히 통합하는 방향',
+      'Pi 생태계를 Pi Browser 안으로 더 집중시키는 방향',
+    ],
+    answer: 1,
+    explanation: 'SoloHost(컴퓨팅), PiVerify(신원인증), Pi Sign-In(계정 인증) 모두 Pi가 내부 생태계를 넘어 외부 세계에 인프라를 개방하고 실질적 유틸리티를 만드는 전략을 공유합니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'A021',
+    q: 'PiVerify가 Pi 생태계 경제에 기여하는 방식으로 가장 정확한 것은?',
+    choices: [
+      '파이오니어의 채굴량을 늘려 Pi 공급을 증가시킨다',
+      '외부 기업이 인증 비용을 Pi로 지불 → Pi 생태계 외부에서 실제 Pi 수요 창출',
+      'Pi 거래 수수료를 낮춰 DEX 거래량을 늘린다',
+      'Pi를 담보로 스테이블코인을 발행한다',
+    ],
+    answer: 1,
+    explanation: 'PiVerify를 사용하는 외부 기업이 Pi로 비용을 지불함으로써, 채굴·투기와 무관한 실제 Pi 사용 수요가 생태계 밖에서 발생합니다. 이는 Pi 경제의 실질적 순환을 만드는 핵심 메커니즘입니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'A022',
+    q: '42만 개 이상의 Pi 노드가 SoloHost 분산 컴퓨팅 레이어로 전환될 경우 기대되는 효과는?',
+    choices: [
+      'Pi 채굴 속도가 기하급수적으로 증가한다',
+      '파이오니어의 유휴 컴퓨팅 자원이 AI 작업에 활용되고 노드 운영자는 Pi 보상을 받는다',
+      'Pi DEX 거래 수수료가 완전히 없어진다',
+      'Pi 메인넷 블록 생성 시간이 1초 미만으로 단축된다',
+    ],
+    answer: 1,
+    explanation: '42만 개 이상의 파이오니어 운영 노드가 유휴 컴퓨팅 자원을 AI·분산 컴퓨팅 작업에 제공하면, Pi 네트워크는 실용적인 컴퓨팅 레이어로 기능하고 노드 운영자는 Pi 보상을 받을 수 있습니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'A023',
+    q: 'Pi Sign-In이 Pi 생태계 확장에 갖는 전략적 의미로 가장 정확한 것은?',
+    choices: [
+      'Pi Browser 내 앱 수를 늘려 생태계를 강화한다',
+      'Pi Browser 없이도 Pi 정체성을 활용 → 외부 Web2 플랫폼으로 Pi 계정 확장',
+      'Pi KYC 없이도 외부 서비스 이용이 가능해진다',
+      'Pi 지갑을 외부 DEX에 자동 연결한다',
+    ],
+    answer: 1,
+    explanation: 'Pi Sign-In은 Pi Browser라는 제약을 벗어나 Pi 계정을 외부 Web2 플랫폼에서도 사용할 수 있게 합니다. 이는 Pi 정체성 레이어를 전체 인터넷으로 확장하는 전략적 포석입니다.',
+    source: 'pi2day_2026',
+  },
+
+  {
+    id: 'A024',
+    q: 'SoloHost·PiVerify·Pi Sign-In이 각각 해결하는 문제를 올바르게 연결한 것은?',
+    choices: [
+      'SoloHost=채굴 최적화, PiVerify=Pi 지갑 보안, Pi Sign-In=DEX 거래 자동화',
+      'SoloHost=로컬 컴퓨팅 인프라, PiVerify=외부 신원 인증 수요, Pi Sign-In=Pi 계정의 외부 플랫폼 확장',
+      'SoloHost=Pi 채굴 풀, PiVerify=Pi 스테이킹, Pi Sign-In=Pi 브리지',
+      'SoloHost=Pi 거래소, PiVerify=Pi 세금 처리, Pi Sign-In=Pi 지갑 복구',
+    ],
+    answer: 1,
+    explanation: 'SoloHost는 Pi 노드를 로컬 컴퓨팅 인프라로, PiVerify는 외부 기업의 신원인증 수요를 Pi 자산으로 해결하고, Pi Sign-In은 Pi 계정을 외부 플랫폼까지 확장합니다. 세 기능 모두 Pi를 외부 세계와 연결하는 역할입니다.',
+    source: 'pi2day_2026',
+  },
+
 ];
