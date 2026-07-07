@@ -15,7 +15,10 @@ export default {
   'btn.close':      'बंद करें',
   'hub.open':       'Pi Browser में खोलें →',
   'hub.pidex.desc': 'Pi DEX ऑल-इन-वन — आर्बिट्राज, LP कैलकुलेटर व स्वैप।',
-  'hub.mmlab.desc': 'मार्केट मेकिंग बैकटेस्ट सिम्युलेटर। Stellar Mainnet व Pi DEX के असली डेटा से परीक्षण।',
+  'hub.mmlab.desc':     'मार्केट मेकिंग बैकटेस्ट सिम्युलेटर। Stellar Mainnet व Pi DEX के असली डेटा से परीक्षण।',
+  'hub.hack.desc':     'Pi वॉलेट हैक ट्रैकर & कम्युनिटी रिपोर्ट टूल।',
+  'hub.survival.desc': '11 जंगली परिदृश्यों में टेक्स्ट-आधारित सर्वाइवल एडवेंचर।',
+  'hub.coming_soon':   'जल्द आ रहा है',
   'btn.start':      'शुरू करें',
 
   // ── Login ─────────────────────────────────────────────

@@ -15,7 +15,10 @@ export default {
   'btn.close':      'Close',
   'hub.open':       'Open in Pi Browser →',
   'hub.pidex.desc': 'Pi DEX all-in-one utility — arbitrage, LP calculator & swap simulator.',
-  'hub.mmlab.desc': 'Market making strategy backtest simulator. Test with real trade data from Stellar Mainnet & Pi DEX.',
+  'hub.mmlab.desc':     'Market making strategy backtest simulator. Test with real trade data from Stellar Mainnet & Pi DEX.',
+  'hub.hack.desc':     'Pi wallet hack tracking & community reporting tool.',
+  'hub.survival.desc': 'Text-based survival adventure across 11 wilderness scenarios.',
+  'hub.coming_soon':   'Coming soon',
   'btn.start':      'Get Started',
 
   // ── Login ─────────────────────────────────────────────

@@ -15,7 +15,10 @@ export default {
   'btn.close':      'Funga',
   'hub.open':       'Fungua katika Pi Browser →',
   'hub.pidex.desc': 'Zana kamili ya Pi DEX — arbitrage, LP calculator na swap.',
-  'hub.mmlab.desc': 'Simulator ya backtest ya market making. Jaribu na data halisi kutoka Stellar & Pi DEX.',
+  'hub.mmlab.desc':     'Simulator ya backtest ya market making. Jaribu na data halisi kutoka Stellar & Pi DEX.',
+  'hub.hack.desc':     'Kifaa cha kufuatilia hack za pochi za Pi & ripoti za jamii.',
+  'hub.survival.desc': 'Mchezo wa kuishi wa maandishi katika hali 11 za msituni.',
+  'hub.coming_soon':   'Inakuja hivi karibuni',
   'btn.start':      'Anza',
 
   // ── Login ─────────────────────────────────────────────

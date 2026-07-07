@@ -15,7 +15,10 @@ export default {
   'btn.close':      'Kapat',
   'hub.open':       "Pi Browser'da Aç →",
   'hub.pidex.desc': 'Pi DEX hepsi bir arada — arbitraj, LP hesaplayıcı ve swap.',
-  'hub.mmlab.desc': 'Market making backtest simülatörü. Stellar ve Pi DEX gerçek verileriyle test edin.',
+  'hub.mmlab.desc':     'Market making backtest simülatörü. Stellar ve Pi DEX gerçek verileriyle test edin.',
+  'hub.hack.desc':     'Pi cüzdan hack takipçisi & topluluk raporlama aracı.',
+  'hub.survival.desc': '11 vahşi doğa senaryosunda metin tabanlı hayatta kalma macerası.',
+  'hub.coming_soon':   'Yakında',
   'btn.start':      'Başla',
 
   // ── Login ─────────────────────────────────────────────

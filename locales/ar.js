@@ -15,7 +15,10 @@ export default {
   'btn.close':      'إغلاق',
   'hub.open':       'افتح في Pi Browser →',
   'hub.pidex.desc': 'أداة Pi DEX الشاملة — المراجحة وحاسبة LP ومحاكي التبادل.',
-  'hub.mmlab.desc': 'محاكي اختبار market making. اختبر ببيانات Stellar وPi DEX الحقيقية.',
+  'hub.mmlab.desc':     'محاكي اختبار market making. اختبر ببيانات Stellar وPi DEX الحقيقية.',
+  'hub.hack.desc':     'أداة تتبع اختراق محافظ Pi & الإبلاغ المجتمعي.',
+  'hub.survival.desc': 'مغامرة نجاة نصية عبر 11 سيناريو في البرية.',
+  'hub.coming_soon':   'قريباً',
   'btn.start':      'ابدأ',
 
   // ── Login ─────────────────────────────────────────────

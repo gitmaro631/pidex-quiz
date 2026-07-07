@@ -15,7 +15,10 @@ export default {
   'btn.close':      'Isara',
   'hub.open':       'Buksan sa Pi Browser →',
   'hub.pidex.desc': 'All-in-one utility ng Pi DEX — arbitrage, LP calculator at swap simulator.',
-  'hub.mmlab.desc': 'Backtest simulator ng market making strategy. Subukan gamit ang tunay na datos mula sa Stellar & Pi DEX.',
+  'hub.mmlab.desc':     'Backtest simulator ng market making strategy. Subukan gamit ang tunay na datos mula sa Stellar & Pi DEX.',
+  'hub.hack.desc':     'Pi wallet hack tracker & community reporting tool.',
+  'hub.survival.desc': 'Text-based survival adventure sa 11 wilderness scenario.',
+  'hub.coming_soon':   'Malapit na',
   'btn.start':      'Magsimula',
 
   // ── Login ─────────────────────────────────────────────
