@@ -95,9 +95,9 @@ export async function renderRankPage(container) {
 
   // 일회성 DB 마이그레이션 (중복 제거 + username doc ID 통일)
   initFirebase();
-  if (!localStorage.getItem('lb_migrated_v2')) {
+  if (!localStorage.getItem('lb_migrated_v3')) {
     migrateLeaderboard()
-      .then(() => localStorage.setItem('lb_migrated_v2', '1'))
+      .then(() => localStorage.setItem('lb_migrated_v3', '1'))
       .catch(console.warn);
   }
   const listEl = container.querySelector('#leaderboard-list');
