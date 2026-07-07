@@ -1,4 +1,5 @@
 import { initPiSDK, authenticate } from './pi-sdk.js';
+import { detectCountry } from './util-i18n.js';
 import { renderQuizPage }   from './page-quiz.js';
 import { renderRankPage }   from './page-rank.js';
 import { renderStatsPage }  from './page-stats.js';
@@ -6,7 +7,7 @@ import { renderSurveyPage } from './page-survey.js';
 import { getScore, getLives, isSubscribed } from './util-storage.js';
 import { initLang, t, getLang, setLang, SUPPORTED_LANGS } from './util-i18n.js';
 import { renderHelpModal }  from './page-help.js';
-import { initFirebase, loadSurveyFromFirestore } from './firebase.js';
+import { initFirebase, loadSurveyFromFirestore, updateLeaderboardCountry } from './firebase.js';
 import { mergeSurveyFromCloud } from './util-storage.js';
 
 // ── 현재 로그인한 Pi UID ──────────────────────────────
@@ -100,6 +101,11 @@ async function doLogin() {
       const cloudData = await loadSurveyFromFirestore(currentUid);
       if (cloudData) {
         mergeSurveyFromCloud(cloudData.answers, cloudData.completedIds);
+      }
+      // 리더보드 country 필드 없는 기존 항목 업서트
+      const country = detectCountry();
+      if (country && user?.username) {
+        updateLeaderboardCountry(user.username, country).catch(console.warn);
       }
     }
 

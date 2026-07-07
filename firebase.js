@@ -70,6 +70,23 @@ export async function submitLeaderboardScore(username, score, mode, country = ''
   }
 }
 
+export async function updateLeaderboardCountry(username, country) {
+  if (!db) initFirebase();
+  if (!username || !country) return;
+  const modes = ['miner', 'pioneer', 'validator'];
+  await Promise.all(modes.map(async (m) => {
+    const docRef = db.collection(`leaderboard_${m}`).doc(username);
+    try {
+      const doc = await docRef.get();
+      if (doc.exists && !doc.data().country) {
+        await docRef.update({ country });
+      }
+    } catch (e) {
+      console.warn(`country 업데이트 실패(${m}):`, e);
+    }
+  }));
+}
+
 export async function fetchLeaderboard(mode, limit = 100) {
   if (!db) initFirebase();
   const col = `leaderboard_${mode}`;

@@ -698,7 +698,7 @@ async function renderGameOver(container) {
 
   container.querySelector('#btn-submit').addEventListener('click', async () => {
     try {
-      await submitLeaderboardScore(username, finalScore, mode);
+      await submitLeaderboardScore(username, finalScore, mode, detectCountry());
     } catch (e) {
       console.warn('리더보드 등록 실패:', e);
     }
