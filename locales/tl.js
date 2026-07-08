@@ -1014,7 +1014,7 @@
   'A017.c3': 'Ang mga paghinto ng imbentaryo ay mas mabilis na nangyayari at ang kita ng spread ay nagiging mas mataas',
   'A017.explain': 'Ang pagbaba ng threshold ay nagpapaging mas sensitibo sa sistema, mabilis na pinutol ang mga pagkawala sa panahon ng matalim na pagbaba/pagtaas. Gayunpaman, madalas din itong huminto sa panahon ng normal na paggalaw ng presyo, na nagdudulot ng napalampas na mga pagkakataon. Ang pagpapatibay ng proteksyon ay nagbabawas ng mga pagkakataon, at ang pagdaragdag ng mga pagkakataon ay nagpapahina ng proteksyon — iyon ang trade-off.',
 
-  'notice_skip_week Huwag ipakita ng isang linggo': '',
+  'notice_skip_week': 'Huwag ipakita sa isang araw',
   'notice_confirm': 'OK',
 
   'ptr_pull': "I-pull para i-refresh",

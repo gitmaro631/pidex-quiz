@@ -32,21 +32,54 @@ const NOTICE = {
 };
 
 // ── 공지 팝업 ────────────────────────────────────────
-function showNoticeIfNeeded() {
-  if (!NOTICE) return;
+const _NOTICE_COL = 'notices_pidex_quiz';
+
+async function showNoticeIfNeeded() {
   const SKIP_KEY    = 'notice_skip_until';
   const VERSION_KEY = 'notice_skip_version';
+  let notices = [];
+  try {
+    if (typeof firebase !== 'undefined' && firebase.apps.length) {
+      const db = firebase.firestore();
+      if (NOTICE) {
+        const ref  = db.collection(_NOTICE_COL).doc(NOTICE.version);
+        const snap = await ref.get();
+        if (!snap.exists) await ref.set({ ...NOTICE, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      }
+      const q = await db.collection(_NOTICE_COL).orderBy('createdAt', 'asc').get();
+      notices = q.docs.map(d => d.data());
+    }
+  } catch {}
+  if (!notices.length && NOTICE) notices = [NOTICE];
+  if (!notices.length) return;
+  const latest = notices[notices.length - 1];
   const skipUntil   = parseInt(localStorage.getItem(SKIP_KEY) || '0', 10);
   const skipVersion = localStorage.getItem(VERSION_KEY) || '';
-  if (skipVersion === NOTICE.version && Date.now() < skipUntil) return;
-  const lang = getLang();
-  const text = NOTICE[lang] || NOTICE['en'];
+  if (skipVersion === latest.version && Date.now() < skipUntil) return;
+  _showNoticePopup(notices, notices.length - 1);
+}
+
+function _showNoticePopup(notices, idx) {
+  const SKIP_KEY    = 'notice_skip_until';
+  const VERSION_KEY = 'notice_skip_version';
+  const latest  = notices[notices.length - 1];
+  const notice  = notices[idx];
+  const lang    = getLang();
+  const text    = notice[lang] || notice.en;
+  const total   = notices.length;
+  document.getElementById('notice-overlay')?.remove();
   const overlay = document.createElement('div');
   overlay.id = 'notice-overlay';
   overlay.className = 'notice-overlay';
   overlay.innerHTML = `
     <div class="notice-box">
       <div class="notice-body">${text.replace(/\n/g, '<br>')}</div>
+      ${total > 1 ? `
+      <div class="notice-nav">
+        <button class="notice-nav-btn" id="notice-prev"${idx === 0 ? ' disabled' : ''}>←</button>
+        <span class="notice-nav-page">${idx + 1} / ${total}</span>
+        <button class="notice-nav-btn" id="notice-next"${idx === total - 1 ? ' disabled' : ''}>→</button>
+      </div>` : ''}
       <label class="notice-skip-label">
         <input type="checkbox" id="notice-skip-check">
         <span>${t('notice_skip_week')}</span>
@@ -55,10 +88,12 @@ function showNoticeIfNeeded() {
     </div>
   `;
   document.body.appendChild(overlay);
-  document.getElementById('notice-close-btn').addEventListener('click', () => {
-    if (document.getElementById('notice-skip-check').checked) {
-      localStorage.setItem(SKIP_KEY, String(Date.now() + 7 * 24 * 60 * 60 * 1000));
-      localStorage.setItem(VERSION_KEY, NOTICE.version);
+  overlay.querySelector('#notice-prev')?.addEventListener('click', () => { overlay.remove(); _showNoticePopup(notices, idx - 1); });
+  overlay.querySelector('#notice-next')?.addEventListener('click', () => { overlay.remove(); _showNoticePopup(notices, idx + 1); });
+  overlay.querySelector('#notice-close-btn').addEventListener('click', () => {
+    if (overlay.querySelector('#notice-skip-check').checked) {
+      localStorage.setItem(SKIP_KEY, String(Date.now() + 24 * 60 * 60 * 1000));
+      localStorage.setItem(VERSION_KEY, latest.version);
     }
     overlay.remove();
   });

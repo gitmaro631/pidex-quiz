@@ -1014,7 +1014,7 @@
   'A017.c3': 'Envanter durmaları daha hızlı gerçekleşir ve spread kârları artar',
   'A017.explain': 'Eşiği düşürmek sistemi daha hassas hale getirir; sert düşüş/yükseliş sırasında kayıpları hızla keser. Ancak normal fiyat hareketlerinde de sık sık durarak fırsatların kaçırılmasına yol açar. Korumayı güçlendirmek fırsatları azaltır, fırsatları artırmak korumayı zayıflatır — işte bu takastır.',
 
-  'notice_skip_week Bir hafta gösterme': '',
+  'notice_skip_week': 'Bir gün gösterme',
   'notice_confirm': 'Tamam',
 
   'ptr_pull': "Yenilemek için çekin",

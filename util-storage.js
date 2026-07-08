@@ -36,7 +36,8 @@ export function setMode(modeKey) {
   localStorage.setItem(KEYS.SCORE, '0');
   localStorage.setItem(KEYS.STREAK, '0');
   if (cfg.lives !== null) {
-    localStorage.setItem(KEYS.LIVES, String(cfg.lives));
+    const bonus = (modeKey === 'miner' || modeKey === 'pioneer') ? getSurveyBonusLives() : 0;
+    localStorage.setItem(KEYS.LIVES, String(cfg.lives + bonus));
   } else {
     localStorage.removeItem(KEYS.LIVES);
   }
@@ -87,6 +88,12 @@ export function loseLife() {
   if (lives === null) return null;
   setLives(lives - 1);
   return getLives();
+}
+
+// ── 설문 영구 보너스 하트 (Miner·Pioneer: 4개당 +1, 최대 +2) ──
+// 설문 완료 수에서 직접 계산 → 기기 변경 후 Firebase 동기화 시 자동 반영
+export function getSurveyBonusLives() {
+  return Math.min(2, Math.floor(getSurveyCount() / LIVES_SURVEY_MILESTONE));
 }
 
 // ── Miner 누적 정답 카운트 (10개마다 생명 +1) ─────────
@@ -227,7 +234,8 @@ export function resetGame() {
   localStorage.setItem(KEYS.SCORE,  '0');
   localStorage.setItem(KEYS.STREAK, '0');
   if (cfg?.lives !== null && cfg?.lives !== undefined) {
-    localStorage.setItem(KEYS.LIVES, String(cfg.lives));
+    const bonus = (mode === 'miner' || mode === 'pioneer') ? getSurveyBonusLives() : 0;
+    localStorage.setItem(KEYS.LIVES, String(cfg.lives + bonus));
   }
 }
 

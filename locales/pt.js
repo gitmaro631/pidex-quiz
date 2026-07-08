@@ -1014,7 +1014,7 @@
   'A017.c3': 'Paradas de inventário acontecem mais rápido e o lucro de spread fica maior',
   'A017.explain': 'Diminuir o limite torna o sistema mais sensível, cortando perdas rapidamente em quedas ou picos bruscos. Porém, também para frequentemente durante movimentos normais de preço, causando oportunidades perdidas. Fortalecer a proteção reduz oportunidades, e aumentar oportunidades enfraquece a proteção — esse é o trade-off.',
 
-  'notice_skip_week Não mostrar por uma semana': '',
+  'notice_skip_week': 'Não mostrar por um dia',
   'notice_confirm': 'OK',
 
   'ptr_pull': "Puxe para atualizar",

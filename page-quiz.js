@@ -13,6 +13,7 @@ import {
   getMode, setMode, MODES,
   LIVES_SURVEY_MILESTONE,
   getMinerCorrectCount, incrementMinerCorrect,
+  getSurveyBonusLives,
   saveSession, loadSession, clearSession,
 } from './util-storage.js';
 import { updateHeaderScore, updateHeaderLives, getCurrentUid } from './app.js';
@@ -503,7 +504,7 @@ export function renderSurveyQuestion(container, s, onDone) {
     if (count > 0 && count % LIVES_SURVEY_MILESTONE === 0) {
       if (mode === 'miner' || mode === 'pioneer') {
         addLives(1);
-        showToast(t('survey.life.bonus').replace('{n}', count));
+        showToast(t('survey.life.bonus.perm').replace('{n}', count));
       }
     }
     updateHeaderLives();
@@ -593,7 +594,7 @@ export function renderGroupedSurvey(container, s, onDone) {
     if (count > 0 && count % LIVES_SURVEY_MILESTONE === 0) {
       if (mode === 'miner' || mode === 'pioneer') {
         addLives(1);
-        showToast(t('survey.life.bonus').replace('{n}', count));
+        showToast(t('survey.life.bonus.perm').replace('{n}', count));
       }
     }
     updateHeaderLives();

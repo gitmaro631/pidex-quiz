@@ -1014,7 +1014,7 @@
   'A017.c3': 'Hentian inventori berlaku lebih cepat dan keuntungan spread menjadi lebih tinggi',
   'A017.explain': 'Menurunkan ambang menjadikan sistem lebih sensitif, memotong kerugian dengan cepat semasa kejatuhan/kenaikan mendadak. Walau bagaimanapun, ia juga berhenti kerap semasa pergerakan harga normal, menyebabkan peluang terlepas. Mengukuhkan perlindungan mengurangkan peluang, dan meningkatkan peluang melemahkan perlindungan — itulah pertukaran tersebut.',
 
-  'notice_skip_week Jangan tunjuk seminggu': '',
+  'notice_skip_week': 'Jangan tunjuk sehari',
   'notice_confirm': 'OK',
 
   'ptr_pull': "Tarik untuk muat semula",

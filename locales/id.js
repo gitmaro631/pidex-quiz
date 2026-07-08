@@ -1041,7 +1041,7 @@
   'A017.c3': 'Penghentian inventaris lebih cepat dan profit spread menjadi lebih tinggi',
   'A017.explain': 'Menurunkan ambang membuat sistem lebih sensitif, memotong kerugian dengan cepat saat penurunan/kenaikan tajam. Namun juga sering berhenti saat fluktuasi harga normal, menyebabkan peluang terlewat. Memperkuat perlindungan mengurangi peluang, dan meningkatkan peluang melemahkan perlindungan — itulah pertukaran tersebut.',
 
-  'notice_skip_week Jangan tampilkan seminggu': '',
+  'notice_skip_week': 'Jangan tampilkan selama sehari',
   'notice_confirm': 'OK',
 
   'ptr_pull': "Tarik untuk refresh",

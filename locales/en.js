@@ -51,8 +51,8 @@
   'mode.select.title':    'Select Game Mode',
   'mode.reset.note':      'Changing mode resets your lives and score',
   'mode.change':          'Change Mode',
-  'mode.miner.desc':      '2 starting lives\n+1 life per 4 surveys\n+1 life per stats/ranking view (every 1 hr)\n+1 life per 10 correct answers',
-  'mode.pioneer.desc':    '2 starting lives\n+1 life per 4 surveys',
+  'mode.miner.desc':      '2 starting lives\n+1 permanent life per 4 surveys (max +2)\n+1 life per stats/ranking view (every 1 hr)\n+1 life per 10 correct answers',
+  'mode.pioneer.desc':    '2 starting lives\n+1 permanent life per 4 surveys (max +2)',
   'mode.validator.desc':  'No lives\nOne wrong answer = immediate game over\nChallenge for a high score!',
   'mode.lives.none':           'No lives',
   'mode.validator.fail':       'Wrong — Validator mode ended!',
@@ -78,6 +78,7 @@
   'survey.page.title':  '📋 Survey',
   'survey.page.desc':   'Completing surveys earns lives and contributes to community statistics.',
   'survey.life.bonus':  '🎉 {n} surveys done! +1 life',
+  'survey.life.bonus.perm': '🎉 {n} surveys done! +1 permanent life ✨',
 
   // ── Community Stats ───────────────────────────────────
   'stats.loading':       'Loading stats...',
@@ -1041,7 +1042,7 @@
   'A017.c3': 'Inventory halts happen faster and spread profit becomes higher',
   'A017.explain': 'Lowering the threshold makes the system more sensitive, cutting losses quickly during sharp drops or spikes. However, it also stops frequently during normal price movements, causing missed opportunities. Strengthening protection reduces opportunities, and increasing opportunities weakens protection — that is the trade-off.',
 
-  'notice_skip_week': "Don't show for a week",
+  'notice_skip_week': "Don't show for a day",
   'notice_confirm': 'OK',
 
   'ptr_pull': "Pull to refresh",

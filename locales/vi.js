@@ -1014,7 +1014,7 @@
   'A017.c3': 'Dừng hàng tồn kho xảy ra nhanh hơn và lợi nhuận spread trở nên cao hơn',
   'A017.explain': 'Giảm ngưỡng làm hệ thống nhạy cảm hơn, cắt thua lỗ nhanh khi giảm/tăng mạnh. Tuy nhiên, nó cũng dừng thường xuyên khi giá biến động bình thường, gây mất cơ hội. Tăng cường bảo vệ giảm cơ hội, và tăng cơ hội làm yếu bảo vệ — đó là sự đánh đổi.',
 
-  'notice_skip_week Không hiển thị trong một tuần': '',
+  'notice_skip_week': 'Không hiển thị trong một ngày',
   'notice_confirm': 'Xác nhận',
 
   'ptr_pull': "Kéo xuống để làm mới",
