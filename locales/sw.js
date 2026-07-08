@@ -1014,4 +1014,7 @@
   'A017.c3': 'Kusimama kwa hesabu kunatokea haraka zaidi na faida za spread zinakuwa juu zaidi',
   'A017.explain': 'Kupunguza kizingiti kunafanya mfumo kuwa nyeti zaidi, kukata hasara haraka wakati wa kushuka/kupanda kwa kasi. Hata hivyo, pia husimama mara kwa mara wakati wa mabadiliko ya kawaida ya bei, na kusababisha kukosa fursa. Kuimarisha ulinzi hupunguza fursa, na kuongeza fursa hudhoofisha ulinzi — hiyo ndiyo maelewano.',
 
+  'notice_skip_week Usionyeshe kwa wiki moja': '',
+  'notice_confirm': 'Sawa',
+
 };

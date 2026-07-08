@@ -1014,4 +1014,7 @@
   'A017.c3': 'Les arrêts d\'inventaire se produisent plus rapidement et les profits de spread deviennent plus élevés',
   'A017.explain': 'Abaisser le seuil rend le système plus sensible, coupant les pertes rapidement lors de chutes ou pics brusques. Cependant, il s\'arrête aussi fréquemment lors de mouvements normaux, causant des opportunités manquées. Renforcer la protection réduit les opportunités, et augmenter les opportunités affaiblit la protection — c\'est le compromis.',
 
+  'notice_skip_week Ne pas afficher pendant une semaine': '',
+  'notice_confirm': 'OK',
+
 };

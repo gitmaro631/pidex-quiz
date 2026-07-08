@@ -1014,4 +1014,7 @@
   'A017.c3': 'Las pausas de inventario ocurren más rápido y las ganancias de spread se vuelven mayores',
   'A017.explain': 'Bajar el umbral hace el sistema más sensible, cortando pérdidas rápidamente ante caídas o subidas bruscas. Sin embargo, también se detiene con frecuencia durante movimientos normales de precio, causando oportunidades perdidas. Fortalecer la protección reduce oportunidades, y aumentar oportunidades debilita la protección — ese es el intercambio.',
 
+  'notice_skip_week No mostrar por una semana': '',
+  'notice_confirm': 'Aceptar',
+
 };
