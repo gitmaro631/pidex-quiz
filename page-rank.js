@@ -1,6 +1,6 @@
 import { getScore, getRank, getNextRank, getStats, getHighScore, getLives, getMode, MODES, RANKS, addLives, getLastLeaderboardViewTime, setLastLeaderboardViewTime } from './util-storage.js';
 import { shareResult } from './util-share.js';
-import { fetchLeaderboard, initFirebase, migrateLeaderboard } from './firebase.js';
+import { fetchLeaderboard, fetchSurvivalLeaderboard, initFirebase, migrateLeaderboard } from './firebase.js';
 import { countryToFlag } from './util-i18n.js';
 import { t } from './util-i18n.js';
 import { updateHeaderLives } from './app.js';
@@ -75,15 +75,37 @@ export async function renderRankPage(container) {
       <button class="btn-share" id="btn-share">${t('btn.share')}</button>
       <p class="share-hint">${t('rank.shareHint')}</p>
 
-      <!-- 리더보드 모드 탭 -->
+      <!-- 리더보드 -->
       <div class="leaderboard-section">
         <h3 class="leaderboard-title">${t('rank.leaderboard')}</h3>
-        <div class="lb-mode-tabs">
-          <button class="lb-tab active" data-mode="miner">⛏️ Miner</button>
-          <button class="lb-tab" data-mode="pioneer">🚀 Pioneer</button>
-          <button class="lb-tab" data-mode="validator">🔱 Validator</button>
+
+        <!-- 상단: 퀴즈 / 생존 -->
+        <div class="lb-type-tabs">
+          <button class="lb-type-tab active" data-type="quiz">🧩 퀴즈</button>
+          <button class="lb-type-tab" data-type="survival">🌿 생존</button>
         </div>
-        <div id="leaderboard-list" class="leaderboard-loading">${t('lb.loading')}</div>
+
+        <!-- 퀴즈 섹션 -->
+        <div id="lb-quiz-section">
+          <div class="lb-mode-tabs">
+            <button class="lb-tab active" data-mode="miner">⛏️ Miner</button>
+            <button class="lb-tab" data-mode="pioneer">🚀 Pioneer</button>
+            <button class="lb-tab" data-mode="validator">🔱 Validator</button>
+          </div>
+          <div id="leaderboard-list" class="leaderboard-loading">${t('lb.loading')}</div>
+        </div>
+
+        <!-- 생존 섹션 -->
+        <div id="lb-survival-section" class="hidden">
+          <div class="lb-mode-tabs">
+            <button class="lb-sv-tab active" data-map="jungle">🌴 정글</button>
+            <button class="lb-sv-tab" data-map="desert">🏜️ 사막</button>
+            <button class="lb-sv-tab" data-map="mountain">🏔️ 산</button>
+            <button class="lb-sv-tab" data-map="underwater">🌊 심해</button>
+            <button class="lb-sv-tab" data-map="space">🚀 우주</button>
+          </div>
+          <div id="sv-leaderboard-list" class="leaderboard-loading">${t('lb.loading')}</div>
+        </div>
       </div>
 
     </div>
@@ -131,6 +153,50 @@ export async function renderRankPage(container) {
       container.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       loadLeaderboard(tab.dataset.mode);
+    });
+  });
+
+  // 생존 리더보드
+  async function loadSurvivalLeaderboard(map) {
+    const listEl = container.querySelector('#sv-leaderboard-list');
+    listEl.innerHTML = `<div class="leaderboard-loading">${t('lb.loading')}</div>`;
+    try {
+      const rows = await fetchSurvivalLeaderboard(map, 50);
+      if (!rows.length) {
+        listEl.innerHTML = `<div class="leaderboard-empty">${t('lb.empty')}</div>`;
+      } else {
+        listEl.innerHTML = rows.map((r, i) => `
+          <div class="leaderboard-row ${r.username === username ? 'leaderboard-me' : ''}">
+            <span class="lb-rank">${i + 1}</span>
+            <span class="lb-user">${r.username}</span>
+            <span class="lb-score">${r.days}일${r.pi_earned ? ` · ⬡${r.pi_earned}π` : ''}</span>
+          </div>`).join('');
+      }
+    } catch {
+      listEl.innerHTML = `<div class="leaderboard-empty">${t('lb.fail')}</div>`;
+    }
+  }
+
+  container.querySelectorAll('.lb-sv-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      container.querySelectorAll('.lb-sv-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      loadSurvivalLeaderboard(tab.dataset.map);
+    });
+  });
+
+  // 퀴즈/생존 상단 탭
+  container.querySelectorAll('.lb-type-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      container.querySelectorAll('.lb-type-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const isQuiz = tab.dataset.type === 'quiz';
+      container.querySelector('#lb-quiz-section').classList.toggle('hidden', !isQuiz);
+      container.querySelector('#lb-survival-section').classList.toggle('hidden', isQuiz);
+      if (!isQuiz) {
+        const activeMap = container.querySelector('.lb-sv-tab.active')?.dataset.map ?? 'jungle';
+        loadSurvivalLeaderboard(activeMap);
+      }
     });
   });
 

@@ -576,6 +576,21 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
   margin-bottom: 12px; font-size: 13px;
 }
 
+/* ── 리더보드 상단 타입 탭 ─────────────────────────────── */
+.lb-type-tabs {
+  display: flex; gap: 8px; margin-bottom: 14px;
+}
+.lb-type-tab {
+  flex: 1; padding: 10px 0; border-radius: 12px;
+  border: 2px solid var(--border); background: transparent;
+  color: var(--muted); font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: all 0.15s;
+}
+.lb-type-tab.active {
+  border-color: var(--primary); background: rgba(123,94,167,0.2);
+  color: var(--primary);
+}
+
 /* ── 리더보드 모드 탭 ────────────────────────────────── */
 .lb-mode-tabs {
   display: flex; gap: 6px; margin-bottom: 12px; margin-top: 4px;
