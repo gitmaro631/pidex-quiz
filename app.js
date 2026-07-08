@@ -140,12 +140,9 @@ const PAGE_RENDERERS = {
     const { renderSurvivalPage } = await import('./page-survival.js');
     renderSurvivalPage(el, currentUsername);
   },
-  tracker: (el) => {
-    el.innerHTML = `<div style="padding:40px 20px;text-align:center;color:var(--text-muted);">
-      <div style="font-size:40px;margin-bottom:12px;">🔍</div>
-      <p style="font-size:16px;font-weight:600;margin-bottom:6px;">트래커</p>
-      <p style="font-size:13px;">준비 중입니다.<br>잠시 후 이용해 주세요.</p>
-    </div>`;
+  tracker: async (el) => {
+    const { renderTrackerPage } = await import('./page-tracker.js');
+    renderTrackerPage(el, currentUsername, currentUid);
   },
   survey:   (el) => renderSurveyPage(el),
   rank:     (el) => renderRankPage(el),
