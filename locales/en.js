@@ -1041,7 +1041,7 @@
   'A017.c3': 'Inventory halts happen faster and spread profit becomes higher',
   'A017.explain': 'Lowering the threshold makes the system more sensitive, cutting losses quickly during sharp drops or spikes. However, it also stops frequently during normal price movements, causing missed opportunities. Strengthening protection reduces opportunities, and increasing opportunities weakens protection — that is the trade-off.',
 
-  'notice_skip_week Don't show for a week': '',
+  'notice_skip_week': "Don't show for a week",
   'notice_confirm': 'OK',
 
 };
