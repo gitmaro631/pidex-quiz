@@ -9,14 +9,10 @@ import { initLang, t, getLang, setLang, SUPPORTED_LANGS } from './util-i18n.js';
 import { renderHelpModal }  from './page-help.js';
 import { initFirebase, loadSurveyFromFirestore, updateLeaderboardCountry } from './firebase.js';
 import { mergeSurveyFromCloud } from './util-storage.js';
+import { NOTICE } from './notice.js';
 
 // ── 공지 팝업 ────────────────────────────────────────
-async function showNoticeIfNeeded() {
-  let NOTICE;
-  try {
-    const mod = await import('./notice.js');
-    NOTICE = mod.NOTICE;
-  } catch(e) { return; }
+function showNoticeIfNeeded() {
   if (!NOTICE) return;
   const SKIP_KEY    = 'notice_skip_until';
   const VERSION_KEY = 'notice_skip_version';
