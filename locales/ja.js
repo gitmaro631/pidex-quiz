@@ -79,6 +79,21 @@
   'survey.page.desc':   'サーベイに参加するとライフを獲得し、コミュニティ統計に貢献できます。',
   'survey.life.bonus':  '🎉 {n}件のサーベイ完了！+1ライフ',
 
+  // ── 앱 의견 ──────────────────────────────────────────
+  'opinion.placeholder':    'アプリへのご意見をどうぞ（150文字以内）',
+  'opinion.submit':         '投稿',
+  'opinion.login_required': 'Piログイン後にご利用ください。',
+  'opinion.loading':        '読み込み中...',
+  'opinion.empty':          'まだ意見がありません。',
+  'opinion.submit_fail':    '投稿に失敗しました。再試行してください。',
+  'opinion.load_fail':      '読み込みに失敗しました。再試行してください。',
+  'opinion.edit_save':      '保存',
+  'opinion.edit_cancel':    'キャンセル',
+  'opinion.edit_fail':      '編集に失敗しました。再試行してください。',
+  'opinion.delete_confirm': 'この意見を削除しますか？',
+  'opinion.delete_fail':    '削除に失敗しました。再試行してください。',
+  'opinion.admin_hidden':   '🚫 この内容は管理者によって非表示にされました。',
+
   // ── Community Stats ───────────────────────────────────
   'stats.loading':          '統計を読み込み中...',
   'stats.nodata':           'まだ回答データがありません。',

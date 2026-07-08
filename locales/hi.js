@@ -79,6 +79,21 @@
   'survey.page.desc':   'सर्वे में भाग लेने से जीवन मिलता है और समुदाय के आँकड़ों में योगदान होता है।',
   'survey.life.bonus':  '🎉 {n} सर्वे पूरे! +1 जीवन',
 
+  // ── 앱 의견 ──────────────────────────────────────────
+  'opinion.placeholder':    'ऐप के बारे में अपनी राय दें (अधिकतम 150 वर्ण)',
+  'opinion.submit':         'पोस्ट करें',
+  'opinion.login_required': 'कृपया पहले Pi से लॉगिन करें।',
+  'opinion.loading':        'लोड हो रहा है...',
+  'opinion.empty':          'अभी तक कोई राय नहीं।',
+  'opinion.submit_fail':    'पोस्ट विफल। पुनः प्रयास करें।',
+  'opinion.load_fail':      'लोड विफल। पुनः प्रयास करें।',
+  'opinion.edit_save':      'सहेजें',
+  'opinion.edit_cancel':    'रद्द करें',
+  'opinion.edit_fail':      'संपादन विफल। पुनः प्रयास करें।',
+  'opinion.delete_confirm': 'यह राय हटाएं?',
+  'opinion.delete_fail':    'हटाने में विफल। पुनः प्रयास करें।',
+  'opinion.admin_hidden':   '🚫 यह सामग्री व्यवस्थापक द्वारा छुपाई गई है।',
+
   // ── Community Stats ───────────────────────────────────
   'stats.loading':          'आँकड़े लोड हो रहे हैं...',
   'stats.nodata':           'अभी तक कोई सर्वेक्षण डेटा नहीं है।',

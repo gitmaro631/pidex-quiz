@@ -79,6 +79,21 @@
   'survey.page.desc':   '参与问卷可获得生命并为社区统计作贡献。',
   'survey.life.bonus':  '🎉 已完成{n}份问卷！+1条命',
 
+  // ── 앱 의견 ──────────────────────────────────────────
+  'opinion.placeholder':    '留下您对本应用的意见（最多150字）',
+  'opinion.submit':         '发布',
+  'opinion.login_required': '请先登录Pi账号。',
+  'opinion.loading':        '加载中...',
+  'opinion.empty':          '暂无意见。',
+  'opinion.submit_fail':    '发布失败，请重试。',
+  'opinion.load_fail':      '加载失败，请重试。',
+  'opinion.edit_save':      '保存',
+  'opinion.edit_cancel':    '取消',
+  'opinion.edit_fail':      '编辑失败，请重试。',
+  'opinion.delete_confirm': '确定删除此意见？',
+  'opinion.delete_fail':    '删除失败，请重试。',
+  'opinion.admin_hidden':   '🚫 此内容已被管理员屏蔽。',
+
   // ── Community Stats ───────────────────────────────────
   'stats.loading':       '正在加载统计...',
   'stats.nodata':        '暂无调查数据。',

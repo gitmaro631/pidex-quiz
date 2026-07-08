@@ -79,6 +79,21 @@
   'survey.page.desc':   'Tham gia khảo sát để nhận mạng và đóng góp vào thống kê cộng đồng.',
   'survey.life.bonus':  '🎉 Hoàn thành {n} khảo sát! +1 mạng',
 
+  // ── 앱 의견 ──────────────────────────────────────────
+  'opinion.placeholder':    'Để lại ý kiến về ứng dụng (tối đa 150 ký tự)',
+  'opinion.submit':         'Đăng',
+  'opinion.login_required': 'Vui lòng đăng nhập Pi trước.',
+  'opinion.loading':        'Đang tải...',
+  'opinion.empty':          'Chưa có ý kiến nào.',
+  'opinion.submit_fail':    'Đăng thất bại. Thử lại.',
+  'opinion.load_fail':      'Tải thất bại. Thử lại.',
+  'opinion.edit_save':      'Lưu',
+  'opinion.edit_cancel':    'Hủy',
+  'opinion.edit_fail':      'Chỉnh sửa thất bại. Thử lại.',
+  'opinion.delete_confirm': 'Xóa ý kiến này?',
+  'opinion.delete_fail':    'Xóa thất bại. Thử lại.',
+  'opinion.admin_hidden':   '🚫 Nội dung này đã bị quản trị viên ẩn.',
+
   // ── Community Stats ───────────────────────────────────
   'stats.loading':       'Đang tải thống kê...',
   'stats.nodata':        'Chưa có dữ liệu khảo sát.',

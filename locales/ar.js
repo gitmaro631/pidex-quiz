@@ -79,6 +79,21 @@
   'survey.page.desc':   'المشاركة في الاستبيانات تمنحك أرواحاً وتساهم في إحصاءات المجتمع.',
   'survey.life.bonus':  '🎉 اكتملت {n} استبيانات! +1 روح',
 
+  // ── 앱 의견 ──────────────────────────────────────────
+  'opinion.placeholder':    'اترك رأيك حول التطبيق (150 حرفاً كحد أقصى)',
+  'opinion.submit':         'نشر',
+  'opinion.login_required': 'يرجى تسجيل الدخول باستخدام Pi أولاً.',
+  'opinion.loading':        'جارٍ التحميل...',
+  'opinion.empty':          'لا توجد آراء حتى الآن.',
+  'opinion.submit_fail':    'فشل النشر. حاول مجدداً.',
+  'opinion.load_fail':      'فشل التحميل. حاول مجدداً.',
+  'opinion.edit_save':      'حفظ',
+  'opinion.edit_cancel':    'إلغاء',
+  'opinion.edit_fail':      'فشل التعديل. حاول مجدداً.',
+  'opinion.delete_confirm': 'حذف هذا الرأي؟',
+  'opinion.delete_fail':    'فشل الحذف. حاول مجدداً.',
+  'opinion.admin_hidden':   '🚫 تم إخفاء هذا المحتوى من قِبَل المشرف.',
+
   // ── Community Stats ───────────────────────────────────
   'stats.loading':          'جارٍ تحميل الإحصاءات...',
   'stats.nodata':           'لا توجد بيانات استطلاع بعد.',

@@ -79,6 +79,21 @@
   'survey.page.desc':   'Completar encuestas otorga vidas y contribuye a las estadísticas de la comunidad.',
   'survey.life.bonus':  '🎉 ¡{n} encuestas completadas! +1 vida',
 
+  // ── 앱 의견 ──────────────────────────────────────────
+  'opinion.placeholder':    'Deja tu opinión sobre la app (máx 150 caracteres)',
+  'opinion.submit':         'Publicar',
+  'opinion.login_required': 'Por favor inicia sesión con Pi primero.',
+  'opinion.loading':        'Cargando...',
+  'opinion.empty':          'Aún no hay opiniones.',
+  'opinion.submit_fail':    'Error al publicar. Inténtalo de nuevo.',
+  'opinion.load_fail':      'Error al cargar. Inténtalo de nuevo.',
+  'opinion.edit_save':      'Guardar',
+  'opinion.edit_cancel':    'Cancelar',
+  'opinion.edit_fail':      'Error al editar. Inténtalo de nuevo.',
+  'opinion.delete_confirm': '¿Eliminar esta opinión?',
+  'opinion.delete_fail':    'Error al eliminar. Inténtalo de nuevo.',
+  'opinion.admin_hidden':   '🚫 Este contenido fue ocultado por un administrador.',
+
   // ── Community Stats ───────────────────────────────────
   'stats.loading':          'Cargando estadísticas...',
   'stats.nodata':           'Aún no hay datos de encuesta.',

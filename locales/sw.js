@@ -79,6 +79,21 @@
   'survey.page.desc':   'Kushiriki katika dodoso kutakupa maisha na kuchangia takwimu za jamii.',
   'survey.life.bonus':  '🎉 Dodoso {n} zimekamilika! +1 maisha',
 
+  // ── 앱 의견 ──────────────────────────────────────────
+  'opinion.placeholder':    'Acha maoni kuhusu programu (herufi 150 zaidi si zaidi)',
+  'opinion.submit':         'Chapisha',
+  'opinion.login_required': 'Tafadhali ingia kwanza na Pi.',
+  'opinion.loading':        'Inapakia...',
+  'opinion.empty':          'Hakuna maoni bado.',
+  'opinion.submit_fail':    'Imeshindwa kuchapisha. Jaribu tena.',
+  'opinion.load_fail':      'Imeshindwa kupakia. Jaribu tena.',
+  'opinion.edit_save':      'Hifadhi',
+  'opinion.edit_cancel':    'Ghairi',
+  'opinion.edit_fail':      'Imeshindwa kuhariri. Jaribu tena.',
+  'opinion.delete_confirm': 'Futa maoni haya?',
+  'opinion.delete_fail':    'Imeshindwa kufuta. Jaribu tena.',
+  'opinion.admin_hidden':   '🚫 Maudhui haya yamefichwa na msimamizi.',
+
   // ── Community Stats ───────────────────────────────────
   'stats.loading':          'Inapakia takwimu...',
   'stats.nodata':           'Bado hakuna data ya utafiti.',

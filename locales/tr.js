@@ -79,6 +79,21 @@
   'survey.page.desc':   'Ankete katılmak can kazandırır ve topluluk istatistiklerine katkı sağlar.',
   'survey.life.bonus':  '🎉 {n} anket tamamlandı! +1 can',
 
+  // ── 앱 의견 ──────────────────────────────────────────
+  'opinion.placeholder':    'Uygulama hakkında görüşünüzü yazın (maks. 150 karakter)',
+  'opinion.submit':         'Yayınla',
+  'opinion.login_required': 'Lütfen önce Pi ile giriş yapın.',
+  'opinion.loading':        'Yükleniyor...',
+  'opinion.empty':          'Henüz görüş yok.',
+  'opinion.submit_fail':    'Yayınlama başarısız. Tekrar deneyin.',
+  'opinion.load_fail':      'Yükleme başarısız. Tekrar deneyin.',
+  'opinion.edit_save':      'Kaydet',
+  'opinion.edit_cancel':    'İptal',
+  'opinion.edit_fail':      'Düzenleme başarısız. Tekrar deneyin.',
+  'opinion.delete_confirm': 'Bu görüşü sil?',
+  'opinion.delete_fail':    'Silme başarısız. Tekrar deneyin.',
+  'opinion.admin_hidden':   '🚫 Bu içerik bir yönetici tarafından gizlendi.',
+
   // ── Community Stats ───────────────────────────────────
   'stats.loading':          'İstatistikler yükleniyor...',
   'stats.nodata':           'Henüz anket verisi yok.',

@@ -79,6 +79,21 @@
   'survey.page.desc':   'Ang pagsali sa survey ay nagbibigay ng buhay at nag-aambag sa istatistika ng komunidad.',
   'survey.life.bonus':  '🎉 {n} survey na natapos! +1 buhay',
 
+  // ── 앱 의견 ──────────────────────────────────────────
+  'opinion.placeholder':    'Mag-iwan ng opinyon tungkol sa app (max 150 character)',
+  'opinion.submit':         'I-post',
+  'opinion.login_required': 'Mangyaring mag-login sa Pi muna.',
+  'opinion.loading':        'Naglo-load...',
+  'opinion.empty':          'Wala pang opinyon.',
+  'opinion.submit_fail':    'Nabigo ang pag-post. Subukan muli.',
+  'opinion.load_fail':      'Nabigo ang pag-load. Subukan muli.',
+  'opinion.edit_save':      'I-save',
+  'opinion.edit_cancel':    'Kanselahin',
+  'opinion.edit_fail':      'Nabigo ang pag-edit. Subukan muli.',
+  'opinion.delete_confirm': 'Burahin ang opinyon na ito?',
+  'opinion.delete_fail':    'Nabigo ang pagtanggal. Subukan muli.',
+  'opinion.admin_hidden':   '🚫 Ang content na ito ay itinago ng admin.',
+
   // ── Community Stats ───────────────────────────────────
   'stats.loading':          'Nilo-load ang mga istatistika...',
   'stats.nodata':           'Wala pang data ng survey.',

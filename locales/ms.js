@@ -79,6 +79,21 @@
   'survey.page.desc':   'Menyertai tinjauan memberikan nyawa dan menyumbang kepada statistik komuniti.',
   'survey.life.bonus':  '🎉 {n} tinjauan selesai! +1 nyawa',
 
+  // ── 앱 의견 ──────────────────────────────────────────
+  'opinion.placeholder':    'Tinggalkan pendapat tentang app ini (maks 150 aksara)',
+  'opinion.submit':         'Hantar',
+  'opinion.login_required': 'Sila log masuk dengan Pi dahulu.',
+  'opinion.loading':        'Memuatkan...',
+  'opinion.empty':          'Belum ada pendapat.',
+  'opinion.submit_fail':    'Gagal hantar. Cuba lagi.',
+  'opinion.load_fail':      'Gagal muatkan. Cuba lagi.',
+  'opinion.edit_save':      'Simpan',
+  'opinion.edit_cancel':    'Batal',
+  'opinion.edit_fail':      'Gagal edit. Cuba lagi.',
+  'opinion.delete_confirm': 'Padam pendapat ini?',
+  'opinion.delete_fail':    'Gagal padam. Cuba lagi.',
+  'opinion.admin_hidden':   '🚫 Kandungan ini disembunyikan oleh pentadbir.',
+
   // ── Community Stats ───────────────────────────────────
   'stats.loading':          'Memuatkan statistik...',
   'stats.nodata':           'Belum ada data tinjauan.',

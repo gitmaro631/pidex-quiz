@@ -79,6 +79,21 @@
   'survey.page.desc':   'การทำแบบสอบถามจะได้รับชีวิตและมีส่วนร่วมในสถิติชุมชน',
   'survey.life.bonus':  '🎉 ทำแบบสอบถามครบ {n} ข้อ! +1 ชีวิต',
 
+  // ── 앱 의견 ──────────────────────────────────────────
+  'opinion.placeholder':    'แสดงความคิดเห็นเกี่ยวกับแอป (สูงสุด 150 ตัวอักษร)',
+  'opinion.submit':         'โพสต์',
+  'opinion.login_required': 'กรุณาเข้าสู่ระบบด้วย Pi ก่อน',
+  'opinion.loading':        'กำลังโหลด...',
+  'opinion.empty':          'ยังไม่มีความคิดเห็น',
+  'opinion.submit_fail':    'โพสต์ล้มเหลว ลองอีกครั้ง',
+  'opinion.load_fail':      'โหลดล้มเหลว ลองอีกครั้ง',
+  'opinion.edit_save':      'บันทึก',
+  'opinion.edit_cancel':    'ยกเลิก',
+  'opinion.edit_fail':      'แก้ไขล้มเหลว ลองอีกครั้ง',
+  'opinion.delete_confirm': 'ลบความคิดเห็นนี้?',
+  'opinion.delete_fail':    'ลบล้มเหลว ลองอีกครั้ง',
+  'opinion.admin_hidden':   '🚫 เนื้อหานี้ถูกซ่อนโดยผู้ดูแลระบบ',
+
   // ── Community Stats ───────────────────────────────────
   'stats.loading':          'กำลังโหลดสถิติ...',
   'stats.nodata':           'ยังไม่มีข้อมูลแบบสำรวจ',
