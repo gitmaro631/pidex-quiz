@@ -282,8 +282,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ 생명력 시스템 (모드별)',
         items: [
-          '⛏️ Miner: 기본 2개 · 오답 시 -1 · 설문 4개 완료당 +1 · 퀴즈 10개 정답당 +1 · 통계/랭킹 조회 시 +1 (1시간마다)',
-          '🚀 Pioneer: 기본 2개 · 오답 시 -1 · 설문 4개 완료당 +1',
+          '⛏️ Miner: 기본 2개 · 오답 시 -1 · 설문 4개 완료당 영구 +1 (최대 +2) · 퀴즈 10개 정답당 +1 · 통계/랭킹 조회 시 +1 (1시간마다)',
+          '🚀 Pioneer: 기본 2개 · 오답 시 -1 · 설문 4개 완료당 영구 +1 (최대 +2)',
           '🔱 Validator: 생명 없음 · 오답 1개로 즉시 게임 종료',
           '생명력이 0이 되면 점수가 리더보드에 기록되고 새 게임이 시작됩니다.',
         ],
@@ -358,8 +358,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ Lives System (per mode)',
         items: [
-          '⛏️ Miner: 2 starting lives · Wrong answer -1 · +1 per 4 surveys · +1 per 10 correct answers · +1 per stats/ranking view (every 1 hr)',
-          '🚀 Pioneer: 2 starting lives · Wrong answer -1 · +1 per 4 surveys',
+          '⛏️ Miner: 2 starting lives · Wrong answer -1 · +1 permanent per 4 surveys (max +2) · +1 per 10 correct answers · +1 per stats/ranking view (every 1 hr)',
+          '🚀 Pioneer: 2 starting lives · Wrong answer -1 · +1 permanent per 4 surveys (max +2)',
           '🔱 Validator: No lives · One wrong answer ends the game immediately',
           'When lives reach 0, your score is recorded to the leaderboard and a new game begins.',
         ],
@@ -434,8 +434,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ Sistem Nyawa (per mode)',
         items: [
-          '⛏️ Miner: 2 nyawa awal · Jawaban salah -1 · +1 per 4 survei · +1 per 10 jawaban benar · +1 per lihat statistik/ranking (tiap 1 jam)',
-          '🚀 Pioneer: 2 nyawa awal · Jawaban salah -1 · +1 per 4 survei',
+          '⛏️ Miner: 2 nyawa awal · Jawaban salah -1 · +1 permanen per 4 survei (maks +2) · +1 per 10 jawaban benar · +1 per lihat statistik/ranking (tiap 1 jam)',
+          '🚀 Pioneer: 2 nyawa awal · Jawaban salah -1 · +1 permanen per 4 survei (maks +2)',
           '🔱 Validator: Tanpa nyawa · Satu jawaban salah langsung mengakhiri permainan',
           'Jika nyawa habis, skor disimpan ke papan peringkat dan permainan baru dimulai.',
         ],
@@ -494,8 +494,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ Hệ thống mạng sống (theo chế độ)',
         items: [
-          '⛏️ Miner: 2 mạng ban đầu · Sai -1 · +1 mỗi 4 khảo sát · +1 mỗi 10 câu đúng · +1 khi xem thống kê/bảng xếp hạng (mỗi 1 giờ)',
-          '🚀 Pioneer: 2 mạng ban đầu · Sai -1 · +1 mỗi 4 khảo sát',
+          '⛏️ Miner: 2 mạng ban đầu · Sai -1 · +1 vĩnh viễn mỗi 4 khảo sát (tối đa +2) · +1 mỗi 10 câu đúng · +1 khi xem thống kê/bảng xếp hạng (mỗi 1 giờ)',
+          '🚀 Pioneer: 2 mạng ban đầu · Sai -1 · +1 vĩnh viễn mỗi 4 khảo sát (tối đa +2)',
           '🔱 Validator: Không có mạng · Một câu sai là kết thúc ngay',
           'Khi hết mạng, điểm được ghi lên bảng xếp hạng và trò chơi mới bắt đầu.',
         ],
@@ -570,8 +570,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ 生命系统（按模式）',
         items: [
-          '⛏️ Miner：初始2条命 · 答错-1 · 每完成4份问卷+1 · 每答对10题+1 · 每次查看统计/排行榜+1（每1小时）',
-          '🚀 Pioneer：初始2条命 · 答错-1 · 每完成4份问卷+1',
+          '⛏️ Miner：初始2条命 · 答错-1 · 每完成4份问卷永久+1（最多+2）· 每答对10题+1 · 每次查看统计/排行榜+1（每1小时）',
+          '🚀 Pioneer：初始2条命 · 答错-1 · 每完成4份问卷永久+1（最多+2）',
           '🔱 Validator：无生命 · 答错1题立即结束游戏',
           '生命归零时，分数记入排行榜，新游戏开始。',
         ],
@@ -646,8 +646,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ ライフシステム（モード別）',
         items: [
-          '⛏️ Miner：初期2個 · 不正解-1 · アンケート4回完了で+1 · 正解10問で+1 · 統計/ランキング閲覧で+1（1時間ごと）',
-          '🚀 Pioneer：初期2個 · 不正解-1 · アンケート4回完了で+1',
+          '⛏️ Miner：初期2個 · 不正解-1 · アンケート4回完了で永久+1（最大+2）· 正解10問で+1 · 統計/ランキング閲覧で+1（1時間ごと）',
+          '🚀 Pioneer：初期2個 · 不正解-1 · アンケート4回完了で永久+1（最大+2）',
           '🔱 Validator：ライフなし · 不正解1問で即ゲーム終了',
           'ライフが0になるとスコアがリーダーボードに記録され、新しいゲームが始まります。',
         ],
@@ -722,8 +722,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ Sistema ng Buhay (bawat mode)',
         items: [
-          '⛏️ Miner: 2 buhay sa simula · Mali -1 · +1 bawat 4 survey · +1 bawat 10 tamang sagot · +1 sa bawat pagtingin ng stats/ranking (bawat 1 oras)',
-          '🚀 Pioneer: 2 buhay sa simula · Mali -1 · +1 bawat 4 survey',
+          '⛏️ Miner: 2 buhay sa simula · Mali -1 · +1 permanente bawat 4 survey (max +2) · +1 bawat 10 tamang sagot · +1 sa bawat pagtingin ng stats/ranking (bawat 1 oras)',
+          '🚀 Pioneer: 2 buhay sa simula · Mali -1 · +1 permanente bawat 4 survey (max +2)',
           '🔱 Validator: Walang buhay · Isang maling sagot ay magtatapos agad ng laro',
           'Kapag naubos ang buhay, naitala ang puntos sa leaderboard at nagsisimula ang bagong laro.',
         ],
@@ -798,8 +798,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ जीवन प्रणाली (मोड के अनुसार)',
         items: [
-          '⛏️ Miner: शुरुआत में 2 जीवन · गलत उत्तर -1 · हर 4 सर्वेक्षण पर +1 · हर 10 सही उत्तर पर +1 · हर बार stats/ranking देखने पर +1 (हर 1 घंटे)',
-          '🚀 Pioneer: शुरुआत में 2 जीवन · गलत उत्तर -1 · हर 4 सर्वेक्षण पर +1',
+          '⛏️ Miner: शुरुआत में 2 जीवन · गलत उत्तर -1 · हर 4 सर्वेक्षण पर स्थायी +1 (अधिकतम +2) · हर 10 सही उत्तर पर +1 · हर बार stats/ranking देखने पर +1 (हर 1 घंटे)',
+          '🚀 Pioneer: शुरुआत में 2 जीवन · गलत उत्तर -1 · हर 4 सर्वेक्षण पर स्थायी +1 (अधिकतम +2)',
           '🔱 Validator: कोई जीवन नहीं · एक गलत उत्तर से तुरंत गेम समाप्त',
           'जब जीवन 0 हो जाए तो स्कोर लीडरबोर्ड में दर्ज हो जाता है और नया गेम शुरू होता है।',
         ],
@@ -874,8 +874,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ জীবন ব্যবস্থা (মোড অনুযায়ী)',
         items: [
-          '⛏️ Miner: শুরুতে ২টি জীবন · ভুল উত্তরে -১ · প্রতি ৪টি জরিপে +১ · প্রতি ১০টি সঠিক উত্তরে +১ · প্রতিবার stats/ranking দেখলে +১ (প্রতি ১ ঘণ্টা)',
-          '🚀 Pioneer: শুরুতে ২টি জীবন · ভুল উত্তরে -১ · প্রতি ৪টি জরিপে +১',
+          '⛏️ Miner: শুরুতে ২টি জীবন · ভুল উত্তরে -১ · প্রতি ৪টি জরিপে স্থায়ী +১ (সর্বোচ্চ +২) · প্রতি ১০টি সঠিক উত্তরে +১ · প্রতিবার stats/ranking দেখলে +১ (প্রতি ১ ঘণ্টা)',
+          '🚀 Pioneer: শুরুতে ২টি জীবন · ভুল উত্তরে -১ · প্রতি ৪টি জরিপে স্থায়ী +১ (সর্বোচ্চ +২)',
           '🔱 Validator: কোনো জীবন নেই · একটি ভুল উত্তরেই গেম শেষ',
           'জীবন ০ হলে স্কোর লিডারবোর্ডে নথিভুক্ত হয় এবং নতুন গেম শুরু হয়।',
         ],
@@ -950,8 +950,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ ระบบชีวิต (ตามโหมด)',
         items: [
-          '⛏️ Miner: เริ่มต้น 2 ชีวิต · ตอบผิด -1 · +1 ทุก 4 แบบสำรวจ · +1 ทุก 10 คำตอบที่ถูก · +1 ทุกครั้งที่ดู stats/ranking (ทุก 1 ชั่วโมง)',
-          '🚀 Pioneer: เริ่มต้น 2 ชีวิต · ตอบผิด -1 · +1 ทุก 4 แบบสำรวจ',
+          '⛏️ Miner: เริ่มต้น 2 ชีวิต · ตอบผิด -1 · +1 ถาวรทุก 4 แบบสำรวจ (สูงสุด +2) · +1 ทุก 10 คำตอบที่ถูก · +1 ทุกครั้งที่ดู stats/ranking (ทุก 1 ชั่วโมง)',
+          '🚀 Pioneer: เริ่มต้น 2 ชีวิต · ตอบผิด -1 · +1 ถาวรทุก 4 แบบสำรวจ (สูงสุด +2)',
           '🔱 Validator: ไม่มีชีวิต · ตอบผิดครั้งเดียวจบเกมทันที',
           'เมื่อชีวิตหมด คะแนนจะถูกบันทึกในลีดเดอร์บอร์ดและเริ่มเกมใหม่',
         ],
@@ -1026,8 +1026,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ Sistem Nyawa (mengikut mod)',
         items: [
-          '⛏️ Miner: 2 nyawa permulaan · Jawab salah -1 · +1 setiap 4 tinjauan · +1 setiap 10 jawapan betul · +1 setiap kali lihat stats/ranking (setiap 1 jam)',
-          '🚀 Pioneer: 2 nyawa permulaan · Jawab salah -1 · +1 setiap 4 tinjauan',
+          '⛏️ Miner: 2 nyawa permulaan · Jawab salah -1 · +1 kekal setiap 4 tinjauan (maks +2) · +1 setiap 10 jawapan betul · +1 setiap kali lihat stats/ranking (setiap 1 jam)',
+          '🚀 Pioneer: 2 nyawa permulaan · Jawab salah -1 · +1 kekal setiap 4 tinjauan (maks +2)',
           '🔱 Validator: Tiada nyawa · Satu jawapan salah terus tamatkan permainan',
           'Apabila nyawa habis, skor direkodkan ke papan pendahulu dan permainan baru bermula.',
         ],
@@ -1102,8 +1102,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ Sistema de Vidas (por modo)',
         items: [
-          '⛏️ Miner: 2 vidas iniciales · Respuesta incorrecta -1 · +1 por cada 4 encuestas · +1 por cada 10 respuestas correctas · +1 al ver stats/ranking (cada 1 hora)',
-          '🚀 Pioneer: 2 vidas iniciales · Respuesta incorrecta -1 · +1 por cada 4 encuestas',
+          '⛏️ Miner: 2 vidas iniciales · Respuesta incorrecta -1 · +1 permanente por cada 4 encuestas (máx +2) · +1 por cada 10 respuestas correctas · +1 al ver stats/ranking (cada 1 hora)',
+          '🚀 Pioneer: 2 vidas iniciales · Respuesta incorrecta -1 · +1 permanente por cada 4 encuestas (máx +2)',
           '🔱 Validator: Sin vidas · Una respuesta incorrecta termina el juego inmediatamente',
           'Cuando las vidas llegan a 0, la puntuación se registra en el marcador y comienza un nuevo juego.',
         ],
@@ -1178,8 +1178,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ Sistema de Vidas (por modo)',
         items: [
-          '⛏️ Miner: 2 vidas iniciais · Resposta errada -1 · +1 a cada 4 pesquisas · +1 a cada 10 respostas corretas · +1 ao ver stats/ranking (a cada 1 hora)',
-          '🚀 Pioneer: 2 vidas iniciais · Resposta errada -1 · +1 a cada 4 pesquisas',
+          '⛏️ Miner: 2 vidas iniciais · Resposta errada -1 · +1 permanente a cada 4 pesquisas (máx +2) · +1 a cada 10 respostas corretas · +1 ao ver stats/ranking (a cada 1 hora)',
+          '🚀 Pioneer: 2 vidas iniciais · Resposta errada -1 · +1 permanente a cada 4 pesquisas (máx +2)',
           '🔱 Validator: Sem vidas · Uma resposta errada encerra o jogo imediatamente',
           'Quando as vidas chegam a 0, a pontuação é registrada no placar e um novo jogo começa.',
         ],
@@ -1254,8 +1254,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ Système de Vies (par mode)',
         items: [
-          '⛏️ Miner : 2 vies de départ · Mauvaise réponse -1 · +1 par 4 sondages · +1 par 10 bonnes réponses · +1 à chaque vue des stats/classement (toutes les 1 heure)',
-          '🚀 Pioneer : 2 vies de départ · Mauvaise réponse -1 · +1 par 4 sondages',
+          '⛏️ Miner : 2 vies de départ · Mauvaise réponse -1 · +1 permanent par 4 sondages (max +2) · +1 par 10 bonnes réponses · +1 à chaque vue des stats/classement (toutes les 1 heure)',
+          '🚀 Pioneer : 2 vies de départ · Mauvaise réponse -1 · +1 permanent par 4 sondages (max +2)',
           '🔱 Validator : Pas de vies · Une mauvaise réponse termine immédiatement le jeu',
           'Quand les vies atteignent 0, le score est enregistré dans le classement et un nouveau jeu commence.',
         ],
@@ -1330,8 +1330,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ Система жизней (по режимам)',
         items: [
-          '⛏️ Miner: 2 жизни в начале · За неверный ответ -1 · +1 за каждые 4 опроса · +1 за каждые 10 правильных ответов · +1 при просмотре статистики/рейтинга (раз в 1 час)',
-          '🚀 Pioneer: 2 жизни в начале · За неверный ответ -1 · +1 за каждые 4 опроса',
+          '⛏️ Miner: 2 жизни в начале · За неверный ответ -1 · +1 навсегда за каждые 4 опроса (макс +2) · +1 за каждые 10 правильных ответов · +1 при просмотре статистики/рейтинга (раз в 1 час)',
+          '🚀 Pioneer: 2 жизни в начале · За неверный ответ -1 · +1 навсегда за каждые 4 опроса (макс +2)',
           '🔱 Validator: Жизней нет · Один неверный ответ сразу завершает игру',
           'Когда жизни заканчиваются, счёт записывается в таблицу лидеров и начинается новая игра.',
         ],
@@ -1406,8 +1406,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ Yaşam Sistemi (moda göre)',
         items: [
-          '⛏️ Miner: 2 başlangıç canı · Yanlış cevap -1 · Her 4 ankette +1 · Her 10 doğru cevap +1 · Her istatistik/sıralama görüntülemesinde +1 (her 1 saatte)',
-          '🚀 Pioneer: 2 başlangıç canı · Yanlış cevap -1 · Her 4 ankette +1',
+          '⛏️ Miner: 2 başlangıç canı · Yanlış cevap -1 · Her 4 ankette kalıcı +1 (maks +2) · Her 10 doğru cevap +1 · Her istatistik/sıralama görüntülemesinde +1 (her 1 saatte)',
+          '🚀 Pioneer: 2 başlangıç canı · Yanlış cevap -1 · Her 4 ankette kalıcı +1 (maks +2)',
           '🔱 Validator: Can yok · Tek yanlış cevap oyunu anında bitirir',
           'Canlar 0\'a düştüğünde puan liderlik tablosuna kaydedilir ve yeni oyun başlar.',
         ],
@@ -1482,8 +1482,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ نظام الأرواح (حسب الوضع)',
         items: [
-          '⛏️ Miner: روحان في البداية · إجابة خاطئة -1 · +1 لكل 4 استطلاعات · +1 لكل 10 إجابات صحيحة · +1 عند مشاهدة الإحصاءات/الترتيب (كل ساعة)',
-          '🚀 Pioneer: روحان في البداية · إجابة خاطئة -1 · +1 لكل 4 استطلاعات',
+          '⛏️ Miner: روحان في البداية · إجابة خاطئة -1 · +1 دائم لكل 4 استطلاعات (بحد +2) · +1 لكل 10 إجابات صحيحة · +1 عند مشاهدة الإحصاءات/الترتيب (كل ساعة)',
+          '🚀 Pioneer: روحان في البداية · إجابة خاطئة -1 · +1 دائم لكل 4 استطلاعات (بحد +2)',
           '🔱 Validator: لا أرواح · إجابة خاطئة واحدة تنهي اللعبة فوراً',
           'عندما تصل الأرواح إلى 0، يُسجَّل النقاط في لوحة المتصدرين وتبدأ لعبة جديدة.',
         ],
@@ -1558,8 +1558,8 @@ const HELP_CONTENT = {
       {
         title: '❤️ Mfumo wa Maisha (kwa hali)',
         items: [
-          '⛏️ Miner: Maisha 2 mwanzoni · Jibu baya -1 · +1 kwa kila tafiti 4 · +1 kwa kila majibu sahihi 10 · +1 kila kuona takwimu/orodha (kila saa 1)',
-          '🚀 Pioneer: Maisha 2 mwanzoni · Jibu baya -1 · +1 kwa kila tafiti 4',
+          '⛏️ Miner: Maisha 2 mwanzoni · Jibu baya -1 · +1 ya kudumu kwa kila tafiti 4 (maks +2) · +1 kwa kila majibu sahihi 10 · +1 kila kuona takwimu/orodha (kila saa 1)',
+          '🚀 Pioneer: Maisha 2 mwanzoni · Jibu baya -1 · +1 ya kudumu kwa kila tafiti 4 (maks +2)',
           '🔱 Validator: Hakuna maisha · Jibu moja baya linamaliza mchezo mara moja',
           'Maisha yanapofika 0, alama zinarekodiwa kwenye orodha ya viongozi na mchezo mpya unaanza.',
         ],
