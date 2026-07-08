@@ -194,6 +194,49 @@ export async function toggleOpinionLike(docId, username, isLiked) {
   });
 }
 
+// ── 생존게임 랭킹 ────────────────────────────────────────
+export async function submitSurvivalScore(username, map, days, piEarned) {
+  if (!db) initFirebase();
+  if (!db) return;
+  const col    = `survival_${map}`;
+  const docRef = db.collection(col).doc(username);
+  try {
+    await db.runTransaction(async (tx) => {
+      const doc  = await tx.get(docRef);
+      const prev = doc.exists ? doc.data() : null;
+      const better = !prev
+        || days < prev.days
+        || (days === prev.days && piEarned > (prev.pi_earned || 0));
+      if (better) {
+        tx.set(docRef, {
+          username, map, days,
+          pi_earned: piEarned,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      }
+    });
+  } catch (e) {
+    console.error('생존 랭킹 등록 실패:', e);
+  }
+}
+
+export async function fetchSurvivalLeaderboard(map, limit = 50) {
+  if (!db) initFirebase();
+  if (!db) return [];
+  const col = `survival_${map}`;
+  try {
+    const snap = await db.collection(col)
+      .orderBy('days', 'asc')
+      .limit(limit)
+      .get();
+    const rows = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    return rows.sort((a, b) => a.days - b.days || (b.pi_earned || 0) - (a.pi_earned || 0));
+  } catch (e) {
+    console.error('생존 랭킹 조회 실패:', e);
+    return [];
+  }
+}
+
 // ── 설문 집계 통계 조회 (surveys 컬렉션 기반 — UID당 1문서로 중복 없음) ──
 export async function fetchSurveyStats() {
   if (!db) return null;

@@ -18,7 +18,7 @@ async function serverComplete(paymentId, txid, username) {
   if (!res.ok) throw new Error(`complete failed: ${res.status}`);
 }
 
-async function syncSubscription(username) {
+export async function syncSubscription(username) {
   try {
     const res = await fetch(`/api/subscription/status?username=${encodeURIComponent(username)}`);
     if (!res.ok) return;

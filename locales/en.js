@@ -6,6 +6,9 @@
   'nav.rank':       'My Rank',
   'nav.stats':      'Community Stats',
   'nav.opinion':    'Opinion',
+  'nav.survival':   'Survival',
+  'nav.tracker':    'Tracker',
+  'nav.more':       'More',
 
   'opinion.placeholder':    'Share your thoughts about the app (max 150 chars)',
   'opinion.submit':         'Post',
@@ -19,7 +22,7 @@
   'opinion.edit_fail':      'Failed to update. Please try again.',
   'opinion.delete_confirm': 'Delete this opinion?',
   'opinion.delete_fail':    'Failed to delete. Please try again.',
-  'opinion.admin_hidden':   '🚫 This content has been hidden by an admin.'
+  'opinion.admin_hidden':   '🚫 This content has been hidden by an admin.',
   'btn.next':       'Next →',
   'btn.again':      'Continue',
   'btn.rank':       'See My Rank',

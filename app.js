@@ -11,6 +11,28 @@ import { renderOpinionPage }  from './page-opinion.js';
 import { initFirebase, loadSurveyFromFirestore, updateLeaderboardCountry } from './firebase.js';
 import { mergeSurveyFromCloud } from './util-storage.js';
 const NOTICE = {
+  version: '2026-07-09-merge',
+  ko: "📢 새 탭이 추가되었습니다!\n\n🌿 생존 — 극한 환경에서 살아남는 텍스트 어드벤처\n🔍 트래커 — Pi 해킹 신고·지갑 조회·관심 지갑 추적\n\n하단 탭에서 바로 이용하세요!",
+  en: "📢 New tabs added!\n\n🌿 Survival — Text adventure: survive in extreme environments\n🔍 Tracker — Pi hack reports, wallet lookup & watch list\n\nFind them in the bottom navigation!",
+  zh: "📢 新增标签页！\n\n🌿 生存 — 极端环境下的文字冒险\n🔍 追踪 — Pi 黑客举报·钱包查询·关注列表\n\n在底部导航栏中即可使用！",
+  id: "📢 Tab baru ditambahkan!\n\n🌿 Survival — Petualangan teks di lingkungan ekstrem\n🔍 Tracker — Laporan hack Pi, pencarian dompet & daftar pantau\n\nTemukan di navigasi bawah!",
+  ja: "📢 新しいタブが追加されました！\n\n🌿 サバイバル — 極限環境でのテキストアドベンチャー\n🔍 トラッカー — Piハッキング報告・ウォレット照会・注目リスト\n\n下部のナビゲーションからご利用ください！",
+  es: "📢 ¡Nuevas pestañas añadidas!\n\n🌿 Supervivencia — Aventura de texto en entornos extremos\n🔍 Rastreador — Denuncias de hackeos Pi, búsqueda de billetera y lista de seguimiento\n\n¡Encuéntralas en la barra de navegación inferior!",
+  fr: "📢 Nouveaux onglets ajoutés !\n\n🌿 Survie — Aventure textuelle en environnements extrêmes\n🔍 Traqueur — Signalements de piratage Pi, recherche de portefeuille & liste de suivi\n\nTrouvez-les dans la barre de navigation inférieure !",
+  vi: "📢 Đã thêm tab mới!\n\n🌿 Sinh tồn — Phiêu lưu văn bản trong môi trường khắc nghiệt\n🔍 Theo dõi — Báo cáo hack Pi, tra cứu ví & danh sách theo dõi\n\nTìm thấy chúng trong thanh điều hướng phía dưới!",
+  pt: "📢 Novas abas adicionadas!\n\n🌿 Sobrevivência — Aventura em texto em ambientes extremos\n🔍 Rastreador — Denúncias de hack Pi, busca de carteira e lista de observação\n\nEncontre-as na barra de navegação inferior!",
+  ms: "📢 Tab baharu ditambah!\n\n🌿 Survival — Pengembaraan teks dalam persekitaran ekstrem\n🔍 Penjejak — Laporan penggodaman Pi, carian dompet & senarai pantau\n\nJumpai mereka di navigasi bawah!",
+  tl: "📢 Mga bagong tab na idinagdag!\n\n🌿 Survival — Text adventure sa matinding kapaligiran\n🔍 Tracker — Mga ulat ng Pi hack, paghahanap ng wallet at watch list\n\nHanapin sa ibabang navigation!",
+  hi: "📢 नए टैब जोड़े गए!\n\n🌿 सर्वाइवल — चरम परिस्थितियों में जीवित रहने का टेक्स्ट एडवेंचर\n🔍 ट्रैकर — Pi हैक रिपोर्ट, वॉलेट खोज और वॉच लिस्ट\n\nनीचे नेविगेशन में पाएं!",
+  ar: "📢 تمت إضافة تبويبات جديدة!\n\n🌿 البقاء — مغامرة نصية في بيئات قاسية\n🔍 المتتبع — تقارير اختراق Pi والبحث عن المحفظة وقائمة المراقبة\n\nاعثر عليها في شريط التنقل السفلي!",
+  ru: "📢 Добавлены новые вкладки!\n\n🌿 Выживание — Текстовое приключение в экстремальных условиях\n🔍 Трекер — Отчёты о взломах Pi, поиск кошелька и список наблюдения\n\nНайдите их в нижней панели навигации!",
+  bn: "📢 নতুন ট্যাব যোগ হয়েছে!\n\n🌿 সার্ভাইভাল — চরম পরিবেশে বেঁচে থাকার টেক্সট অ্যাডভেঞ্চার\n🔍 ট্র্যাকার — Pi হ্যাক রিপোর্ট, ওয়ালেট অনুসন্ধান ও ওয়াচ লিস্ট\n\nনিচের নেভিগেশনে খুঁজুন!",
+  sw: "📢 Vichupo vipya vimeongezwa!\n\n🌿 Maisha — Mchezo wa maandishi katika mazingira magumu\n🔍 Mfuatiliaji — Ripoti za udanganyifu wa Pi, utafutaji wa pochi na orodha ya ufuatiliaji\n\nVipata kwenye urambazaji wa chini!",
+  th: "📢 เพิ่มแท็บใหม่แล้ว!\n\n🌿 เอาชีวิตรอด — ผจญภัยแบบข้อความในสภาพแวดล้อมสุดโหด\n🔍 ติดตาม — รายงานการแฮ็ก Pi, ค้นหากระเป๋าเงิน & รายการเฝ้าดู\n\nค้นหาได้ที่แถบนำทางด้านล่าง!",
+  tr: "📢 Yeni sekmeler eklendi!\n\n🌿 Hayatta Kal — Aşırı ortamlarda metin macerası\n🔍 İzleyici — Pi hack raporları, cüzdan sorgulama & izleme listesi\n\nAlt gezinti çubuğunda bulabilirsiniz!",
+};
+
+const NOTICE_PREV = {
   version: '2026-07-09',
   ko: "📢 업데이트 안내\n\n💬 의견 탭이 추가되었습니다!\n\n앱에 대한 건의·칭찬·불만 등 자유롭게 남겨주세요.\n다른 유저의 의견에 👍 공감도 할 수 있습니다.",
   en: "📢 Update Notice\n\n💬 Opinion tab is now available!\n\nShare your thoughts — suggestions, praise, or feedback.\nYou can also 👍 like other users' opinions.",
@@ -42,16 +64,17 @@ async function showNoticeIfNeeded() {
   try {
     if (typeof firebase !== 'undefined' && firebase.apps.length) {
       const db = firebase.firestore();
-      if (NOTICE) {
-        const ref  = db.collection(_NOTICE_COL).doc(NOTICE.version);
+      for (const n of [NOTICE_PREV, NOTICE]) {
+        if (!n) continue;
+        const ref  = db.collection(_NOTICE_COL).doc(n.version);
         const snap = await ref.get();
-        if (!snap.exists) await ref.set({ ...NOTICE, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        if (!snap.exists) await ref.set({ ...n, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
       }
       const q = await db.collection(_NOTICE_COL).orderBy('createdAt', 'asc').get();
       notices = q.docs.map(d => d.data());
     }
   } catch {}
-  if (!notices.length && NOTICE) notices = [NOTICE];
+  if (!notices.length) notices = [NOTICE_PREV, NOTICE].filter(Boolean);
   if (!notices.length) return;
   const latest = notices[notices.length - 1];
   const skipUntil   = parseInt(localStorage.getItem(SKIP_KEY) || '0', 10);
@@ -100,32 +123,56 @@ function _showNoticePopup(notices, idx) {
   });
 }
 
-// ── 현재 로그인한 Pi UID ──────────────────────────────
+// ── 현재 로그인한 Pi UID / Username ─────────────────────────
 let currentUid = null;
+export let currentUsername = '';
 export function getCurrentUid() { return currentUid; }
+export function getCurrentUsername() { return currentUsername; }
 
-// ── 페이지 라우팅 ──────────────────────────────────────
+// ── 페이지 라우팅 ──────────────────────────────────────────
 let activePage = 'quiz';
 const renderedPages = new Set();
+const MORE_PAGES = new Set(['rank', 'stats', 'survey']);
 
 const PAGE_RENDERERS = {
-  quiz:    (el) => renderQuizPage(el),
-  survey:  (el) => renderSurveyPage(el),
-  rank:    (el) => renderRankPage(el),
-  stats:   (el) => renderStatsPage(el),
-  opinion: (el) => renderOpinionPage(el),
+  quiz:     (el) => renderQuizPage(el),
+  survival: async (el) => {
+    const { renderSurvivalPage } = await import('./page-survival.js');
+    renderSurvivalPage(el, currentUsername);
+  },
+  tracker: async (el) => {
+    const { renderTrackerPage } = await import('./page-tracker.js');
+    renderTrackerPage(el, currentUsername, currentUid);
+  },
+  survey:   (el) => renderSurveyPage(el),
+  rank:     (el) => renderRankPage(el),
+  stats:    (el) => renderStatsPage(el),
+  opinion:  (el) => renderOpinionPage(el),
 };
 
 function switchPage(pageKey) {
   document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+  const pageEl = document.getElementById(`page-${pageKey}`);
+  if (pageEl) pageEl.classList.remove('hidden');
+
+  // 네비 하이라이트: rank/stats/survey는 더보기 버튼 표시
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(`page-${pageKey}`).classList.remove('hidden');
-  document.querySelector(`.nav-tab[data-page="${pageKey}"]`).classList.add('active');
+  if (MORE_PAGES.has(pageKey)) {
+    document.getElementById('btn-more-tab')?.classList.add('active');
+  } else {
+    document.querySelector(`.nav-tab[data-page="${pageKey}"]`)?.classList.add('active');
+  }
+
   activePage = pageKey;
+
+  // quiz 탭일 때만 lives/score 표시
+  const statusEl = document.getElementById('header-status');
+  if (statusEl) statusEl.style.display = pageKey === 'quiz' ? '' : 'none';
+
   if (pageKey === 'opinion') renderedPages.delete('opinion');
   if (!renderedPages.has(pageKey)) {
     renderedPages.add(pageKey);
-    PAGE_RENDERERS[pageKey]?.(document.getElementById(`page-${pageKey}`));
+    PAGE_RENDERERS[pageKey]?.(pageEl);
   }
 }
 
@@ -134,7 +181,7 @@ export function rerenderPage(pageKey) {
   switchPage(pageKey);
 }
 
-// ── 헤더 업데이트 ─────────────────────────────────────
+// ── 헤더 업데이트 ─────────────────────────────────────────
 let _headerUsername = 'Pioneer';
 export function updateHeaderUsername(name) {
   if (name) _headerUsername = name;
@@ -159,21 +206,29 @@ export function updateHeaderLives() {
 }
 
 function applyNavLabels() {
-  const quizTab   = document.querySelector('.nav-tab[data-page="quiz"] .nav-label');
-  const surveyTab = document.querySelector('.nav-tab[data-page="survey"] .nav-label');
-  const rankTab   = document.querySelector('.nav-tab[data-page="rank"] .nav-label');
-  const statsTab   = document.querySelector('.nav-tab[data-page="stats"] .nav-label');
-  const opinionTab = document.querySelector('.nav-tab[data-page="opinion"] .nav-label');
-  if (quizTab)    quizTab.textContent    = t('nav.quiz');
-  if (surveyTab)  surveyTab.textContent  = t('nav.survey');
-  if (rankTab)    rankTab.textContent    = t('nav.rank');
-  if (statsTab)   statsTab.textContent   = t('nav.stats');
-  if (opinionTab) opinionTab.textContent = t('nav.opinion');
+  const quizEl     = document.getElementById('nav-label-quiz');
+  const survivalEl = document.getElementById('nav-label-survival');
+  const trackerEl  = document.getElementById('nav-label-tracker');
+  const opinionEl  = document.getElementById('nav-label-opinion');
+  const moreEl     = document.getElementById('nav-label-more');
+  const rankEl     = document.getElementById('more-label-rank');
+  const statsEl    = document.getElementById('more-label-stats');
+  const surveyEl   = document.getElementById('more-label-survey');
+  const helpEl     = document.getElementById('more-label-help');
+  if (quizEl)     quizEl.textContent     = t('nav.quiz');
+  if (survivalEl) survivalEl.textContent = t('nav.survival');
+  if (trackerEl)  trackerEl.textContent  = t('nav.tracker');
+  if (opinionEl)  opinionEl.textContent  = t('nav.opinion');
+  if (moreEl)     moreEl.textContent     = t('nav.more');
+  if (rankEl)     rankEl.textContent     = t('nav.rank');
+  if (statsEl)    statsEl.textContent    = t('nav.stats');
+  if (surveyEl)   surveyEl.textContent   = t('nav.survey');
+  if (helpEl)     helpEl.textContent     = t('btn.help');
   const helpBtn = document.getElementById('btn-help');
   if (helpBtn) helpBtn.textContent = `❓ ${t('btn.help')}`;
 }
 
-// ── 로그인 ────────────────────────────────────────────
+// ── 로그인 ────────────────────────────────────────────────
 async function doLogin() {
   const btn   = document.getElementById('btn-login');
   const errEl = document.getElementById('login-error');
@@ -183,23 +238,22 @@ async function doLogin() {
   try {
     const auth = await authenticate();
     const user = auth.user;
-    currentUid = user?.uid ?? user?.username ?? null;
+    currentUid      = user?.uid ?? user?.username ?? null;
+    currentUsername = user?.username ?? 'Pioneer';
 
-    updateHeaderUsername(user?.username ?? 'Pioneer');
+    updateHeaderUsername(currentUsername);
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app-screen').classList.remove('hidden');
 
-    // Firestore에서 설문 기록 불러와 로컬에 병합 (중복 방지)
     if (currentUid) {
       initFirebase();
       const cloudData = await loadSurveyFromFirestore(currentUid);
       if (cloudData) {
         mergeSurveyFromCloud(cloudData.answers, cloudData.completedIds);
       }
-      // 리더보드 country 필드 없는 기존 항목 업서트
       const country = detectCountry();
-      if (country && user?.username) {
-        updateLeaderboardCountry(user.username, country).catch(console.warn);
+      if (country && currentUsername) {
+        updateLeaderboardCountry(currentUsername, country).catch(console.warn);
       }
     }
 
@@ -216,7 +270,7 @@ async function doLogin() {
   }
 }
 
-// ── 언어 선택 ─────────────────────────────────────────
+// ── 언어 선택 ─────────────────────────────────────────────
 function buildLangPicker() {
   const btn      = document.getElementById('btn-lang');
   const dropdown = document.getElementById('lang-dropdown');
@@ -249,12 +303,29 @@ function buildLangPicker() {
       opt.classList.add('active');
       updateBtn();
       applyNavLabels();
-      rerenderPage(activePage);
+      // survival/tracker는 언어 변경 시 다시 렌더
+      if (activePage === 'survival' || activePage === 'tracker') {
+        renderedPages.delete(activePage);
+        switchPage(activePage);
+      } else {
+        rerenderPage(activePage);
+      }
     });
   });
 }
 
-// ── 유틸모음 오버레이 ────────────────────────────────────
+// ── 더보기 시트 ────────────────────────────────────────────
+function openMoreSheet() {
+  const sheet = document.getElementById('more-sheet');
+  if (sheet) sheet.classList.remove('hidden');
+}
+
+function closeMoreSheet() {
+  const sheet = document.getElementById('more-sheet');
+  if (sheet) sheet.classList.add('hidden');
+}
+
+// ── 유틸모음 오버레이 ────────────────────────────────────────
 function renderUtilsOverlay() {
   const panel = document.getElementById('utils-panel');
   if (!panel) return;
@@ -296,38 +367,6 @@ function renderUtilsOverlay() {
         <div class="util-card-link">${t('hub.open')}</div>
       </div>
     </a>
-
-    <a class="util-card" href="#" onclick="return false;" style="opacity:0.6;cursor:default;">
-      <div class="util-card-icon">
-        <img src="icons/hack-tracker.png" width="64" height="64" style="border-radius:14px;display:block;object-fit:cover;" alt="Pi Hack Tracker">
-      </div>
-      <div class="util-card-body">
-        <div class="util-card-name">Pi Hack Tracker</div>
-        <div class="util-card-tags">
-          <span class="util-tag">Hack Report</span>
-          <span class="util-tag">Wallet Trace</span>
-          <span class="util-tag">Community</span>
-        </div>
-        <div class="util-card-desc">${t('hub.hack.desc')}</div>
-        <div class="util-card-link" style="color:#888;">${t('hub.coming_soon')}</div>
-      </div>
-    </a>
-
-    <a class="util-card" href="#" onclick="return false;" style="opacity:0.6;cursor:default;">
-      <div class="util-card-icon">
-        <img src="icons/survival.png" width="64" height="64" style="border-radius:14px;display:block;object-fit:cover;" alt="Pi Survival Game">
-      </div>
-      <div class="util-card-body">
-        <div class="util-card-name">Pi Survival Game</div>
-        <div class="util-card-tags">
-          <span class="util-tag">Survival</span>
-          <span class="util-tag">Text RPG</span>
-          <span class="util-tag">11 Maps</span>
-        </div>
-        <div class="util-card-desc">${t('hub.survival.desc')}</div>
-        <div class="util-card-link" style="color:#888;">${t('hub.coming_soon')}</div>
-      </div>
-    </a>
     </div>
   `;
 
@@ -336,7 +375,7 @@ function renderUtilsOverlay() {
   });
 }
 
-// ── 초기화 ────────────────────────────────────────────
+// ── 초기화 ────────────────────────────────────────────────
 function initLoginScreen() {
   const titleEl = document.getElementById('login-title');
   const subEl   = document.getElementById('login-sub');
@@ -353,8 +392,29 @@ async function init() {
   initLoginScreen();
   await initPiSDK();
 
-  document.querySelectorAll('.nav-tab').forEach(btn => {
+  // 네비 탭 (quiz/survival/tracker/opinion)
+  document.querySelectorAll('.nav-tab[data-page]').forEach(btn => {
     btn.addEventListener('click', () => rerenderPage(btn.dataset.page));
+  });
+
+  // 더보기 버튼
+  document.getElementById('btn-more-tab')?.addEventListener('click', openMoreSheet);
+
+  // 더보기 시트 배경 클릭 닫기
+  document.getElementById('more-sheet-bg')?.addEventListener('click', closeMoreSheet);
+
+  // 더보기 시트 아이템 (rank/stats/survey)
+  document.querySelectorAll('.more-sheet-item[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      closeMoreSheet();
+      rerenderPage(btn.dataset.page);
+    });
+  });
+
+  // 더보기 시트 도움말 버튼
+  document.getElementById('more-item-help')?.addEventListener('click', () => {
+    closeMoreSheet();
+    renderHelpModal();
   });
 
   document.getElementById('btn-login').addEventListener('click', doLogin);
@@ -377,7 +437,6 @@ async function init() {
 
   buildLangPicker();
 
-  // 구독 동기화 완료 시 헤더 업데이트
   window.addEventListener('sub:synced', () => updateHeaderUsername());
 }
 

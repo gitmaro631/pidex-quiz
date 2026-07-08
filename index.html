@@ -27,7 +27,7 @@
   <div id="app-screen" class="screen hidden">
     <header class="app-header">
       <div class="header-row1">
-        <div class="header-status">
+        <div class="header-status" id="header-status">
           <span id="header-lives" class="header-lives">❤️❤️</span>
           <span id="header-score" class="header-score">0점</span>
         </div>
@@ -45,33 +45,35 @@
     </header>
 
     <main class="page-container">
-      <div id="page-quiz"    class="page"></div>
-      <div id="page-survey"  class="page hidden"></div>
-      <div id="page-rank"    class="page hidden"></div>
-      <div id="page-stats"   class="page hidden"></div>
-      <div id="page-opinion" class="page hidden"></div>
+      <div id="page-quiz"     class="page"></div>
+      <div id="page-survival" class="page hidden"></div>
+      <div id="page-tracker"  class="page hidden"></div>
+      <div id="page-opinion"  class="page hidden"></div>
+      <div id="page-rank"     class="page hidden"></div>
+      <div id="page-stats"    class="page hidden"></div>
+      <div id="page-survey"   class="page hidden"></div>
     </main>
 
     <nav class="bottom-nav">
       <button class="nav-tab active" data-page="quiz">
         <span class="nav-icon">🧩</span>
-        <span class="nav-label">퀴즈</span>
+        <span class="nav-label" id="nav-label-quiz">퀴즈</span>
       </button>
-      <button class="nav-tab" data-page="survey">
-        <span class="nav-icon">📋</span>
-        <span class="nav-label">설문</span>
+      <button class="nav-tab" data-page="survival">
+        <span class="nav-icon">🌿</span>
+        <span class="nav-label" id="nav-label-survival">생존</span>
       </button>
-      <button class="nav-tab" data-page="rank">
-        <span class="nav-icon">🏆</span>
-        <span class="nav-label">내 등급</span>
-      </button>
-      <button class="nav-tab" data-page="stats">
-        <span class="nav-icon">📊</span>
-        <span class="nav-label">통계</span>
+      <button class="nav-tab" data-page="tracker">
+        <span class="nav-icon">🔍</span>
+        <span class="nav-label" id="nav-label-tracker">트래커</span>
       </button>
       <button class="nav-tab" data-page="opinion">
         <span class="nav-icon">💬</span>
-        <span class="nav-label">의견</span>
+        <span class="nav-label" id="nav-label-opinion">의견</span>
+      </button>
+      <button class="nav-tab" id="btn-more-tab">
+        <span class="nav-icon">☰</span>
+        <span class="nav-label" id="nav-label-more">더보기</span>
       </button>
     </nav>
   </div>
@@ -79,6 +81,30 @@
   <!-- 유틸모음 오버레이 -->
   <div id="utils-overlay" class="utils-overlay hidden">
     <div class="utils-panel" id="utils-panel"></div>
+  </div>
+
+  <!-- 더보기 시트 -->
+  <div id="more-sheet" class="more-sheet hidden">
+    <div class="more-sheet-bg" id="more-sheet-bg"></div>
+    <div class="more-sheet-panel">
+      <div class="more-sheet-grip"></div>
+      <button class="more-sheet-item" data-page="rank">
+        <span class="more-item-icon">🏆</span>
+        <span class="more-item-label" id="more-label-rank">랭킹</span>
+      </button>
+      <button class="more-sheet-item" data-page="stats">
+        <span class="more-item-icon">📊</span>
+        <span class="more-item-label" id="more-label-stats">통계</span>
+      </button>
+      <button class="more-sheet-item" data-page="survey">
+        <span class="more-item-icon">📋</span>
+        <span class="more-item-label" id="more-label-survey">설문</span>
+      </button>
+      <button class="more-sheet-item" id="more-item-help">
+        <span class="more-item-icon">❓</span>
+        <span class="more-item-label" id="more-label-help">도움말</span>
+      </button>
+    </div>
   </div>
 
   <script type="module" src="app.js"></script>
