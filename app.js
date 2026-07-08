@@ -6,7 +6,8 @@ import { renderStatsPage }  from './page-stats.js';
 import { renderSurveyPage } from './page-survey.js';
 import { getScore, getLives, isSubscribed } from './util-storage.js';
 import { initLang, t, getLang, setLang, SUPPORTED_LANGS } from './util-i18n.js';
-import { renderHelpModal }  from './page-help.js';
+import { renderHelpModal }    from './page-help.js';
+import { renderOpinionPage }  from './page-opinion.js';
 import { initFirebase, loadSurveyFromFirestore, updateLeaderboardCountry } from './firebase.js';
 import { mergeSurveyFromCloud } from './util-storage.js';
 const NOTICE = {
@@ -108,10 +109,11 @@ let activePage = 'quiz';
 const renderedPages = new Set();
 
 const PAGE_RENDERERS = {
-  quiz:   (el) => renderQuizPage(el),
-  survey: (el) => renderSurveyPage(el),
-  rank:   (el) => renderRankPage(el),
-  stats:  (el) => renderStatsPage(el),
+  quiz:    (el) => renderQuizPage(el),
+  survey:  (el) => renderSurveyPage(el),
+  rank:    (el) => renderRankPage(el),
+  stats:   (el) => renderStatsPage(el),
+  opinion: (el) => renderOpinionPage(el),
 };
 
 function switchPage(pageKey) {
@@ -159,11 +161,13 @@ function applyNavLabels() {
   const quizTab   = document.querySelector('.nav-tab[data-page="quiz"] .nav-label');
   const surveyTab = document.querySelector('.nav-tab[data-page="survey"] .nav-label');
   const rankTab   = document.querySelector('.nav-tab[data-page="rank"] .nav-label');
-  const statsTab  = document.querySelector('.nav-tab[data-page="stats"] .nav-label');
-  if (quizTab)   quizTab.textContent   = t('nav.quiz');
-  if (surveyTab) surveyTab.textContent = t('nav.survey');
-  if (rankTab)   rankTab.textContent   = t('nav.rank');
-  if (statsTab)  statsTab.textContent  = t('nav.stats');
+  const statsTab   = document.querySelector('.nav-tab[data-page="stats"] .nav-label');
+  const opinionTab = document.querySelector('.nav-tab[data-page="opinion"] .nav-label');
+  if (quizTab)    quizTab.textContent    = t('nav.quiz');
+  if (surveyTab)  surveyTab.textContent  = t('nav.survey');
+  if (rankTab)    rankTab.textContent    = t('nav.rank');
+  if (statsTab)   statsTab.textContent   = t('nav.stats');
+  if (opinionTab) opinionTab.textContent = t('nav.opinion');
   const helpBtn = document.getElementById('btn-help');
   if (helpBtn) helpBtn.textContent = `❓ ${t('btn.help')}`;
 }

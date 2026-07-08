@@ -147,6 +147,38 @@ export async function migrateLeaderboard() {
   }
 }
 
+// ── 앱 의견 ──────────────────────────────────────────
+export async function submitOpinion(username, text) {
+  if (!db) initFirebase();
+  await db.collection('quiz_opinions').add({
+    author:    username,
+    text,
+    likes:     0,
+    likedBy:   [],
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+}
+
+export async function fetchOpinions() {
+  if (!db) initFirebase();
+  const snap = await db.collection('quiz_opinions')
+    .orderBy('createdAt', 'desc')
+    .limit(100)
+    .get();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function toggleOpinionLike(docId, username, isLiked) {
+  if (!db) initFirebase();
+  const ref = db.collection('quiz_opinions').doc(docId);
+  await ref.update({
+    likes:   firebase.firestore.FieldValue.increment(isLiked ? -1 : 1),
+    likedBy: isLiked
+      ? firebase.firestore.FieldValue.arrayRemove(username)
+      : firebase.firestore.FieldValue.arrayUnion(username),
+  });
+}
+
 // ── 설문 집계 통계 조회 (surveys 컬렉션 기반 — UID당 1문서로 중복 없음) ──
 export async function fetchSurveyStats() {
   if (!db) return null;
