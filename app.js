@@ -390,7 +390,7 @@ function initLoginScreen() {
 async function init() {
   initLang();
   initLoginScreen();
-  await initPiSDK();
+  try { await initPiSDK(); } catch (e) { console.warn('Pi SDK init:', e); }
 
   // 네비 탭 (quiz/survival/tracker/opinion)
   document.querySelectorAll('.nav-tab[data-page]').forEach(btn => {

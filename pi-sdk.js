@@ -59,7 +59,7 @@ async function onIncompletePaymentFound(payment) {
 }
 
 export async function initPiSDK() {
-  await Pi.init({ version: '2.0', sandbox: true });
+  await Pi.init({ version: '2.0', sandbox: false });
 }
 
 export async function authenticate() {
