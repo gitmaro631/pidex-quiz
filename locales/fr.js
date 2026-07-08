@@ -84,11 +84,11 @@
   'survey.life.bonus':  '🎉 {n} sondages terminés ! +1 vie',
 
   // ── 앱 의견 ──────────────────────────────────────────
-  'opinion.placeholder':    'Laissez votre avis sur l''application (max 150 caractères)',
+  'opinion.placeholder':    "Laissez votre avis sur l'application (max 150 caractères)",
   'opinion.submit':         'Publier',
-  'opinion.login_required': 'Veuillez vous connecter avec Pi d''abord.',
+  'opinion.login_required': "Veuillez vous connecter avec Pi d'abord.",
   'opinion.loading':        'Chargement...',
-  'opinion.empty':          'Aucun avis pour l''instant.',
+  'opinion.empty':          "Aucun avis pour l'instant.",
   'opinion.submit_fail':    'Échec de la publication. Réessayez.',
   'opinion.load_fail':      'Échec du chargement. Réessayez.',
   'opinion.edit_save':      'Enregistrer',
