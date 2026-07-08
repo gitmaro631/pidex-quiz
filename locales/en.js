@@ -19,6 +19,7 @@
   'opinion.edit_fail':      'Failed to update. Please try again.',
   'opinion.delete_confirm': 'Delete this opinion?',
   'opinion.delete_fail':    'Failed to delete. Please try again.',
+  'opinion.admin_hidden':   '🚫 This content has been hidden by an admin.'
   'btn.next':       'Next →',
   'btn.again':      'Continue',
   'btn.rank':       'See My Rank',

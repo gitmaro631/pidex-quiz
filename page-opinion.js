@@ -1,5 +1,7 @@
 import { t } from './util-i18n.js';
-import { initFirebase, submitOpinion, fetchOpinions, toggleOpinionLike, updateOpinion, deleteOpinion } from './firebase.js';
+import { initFirebase, submitOpinion, fetchOpinions, toggleOpinionLike, updateOpinion, deleteOpinion, setOpinionAdminHidden } from './firebase.js';
+
+const ADMIN_USERNAME = 'cam1998pi';
 import { setupPullToRefresh } from './util-ptr.js';
 
 const MAX_CHARS = 150;
@@ -141,28 +143,54 @@ function bindOpinionEvents(listEl, username) {
       }
     });
   });
+
+  // 관리자 숨김/해제
+  listEl.querySelectorAll('.opinion-admin-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const hide = btn.dataset.hidden !== 'true';
+      btn.disabled = true;
+      try {
+        await setOpinionAdminHidden(btn.dataset.id, hide);
+        await loadOpinions(listEl, username);
+      } catch {
+        btn.disabled = false;
+      }
+    });
+  });
 }
 
 function renderOpinionItem(op, username) {
-  const isLiked = username && (op.likedBy ?? []).includes(username);
-  const isOwn   = op.author === username;
-  const timeStr = op.createdAt?.toDate ? op.createdAt.toDate().toLocaleDateString() : '';
+  const isLiked   = username && (op.likedBy ?? []).includes(username);
+  const isOwn     = op.author === username;
+  const isAdmin   = username === ADMIN_USERNAME;
+  const isHidden  = !!op.adminHidden;
+  const timeStr   = op.createdAt?.toDate ? op.createdAt.toDate().toLocaleDateString() : '';
+
+  const bodyHtml = isHidden
+    ? `<p class="opinion-text opinion-hidden-msg">${t('opinion.admin_hidden')}</p>`
+    : `<p class="opinion-text">${escapeHtml(op.text)}</p>`;
+
   return `
-    <div class="opinion-item">
+    <div class="opinion-item${isHidden ? ' opinion-item-hidden' : ''}">
       <div class="opinion-meta">
         <span class="opinion-author">@${op.author}</span>
         <span class="opinion-time">${timeStr}</span>
       </div>
-      <p class="opinion-text">${escapeHtml(op.text)}</p>
+      ${bodyHtml}
       <div class="opinion-actions">
         <button class="opinion-like-btn${isLiked ? ' liked' : ''}"
           data-id="${op.id}" data-liked="${isLiked}" data-author="${op.author}"
-          ${isOwn || !username ? 'disabled' : ''}>
+          ${isOwn || !username || isHidden ? 'disabled' : ''}>
           👍 ${op.likes ?? 0}
         </button>
-        ${isOwn ? `
+        ${isOwn && !isHidden ? `
           <button class="opinion-edit-btn" data-id="${op.id}">✏️</button>
           <button class="opinion-del-btn" data-id="${op.id}">🗑️</button>
+        ` : ''}
+        ${isAdmin ? `
+          <button class="opinion-admin-btn" data-id="${op.id}" data-hidden="${isHidden}">
+            ${isHidden ? '👁️' : '🚫'}
+          </button>
         ` : ''}
       </div>
     </div>`;

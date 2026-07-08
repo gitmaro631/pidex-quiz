@@ -19,6 +19,7 @@
   'opinion.edit_fail':      '수정 실패. 다시 시도해주세요.',
   'opinion.delete_confirm': '이 의견을 삭제하시겠습니까?',
   'opinion.delete_fail':    '삭제 실패. 다시 시도해주세요.',
+  'opinion.admin_hidden':   '🚫 관리자에 의해 가려진 내용입니다.',
   'btn.next':       '다음 →',
   'btn.again':      '계속하기',
   'btn.rank':       '내 등급 보기',

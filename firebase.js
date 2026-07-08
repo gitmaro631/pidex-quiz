@@ -178,6 +178,11 @@ export async function deleteOpinion(docId) {
   await db.collection('quiz_opinions').doc(docId).delete();
 }
 
+export async function setOpinionAdminHidden(docId, hide) {
+  if (!db) initFirebase();
+  await db.collection('quiz_opinions').doc(docId).update({ adminHidden: hide });
+}
+
 export async function toggleOpinionLike(docId, username, isLiked) {
   if (!db) initFirebase();
   const ref = db.collection('quiz_opinions').doc(docId);

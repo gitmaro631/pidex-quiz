@@ -728,6 +728,14 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .opinion-edit-ta { width: 100%; min-height: 60px; resize: none; margin-bottom: 6px; }
 .opinion-edit-btns { display: flex; gap: 6px; justify-content: flex-end; }
 
+.opinion-item-hidden { opacity: 0.6; }
+.opinion-hidden-msg { color: #9ca3af; font-style: italic; font-size: 0.88rem; }
+.opinion-admin-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 1rem; padding: 2px 4px; border-radius: 4px; opacity: 0.7;
+}
+.opinion-admin-btn:hover { opacity: 1; background: rgba(0,0,0,0.08); }
+
 /* ── 공지 모달 ── */
 .notice-overlay {
   position: fixed; inset: 0; z-index: 9999;
