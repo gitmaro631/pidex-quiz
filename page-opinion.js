@@ -28,16 +28,29 @@ export async function renderOpinionPage(container) {
         ${!username ? `<p class="opinion-login-note">${t('opinion.login_required')}</p>` : ''}
       </div>
 
+      <div class="opinion-list-header">
+        <button id="opinion-refresh" class="opinion-refresh-btn" title="새로고침">🔄</button>
+      </div>
+
       <div id="opinion-list" class="opinion-list">
         <div class="opinion-loading">${t('opinion.loading')}</div>
       </div>
     </div>
   `;
 
-  const textarea  = container.querySelector('#opinion-input');
-  const charCount = container.querySelector('#opinion-charcount');
-  const submitBtn = container.querySelector('#opinion-submit');
-  const listEl    = container.querySelector('#opinion-list');
+  const textarea    = container.querySelector('#opinion-input');
+  const charCount   = container.querySelector('#opinion-charcount');
+  const submitBtn   = container.querySelector('#opinion-submit');
+  const listEl      = container.querySelector('#opinion-list');
+  const refreshBtn  = container.querySelector('#opinion-refresh');
+
+  refreshBtn?.addEventListener('click', async () => {
+    refreshBtn.disabled = true;
+    refreshBtn.textContent = '⏳';
+    await loadOpinions(listEl, username);
+    refreshBtn.disabled = false;
+    refreshBtn.textContent = '🔄';
+  });
 
   textarea?.addEventListener('input', () => {
     charCount.textContent = `${textarea.value.length} / ${MAX_CHARS}`;

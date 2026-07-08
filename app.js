@@ -122,6 +122,7 @@ function switchPage(pageKey) {
   document.getElementById(`page-${pageKey}`).classList.remove('hidden');
   document.querySelector(`.nav-tab[data-page="${pageKey}"]`).classList.add('active');
   activePage = pageKey;
+  if (pageKey === 'opinion') renderedPages.delete('opinion');
   if (!renderedPages.has(pageKey)) {
     renderedPages.add(pageKey);
     PAGE_RENDERERS[pageKey]?.(document.getElementById(`page-${pageKey}`));
