@@ -1044,4 +1044,6 @@
   'notice_skip_week 一周内不再显示': '',
   'notice_confirm': '确认',
 
+  'ptr_pull': "下拉刷新",
+
 };

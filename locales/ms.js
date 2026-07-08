@@ -1017,4 +1017,6 @@
   'notice_skip_week Jangan tunjuk seminggu': '',
   'notice_confirm': 'OK',
 
+  'ptr_pull': "Tarik untuk muat semula",
+
 };

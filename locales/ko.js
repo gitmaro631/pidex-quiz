@@ -426,4 +426,6 @@
   'notice_skip_week 일주일간 팝업 보지 않기': '',
   'notice_confirm': '확인',
 
+  'ptr_pull': "당겨서 새로고침",
+
 };

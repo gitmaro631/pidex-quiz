@@ -1017,4 +1017,6 @@
   'notice_skip_week No mostrar por una semana': '',
   'notice_confirm': 'Aceptar',
 
+  'ptr_pull': "Desliza para actualizar",
+
 };

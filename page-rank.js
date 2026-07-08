@@ -4,10 +4,12 @@ import { fetchLeaderboard, initFirebase, migrateLeaderboard } from './firebase.j
 import { countryToFlag } from './util-i18n.js';
 import { t } from './util-i18n.js';
 import { updateHeaderLives } from './app.js';
+import { setupPullToRefresh } from './util-ptr.js';
 
 const VIEW_COOLDOWN_MS = 60 * 60 * 1000;
 
 export async function renderRankPage(container) {
+  setupPullToRefresh(container, () => renderRankPage(container));
   const score     = getScore();
   const highScore = getHighScore();
   const rank      = getRank(score);

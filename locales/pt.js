@@ -1017,4 +1017,6 @@
   'notice_skip_week Não mostrar por uma semana': '',
   'notice_confirm': 'OK',
 
+  'ptr_pull': "Puxe para atualizar",
+
 };

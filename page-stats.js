@@ -2,6 +2,7 @@ import { initFirebase, fetchSurveyStats } from './firebase.js';
 import { addLives, getLastStatsViewTime, setLastStatsViewTime, getMode } from './util-storage.js';
 import { updateHeaderLives } from './app.js';
 import { t } from './util-i18n.js';
+import { setupPullToRefresh } from './util-ptr.js';
 
 const STATS_LIFE_COOLDOWN_MS = 60 * 60 * 1000;
 
@@ -54,6 +55,7 @@ const COUNTRY_INFO = {
 };
 
 export async function renderStatsPage(container) {
+  setupPullToRefresh(container, () => renderStatsPage(container));
   container.innerHTML = `<div class="stats-loading">${t('stats.loading')}</div>`;
 
   const mode = getMode();

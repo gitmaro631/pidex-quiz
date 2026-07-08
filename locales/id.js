@@ -1044,4 +1044,6 @@
   'notice_skip_week Jangan tampilkan seminggu': '',
   'notice_confirm': 'OK',
 
+  'ptr_pull': "Tarik untuk refresh",
+
 };

@@ -1017,4 +1017,6 @@
   'notice_skip_week Không hiển thị trong một tuần': '',
   'notice_confirm': 'Xác nhận',
 
+  'ptr_pull': "Kéo xuống để làm mới",
+
 };

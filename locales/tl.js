@@ -1017,4 +1017,6 @@
   'notice_skip_week Huwag ipakita ng isang linggo': '',
   'notice_confirm': 'OK',
 
+  'ptr_pull': "I-pull para i-refresh",
+
 };

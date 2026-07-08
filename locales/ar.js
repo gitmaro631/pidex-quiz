@@ -1017,4 +1017,6 @@
   'notice_skip_week لا تعرض لمدة أسبوع': '',
   'notice_confirm': 'موافق',
 
+  'ptr_pull': "اسحب للتحديث",
+
 };

@@ -1017,4 +1017,6 @@
   'notice_skip_week Usionyeshe kwa wiki moja': '',
   'notice_confirm': 'Sawa',
 
+  'ptr_pull': "Vuta kusasisha",
+
 };

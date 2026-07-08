@@ -1044,4 +1044,6 @@
   'notice_skip_week': "Don't show for a week",
   'notice_confirm': 'OK',
 
+  'ptr_pull': "Pull to refresh",
+
 };

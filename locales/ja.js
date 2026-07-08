@@ -1044,4 +1044,6 @@
   'notice_skip_week 一週間表示しない': '',
   'notice_confirm': '確認',
 
+  'ptr_pull': "引いて更新",
+
 };

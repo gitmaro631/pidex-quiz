@@ -1017,4 +1017,6 @@
   'notice_skip_week Bir hafta gösterme': '',
   'notice_confirm': 'Tamam',
 
+  'ptr_pull': "Yenilemek için çekin",
+
 };
