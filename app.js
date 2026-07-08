@@ -9,7 +9,7 @@ import { initLang, t, getLang, setLang, SUPPORTED_LANGS } from './util-i18n.js';
 import { renderHelpModal }  from './page-help.js';
 import { initFirebase, loadSurveyFromFirestore, updateLeaderboardCountry } from './firebase.js';
 import { mergeSurveyFromCloud } from './util-storage.js';
-import { NOTICE } from './notice.js';
+const NOTICE = null; // 공지 내용: { version, ko, en, ... } 또는 null(스킵)
 
 // ── 공지 팝업 ────────────────────────────────────────
 function showNoticeIfNeeded() {
