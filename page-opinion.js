@@ -1,5 +1,5 @@
 import { t } from './util-i18n.js';
-import { initFirebase, submitOpinion, fetchOpinions, toggleOpinionLike } from './firebase.js';
+import { initFirebase, submitOpinion, fetchOpinions, toggleOpinionLike, updateOpinion, deleteOpinion } from './firebase.js';
 import { setupPullToRefresh } from './util-ptr.js';
 
 const MAX_CHARS = 150;
@@ -32,14 +32,13 @@ export async function renderOpinionPage(container) {
     </div>
   `;
 
-  const textarea   = container.querySelector('#opinion-input');
-  const charCount  = container.querySelector('#opinion-charcount');
-  const submitBtn  = container.querySelector('#opinion-submit');
-  const listEl     = container.querySelector('#opinion-list');
+  const textarea  = container.querySelector('#opinion-input');
+  const charCount = container.querySelector('#opinion-charcount');
+  const submitBtn = container.querySelector('#opinion-submit');
+  const listEl    = container.querySelector('#opinion-list');
 
   textarea?.addEventListener('input', () => {
-    const len = textarea.value.length;
-    charCount.textContent = `${len} / ${MAX_CHARS}`;
+    charCount.textContent = `${textarea.value.length} / ${MAX_CHARS}`;
   });
 
   submitBtn?.addEventListener('click', async () => {
@@ -74,41 +73,80 @@ async function loadOpinions(listEl, username) {
       return;
     }
     listEl.innerHTML = opinions.map(op => renderOpinionItem(op, username)).join('');
-    listEl.querySelectorAll('.opinion-like-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        if (!username) return;
-        const docId   = btn.dataset.id;
-        const isLiked = btn.dataset.liked === 'true';
-        if (btn.dataset.author === username) return;
-        btn.disabled = true;
-        try {
-          await toggleOpinionLike(docId, username, isLiked);
-          const opinions = await fetchOpinions();
-          listEl.innerHTML = opinions.map(op => renderOpinionItem(op, username)).join('');
-          listEl.querySelectorAll('.opinion-like-btn').forEach(b => {
-            b.addEventListener('click', async () => {
-              if (!username || b.dataset.author === username) return;
-              b.disabled = true;
-              try {
-                await toggleOpinionLike(b.dataset.id, username, b.dataset.liked === 'true');
-                await loadOpinions(listEl, username);
-              } catch { b.disabled = false; }
-            });
-          });
-        } catch { btn.disabled = false; }
-      });
-    });
+    bindOpinionEvents(listEl, username);
   } catch {
     listEl.innerHTML = `<p class="opinion-empty">${t('opinion.load_fail')}</p>`;
   }
 }
 
+function bindOpinionEvents(listEl, username) {
+  // 공감
+  listEl.querySelectorAll('.opinion-like-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!username || btn.dataset.author === username) return;
+      btn.disabled = true;
+      try {
+        await toggleOpinionLike(btn.dataset.id, username, btn.dataset.liked === 'true');
+        await loadOpinions(listEl, username);
+      } catch { btn.disabled = false; }
+    });
+  });
+
+  // 수정
+  listEl.querySelectorAll('.opinion-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item   = btn.closest('.opinion-item');
+      const textEl = item.querySelector('.opinion-text');
+      const docId  = btn.dataset.id;
+      const orig   = item.querySelector('.opinion-text').textContent;
+
+      item.querySelector('.opinion-actions').classList.add('hidden');
+      textEl.outerHTML = `
+        <div class="opinion-edit-wrap">
+          <textarea class="opinion-textarea opinion-edit-ta" maxlength="${MAX_CHARS}">${escapeHtml(orig)}</textarea>
+          <div class="opinion-edit-btns">
+            <button class="btn-outline btn-sm opinion-edit-cancel">${t('opinion.edit_cancel')}</button>
+            <button class="btn-primary btn-sm opinion-edit-save" data-id="${docId}">${t('opinion.edit_save')}</button>
+          </div>
+        </div>`;
+
+      item.querySelector('.opinion-edit-cancel').addEventListener('click', () => loadOpinions(listEl, username));
+      item.querySelector('.opinion-edit-save').addEventListener('click', async (e) => {
+        const saveBtn = e.currentTarget;
+        const newText = item.querySelector('.opinion-edit-ta').value.trim();
+        if (!newText) return;
+        saveBtn.disabled = true;
+        try {
+          await updateOpinion(docId, newText);
+          await loadOpinions(listEl, username);
+        } catch {
+          alert(t('opinion.edit_fail'));
+          saveBtn.disabled = false;
+        }
+      });
+    });
+  });
+
+  // 삭제
+  listEl.querySelectorAll('.opinion-del-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm(t('opinion.delete_confirm'))) return;
+      btn.disabled = true;
+      try {
+        await deleteOpinion(btn.dataset.id);
+        await loadOpinions(listEl, username);
+      } catch {
+        alert(t('opinion.delete_fail'));
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
 function renderOpinionItem(op, username) {
-  const isLiked   = username && (op.likedBy ?? []).includes(username);
-  const isOwn     = op.author === username;
-  const timeStr   = op.createdAt?.toDate
-    ? op.createdAt.toDate().toLocaleDateString()
-    : '';
+  const isLiked = username && (op.likedBy ?? []).includes(username);
+  const isOwn   = op.author === username;
+  const timeStr = op.createdAt?.toDate ? op.createdAt.toDate().toLocaleDateString() : '';
   return `
     <div class="opinion-item">
       <div class="opinion-meta">
@@ -117,11 +155,15 @@ function renderOpinionItem(op, username) {
       </div>
       <p class="opinion-text">${escapeHtml(op.text)}</p>
       <div class="opinion-actions">
-        <button class="opinion-like-btn${isLiked ? ' liked' : ''}${isOwn ? ' own' : ''}"
+        <button class="opinion-like-btn${isLiked ? ' liked' : ''}"
           data-id="${op.id}" data-liked="${isLiked}" data-author="${op.author}"
           ${isOwn || !username ? 'disabled' : ''}>
           👍 ${op.likes ?? 0}
         </button>
+        ${isOwn ? `
+          <button class="opinion-edit-btn" data-id="${op.id}">✏️</button>
+          <button class="opinion-del-btn" data-id="${op.id}">🗑️</button>
+        ` : ''}
       </div>
     </div>`;
 }

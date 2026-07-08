@@ -168,6 +168,16 @@ export async function fetchOpinions() {
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
+export async function updateOpinion(docId, text) {
+  if (!db) initFirebase();
+  await db.collection('quiz_opinions').doc(docId).update({ text });
+}
+
+export async function deleteOpinion(docId) {
+  if (!db) initFirebase();
+  await db.collection('quiz_opinions').doc(docId).delete();
+}
+
 export async function toggleOpinionLike(docId, username, isLiked) {
   if (!db) initFirebase();
   const ref = db.collection('quiz_opinions').doc(docId);
