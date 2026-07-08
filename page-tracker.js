@@ -250,6 +250,11 @@ export function renderTrackerPage(container, username, uid) {
         <hr class="trk-divider" />
         <div class="trk-section">
           <h3 class="trk-section-title">${tt('report.title')}</h3>
+          <div class="trk-realname-warn">
+            ⚠️ 본 신고는 <strong>실명제</strong>로 운영됩니다.<br>
+            Pi 계정으로 로그인한 본인만 신고할 수 있으며,<br>
+            허위 신고 시 법적 책임이 따를 수 있습니다.
+          </div>
           <label class="trk-label">${tt('report.victim_id')} *</label>
           <input id="trk-f-victim-id" class="trk-input" type="text" value="${username ? '@' + username : ''}" readonly style="opacity:0.7;cursor:default;" />
           <label class="trk-label">${tt('report.suspect_wallet')} *</label>

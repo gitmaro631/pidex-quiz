@@ -970,6 +970,11 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 /* 공통 */
 .trk-section { margin-bottom: 20px; }
 .trk-section-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px; }
+.trk-realname-warn {
+  background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.4);
+  border-radius: 10px; padding: 10px 13px; margin-bottom: 14px;
+  font-size: 12.5px; line-height: 1.7; color: #fca5a5;
+}
 .trk-section-label {
   font-size: 11px; font-weight: 600; color: var(--muted);
   text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
