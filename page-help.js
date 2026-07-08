@@ -1,6 +1,6 @@
 import { t, getLang } from './util-i18n.js';
-import { currentUser } from './pi-sdk.js';
-import { isSubscribed, getSubscriptionExpiry } from './util-storage.js';
+import { createDonation, createSubscriptionPayment, currentUser } from './pi-sdk.js';
+import { isSubscribed, setSubscription, getSubscriptionExpiry } from './util-storage.js';
 import { updateHeaderUsername } from './app.js';
 
 const SUB_STRINGS = {
@@ -1672,10 +1672,22 @@ export function renderHelpModal(onClose) {
           <h3 class="help-section-title">${getSubStrings().title}</h3>
           ${isSubscribed()
             ? `<p class="donation-desc">${getSubStrings().expiry}: ${new Date(getSubscriptionExpiry()).toLocaleDateString()}</p>`
-            : `<p class="donation-desc" style="font-size:12px;color:var(--text-muted);">🔗 생존게임·트래커 앱에서 구독 후 공유됩니다</p>`
+            : `<p class="donation-desc">${getSubStrings().desc}</p>
+               <button class="donation-btn" id="help-sub-btn" style="width:100%;margin-bottom:6px;">${getSubStrings().buyBtn}</button>`
           }
           <button class="restore-btn" id="help-restore-btn" style="width:100%;background:#4a5568;font-size:0.82rem;">${getSubStrings().restoreBtn}</button>
           <p class="donation-result" id="help-sub-result"></p>
+        </div>
+
+        <div class="help-donation">
+          <h3 class="help-section-title">${c.donation.title}</h3>
+          <p class="donation-desc">${c.donation.desc}</p>
+          <div class="donation-btns">
+            ${[1, 5, 10].map((amount, i) => `
+              <button class="donation-btn" data-amount="${amount}">${c.donation.btns[i]}</button>
+            `).join('')}
+          </div>
+          <p class="donation-result" id="donation-result"></p>
         </div>
 
       </div>
@@ -1703,6 +1715,44 @@ export function renderHelpModal(onClose) {
       onClose?.();
     }
   });
+
+  const subBtn = modal.querySelector('#help-sub-btn');
+  if (subBtn) {
+    subBtn.addEventListener('click', async () => {
+      const s = getSubStrings();
+      const resultEl = modal.querySelector('#help-sub-result');
+      subBtn.disabled = true;
+      resultEl.textContent = '';
+      resultEl.className = 'donation-result';
+      try {
+        await createSubscriptionPayment();
+        setSubscription(1);
+        const _uid = currentUser?.uid;
+        const _exp = getSubscriptionExpiry();
+        if (_uid && _exp) {
+          fetch('/api/subscription/restore', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: _uid, expiry: _exp }),
+          }).catch(() => {});
+        }
+        resultEl.textContent = s.ok;
+        resultEl.classList.add('donation-success');
+        updateHeaderUsername();
+        modal.querySelector('#help-sub-section').innerHTML = `
+          <h3 class="help-section-title">${s.title}</h3>
+          <p class="donation-desc">${s.expiry}: ${new Date(getSubscriptionExpiry()).toLocaleDateString()}</p>
+          <p class="donation-result donation-success">${s.ok}</p>
+        `;
+      } catch (err) {
+        if (err.message !== 'cancelled') {
+          resultEl.textContent = s.err;
+          resultEl.classList.add('donation-error');
+        }
+        subBtn.disabled = false;
+      }
+    });
+  }
 
   const restoreBtn = modal.querySelector('#help-restore-btn');
   if (restoreBtn) {
@@ -1748,6 +1798,28 @@ export function renderHelpModal(onClose) {
       }
     });
   }
+
+  modal.querySelectorAll('.donation-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const amount = parseInt(btn.dataset.amount);
+      const resultEl = modal.querySelector('#donation-result');
+      modal.querySelectorAll('.donation-btn').forEach(b => b.disabled = true);
+      try {
+        await createDonation(amount);
+        resultEl.textContent = c.donation.successMsg(amount);
+        resultEl.className = 'donation-result donation-success';
+      } catch (err) {
+        if (err.message === 'cancelled') {
+          resultEl.textContent = '';
+        } else {
+          resultEl.textContent = c.donation.errorMsg;
+          resultEl.className = 'donation-result donation-error';
+        }
+      } finally {
+        modal.querySelectorAll('.donation-btn').forEach(b => b.disabled = false);
+      }
+    });
+  });
 
   return modal;
 }

@@ -1,6 +1,6 @@
 import { t, getLang } from './util-i18n.js';
 import { isSubscribed, setSubscription } from './util-storage.js';
-import { syncSubscription } from './pi-sdk.js';
+import { createSubscriptionPayment, syncSubscription } from './pi-sdk.js';
 import { submitSurvivalScore, fetchSurvivalLeaderboard } from './firebase.js';
 import { JUNGLE }     from './stories/jungle.js';
 import { DESERT }     from './stories/desert.js';
@@ -685,7 +685,7 @@ export function renderSurvivalPage(container, username) {
               <li>향후 추가될 모든 맵 자동 개방</li>
               <li>퀴즈파이 구독과 공유</li>
             </ul>
-            <p style="font-size:12px;color:var(--text-muted);text-align:center;margin-bottom:8px;">🔗 생존게임·트래커 앱에서 구독 후 공유됩니다</p>
+            <button class="btn-primary" id="sv-btn-do-sub" style="width:100%;margin-bottom:8px;">${ts('sub.btn')}</button>
             <button class="btn-outline" id="sv-btn-do-restore" style="width:100%;">${ts('sub.restore')}</button>
             <p id="sv-sub-msg" style="font-size:12px;text-align:center;margin-top:8px;min-height:16px;"></p>
           `}
@@ -694,8 +694,26 @@ export function renderSurvivalPage(container, username) {
     document.body.appendChild(overlay);
     overlay.querySelector('#sv-sub-close').onclick = () => overlay.remove();
 
+    const doSub = overlay.querySelector('#sv-btn-do-sub');
     const doRestore = overlay.querySelector('#sv-btn-do-restore');
     const msg = overlay.querySelector('#sv-sub-msg');
+
+    doSub?.addEventListener('click', async () => {
+      doSub.disabled = true;
+      doSub.textContent = '처리 중...';
+      try {
+        await createSubscriptionPayment();
+        setSubscription();
+        overlay.remove();
+        showMapSelect();
+      } catch (err) {
+        if (err?.message !== 'cancelled') {
+          if (msg) msg.textContent = ts('sub.error');
+        }
+        doSub.disabled = false;
+        doSub.textContent = ts('sub.btn');
+      }
+    });
 
     doRestore?.addEventListener('click', async () => {
       doRestore.disabled = true;

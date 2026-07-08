@@ -62,6 +62,7 @@ export async function initPiSDK() {
   await Pi.init({ version: '2.0', sandbox: true });
 }
 
+
 export async function authenticate() {
   return new Promise((resolve, reject) => {
     Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
