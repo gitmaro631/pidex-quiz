@@ -251,7 +251,7 @@ export function renderTrackerPage(container, username, uid) {
         <div class="trk-section">
           <h3 class="trk-section-title">${tt('report.title')}</h3>
           <label class="trk-label">${tt('report.victim_id')} *</label>
-          <input id="trk-f-victim-id" class="trk-input" type="text" placeholder="@username" />
+          <input id="trk-f-victim-id" class="trk-input" type="text" value="${username ? '@' + username : ''}" readonly style="opacity:0.7;cursor:default;" />
           <label class="trk-label">${tt('report.suspect_wallet')} *</label>
           <input id="trk-f-suspect-wallet" class="trk-input mono" type="text" placeholder="G..." />
           <label class="trk-label">${tt('report.amount')} *</label>
@@ -439,7 +439,7 @@ export function renderTrackerPage(container, username, uid) {
 
       msgEl.className = 'trk-msg ok';
       msgEl.textContent = tt('report.success');
-      ['trk-f-victim-id','trk-f-suspect-wallet','trk-f-amount','trk-f-date','trk-f-txhash','trk-f-desc']
+      ['trk-f-suspect-wallet','trk-f-amount','trk-f-date','trk-f-txhash','trk-f-desc']
         .forEach(id => { container.querySelector('#' + id).value = ''; });
     } catch {
       msgEl.className = 'trk-msg err';
