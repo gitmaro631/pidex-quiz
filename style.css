@@ -708,18 +708,13 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
   background: rgba(0,0,0,0.55);
   display: flex; align-items: center; justify-content: center;
   padding: 20px;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
 }
 .notice-box {
-  background: rgba(26,29,39,0.72);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
   border-radius: 14px;
   padding: 24px 20px 20px;
   max-width: 420px; width: 100%;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
   display: flex; flex-direction: column; gap: 16px;
 }
 .notice-body {
