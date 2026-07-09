@@ -3,7 +3,7 @@
   'app.title':      'PiDEX 퀴즈',
   'nav.quiz':       '퀴즈',
   'nav.survey':     '설문',
-  'nav.rank':       '내 등급',
+  'nav.rank':       '랭킹보드',
   'nav.stats':      '커뮤니티 통계',
   'nav.opinion':    '의견',
   'nav.survival':   '생존',
@@ -25,7 +25,7 @@
   'opinion.admin_hidden':   '🚫 관리자에 의해 가려진 내용입니다.',
   'btn.next':       '다음 →',
   'btn.again':      '계속하기',
-  'btn.rank':       '내 등급 보기',
+  'btn.rank':       '랭킹보드 보기',
   'btn.share':      '📤 결과 공유하기',
   'btn.intro':      '앱 소개',
   'btn.help':       '도움말',
@@ -114,7 +114,7 @@
   'stats.note':          '* 항목별 응답자 기준 집계. 실시간 업데이트.',
   'stats.resp':          '({n}명 응답)',
 
-  // ── 내 등급 ───────────────────────────────────────────
+  // ── 랭킹보드 ───────────────────────────────────────────
   'rank.stats':          '총 {seen}문제 · 정답률 {pct}% · 최고 {high}{unit}',
   'rank.next':           '{label} 등급까지 {n} 남았어요',
   'rank.max':            '🎉 최고 등급 달성!',
