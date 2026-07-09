@@ -19,7 +19,6 @@
   'btn.close':      '閉じる',
   'hub.open':       'Pi Browserで開く →',
   'hub.pidex.desc': 'Pi DEX オールインワン — アービトラージ・LP計算・スワップ。',
-  'hub.mmlab.desc':     'マーケットメイキング戦略バックテスト。Stellar・Pi DEXの実取引データで検証。',
   'hub.hack.desc':     'Pi ウォレット不正追跡 & コミュニティ通報ツール。',
   'hub.survival.desc': '11の野外シナリオを舞台にしたテキストサバイバルアドベンチャー。',
   'hub.coming_soon':   '近日公開',

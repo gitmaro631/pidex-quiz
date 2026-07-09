@@ -19,7 +19,6 @@
   'btn.close':      '关闭',
   'hub.open':       '在 Pi Browser 中打开 →',
   'hub.pidex.desc': 'Pi DEX 一体化工具 — 套利、LP 计算器和兑换模拟器。',
-  'hub.mmlab.desc':     '做市策略回测模拟器。使用 Stellar 主网和 Pi DEX 的真实数据验证策略。',
   'hub.hack.desc':     'Pi 钱包黑客追踪与社区举报工具。',
   'hub.survival.desc': '11个野外场景中的文字生存冒险游戏。',
   'hub.coming_soon':   '即将推出',

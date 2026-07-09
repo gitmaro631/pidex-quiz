@@ -351,22 +351,6 @@ function renderUtilsOverlay() {
         <div class="util-card-link">${t('hub.open')}</div>
       </div>
     </a>
-
-    <a class="util-card" href="#" onclick="window.open('https://mmstrategylabqge3450.pinet.com/', '_hub_'+Date.now());return false;">
-      <div class="util-card-icon">
-        <img src="icons/mmlab.png" width="64" height="64" style="border-radius:14px;display:block;object-fit:cover;" alt="MM Strategy Lab">
-      </div>
-      <div class="util-card-body">
-        <div class="util-card-name">MM Strategy Lab</div>
-        <div class="util-card-tags">
-          <span class="util-tag">Orderbook MM</span>
-          <span class="util-tag">AMM</span>
-          <span class="util-tag">Auto Optimize</span>
-        </div>
-        <div class="util-card-desc">${t('hub.mmlab.desc')}</div>
-        <div class="util-card-link">${t('hub.open')}</div>
-      </div>
-    </a>
     </div>
   `;
 

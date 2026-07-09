@@ -19,7 +19,6 @@
   'btn.close':      'ปิด',
   'hub.open':       'เปิดใน Pi Browser →',
   'hub.pidex.desc': 'ยูทิลิตี้ครบวงจร Pi DEX — อาร์บิทราจ, LP Calculator & Swap',
-  'hub.mmlab.desc':     'ซิมูเลเตอร์ backtest สำหรับ market making ทดสอบด้วยข้อมูลจริงจาก Stellar & Pi DEX',
   'hub.hack.desc':     'เครื่องมือติดตามการแฮ็กกระเป๋า Pi & รายงานชุมชน',
   'hub.survival.desc': 'เกมผจญภัยเอาตัวรอดแบบข้อความใน 11 สถานการณ์ป่า',
   'hub.coming_soon':   'เร็วๆ นี้',

@@ -19,7 +19,6 @@
   'btn.close':      'Fechar',
   'hub.open':       'Abrir no Pi Browser →',
   'hub.pidex.desc': 'Utilidade completa Pi DEX — arbitragem, LP e swap.',
-  'hub.mmlab.desc':     'Simulador de backtest de market making. Teste com dados reais do Stellar & Pi DEX.',
   'hub.hack.desc':     'Rastreador de hacks de carteira Pi & ferramenta de denúncias.',
   'hub.survival.desc': 'Aventura de sobrevivência em texto com 11 cenários selvagens.',
   'hub.coming_soon':   'Em breve',

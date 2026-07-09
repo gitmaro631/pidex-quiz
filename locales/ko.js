@@ -33,7 +33,6 @@
   'btn.close':      '닫기',
   'hub.open':       'Pi Browser로 열기 →',
   'hub.pidex.desc': 'Pi DEX 유동성·차익·스왑 유틸 모음.',
-  'hub.mmlab.desc':     '마켓메이킹 전략 백테스트 시뮬레이터. Stellar 메인넷과 Pi DEX에서 실제 거래 데이터로 전략을 검증하세요.',
   'hub.hack.desc':     'Pi 지갑 해킹 피해 추적 & 커뮤니티 신고.',
   'hub.survival.desc': '11가지 오지를 배경으로 한 텍스트 생존 어드벤처.',
   'hub.coming_soon':   '출시 예정',

@@ -19,7 +19,6 @@
   'btn.close':      'Tutup',
   'hub.open':       'Buka dalam Pi Browser →',
   'hub.pidex.desc': 'Utiliti lengkap Pi DEX — arbitraj, kalkulator LP & simulator swap.',
-  'hub.mmlab.desc':     'Simulator backtest strategi market making. Uji dengan data nyata dari Stellar & Pi DEX.',
   'hub.hack.desc':     'Penjejak hack dompet Pi & alat laporan komuniti.',
   'hub.survival.desc': 'Pengembaraan survival berasaskan teks di 11 senario alam liar.',
   'hub.coming_soon':   'Akan datang',
