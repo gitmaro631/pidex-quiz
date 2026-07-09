@@ -184,11 +184,13 @@ export async function renderRankPage(container) {
     }
   }
 
-  // 생존 맵 탭: 게임 쪽 맵 목록(page-survival.js)과 항상 동일하게 동적 생성
-  // (예전에는 5개만 하드코딩되어 있어 새로 추가된 맵의 탭이 누락되는 문제가 있었음)
+  // 생존 맵 탭: 게임 쪽 맵 목록(page-survival.js)에서 '오픈된' 맵만 동적으로 가져옴
+  // (예전에는 5개만 하드코딩되어 있어 맵이 추가/오픈되어도 탭이 자동으로 늘어나지 않는 문제가 있었음.
+  //  아직 잠긴 맵은 탭 자체를 노출하지 않고, available: true로 바뀌는 순간 자동으로 탭이 생김)
   const svTabsEl = container.querySelector('#sv-map-tabs');
   import('./page-survival.js').then(({ MAPS, ts: survivalT }) => {
-    svTabsEl.innerHTML = MAPS.map((m, i) => `
+    const openMaps = MAPS.filter(m => m.available);
+    svTabsEl.innerHTML = openMaps.map((m, i) => `
       <button class="lb-sv-tab ${i === 0 ? 'active' : ''}" data-map="${m.id}">${m.emoji} ${survivalT('map.' + m.id + '.name')}</button>
     `).join('');
 
@@ -200,8 +202,8 @@ export async function renderRankPage(container) {
       });
     });
 
-    if (!container.querySelector('#lb-survival-section').classList.contains('hidden')) {
-      loadSurvivalLeaderboard(MAPS[0].id);
+    if (!container.querySelector('#lb-survival-section').classList.contains('hidden') && openMaps[0]) {
+      loadSurvivalLeaderboard(openMaps[0].id);
     }
   });
 

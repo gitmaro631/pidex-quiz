@@ -11,6 +11,28 @@ import { renderOpinionPage }  from './page-opinion.js';
 import { initFirebase, loadSurveyFromFirestore, updateLeaderboardCountry } from './firebase.js';
 import { mergeSurveyFromCloud } from './util-storage.js';
 const NOTICE = {
+  version: '2026-07-10',
+  ko: "📢 업데이트 안내\n\n① 지갑 주소 클릭 메뉴(관심지갑 추가·파이덱스 등록·복사)가 작동하지 않던 문제를 수정했습니다\n② 내 지갑·관심 지갑 목록도 서버에 저장됩니다 (지갑 30개·관심지갑 10개)\n③ 관심 지갑에도 별칭 수정 버튼이 추가되었습니다\n④ '랭킹보드' 화면이 정리되었습니다",
+  en: "📢 Update Notice\n\n① Fixed the wallet address menu (add to watchlist · register to PiDEX · copy) not working\n② My Wallet and Watchlist are now stored on the server (30 wallets · 10 watched)\n③ Added an edit-alias button to the Watchlist\n④ Cleaned up the 'Leaderboard' screen",
+  zh: "📢 更新通知\n\n① 修复了钱包地址菜单（加入关注钱包·注册到PiDEX·复制）不起作用的问题\n② 我的钱包和关注钱包列表现已存储在服务器上（钱包30个·关注钱包10个）\n③ 关注钱包新增了修改别名按钮\n④ 整理了\"排行榜\"页面",
+  id: "📢 Pemberitahuan Pembaruan\n\n① Memperbaiki menu alamat dompet (tambah ke daftar pantau · daftar ke PiDEX · salin) yang tidak berfungsi\n② Dompet Saya dan Daftar Pantau kini disimpan di server (30 dompet · 10 pantauan)\n③ Ditambahkan tombol edit alias di Daftar Pantau\n④ Tampilan 'Papan Peringkat' dirapikan",
+  ja: "📢 アップデートのお知らせ\n\n① ウォレットアドレスメニュー（ウォッチリストに追加・PiDEXに登録・コピー）が動作しなかった問題を修正しました\n② マイウォレットとウォッチリストがサーバーに保存されるようになりました（ウォレット30個・ウォッチ10個）\n③ ウォッチリストにエイリアス編集ボタンを追加しました\n④ 「ランキングボード」画面を整理しました",
+  es: "📢 Aviso de actualización\n\n① Se corrigió el menú de dirección de cartera (añadir a lista de seguimiento · registrar en PiDEX · copiar) que no funcionaba\n② Mi Cartera y la Lista de Seguimiento ahora se guardan en el servidor (30 carteras · 10 en seguimiento)\n③ Se añadió un botón para editar el alias en la Lista de Seguimiento\n④ Se ordenó la pantalla de 'Ranking'",
+  fr: "📢 Avis de mise à jour\n\n① Correction du menu d'adresse de portefeuille (ajouter à la liste de surveillance · enregistrer sur PiDEX · copier) qui ne fonctionnait pas\n② Mon Portefeuille et la Liste de surveillance sont désormais enregistrés sur le serveur (30 portefeuilles · 10 surveillés)\n③ Ajout d'un bouton pour modifier l'alias dans la Liste de surveillance\n④ Nettoyage de l'écran 'Classement'",
+  vi: "📢 Thông báo cập nhật\n\n① Đã sửa lỗi menu địa chỉ ví (thêm vào danh sách theo dõi · đăng ký PiDEX · sao chép) không hoạt động\n② Ví của tôi và Danh sách theo dõi giờ được lưu trên server (30 ví · 10 theo dõi)\n③ Đã thêm nút chỉnh sửa biệt danh trong Danh sách theo dõi\n④ Đã dọn dẹp lại màn hình 'Bảng xếp hạng'",
+  pt: "📢 Aviso de atualização\n\n① Corrigido o menu de endereço da carteira (adicionar à lista de observação · registrar no PiDEX · copiar) que não funcionava\n② Minha Carteira e a Lista de Observação agora são salvas no servidor (30 carteiras · 10 observadas)\n③ Adicionado botão de editar apelido na Lista de Observação\n④ Tela de 'Ranking' foi organizada",
+  ms: "📢 Notis Kemas Kini\n\n① Membaiki menu alamat dompet (tambah ke senarai pantauan · daftar ke PiDEX · salin) yang tidak berfungsi\n② Dompet Saya dan Senarai Pantauan kini disimpan di server (30 dompet · 10 pantauan)\n③ Ditambah butang edit alias pada Senarai Pantauan\n④ Skrin 'Papan Kedudukan' telah dikemas kini",
+  tl: "📢 Abiso sa Update\n\n① Naayos ang menu ng wallet address (idagdag sa watchlist · irehistro sa PiDEX · kopyahin) na hindi gumagana\n② Ang My Wallet at Watchlist ay naka-save na rin sa server (30 wallet · 10 pinapanood)\n③ Idinagdag ang edit alias button sa Watchlist\n④ Na-ayos ang 'Leaderboard' screen",
+  hi: "📢 अपडेट सूचना\n\n① वॉलेट पता मेनू (वॉचलिस्ट में जोड़ें · PiDEX में पंजीकृत करें · कॉपी करें) काम न करने की समस्या ठीक की गई\n② माई वॉलेट और वॉचलिस्ट अब सर्वर पर सहेजे जाते हैं (30 वॉलेट · 10 वॉच)\n③ वॉचलिस्ट में उपनाम संपादित करने का बटन जोड़ा गया\n④ 'रैंकिंगबोर्ड' स्क्रीन को व्यवस्थित किया गया",
+  ar: "📢 إشعار التحديث\n\n① تم إصلاح قائمة عنوان المحفظة (إضافة إلى قائمة المراقبة · تسجيل في PiDEX · نسخ) التي لم تكن تعمل\n② محفظتي وقائمة المراقبة أصبحتا محفوظتين على الخادم الآن (30 محفظة · 10 مراقبة)\n③ تمت إضافة زر تعديل الاسم المستعار في قائمة المراقبة\n④ تم تنظيم شاشة 'لوحة الترتيب'",
+  ru: "📢 Уведомление об обновлении\n\n① Исправлено меню адреса кошелька (добавить в список наблюдения · зарегистрировать в PiDEX · скопировать), которое не работало\n② «Мой кошелёк» и список наблюдения теперь сохраняются на сервере (30 кошельков · 10 отслеживаемых)\n③ В список наблюдения добавлена кнопка редактирования псевдонима\n④ Экран «Рейтинг» приведён в порядок",
+  bn: "📢 আপডেট বিজ্ঞপ্তি\n\n① ওয়ালেট ঠিকানার মেনু (ওয়াচলিস্টে যোগ করুন · PiDEX-এ নিবন্ধন করুন · কপি করুন) কাজ না করার সমস্যা সমাধান করা হয়েছে\n② মাই ওয়ালেট এবং ওয়াচলিস্ট এখন সার্ভারে সংরক্ষিত হয় (৩০টি ওয়ালেট · ১০টি ওয়াচ)\n③ ওয়াচলিস্টে ডাকনাম সম্পাদনার বাটন যোগ করা হয়েছে\n④ 'র‍্যাংকিং বোর্ড' স্ক্রিন গুছিয়ে ফেলা হয়েছে",
+  sw: "📢 Taarifa ya Sasisho\n\n① Imerekebisha menyu ya anwani ya pochi (ongeza kwenye orodha ya ufuatiliaji · sajili kwenye PiDEX · nakili) ambayo haikufanya kazi\n② Pochi Yangu na Orodha ya Ufuatiliaji sasa zinahifadhiwa kwenye seva (pochi 30 · ufuatiliaji 10)\n③ Kimeongezwa kitufe cha kuhariri jina la utani kwenye Orodha ya Ufuatiliaji\n④ Skrini ya 'Ubao wa Nafasi' imepangwa upya",
+  th: "📢 แจ้งอัปเดต\n\n① แก้ไขเมนูที่อยู่กระเป๋าเงิน (เพิ่มในรายการเฝ้าดู · ลงทะเบียนใน PiDEX · คัดลอก) ที่ไม่ทำงาน\n② กระเป๋าของฉันและรายการเฝ้าดูตอนนี้บันทึกไว้บนเซิร์ฟเวอร์แล้ว (กระเป๋า 30 · เฝ้าดู 10)\n③ เพิ่มปุ่มแก้ไขชื่อเล่นในรายการเฝ้าดู\n④ จัดหน้าจอ 'แรงกิ้งบอร์ด' ให้เรียบร้อยขึ้น",
+  tr: "📢 Güncelleme Bildirimi\n\n① Çalışmayan cüzdan adresi menüsü (izleme listesine ekle · PiDEX'e kaydet · kopyala) düzeltildi\n② Cüzdanım ve İzleme Listesi artık sunucuda saklanıyor (30 cüzdan · 10 izleme)\n③ İzleme Listesi'ne takma ad düzenleme düğmesi eklendi\n④ 'Skor Tablosu' ekranı düzenlendi",
+};
+
+const NOTICE_PREV = {
   version: '2026-07-09-merge',
   ko: "📢 새 탭이 추가되었습니다!\n\n🌿 생존 — 극한 환경에서 살아남는 텍스트 어드벤처\n🔍 트래커 — Pi 해킹 신고·지갑 조회·관심 지갑 추적\n\n하단 탭에서 바로 이용하세요!",
   en: "📢 New tabs added!\n\n🌿 Survival — Text adventure: survive in extreme environments\n🔍 Tracker — Pi hack reports, wallet lookup & watch list\n\nFind them in the bottom navigation!",
@@ -30,28 +52,6 @@ const NOTICE = {
   sw: "📢 Vichupo vipya vimeongezwa!\n\n🌿 Maisha — Mchezo wa maandishi katika mazingira magumu\n🔍 Mfuatiliaji — Ripoti za udanganyifu wa Pi, utafutaji wa pochi na orodha ya ufuatiliaji\n\nVipata kwenye urambazaji wa chini!",
   th: "📢 เพิ่มแท็บใหม่แล้ว!\n\n🌿 เอาชีวิตรอด — ผจญภัยแบบข้อความในสภาพแวดล้อมสุดโหด\n🔍 ติดตาม — รายงานการแฮ็ก Pi, ค้นหากระเป๋าเงิน & รายการเฝ้าดู\n\nค้นหาได้ที่แถบนำทางด้านล่าง!",
   tr: "📢 Yeni sekmeler eklendi!\n\n🌿 Hayatta Kal — Aşırı ortamlarda metin macerası\n🔍 İzleyici — Pi hack raporları, cüzdan sorgulama & izleme listesi\n\nAlt gezinti çubuğunda bulabilirsiniz!",
-};
-
-const NOTICE_PREV = {
-  version: '2026-07-09',
-  ko: "📢 업데이트 안내\n\n💬 의견 탭이 추가되었습니다!\n\n앱에 대한 건의·칭찬·불만 등 자유롭게 남겨주세요.\n다른 유저의 의견에 👍 공감도 할 수 있습니다.",
-  en: "📢 Update Notice\n\n💬 Opinion tab is now available!\n\nShare your thoughts — suggestions, praise, or feedback.\nYou can also 👍 like other users' opinions.",
-  zh: "📢 更新通知\n\n💬 新增意见标签页！\n\n欢迎分享您的建议、称赞或意见。\n也可以为其他用户的意见点 👍 赞。",
-  id: "📢 Pemberitahuan Pembaruan\n\n💬 Tab Opini kini tersedia!\n\nBagikan saran, pujian, atau masukan Anda.\nAnda juga bisa 👍 menyukai opini pengguna lain.",
-  ja: "📢 アップデートのお知らせ\n\n💬 意見タブが追加されました！\n\nアプリへのご意見・ご要望・感想をお気軽にどうぞ。\n他のユーザーの意見に 👍 共感もできます。",
-  es: "📢 Aviso de actualización\n\n💬 ¡Nueva pestaña de Opiniones!\n\nComparte sugerencias, elogios o comentarios libremente.\nTambién puedes dar 👍 a las opiniones de otros.",
-  fr: "📢 Avis de mise à jour\n\n💬 L'onglet Opinions est disponible !\n\nPartagez vos suggestions, compliments ou retours librement.\nVous pouvez aussi 👍 aimer les opinions des autres.",
-  vi: "📢 Thông báo cập nhật\n\n💬 Tab Ý kiến đã được thêm vào!\n\nHãy chia sẻ góp ý, lời khen hoặc phản hồi tự do.\nBạn cũng có thể 👍 đồng cảm với ý kiến của người khác.",
-  pt: "📢 Aviso de atualização\n\n💬 Aba de Opiniões disponível!\n\nCompartilhe sugestões, elogios ou feedbacks livremente.\nVocê também pode 👍 curtir as opiniões de outros.",
-  ms: "📢 Notis Kemas Kini\n\n💬 Tab Pendapat kini tersedia!\n\nKongsi cadangan, pujian atau maklum balas anda.\nAnda juga boleh 👍 sokong pendapat pengguna lain.",
-  tl: "📢 Abiso sa Update\n\n💬 May bagong Opinion tab na!\n\nIbahagi ang iyong mungkahi, papuri, o feedback.\nMaaari ka ring 👍 mag-like sa mga opinyon ng iba.",
-  hi: "📢 अपडेट सूचना\n\n💬 ओपिनियन टैब जोड़ा गया!\n\nअपने सुझाव, प्रशंसा या प्रतिक्रिया स्वतंत्र रूप से साझा करें।\nआप दूसरों की राय को 👍 पसंद भी कर सकते हैं।",
-  ar: "📢 إشعار التحديث\n\n💬 تمت إضافة تبويب الآراء!\n\nشارك اقتراحاتك أو إطراءك أو ملاحظاتك بحرية.\nيمكنك أيضاً 👍 الإعجاب بآراء الآخرين.",
-  ru: "📢 Уведомление об обновлении\n\n💬 Добавлена вкладка «Мнения»!\n\nСвободно делитесь предложениями, похвалой или отзывами.\nВы также можете 👍 поддержать мнения других пользователей.",
-  bn: "📢 আপডেট বিজ্ঞপ্তি\n\n💬 মতামত ট্যাব যোগ হয়েছে!\n\nআপনার পরামর্শ, প্রশংসা বা মতামত স্বাধীনভাবে শেয়ার করুন।\nঅন্যদের মতামতে 👍 সমর্থনও করতে পারবেন।",
-  sw: "📢 Taarifa ya Sasisho\n\n💬 Kichupo cha Maoni kimeongezwa!\n\nShiriki mapendekezo, sifa au maoni yako kwa uhuru.\nUnaweza pia 👍 kupendeza maoni ya watumiaji wengine.",
-  th: "📢 แจ้งอัปเดต\n\n💬 เพิ่มแท็บความคิดเห็นแล้ว!\n\nแสดงความคิดเห็น ข้อเสนอแนะ หรือคำชมได้อย่างอิสระ\nคุณยังสามารถ 👍 กดถูกใจความคิดเห็นของผู้อื่นได้",
-  tr: "📢 Güncelleme Bildirimi\n\n💬 Görüş sekmesi eklendi!\n\nÖneri, övgü veya geri bildirimlerinizi özgürce paylaşın.\nDiğer kullanıcıların görüşlerini 👍 beğenebilirsiniz.",
 };
 
 // ── 공지 팝업 ────────────────────────────────────────
