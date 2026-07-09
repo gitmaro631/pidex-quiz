@@ -214,7 +214,6 @@ function applyNavLabels() {
   const rankEl     = document.getElementById('more-label-rank');
   const statsEl    = document.getElementById('more-label-stats');
   const surveyEl   = document.getElementById('more-label-survey');
-  const helpEl     = document.getElementById('more-label-help');
   if (quizEl)     quizEl.textContent     = t('nav.quiz');
   if (survivalEl) survivalEl.textContent = t('nav.survival');
   if (trackerEl)  trackerEl.textContent  = t('nav.tracker');
@@ -223,7 +222,6 @@ function applyNavLabels() {
   if (rankEl)     rankEl.textContent     = t('nav.rank');
   if (statsEl)    statsEl.textContent    = t('nav.stats');
   if (surveyEl)   surveyEl.textContent   = t('nav.survey');
-  if (helpEl)     helpEl.textContent     = t('btn.help');
   const helpBtn = document.getElementById('btn-help');
   if (helpBtn) helpBtn.textContent = `❓ ${t('btn.help')}`;
 }
@@ -393,12 +391,6 @@ async function init() {
       closeMoreSheet();
       rerenderPage(btn.dataset.page);
     });
-  });
-
-  // 더보기 시트 도움말 버튼
-  document.getElementById('more-item-help')?.addEventListener('click', () => {
-    closeMoreSheet();
-    renderHelpModal();
   });
 
   document.getElementById('btn-login').addEventListener('click', doLogin);
