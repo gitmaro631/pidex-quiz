@@ -53,6 +53,7 @@ const TT = {
     'mywallet.no_wallets': '등록된 지갑이 없습니다.', 'mywallet.loading': '불러오는 중...',
     'mywallet.fail': '불러오기 실패', 'mywallet.refresh': '새로고침',
     'mywallet.load.fail': '서버에서 내 지갑 목록을 불러오지 못했습니다.',
+    'mywallet.not_activated': '이 지갑은 아직 Pi 메인넷에서 활성화되지 않았습니다. (Pi를 받은 적이 없으면 계정이 생성되지 않아요)',
     'mywallet.max_hint': '최대 {n}개',
     'mywallet.pi.total': 'π 총 잔액', 'mywallet.pi.avail': '사용 가능', 'mywallet.pi.reserve': '최소 보유 (예상)',
     'mywallet.tokens': '보유 토큰', 'mywallet.txs': '최근 거래', 'mywallet.lp': 'LP 포지션',
@@ -126,6 +127,7 @@ const TT = {
     'mywallet.no_wallets': 'No wallets registered.', 'mywallet.loading': 'Loading...',
     'mywallet.fail': 'Load failed', 'mywallet.refresh': 'Refresh',
     'mywallet.load.fail': 'Could not load your wallet list from the server.',
+    'mywallet.not_activated': 'This wallet has not been activated on Pi mainnet yet. (An account is only created after it receives Pi at least once)',
     'mywallet.max_hint': 'Max {n}',
     'mywallet.pi.total': 'π Total Balance', 'mywallet.pi.avail': 'Available', 'mywallet.pi.reserve': 'Min Reserve (est.)',
     'mywallet.tokens': 'Tokens', 'mywallet.txs': 'Recent Transactions', 'mywallet.lp': 'LP Positions',
@@ -882,7 +884,7 @@ export function renderTrackerPage(container, username, uid) {
           <div style="display:flex;gap:4px;">
             <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-edit-alias">✏️</button>
             <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-send-pidex" title="${tt('ctx.register.both')}">💼→</button>
-            ${allWallets.length > 1 ? `<button class="trk-btn-outline trk-btn-sm" id="trk-hwt-del">🗑️</button>` : ''}
+            <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-del">🗑️</button>
           </div>
         </div>
         <div class="trk-section-label" style="margin-top:0;">π ${tt('mywallet.pi.total')}</div>
@@ -898,31 +900,53 @@ export function renderTrackerPage(container, username, uid) {
         <div class="trk-card">${lpHtml}</div>
         <p style="font-size:10px;color:#666;text-align:center;margin-top:8px;">${tt('mywallet.updated')}: ${new Date().toLocaleTimeString()}</p>`;
 
-      detailEl.querySelector('#trk-hwt-edit-alias')?.addEventListener('click', () => {
-        showAliasDialog(wallet, allWallets, renderMyWalletTab);
-      });
-      detailEl.querySelector('#trk-hwt-send-pidex')?.addEventListener('click', () => {
-        sendToPidexWallet(wallet.address, `★${wallet.alias}`);
-      });
-      detailEl.querySelector('#trk-hwt-del')?.addEventListener('click', () => {
-        showConfirmDialog(tt('mywallet.delete'), tt('mywallet.delete.confirm'), async () => {
-          try {
-            const remaining = allWallets.filter(w => w.id !== wallet.id);
-            await saveHackWalletsServer(remaining);
-            if (remaining.length) setHackActiveId(remaining[0].id);
-            renderMyWalletTab();
-          } catch { showToast(tt('mywallet.cloud.fail')); }
-        });
-      });
+      bindHackWalletDetailButtons(detailEl, wallet, allWallets);
     } catch (e) {
-      detailEl.innerHTML = `<div class="trk-card"><p style="color:#f87171;font-size:13px;">${tt('mywallet.fail')}: ${e.message}</p></div>`;
+      const msg = e.notActivated ? tt('mywallet.not_activated') : `${tt('mywallet.fail')}: ${e.message}`;
+      detailEl.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:10px 12px;background:rgba(255,255,255,0.05);border-radius:10px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#7dd3fc;margin-bottom:2px;">${esc(wallet.alias)}</div>
+            <div class="trk-copy-addr" data-copy-addr="${esc(wallet.address)}" style="font-size:11px;color:#888;font-family:monospace;cursor:pointer;">${esc(wallet.address.slice(0,8))}···${esc(wallet.address.slice(-8))}</div>
+          </div>
+          <div style="display:flex;gap:4px;">
+            <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-edit-alias">✏️</button>
+            <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-send-pidex" title="${tt('ctx.register.both')}">💼→</button>
+            <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-del">🗑️</button>
+          </div>
+        </div>
+        <div class="trk-card"><p style="color:#f87171;font-size:13px;">${msg}</p></div>`;
+      bindHackWalletDetailButtons(detailEl, wallet, allWallets);
     }
+  }
+
+  function bindHackWalletDetailButtons(detailEl, wallet, allWallets) {
+    detailEl.querySelector('#trk-hwt-edit-alias')?.addEventListener('click', () => {
+      showAliasDialog(wallet, allWallets, renderMyWalletTab);
+    });
+    detailEl.querySelector('#trk-hwt-send-pidex')?.addEventListener('click', () => {
+      sendToPidexWallet(wallet.address, `★${wallet.alias}`);
+    });
+    detailEl.querySelector('#trk-hwt-del')?.addEventListener('click', () => {
+      showConfirmDialog(tt('mywallet.delete'), tt('mywallet.delete.confirm'), async () => {
+        try {
+          const remaining = allWallets.filter(w => w.id !== wallet.id);
+          await saveHackWalletsServer(remaining);
+          if (remaining.length) setHackActiveId(remaining[0].id);
+          renderMyWalletTab();
+        } catch { showToast(tt('mywallet.cloud.fail')); }
+      });
+    });
   }
 
   async function fetchAccountMainnet(address) {
     const res = await fetch(`${HORIZON}/accounts/${address}`);
     if (!res.ok) {
-      if (res.status === 404) throw new Error(tt('search.err.not_found'));
+      if (res.status === 404) {
+        const err = new Error(tt('search.err.not_found'));
+        err.notActivated = true;
+        throw err;
+      }
       throw new Error(`API error (${res.status})`);
     }
     const data     = await res.json();
