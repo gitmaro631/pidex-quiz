@@ -322,15 +322,7 @@ const HELP_CONTENT = {
         items: [
           '앱 소개 화면에서 언어를 변경할 수 있습니다.',
           '설문 항목과 UI는 선택한 언어로 표시됩니다.',
-          '퀴즈 문항은 현재 한국어로만 제공됩니다. (추후 다국어 지원 예정)',
-        ],
-      },
-      {
-        title: '❓ 자주 묻는 질문',
-        items: [
-          'Q: Pi Browser가 없으면 사용 못하나요?\nA: 네, Pi Browser에서만 Pi SDK 로그인이 가능합니다.',
-          'Q: 게임이 끝나면 기존 답변 기록은 사라지나요?\nA: 아니요. 점수·생명력만 초기화되고, 푼 문제 기록과 설문 답변은 유지됩니다.',
-          'Q: 랭킹보드에 내 점수가 보이지 않아요.\nA: Firestore 인덱스 생성에 약간 시간이 걸릴 수 있습니다. 잠시 후 새로고침해 보세요.',
+          '퀴즈 문항도 선택한 언어로 번역되어 표시됩니다.',
         ],
       },
     ],
@@ -398,15 +390,7 @@ const HELP_CONTENT = {
         items: [
           'Change language on the app intro screen.',
           'Survey questions and UI adapt to your chosen language.',
-          'Quiz questions are currently Korean only (more languages coming soon).',
-        ],
-      },
-      {
-        title: '❓ FAQ',
-        items: [
-          'Q: Do I need Pi Browser?\nA: Yes — Pi SDK login only works inside Pi Browser.',
-          'Q: When the game ends, do I lose my answered questions?\nA: No. Only score and lives reset. Your question history and survey answers are kept.',
-          'Q: My score isn\'t showing on the leaderboard.\nA: Firestore may take a moment to create the required index. Refresh after a minute.',
+          'Quiz questions are also shown in your selected language.',
         ],
       },
     ],
@@ -467,6 +451,14 @@ const HELP_CONTENT = {
           'Jawaban bersifat anonim untuk riset ekosistem Pi.',
           'Pertanyaan tentang node dikelompokkan dalam satu kartu.',
           'Kamu bisa melewati survei kapan saja.',
+        ],
+      },
+      {
+        title: '🌐 Multi-bahasa',
+        items: [
+          'Ubah bahasa di layar intro aplikasi.',
+          'Pertanyaan survei dan UI menyesuaikan dengan bahasa yang dipilih.',
+          'Soal kuis juga ditampilkan dalam bahasa yang kamu pilih.',
         ],
       },
     ],
@@ -534,15 +526,7 @@ const HELP_CONTENT = {
         items: [
           'Thay đổi ngôn ngữ trên màn hình giới thiệu ứng dụng.',
           'Câu hỏi khảo sát và giao diện thích ứng theo ngôn ngữ bạn chọn.',
-          'Câu hỏi quiz hiện chỉ có tiếng Hàn (sẽ bổ sung thêm ngôn ngữ).',
-        ],
-      },
-      {
-        title: '❓ Câu hỏi thường gặp',
-        items: [
-          'H: Tôi có cần Pi Browser không?\nT: Có — đăng nhập Pi SDK chỉ hoạt động trong Pi Browser.',
-          'H: Khi trò chơi kết thúc, tôi có mất câu hỏi đã trả lời không?\nT: Không. Chỉ điểm và mạng được đặt lại. Lịch sử câu hỏi và khảo sát vẫn được giữ.',
-          'H: Điểm của tôi không hiển thị trên bảng xếp hạng.\nT: Firestore có thể mất chút thời gian để tạo chỉ mục. Làm mới sau một phút.',
+          'Câu hỏi quiz cũng được hiển thị bằng ngôn ngữ bạn đã chọn.',
         ],
       },
     ],
@@ -610,15 +594,7 @@ const HELP_CONTENT = {
         items: [
           '在应用介绍页面更改语言。',
           '问卷问题和界面根据所选语言调整。',
-          '测验题目目前仅有韩文（更多语言即将推出）。',
-        ],
-      },
-      {
-        title: '❓ 常见问题',
-        items: [
-          'Q：我需要Pi Browser吗？\nA：是的——Pi SDK登录只能在Pi Browser中使用。',
-          'Q：游戏结束后，我会失去已回答的问题吗？\nA：不会。只有分数和生命重置。您的题目历史和问卷答案将保留。',
-          'Q：我的分数未显示在排行榜上。\nA：Firestore可能需要一点时间创建所需索引。一分钟后刷新。',
+          '测验题目也会以您选择的语言显示。',
         ],
       },
     ],
@@ -686,15 +662,7 @@ const HELP_CONTENT = {
         items: [
           'アプリのイントロ画面で言語を変更できます。',
           'アンケートとUIは選択した言語に対応します。',
-          'クイズ問題は現在韓国語のみです（今後追加予定）。',
-        ],
-      },
-      {
-        title: '❓ よくある質問',
-        items: [
-          'Q：Pi Browserは必要ですか？\nA：はい。Pi SDKログインはPi Browser内でのみ機能します。',
-          'Q：ゲーム終了後、回答済みの問題は消えますか？\nA：いいえ。スコアとライフのみリセットされます。問題履歴とアンケート回答は保持されます。',
-          'Q：スコアがランキングに表示されません。\nA：Firestoreがインデックスを作成するのに少し時間がかかる場合があります。1分後に更新してください。',
+          'クイズ問題も選択した言語で表示されます。',
         ],
       },
     ],
@@ -762,15 +730,7 @@ const HELP_CONTENT = {
         items: [
           'Baguhin ang wika sa intro screen ng app.',
           'Ang mga tanong sa survey at UI ay nag-aayon sa iyong piniling wika.',
-          'Ang mga tanong sa quiz ay Korean lamang sa kasalukuyan (dumarating ang mas maraming wika).',
-        ],
-      },
-      {
-        title: '❓ FAQ',
-        items: [
-          'T: Kailangan ko ba ng Pi Browser?\nS: Oo — ang Pi SDK login ay gumagana lamang sa loob ng Pi Browser.',
-          'T: Kapag natapos ang laro, mawawala ba ang aking mga nasagutang tanong?\nS: Hindi. Ang puntos at buhay lamang ang nire-reset. Ang iyong kasaysayan ng tanong at mga sagot sa survey ay pinapanatili.',
-          'T: Hindi lumalabas ang aking puntos sa leaderboard.\nS: Maaaring kailangan ng Firestore ng ilang sandali para likhain ang kinakailangang index. I-refresh pagkatapos ng isang minuto.',
+          'Ang mga tanong sa quiz ay ipinapakita rin sa napiling wika mo.',
         ],
       },
     ],
@@ -838,15 +798,7 @@ const HELP_CONTENT = {
         items: [
           'ऐप इंट्रो स्क्रीन पर भाषा बदलें।',
           'सर्वेक्षण प्रश्न और UI आपकी चुनी हुई भाषा के अनुसार अनुकूलित होते हैं।',
-          'क्विज़ प्रश्न अभी केवल कोरियाई में हैं (और भाषाएं जल्द आ रही हैं)।',
-        ],
-      },
-      {
-        title: '❓ अक्सर पूछे जाने वाले प्रश्न',
-        items: [
-          'प्र: क्या मुझे Pi Browser चाहिए?\nउ: हां — Pi SDK लॉगिन केवल Pi Browser के अंदर काम करता है।',
-          'प्र: जब गेम समाप्त होता है, तो क्या मेरे उत्तरित प्रश्न खो जाते हैं?\nउ: नहीं। केवल स्कोर और जीवन रीसेट होते हैं। आपका प्रश्न इतिहास और सर्वेक्षण उत्तर सुरक्षित रहते हैं।',
-          'प्र: मेरा स्कोर लीडरबोर्ड पर नहीं दिख रहा।\nउ: Firestore को आवश्यक इंडेक्स बनाने में थोड़ा समय लग सकता है। एक मिनट बाद रिफ्रेश करें।',
+          'क्विज़ प्रश्न भी आपकी चुनी हुई भाषा में दिखाए जाते हैं।',
         ],
       },
     ],
@@ -914,15 +866,7 @@ const HELP_CONTENT = {
         items: [
           'অ্যাপের ইন্ট্রো স্ক্রিনে ভাষা পরিবর্তন করুন।',
           'জরিপের প্রশ্ন এবং UI আপনার বেছে নেওয়া ভাষায় মানিয়ে নেয়।',
-          'কুইজ প্রশ্নগুলো এখন শুধু কোরিয়ান ভাষায় (শীঘ্রই আরো ভাষা যুক্ত হবে)।',
-        ],
-      },
-      {
-        title: '❓ সাধারণ প্রশ্ন',
-        items: [
-          'প্র: আমার কি Pi Browser দরকার?\nউ: হ্যাঁ — Pi SDK লগইন শুধুমাত্র Pi Browser-এর ভেতরে কাজ করে।',
-          'প্র: গেম শেষ হলে কি আমার উত্তর দেওয়া প্রশ্ন হারিয়ে যাবে?\nউ: না। শুধু স্কোর এবং জীবন রিসেট হয়। আপনার প্রশ্নের ইতিহাস এবং জরিপের উত্তর সংরক্ষিত থাকে।',
-          'প্র: আমার স্কোর লিডারবোর্ডে দেখাচ্ছে না।\nউ: Firestore-এর প্রয়োজনীয় ইন্ডেক্স তৈরি করতে একটু সময় লাগতে পারে। এক মিনিট পরে রিফ্রেশ করুন।',
+          'কুইজ প্রশ্নও আপনার বেছে নেওয়া ভাষায় দেখানো হয়।',
         ],
       },
     ],
@@ -990,15 +934,7 @@ const HELP_CONTENT = {
         items: [
           'เปลี่ยนภาษาได้ที่หน้าจอแนะนำแอป',
           'คำถามแบบสำรวจและ UI ปรับตามภาษาที่เลือก',
-          'คำถามแบบทดสอบปัจจุบันเป็นภาษาเกาหลีเท่านั้น (กำลังเพิ่มภาษาอื่น)',
-        ],
-      },
-      {
-        title: '❓ คำถามที่พบบ่อย',
-        items: [
-          'ถ: ต้องใช้ Pi Browser ไหม?\nต: ใช่ — การเข้าสู่ระบบ Pi SDK ใช้งานได้ภายใน Pi Browser เท่านั้น',
-          'ถ: เมื่อเกมจบ คำถามที่ตอบแล้วจะหายไปไหม?\nต: ไม่ เฉพาะคะแนนและชีวิตเท่านั้นที่รีเซ็ต ประวัติคำถามและคำตอบแบบสำรวจยังคงอยู่',
-          'ถ: คะแนนของฉันไม่แสดงในลีดเดอร์บอร์ด\nต: Firestore อาจต้องใช้เวลาสักครู่เพื่อสร้างดัชนีที่จำเป็น ลองรีเฟรชหลังจากหนึ่งนาที',
+          'คำถามแบบทดสอบก็แสดงในภาษาที่คุณเลือกด้วยเช่นกัน',
         ],
       },
     ],
@@ -1066,15 +1002,7 @@ const HELP_CONTENT = {
         items: [
           'Tukar bahasa di skrin intro aplikasi.',
           'Soalan tinjauan dan UI disesuaikan dengan bahasa yang dipilih.',
-          'Soalan kuiz kini hanya dalam bahasa Korea (bahasa lain akan ditambah).',
-        ],
-      },
-      {
-        title: '❓ Soalan Lazim',
-        items: [
-          'S: Adakah saya perlu Pi Browser?\nJ: Ya — log masuk Pi SDK hanya berfungsi di dalam Pi Browser.',
-          'S: Apabila permainan tamat, adakah soalan yang telah dijawab hilang?\nJ: Tidak. Hanya skor dan nyawa yang ditetapkan semula. Sejarah soalan dan jawapan tinjauan anda disimpan.',
-          'S: Skor saya tidak muncul di papan pendahulu.\nJ: Firestore mungkin memerlukan sedikit masa untuk mencipta indeks yang diperlukan. Muat semula selepas seminit.',
+          'Soalan kuiz turut dipaparkan dalam bahasa yang anda pilih.',
         ],
       },
     ],
@@ -1142,15 +1070,7 @@ const HELP_CONTENT = {
         items: [
           'Cambia el idioma en la pantalla de introducción de la app.',
           'Las preguntas de encuesta y la UI se adaptan al idioma elegido.',
-          'Las preguntas del cuestionario son actualmente solo en coreano (más idiomas próximamente).',
-        ],
-      },
-      {
-        title: '❓ Preguntas Frecuentes',
-        items: [
-          'P: ¿Necesito Pi Browser?\nR: Sí — el inicio de sesión de Pi SDK solo funciona dentro de Pi Browser.',
-          'P: Cuando termina el juego, ¿pierdo las preguntas respondidas?\nR: No. Solo se reinician la puntuación y las vidas. Tu historial de preguntas y respuestas de encuesta se conservan.',
-          'P: Mi puntuación no aparece en el marcador.\nR: Firestore puede tardar un momento en crear el índice requerido. Actualiza después de un minuto.',
+          'Las preguntas del cuestionario también se muestran en el idioma que elegiste.',
         ],
       },
     ],
@@ -1218,15 +1138,7 @@ const HELP_CONTENT = {
         items: [
           'Mude o idioma na tela de introdução do app.',
           'As perguntas da pesquisa e a UI se adaptam ao idioma escolhido.',
-          'As perguntas do quiz são atualmente apenas em coreano (mais idiomas em breve).',
-        ],
-      },
-      {
-        title: '❓ Perguntas Frequentes',
-        items: [
-          'P: Preciso do Pi Browser?\nR: Sim — o login do Pi SDK só funciona dentro do Pi Browser.',
-          'P: Quando o jogo termina, perco as perguntas respondidas?\nR: Não. Apenas pontuação e vidas são redefinidas. Seu histórico de perguntas e respostas de pesquisa são mantidos.',
-          'P: Minha pontuação não está aparecendo no placar.\nR: O Firestore pode levar um momento para criar o índice necessário. Atualize após um minuto.',
+          'As perguntas do quiz também são exibidas no idioma escolhido.',
         ],
       },
     ],
@@ -1294,15 +1206,7 @@ const HELP_CONTENT = {
         items: [
           'Changez de langue sur l\'écran d\'introduction de l\'application.',
           'Les questions de sondage et l\'interface s\'adaptent à la langue choisie.',
-          'Les questions du quiz sont actuellement en coréen uniquement (d\'autres langues arrivent bientôt).',
-        ],
-      },
-      {
-        title: '❓ FAQ',
-        items: [
-          'Q : Ai-je besoin de Pi Browser ?\nR : Oui — la connexion Pi SDK ne fonctionne qu\'à l\'intérieur de Pi Browser.',
-          'Q : Quand le jeu se termine, est-ce que je perds mes questions répondues ?\nR : Non. Seuls le score et les vies sont réinitialisés. Votre historique de questions et vos réponses aux sondages sont conservés.',
-          'Q : Mon score n\'apparaît pas dans le classement.\nR : Firestore peut mettre un moment à créer l\'index requis. Actualisez après une minute.',
+          'Les questions du quiz s\'affichent aussi dans la langue choisie.',
         ],
       },
     ],
@@ -1370,15 +1274,7 @@ const HELP_CONTENT = {
         items: [
           'Изменить язык можно на вступительном экране приложения.',
           'Вопросы опроса и интерфейс адаптируются к выбранному языку.',
-          'Вопросы викторины пока только на корейском (другие языки скоро появятся).',
-        ],
-      },
-      {
-        title: '❓ Часто задаваемые вопросы',
-        items: [
-          'В: Нужен ли Pi Browser?\nО: Да — вход через Pi SDK работает только внутри Pi Browser.',
-          'В: Когда игра заканчивается, я теряю отвеченные вопросы?\nО: Нет. Сбрасываются только очки и жизни. История вопросов и ответы на опросы сохраняются.',
-          'В: Мой счёт не отображается в таблице лидеров.\nО: Firestore может потребоваться время для создания необходимого индекса. Обновите страницу через минуту.',
+          'Вопросы викторины также отображаются на выбранном вами языке.',
         ],
       },
     ],
@@ -1446,15 +1342,7 @@ const HELP_CONTENT = {
         items: [
           'Uygulama giriş ekranından dil değiştirebilirsiniz.',
           'Anket soruları ve arayüz seçilen dile göre uyarlanır.',
-          'Test soruları şu an yalnızca Korece (daha fazla dil yakında geliyor).',
-        ],
-      },
-      {
-        title: '❓ Sıkça Sorulan Sorular',
-        items: [
-          'S: Pi Browser\'a ihtiyacım var mı?\nC: Evet — Pi SDK girişi yalnızca Pi Browser içinde çalışır.',
-          'S: Oyun bittiğinde cevapladığım sorular kaybolur mu?\nC: Hayır. Yalnızca puan ve canlar sıfırlanır. Soru geçmişiniz ve anket cevaplarınız korunur.',
-          'S: Puanım liderlik tablosunda görünmüyor.\nC: Firestore\'un gerekli dizini oluşturması biraz zaman alabilir. Bir dakika sonra yenileyin.',
+          'Test soruları da seçtiğiniz dilde gösterilir.',
         ],
       },
     ],
@@ -1522,15 +1410,7 @@ const HELP_CONTENT = {
         items: [
           'غيّر اللغة من شاشة مقدمة التطبيق.',
           'أسئلة الاستطلاع والواجهة تتكيف مع اللغة المختارة.',
-          'أسئلة الاختبار حالياً بالكورية فقط (المزيد من اللغات قادمة قريباً).',
-        ],
-      },
-      {
-        title: '❓ الأسئلة الشائعة',
-        items: [
-          'س: هل أحتاج إلى Pi Browser؟\nج: نعم — تسجيل الدخول بـ Pi SDK يعمل فقط داخل Pi Browser.',
-          'س: عندما تنتهي اللعبة، هل أفقد الأسئلة التي أجبت عليها؟\nج: لا. يُعاد ضبط النقاط والأرواح فقط. يتم الاحتفاظ بسجل الأسئلة وإجابات الاستطلاع.',
-          'س: نقاطي لا تظهر في لوحة المتصدرين.\nج: قد يحتاج Firestore لحظة لإنشاء الفهرس المطلوب. أعد التحميل بعد دقيقة.',
+          'تُعرض أسئلة الاختبار أيضاً باللغة التي اخترتها.',
         ],
       },
     ],
@@ -1598,15 +1478,7 @@ const HELP_CONTENT = {
         items: [
           'Badilisha lugha kwenye skrini ya utangulizi wa programu.',
           'Maswali ya tafiti na kiolesura vinajirekebisha kulingana na lugha uliyochagua.',
-          'Maswali ya maswali kwa sasa ni kwa Kikorea tu (lugha zaidi zinakuja hivi karibuni).',
-        ],
-      },
-      {
-        title: '❓ Maswali Yanayoulizwa Mara Kwa Mara',
-        items: [
-          'S: Je, ninahitaji Pi Browser?\nJ: Ndiyo — kuingia kwa Pi SDK kunafanya kazi tu ndani ya Pi Browser.',
-          'S: Mchezo ukiisha, je, ninapoteza maswali niliyojibu?\nJ: Hapana. Ni alama na maisha tu yanayowekwa upya. Historia ya maswali yako na majibu ya tafiti yanabaki.',
-          'S: Alama zangu hazionyeshwi kwenye orodha ya viongozi.\nJ: Firestore inaweza kuchukua muda kuunda faharasa inayohitajika. Onyesha upya baada ya dakika moja.',
+          'Maswali ya maswali pia yanaonyeshwa kwa lugha uliyochagua.',
         ],
       },
     ],
