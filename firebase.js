@@ -48,7 +48,7 @@ export async function saveSurveyToFirestore(uid, answers, completedIds) {
 
 // ── 리더보드 (모드별) ─────────────────────────────────
 
-export async function submitLeaderboardScore(username, score, mode, country = '') {
+export async function submitLeaderboardScore(username, score, mode, country = '', stats = null) {
   if (!db) initFirebase();
   const col    = `leaderboard_${mode}`;
   const docRef = db.collection(col).doc(username);
@@ -61,12 +61,25 @@ export async function submitLeaderboardScore(username, score, mode, country = ''
           score,
           mode,
           country,
+          ...(stats ? { seen: stats.seen, correct: stats.correct } : {}),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        });
+        }, { merge: true });
       }
     });
   } catch (e) {
-    console.error('리더보드 등록 실패:', e);
+    console.error('랭킹보드 등록 실패:', e);
+  }
+}
+
+export async function fetchMyLeaderboardEntry(username, mode) {
+  if (!db) initFirebase();
+  if (!db || !username || !mode) return null;
+  try {
+    const doc = await db.collection(`leaderboard_${mode}`).doc(username).get();
+    return doc.exists ? doc.data() : null;
+  } catch (e) {
+    console.warn('내 랭킹 조회 실패:', e);
+    return null;
   }
 }
 

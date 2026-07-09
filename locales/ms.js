@@ -119,7 +119,7 @@
   'rank.next':           '{n} lagi ke {label}',
   'rank.max':            '🎉 Pangkat tertinggi dicapai!',
   'rank.shareHint':      'Kongsi di Telegram · X · dll',
-  'rank.leaderboard':    '🏆 Papan Pemimpin',
+  'rank.leaderboard':    '🏆 Papan Kedudukan',
   'rank.shared':         'Dikongsi!',
   'rank.copied':         'Disalin ke papan klip!',
   'rank.grade.explorer': '🌱 Peneroka',

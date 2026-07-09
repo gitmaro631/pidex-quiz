@@ -119,7 +119,7 @@
   'rank.next':           '{label} পর্যন্ত আরও {n}',
   'rank.max':            '🎉 সর্বোচ্চ র‌্যাংক অর্জন!',
   'rank.shareHint':      'Telegram · X-এ শেয়ার করুন',
-  'rank.leaderboard':    '🏆 লিডারবোর্ড',
+  'rank.leaderboard':    '🏆 র‍্যাংকিং বোর্ড',
   'rank.shared':         'শেয়ার করা হয়েছে!',
   'rank.copied':         'ক্লিপবোর্ডে কপি হয়েছে!',
   'rank.grade.explorer': '🌱 অন্বেষক',

@@ -119,7 +119,7 @@
   'rank.next':           '{n} a mais para {label}',
   'rank.max':            '🎉 Nível máximo alcançado!',
   'rank.shareHint':      'Compartilhe no Telegram · X · etc.',
-  'rank.leaderboard':    '🏆 Placar',
+  'rank.leaderboard':    '🏆 Quadro de Classificação',
   'rank.shared':         'Compartilhado!',
   'rank.copied':         'Copiado para a área de transferência!',
   'rank.grade.explorer': '🌱 Explorador',

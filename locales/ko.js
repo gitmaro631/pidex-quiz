@@ -82,8 +82,8 @@
   'gameover.title': '생명력 소진!',
   'gameover.best':  '🎉 개인 최고 기록!',
   'gameover.prev':  '개인 최고: {n}점',
-  'gameover.desc':  '이 점수가 리더보드에 등록되고\n게임이 처음부터 시작됩니다',
-  'gameover.btn':   '리더보드 등록 후 재시작',
+  'gameover.desc':  '이 점수가 랭킹보드에 등록되고\n게임이 처음부터 시작됩니다',
+  'gameover.btn':   '랭킹보드 등록 후 재시작',
 
   // ── 설문 ─────────────────────────────────────────────
   'survey.badge':       '📋 커뮤니티 설문',
@@ -119,7 +119,7 @@
   'rank.next':           '{label} 등급까지 {n} 남았어요',
   'rank.max':            '🎉 최고 등급 달성!',
   'rank.shareHint':      '텔레그램 · X · 카카오 등에 공유하세요',
-  'rank.leaderboard':    '🏆 리더보드',
+  'rank.leaderboard':    '🏆 랭킹보드',
   'rank.shared':         '공유 완료!',
   'rank.copied':         '클립보드에 복사됐어요!',
   'rank.grade.explorer': '🌱 탐색자',

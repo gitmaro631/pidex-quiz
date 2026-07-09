@@ -119,7 +119,7 @@
   'rank.next':           '{label}まであと{n}',
   'rank.max':            '🎉 最高ランク達成！',
   'rank.shareHint':      'Telegram · X などでシェア',
-  'rank.leaderboard':    '🏆 リーダーボード',
+  'rank.leaderboard':    '🏆 ランキングボード',
   'rank.shared':         'シェアしました！',
   'rank.copied':         'クリップボードにコピーしました！',
   'rank.grade.explorer': '🌱 探索者',

@@ -64,6 +64,20 @@ function updateHighScore(score) {
   }
 }
 
+// 서버(Firestore)에 기록된 값이 기기 로컬 값보다 높을 때 동기화 (기기 변경/캐시 초기화 대응)
+export function syncHighScore(score) {
+  if (score > getHighScore()) {
+    localStorage.setItem(KEYS.HIGH_SCORE, String(score));
+  }
+}
+
+export function syncStats(correct, seen) {
+  if (seen > getStats().seen) {
+    localStorage.setItem(KEYS.TOTAL_CORRECT, String(correct));
+    localStorage.setItem(KEYS.TOTAL_SEEN, String(seen));
+  }
+}
+
 // ── 생명력 ────────────────────────────────────────────
 export function getLives() {
   const mode = getMode();

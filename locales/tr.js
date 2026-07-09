@@ -119,7 +119,7 @@
   'rank.next':           '{label} için {n} daha',
   'rank.max':            '🎉 En yüksek sıraya ulaşıldı!',
   'rank.shareHint':      'Telegram · X\'te paylaş',
-  'rank.leaderboard':    '🏆 Liderlik Tablosu',
+  'rank.leaderboard':    '🏆 Skor Tablosu',
   'rank.shared':         'Paylaşıldı!',
   'rank.copied':         'Panoya kopyalandı!',
   'rank.grade.explorer': '🌱 Kaşif',

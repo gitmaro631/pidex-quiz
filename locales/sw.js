@@ -119,7 +119,7 @@
   'rank.next':           '{n} zaidi kwa {label}',
   'rank.max':            '🎉 Kiwango cha juu kimefikiwa!',
   'rank.shareHint':      'Shiriki kwenye Telegram · X n.k.',
-  'rank.leaderboard':    '🏆 Ubao wa Viongozi',
+  'rank.leaderboard':    '🏆 Ubao wa Nafasi',
   'rank.shared':         'Imeshirikiwa!',
   'rank.copied':         'Imenakiliwa kwenye ubao wa kunakili!',
   'rank.grade.explorer': '🌱 Mchunguzi',

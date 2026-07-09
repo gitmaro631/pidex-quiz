@@ -7,7 +7,7 @@ import {
   getScore, addScore, getHighScore,
   getStreak, setStreak,
   getLives, loseLife, addLives, resetGame,
-  recordAnswer, markAnswered, hasAnswered,
+  recordAnswer, markAnswered, hasAnswered, getStats,
   hasSurveyDone, saveSurveyAnswer, saveSubAnswer, getSurveyAnswers, getSurveyDone, getSurveyCount,
   getRank, getNextRank,
   getMode, setMode, MODES,
@@ -176,7 +176,7 @@ function renderModeChangeDialog(container) {
   container.appendChild(overlay);
 
   overlay.querySelector('#btn-submit-change').addEventListener('click', async () => {
-    try { await submitLeaderboardScore(username, score, mode, detectCountry()); } catch (e) { console.warn(e); }
+    try { await submitLeaderboardScore(username, score, mode, detectCountry(), getStats()); } catch (e) { console.warn(e); }
     clearSession();
     resetGame();
     session = null;
@@ -211,7 +211,7 @@ function renderGiveUpDialog(container) {
   container.appendChild(overlay);
 
   overlay.querySelector('#btn-confirm-give-up').addEventListener('click', async () => {
-    try { await submitLeaderboardScore(username, score, mode, detectCountry()); } catch (e) { console.warn(e); }
+    try { await submitLeaderboardScore(username, score, mode, detectCountry(), getStats()); } catch (e) { console.warn(e); }
     clearSession();
     resetGame();
     session = null;
@@ -699,7 +699,7 @@ async function renderGameOver(container) {
 
   container.querySelector('#btn-submit').addEventListener('click', async () => {
     try {
-      await submitLeaderboardScore(username, finalScore, mode, detectCountry());
+      await submitLeaderboardScore(username, finalScore, mode, detectCountry(), getStats());
     } catch (e) {
       console.warn('리더보드 등록 실패:', e);
     }

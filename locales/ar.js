@@ -119,7 +119,7 @@
   'rank.next':           '{n} نقطة للوصول إلى {label}',
   'rank.max':            '🎉 تم الوصول للمرتبة الأعلى!',
   'rank.shareHint':      'شارك على Telegram · X وغيرها',
-  'rank.leaderboard':    '🏆 لوحة المتصدرين',
+  'rank.leaderboard':    '🏆 لوحة الترتيب',
   'rank.shared':         'تم المشاركة!',
   'rank.copied':         'تم النسخ إلى الحافظة!',
   'rank.grade.explorer': '🌱 مستكشف',

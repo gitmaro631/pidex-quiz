@@ -1,6 +1,6 @@
-import { getScore, getRank, getNextRank, getStats, getHighScore, getLives, getMode, MODES, RANKS, addLives, getLastLeaderboardViewTime, setLastLeaderboardViewTime } from './util-storage.js';
+import { getScore, getRank, getNextRank, getStats, getHighScore, getLives, getMode, MODES, addLives, getLastLeaderboardViewTime, setLastLeaderboardViewTime, syncHighScore, syncStats } from './util-storage.js';
 import { shareResult } from './util-share.js';
-import { fetchLeaderboard, fetchSurvivalLeaderboard, initFirebase, migrateLeaderboard } from './firebase.js';
+import { fetchLeaderboard, fetchSurvivalLeaderboard, fetchMyLeaderboardEntry, initFirebase, migrateLeaderboard } from './firebase.js';
 import { countryToFlag } from './util-i18n.js';
 import { t } from './util-i18n.js';
 import { updateHeaderLives } from './app.js';
@@ -10,15 +10,27 @@ const VIEW_COOLDOWN_MS = 60 * 60 * 1000;
 
 export async function renderRankPage(container) {
   setupPullToRefresh(container, () => renderRankPage(container));
+  const mode      = getMode();
+  const username  = document.getElementById('header-username')?.textContent ?? 'Pioneer';
+
+  // 기기 변경/캐시 초기화로 로컬 통계가 서버 기록보다 낮으면 서버 값으로 동기화
+  if (mode) {
+    try {
+      const entry = await fetchMyLeaderboardEntry(username, mode);
+      if (entry) {
+        syncHighScore(entry.score ?? 0);
+        if (entry.seen != null && entry.correct != null) syncStats(entry.correct, entry.seen);
+      }
+    } catch {}
+  }
+
   const score     = getScore();
   const highScore = getHighScore();
   const rank      = getRank(score);
   const next      = getNextRank(score);
   const lives     = getLives();
-  const mode      = getMode();
   const { correct, seen } = getStats();
   const pct       = seen > 0 ? Math.round(correct / seen * 100) : 0;
-  const username  = document.getElementById('header-username')?.textContent ?? 'Pioneer';
 
   // Miner 전용: 랭킹보드 조회 1시간마다 생명 +1
   if (mode === 'miner') {
@@ -56,26 +68,7 @@ export async function renderRankPage(container) {
   container.innerHTML = `
     <div class="rank-page">
 
-      <div class="rank-card">
-        <div class="rank-card-title">${t('app.title')}</div>
-        ${modeBadge}
-        <div class="rank-card-rank">${t(rank.key)}</div>
-        <div class="rank-card-score">${score}${unit}</div>
-        ${livesDisplay}
-        <div class="rank-card-stats">${statsText}</div>
-        <div class="rank-card-user">Pioneer: ${username}</div>
-      </div>
-
-      <div class="rank-progress">
-        ${getRankProgressHTML(score)}
-      </div>
-
-      ${nextHintHTML}
-
-      <button class="btn-share" id="btn-share">${t('btn.share')}</button>
-      <p class="share-hint">${t('rank.shareHint')}</p>
-
-      <!-- 리더보드 -->
+      <!-- 랭킹보드 -->
       <div class="leaderboard-section">
         <h3 class="leaderboard-title">${t('rank.leaderboard')}</h3>
 
@@ -87,6 +80,26 @@ export async function renderRankPage(container) {
 
         <!-- 퀴즈 섹션 -->
         <div id="lb-quiz-section">
+
+          <div class="rank-card">
+            <div class="rank-card-title">${t('app.title')}</div>
+            ${modeBadge}
+            <div class="rank-card-rank">${t(rank.key)}</div>
+            <div class="rank-card-score">${score}${unit}</div>
+            ${livesDisplay}
+            <div class="rank-card-stats">${statsText}</div>
+            <div class="rank-card-user">Pioneer: ${username}</div>
+          </div>
+
+          <div class="rank-progress">
+            ${getRankProgressHTML(score)}
+          </div>
+
+          ${nextHintHTML}
+
+          <button class="btn-share" id="btn-share">${t('btn.share')}</button>
+          <p class="share-hint">${t('rank.shareHint')}</p>
+
           <div class="lb-mode-tabs">
             <button class="lb-tab active" data-mode="miner">⛏️ Miner</button>
             <button class="lb-tab" data-mode="pioneer">🚀 Pioneer</button>
@@ -211,26 +224,23 @@ export async function renderRankPage(container) {
 }
 
 function getRankProgressHTML(score) {
-  return RANKS.map((r, i) => {
-    const next    = RANKS[i + 1];
-    const active  = score >= r.min;
-    const current = active && (!next || score < next.min);
-    const pct     = next
-      ? Math.min(100, Math.round((score - r.min) / (next.min - r.min) * 100))
-      : 100;
+  const rank = getRank(score);
+  const next = getNextRank(score);
+  const pct  = next
+    ? Math.min(100, Math.round((score - rank.min) / (next.min - rank.min) * 100))
+    : 100;
 
-    return `
-      <div class="rank-step ${active ? 'active' : ''} ${current ? 'current' : ''}">
-        <div class="rank-step-label">${t(r.key)}</div>
-        ${current && next ? `
-          <div class="rank-bar-wrap">
-            <div class="rank-bar" style="width:${pct}%"></div>
-          </div>
-          <div class="rank-bar-pct">${pct}%</div>
-        ` : ''}
-      </div>
-    `;
-  }).join('');
+  return `
+    <div class="rank-step current">
+      <div class="rank-step-label">${t(rank.key)}</div>
+      ${next ? `
+        <div class="rank-bar-wrap">
+          <div class="rank-bar" style="width:${pct}%"></div>
+        </div>
+        <div class="rank-bar-pct">${pct}%</div>
+      ` : ''}
+    </div>
+  `;
 }
 
 function showToast(container, msg) {

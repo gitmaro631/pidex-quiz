@@ -193,25 +193,23 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 
 .rank-card {
   background: linear-gradient(135deg, var(--surface2), var(--surface));
-  border: 1px solid var(--primary); border-radius: 18px;
-  padding: 24px; text-align: center; margin-bottom: 20px;
+  border: 1px solid var(--primary); border-radius: 14px;
+  padding: 14px; text-align: center; margin-bottom: 10px;
 }
-.rank-card-title  { font-size: 12px; color: var(--muted); margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
-.rank-card-rank   { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 6px; }
-.rank-card-score  { font-size: 36px; font-weight: 900; color: var(--accent); margin-bottom: 6px; }
-.rank-card-stats  { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-.rank-card-user   { font-size: 12px; color: var(--muted); }
+.rank-card-title  { font-size: 11px; color: var(--muted); margin-bottom: 4px; letter-spacing: 1px; text-transform: uppercase; }
+.rank-card-rank   { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.rank-card-score  { font-size: 24px; font-weight: 900; color: var(--accent); margin-bottom: 2px; }
+.rank-card-stats  { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+.rank-card-user   { font-size: 11px; color: var(--muted); }
 
-.rank-progress { margin-bottom: 16px; }
-.rank-step { padding: 10px 0; border-bottom: 1px solid var(--border); }
-.rank-step-label { font-size: 14px; color: var(--muted); margin-bottom: 6px; }
-.rank-step.active .rank-step-label { color: #fff; }
-.rank-step.current .rank-step-label { color: var(--accent); font-weight: 700; }
+.rank-progress { margin-bottom: 10px; }
+.rank-step { padding: 2px 0; }
+.rank-step-label { font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
 .rank-bar-wrap { background: var(--border); border-radius: 4px; height: 6px; margin-bottom: 4px; }
 .rank-bar { background: var(--accent); border-radius: 4px; height: 100%; transition: width 0.5s; }
 .rank-bar-pct { font-size: 11px; color: var(--muted); }
 
-.rank-next-hint { text-align: center; font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+.rank-next-hint { text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 12px; }
 .rank-next-hint b { color: var(--primary); }
 
 .btn-share {

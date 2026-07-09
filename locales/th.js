@@ -119,7 +119,7 @@
   'rank.next':           'อีก {n} ถึง {label}',
   'rank.max':            '🎉 ถึงระดับสูงสุดแล้ว!',
   'rank.shareHint':      'แชร์ผ่าน Telegram · X ฯลฯ',
-  'rank.leaderboard':    '🏆 ลีดเดอร์บอร์ด',
+  'rank.leaderboard':    '🏆 กระดานอันดับ',
   'rank.shared':         'แชร์แล้ว!',
   'rank.copied':         'คัดลอกไปยังคลิปบอร์ดแล้ว!',
   'rank.grade.explorer': '🌱 นักสำรวจ',
