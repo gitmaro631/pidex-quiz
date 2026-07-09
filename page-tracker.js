@@ -88,6 +88,7 @@ const TT = {
     'ctx.both.dup': '이미 등록된 주소입니다', 'ctx.both.full': '테스트넷 지갑이 이미 {n}개입니다. 파이덱스 유틸 앱에서 슬롯을 비운 후 다시 시도해주세요.',
     'ctx.pidex.no_login': 'Pi 로그인이 필요합니다.',
     'ctx.cancel': '취소', 'ctx.save': '저장',
+    'ctx.continue': "계속",
     'toast.copied': '복사됨',
   },
   en: {
@@ -164,6 +165,7 @@ const TT = {
     'ctx.both.dup': 'Already registered', 'ctx.both.full': 'Testnet wallet list is full ({n}). Free up a slot in the PiDEX Util app and try again.',
     'ctx.pidex.no_login': 'Pi login required.',
     'ctx.cancel': 'Cancel', 'ctx.save': 'Save',
+    'ctx.continue': "Continue",
     'toast.copied': 'Copied',
   },
   zh: {
@@ -320,6 +322,7 @@ const TT = {
     "ctx.both.full": "测试网钱包已有 {n} 个，请在PiDEX Util应用中清出空位后重试。",
     "ctx.pidex.no_login": "需要Pi登录。",
     "ctx.cancel": "取消",
+    "ctx.continue": "继续",
     "ctx.save": "保存",
     "toast.copied": "已复制",
   },
@@ -477,6 +480,7 @@ const TT = {
     "ctx.both.full": "Daftar dompet testnet sudah penuh ({n}). Kosongkan slot di aplikasi PiDEX Util lalu coba lagi.",
     "ctx.pidex.no_login": "Diperlukan login Pi.",
     "ctx.cancel": "Batal",
+    "ctx.continue": "Lanjutkan",
     "ctx.save": "Simpan",
     "toast.copied": "Disalin",
   },
@@ -634,6 +638,7 @@ const TT = {
     "ctx.both.full": "テストネットウォレットが既に{n}個です。PiDEX Utilアプリで枠を空けてから再試行してください。",
     "ctx.pidex.no_login": "Piログインが必要です。",
     "ctx.cancel": "キャンセル",
+    "ctx.continue": "続行",
     "ctx.save": "保存",
     "toast.copied": "コピー済み",
   },
@@ -791,6 +796,7 @@ const TT = {
     "ctx.both.full": "La lista de carteras testnet está llena ({n}). Libera un espacio en la app PiDEX Util e intenta de nuevo.",
     "ctx.pidex.no_login": "Se requiere inicio de sesión Pi.",
     "ctx.cancel": "Cancelar",
+    "ctx.continue": "Continuar",
     "ctx.save": "Guardar",
     "toast.copied": "Copiado",
   },
@@ -948,6 +954,7 @@ const TT = {
     "ctx.both.full": "La liste des portefeuilles testnet est pleine ({n}). Libérez un emplacement dans l'application PiDEX Util et réessayez.",
     "ctx.pidex.no_login": "Connexion Pi requise.",
     "ctx.cancel": "Annuler",
+    "ctx.continue": "Continuer",
     "ctx.save": "Enregistrer",
     "toast.copied": "Copié",
   },
@@ -1105,6 +1112,7 @@ const TT = {
     "ctx.both.full": "Danh sách ví testnet đã đầy ({n}). Hãy dọn chỗ trống trong ứng dụng PiDEX Util rồi thử lại.",
     "ctx.pidex.no_login": "Yêu cầu đăng nhập Pi.",
     "ctx.cancel": "Hủy",
+    "ctx.continue": "Tiếp tục",
     "ctx.save": "Lưu",
     "toast.copied": "Đã sao chép",
   },
@@ -1262,6 +1270,7 @@ const TT = {
     "ctx.both.full": "A lista de carteiras testnet está cheia ({n}). Libere uma vaga no app PiDEX Util e tente novamente.",
     "ctx.pidex.no_login": "Login Pi necessário.",
     "ctx.cancel": "Cancelar",
+    "ctx.continue": "Continuar",
     "ctx.save": "Salvar",
     "toast.copied": "Copiado",
   },
@@ -1419,6 +1428,7 @@ const TT = {
     "ctx.both.full": "Senarai dompet testnet sudah penuh ({n}). Kosongkan slot dalam aplikasi PiDEX Util dan cuba lagi.",
     "ctx.pidex.no_login": "Log masuk Pi diperlukan.",
     "ctx.cancel": "Batal",
+    "ctx.continue": "Teruskan",
     "ctx.save": "Simpan",
     "toast.copied": "Disalin",
   },
@@ -1576,6 +1586,7 @@ const TT = {
     "ctx.both.full": "Puno na ang listahan ng testnet wallet ({n}). Magbakante ng slot sa PiDEX Util app at subukan muli.",
     "ctx.pidex.no_login": "Kailangan ng Pi login.",
     "ctx.cancel": "Kanselahin",
+    "ctx.continue": "Magpatuloy",
     "ctx.save": "I-save",
     "toast.copied": "Nakopya",
   },
@@ -1733,6 +1744,7 @@ const TT = {
     "ctx.both.full": "टेस्टनेट वॉलेट सूची पहले से भरी है ({n})। PiDEX Util ऐप में स्लॉट खाली करें और पुनः प्रयास करें।",
     "ctx.pidex.no_login": "Pi लॉगिन आवश्यक है।",
     "ctx.cancel": "रद्द करें",
+    "ctx.continue": "जारी रखें",
     "ctx.save": "सहेजें",
     "toast.copied": "कॉपी हुआ",
   },
@@ -1890,6 +1902,7 @@ const TT = {
     "ctx.both.full": "قائمة محافظ الشبكة التجريبية ممتلئة ({n}). أخلِ مكاناً في تطبيق PiDEX Util وحاول مرة أخرى.",
     "ctx.pidex.no_login": "تسجيل الدخول بـ Pi مطلوب.",
     "ctx.cancel": "إلغاء",
+    "ctx.continue": "متابعة",
     "ctx.save": "حفظ",
     "toast.copied": "تم النسخ",
   },
@@ -2047,6 +2060,7 @@ const TT = {
     "ctx.both.full": "Список тестовых кошельков заполнен ({n}). Освободите место в приложении PiDEX Util и попробуйте снова.",
     "ctx.pidex.no_login": "Требуется вход через Pi.",
     "ctx.cancel": "Отмена",
+    "ctx.continue": "Продолжить",
     "ctx.save": "Сохранить",
     "toast.copied": "Скопировано",
   },
@@ -2204,6 +2218,7 @@ const TT = {
     "ctx.both.full": "টেস্টনেট ওয়ালেট তালিকা পূর্ণ ({n})। PiDEX Util অ্যাপে স্লট খালি করুন এবং আবার চেষ্টা করুন।",
     "ctx.pidex.no_login": "Pi লগইন প্রয়োজন।",
     "ctx.cancel": "বাতিল",
+    "ctx.continue": "চালিয়ে যান",
     "ctx.save": "সংরক্ষণ করুন",
     "toast.copied": "কপি হয়েছে",
   },
@@ -2361,6 +2376,7 @@ const TT = {
     "ctx.both.full": "Orodha ya pochi za testnet imejaa ({n}). Achilia nafasi kwenye programu ya PiDEX Util na ujaribu tena.",
     "ctx.pidex.no_login": "Kuingia kwa Pi kunahitajika.",
     "ctx.cancel": "Ghairi",
+    "ctx.continue": "Endelea",
     "ctx.save": "Hifadhi",
     "toast.copied": "Imenakiliwa",
   },
@@ -2518,6 +2534,7 @@ const TT = {
     "ctx.both.full": "รายการกระเป๋า testnet เต็มแล้ว ({n}) กรุณาเคลียร์พื้นที่ในแอป PiDEX Util แล้วลองใหม่",
     "ctx.pidex.no_login": "ต้องเข้าสู่ระบบ Pi",
     "ctx.cancel": "ยกเลิก",
+    "ctx.continue": "ดำเนินการต่อ",
     "ctx.save": "บันทึก",
     "toast.copied": "คัดลอกแล้ว",
   },
@@ -2675,6 +2692,7 @@ const TT = {
     "ctx.both.full": "Testnet cüzdan listesi dolu ({n}). PiDEX Util uygulamasında bir yer boşaltıp tekrar deneyin.",
     "ctx.pidex.no_login": "Pi girişi gerekli.",
     "ctx.cancel": "İptal",
+    "ctx.continue": "Devam Et",
     "ctx.save": "Kaydet",
     "toast.copied": "Kopyalandı",
   },
@@ -3467,7 +3485,7 @@ export function renderTrackerPage(container, username, uid) {
           if (remaining.length) setHackActiveId(remaining[0].id);
           renderMyWalletTab();
         } catch { showToast(tt('mywallet.cloud.fail')); }
-      });
+      }, tt('mywallet.delete'));
     });
   }
 
@@ -3706,7 +3724,7 @@ export function renderTrackerPage(container, username, uid) {
         await doSave();
       } else {
         saveBtn.disabled = false;
-        showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doSave);
+        showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doSave, tt('ctx.continue'));
       }
     };
   }
@@ -3866,7 +3884,7 @@ export function renderTrackerPage(container, username, uid) {
     if (active) {
       await doAdd();
     } else {
-      showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doAdd);
+      showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doAdd, tt('ctx.continue'));
     }
   }
 
@@ -3902,7 +3920,7 @@ export function renderTrackerPage(container, username, uid) {
     if (active) {
       await doSend();
     } else {
-      showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doSend);
+      showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doSend, tt('ctx.continue'));
     }
   }
 
@@ -3954,7 +3972,7 @@ export function renderTrackerPage(container, username, uid) {
         await doSave();
       } else {
         saveBtn.disabled = false;
-        showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doSave);
+        showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doSave, tt('ctx.continue'));
       }
     };
   }
@@ -3991,7 +4009,7 @@ export function renderTrackerPage(container, username, uid) {
     };
   }
 
-  function showConfirmDialog(title, body, onConfirmed) {
+  function showConfirmDialog(title, body, onConfirmed, okLabel) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
@@ -4001,7 +4019,7 @@ export function renderTrackerPage(container, username, uid) {
           <p style="font-size:13px;margin-bottom:16px;line-height:1.5;">${body}</p>
           <div style="display:flex;gap:8px;">
             <button class="btn-outline" id="trk-dlg-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
-            <button class="btn-primary" id="trk-dlg-ok" style="flex:1;">${tt('ctx.save')}</button>
+            <button class="btn-primary" id="trk-dlg-ok" style="flex:1;">${okLabel ?? tt('ctx.save')}</button>
           </div>
         </div>
       </div>`;
