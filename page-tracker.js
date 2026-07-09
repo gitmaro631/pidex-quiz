@@ -52,32 +52,27 @@ const TT = {
     'mywallet.title': '내 지갑 (메인넷)', 'mywallet.add': '지갑 추가',
     'mywallet.no_wallets': '등록된 지갑이 없습니다.', 'mywallet.loading': '불러오는 중...',
     'mywallet.fail': '불러오기 실패', 'mywallet.refresh': '새로고침',
+    'mywallet.load.fail': '서버에서 내 지갑 목록을 불러오지 못했습니다.',
+    'mywallet.max_hint': '최대 {n}개',
     'mywallet.pi.total': 'π 총 잔액', 'mywallet.pi.avail': '사용 가능', 'mywallet.pi.reserve': '최소 보유 (예상)',
     'mywallet.tokens': '보유 토큰', 'mywallet.txs': '최근 거래', 'mywallet.lp': 'LP 포지션',
     'mywallet.no_lp': 'LP 없음', 'mywallet.tx_none': '거래 내역 없음', 'mywallet.updated': '업데이트',
     'mywallet.tx_sent': '전송', 'mywallet.tx_recv': '수신',
     'mywallet.add.title': '지갑 추가', 'mywallet.add.alias_ph': '별칭 (예: 메인 지갑)',
     'mywallet.add.addr_ph': '지갑 주소 (G...)', 'mywallet.add.err_addr': '주소 형식 오류 (G로 시작, 56자)',
-    'mywallet.add.err_dup': '이미 등록된 주소입니다.',
+    'mywallet.add.err_dup': '이미 등록된 주소입니다.', 'mywallet.add.err_full': '내 지갑이 이미 30개입니다. 정리 후 다시 시도해주세요.',
     'mywallet.alias.edit': '별칭 수정', 'mywallet.delete': '지갑 삭제',
     'mywallet.delete.confirm': '이 지갑을 삭제하시겠습니까?',
-    'mywallet.cloud.backup': '클라우드 백업', 'mywallet.cloud.restore': '클라우드 복원',
-    'mywallet.cloud.ok': '✅ 백업 완료', 'mywallet.cloud.fail': '오류가 발생했습니다.',
-    'mywallet.cloud.no_data': '복원할 데이터가 없습니다.',
-    'mywallet.restore.ok': '✅ 복원 완료', 'mywallet.restore.warn': '현재 지갑 목록이 클라우드 데이터로 교체됩니다.',
-    'mywallet.backup.tip': '지갑 정보는 기기에 저장됩니다. 기기 분실 대비 백업을 권장합니다.',
-    'mywallet.backup.empty_warn': '현재 지갑이 없습니다. 빈 상태로 백업하면 클라우드의 기존 데이터가 삭제됩니다. 계속하시겠습니까?',
+    'mywallet.cloud.fail': '서버 오류가 발생했습니다.',
     'watch.title': '관심 지갑 추적', 'watch.empty': '관심 지갑이 없습니다.',
+    'watch.load.fail': '서버에서 관심 지갑 목록을 불러오지 못했습니다.',
+    'watch.max_hint': '(최대 {n}개)',
     'watch.add.btn': '지갑 추가', 'watch.add.addr_ph': '지갑 주소 (G...)',
     'watch.add.err_addr': '주소를 확인해주세요.', 'watch.fetch.btn': '🔍 전체 조회',
     'watch.fetch.loading': '조회 중...', 'watch.internal.title': '🔄 내부 거래',
     'watch.feed.title': '📡 전체 피드', 'watch.no.internal': '내부 거래 없음',
     'watch.new.tx': '새 거래 감지', 'watch.report.warn': '신고된 지갑',
-    'watch.cloud.backup': '클라우드 백업', 'watch.cloud.restore': '클라우드 복원',
-    'watch.cloud.ok': '✅ 백업 완료', 'watch.cloud.fail': '오류가 발생했습니다.',
-    'watch.cloud.no_data': '복원할 데이터가 없습니다.',
-    'watch.restore.ok': '✅ 복원 완료', 'watch.restore.warn': '현재 관심 지갑 목록이 클라우드 데이터로 교체됩니다.',
-    'watch.backup.empty_warn': '관심 지갑이 없습니다. 빈 상태로 백업하면 기존 클라우드 데이터가 삭제됩니다. 계속하시겠습니까?',
+    'watch.cloud.fail': '서버 오류가 발생했습니다.',
     'cex.estimated': '거래소 (추정)',
     'ctx.watch': '관심 지갑 추가', 'ctx.watch.slot': '여유 {n}개', 'ctx.watch.exists': '이미 추가됨',
     'ctx.watch.full': '관심 지갑이 가득 찼습니다 (최대 10개)', 'ctx.watch.alias_title': '별칭 입력',
@@ -129,32 +124,27 @@ const TT = {
     'mywallet.title': 'My Wallet (Mainnet)', 'mywallet.add': 'Add Wallet',
     'mywallet.no_wallets': 'No wallets registered.', 'mywallet.loading': 'Loading...',
     'mywallet.fail': 'Load failed', 'mywallet.refresh': 'Refresh',
+    'mywallet.load.fail': 'Could not load your wallet list from the server.',
+    'mywallet.max_hint': 'Max {n}',
     'mywallet.pi.total': 'π Total Balance', 'mywallet.pi.avail': 'Available', 'mywallet.pi.reserve': 'Min Reserve (est.)',
     'mywallet.tokens': 'Tokens', 'mywallet.txs': 'Recent Transactions', 'mywallet.lp': 'LP Positions',
     'mywallet.no_lp': 'No LP positions', 'mywallet.tx_none': 'No transactions', 'mywallet.updated': 'Updated',
     'mywallet.tx_sent': 'Sent', 'mywallet.tx_recv': 'Received',
     'mywallet.add.title': 'Add Wallet', 'mywallet.add.alias_ph': 'Alias (e.g. Main Wallet)',
     'mywallet.add.addr_ph': 'Wallet Address (G...)', 'mywallet.add.err_addr': 'Invalid address (starts with G, 56 chars)',
-    'mywallet.add.err_dup': 'This address is already registered.',
+    'mywallet.add.err_dup': 'This address is already registered.', 'mywallet.add.err_full': 'My Wallet list is full (30). Remove one and try again.',
     'mywallet.alias.edit': 'Edit Alias', 'mywallet.delete': 'Delete Wallet',
     'mywallet.delete.confirm': 'Are you sure you want to delete this wallet?',
-    'mywallet.cloud.backup': 'Cloud Backup', 'mywallet.cloud.restore': 'Cloud Restore',
-    'mywallet.cloud.ok': '✅ Backup complete', 'mywallet.cloud.fail': 'An error occurred.',
-    'mywallet.cloud.no_data': 'No data to restore.',
-    'mywallet.restore.ok': '✅ Restored', 'mywallet.restore.warn': 'Your current wallet list will be replaced with cloud data.',
-    'mywallet.backup.tip': 'Wallets are stored locally. Backup recommended in case of device loss.',
-    'mywallet.backup.empty_warn': 'No wallets to back up. Backing up an empty list will erase cloud data. Continue?',
+    'mywallet.cloud.fail': 'A server error occurred.',
     'watch.title': 'Watch List', 'watch.empty': 'No wallets in watch list.',
+    'watch.load.fail': 'Could not load your watch list from the server.',
+    'watch.max_hint': '(max {n})',
     'watch.add.btn': 'Add Wallet', 'watch.add.addr_ph': 'Wallet address (G...)',
     'watch.add.err_addr': 'Please check the address.', 'watch.fetch.btn': '🔍 Fetch All',
     'watch.fetch.loading': 'Fetching...', 'watch.internal.title': '🔄 Internal Transfers',
     'watch.feed.title': '📡 Full Feed', 'watch.no.internal': 'No internal transfers',
     'watch.new.tx': 'New transaction detected', 'watch.report.warn': 'Reported wallet',
-    'watch.cloud.backup': 'Cloud Backup', 'watch.cloud.restore': 'Cloud Restore',
-    'watch.cloud.ok': '✅ Backup complete', 'watch.cloud.fail': 'An error occurred.',
-    'watch.cloud.no_data': 'No data to restore.',
-    'watch.restore.ok': '✅ Restored', 'watch.restore.warn': 'Your watch list will be replaced with cloud data.',
-    'watch.backup.empty_warn': 'Watch list is empty. Backing up will erase cloud data. Continue?',
+    'watch.cloud.fail': 'A server error occurred.',
     'cex.estimated': 'Exchange (est.)',
     'ctx.watch': 'Add to Watch List', 'ctx.watch.slot': '{n} slots left', 'ctx.watch.exists': 'Already added',
     'ctx.watch.full': 'Watch list is full (max 10)', 'ctx.watch.alias_title': 'Enter Alias',
@@ -189,29 +179,18 @@ export function renderTrackerPage(container, username, uid) {
 
   let allPayments = [], pageCursor = null, currentWallet = '', currentReports = [], allReports = [];
 
-  // ── localStorage helpers ─────────────────────────────
-  const HACK_WALLETS_KEY = 'hack_my_wallets';
+  // ── localStorage helpers (UI 상태만 — 실제 목록은 서버가 원본) ──
   const HACK_ACTIVE_KEY  = 'hack_active_wallet';
-  const WATCH_KEY        = 'hack_watch_list';
   const WATCH_LATEST_KEY = 'hack_watch_latest_tx';
   const WATCH_MAX        = 10;
+  const HACK_WALLET_MAX  = 30;
 
-  function getHackWallets()      { try { return JSON.parse(localStorage.getItem(HACK_WALLETS_KEY) || '[]'); } catch { return []; } }
-  function saveHackWallets(list) { localStorage.setItem(HACK_WALLETS_KEY, JSON.stringify(list)); }
   function getHackActiveId()     { return localStorage.getItem(HACK_ACTIVE_KEY); }
   function setHackActiveId(id)   { localStorage.setItem(HACK_ACTIVE_KEY, id); }
   function genHackWalletId()     { return `h${Date.now()}${Math.random().toString(36).slice(2,5)}`; }
-  function getHackActiveWallet() {
-    const wallets = getHackWallets();
-    if (!wallets.length) return null;
-    return wallets.find(w => w.id === getHackActiveId()) ?? wallets[0];
-  }
-  function getWatchList()           { try { return JSON.parse(localStorage.getItem(WATCH_KEY) || '[]'); } catch { return []; } }
-  function saveWatchList(list)      { localStorage.setItem(WATCH_KEY, JSON.stringify(list)); }
   function getWatchLatest()         { try { return JSON.parse(localStorage.getItem(WATCH_LATEST_KEY) || '{}'); } catch { return {}; } }
   function saveWatchLatest(latest)  { localStorage.setItem(WATCH_LATEST_KEY, JSON.stringify(latest)); }
   function genWatchId()             { return `w${Date.now()}`; }
-  function inWatchList(addr)        { return getWatchList().some(w => w.address === addr); }
 
   // ── 탭 전환 ──────────────────────────────────────────
   function switchTab(tabName) {
@@ -792,62 +771,75 @@ export function renderTrackerPage(container, username, uid) {
   }
 
   // ── 내 지갑 탭 ───────────────────────────────────────
+  async function fetchHackWalletsServer() {
+    const key = piUser || piUid;
+    if (!key || !db) return null;
+    try {
+      const doc = await db.collection('hack_pending_wallets').doc(key).get();
+      return doc.exists ? (doc.data().wallets || []) : [];
+    } catch { return null; }
+  }
+
+  async function saveHackWalletsServer(list) {
+    const key = piUser || piUid;
+    if (!key || !db) throw new Error('no_login');
+    await db.collection('hack_pending_wallets').doc(key).set({
+      wallets: list,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  }
+
   async function renderMyWalletTab() {
     const container2 = container.querySelector('#trk-mywallet-content');
-    const wallets    = getHackWallets();
-    const cloudBtnsHtml = `
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-backup" style="flex:1;font-size:11px;">☁️ ${tt('mywallet.cloud.backup')}</button>
-        <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-restore" style="flex:1;font-size:11px;">📥 ${tt('mywallet.cloud.restore')}</button>
-      </div>
-      <p style="font-size:11px;color:#f0b429;margin:6px 0 0;line-height:1.5;opacity:0.85;">💡 ${tt('mywallet.backup.tip')}</p>`;
+    container2.innerHTML = `<p style="color:#888;padding:12px 0;">⏳ ${tt('mywallet.loading')}</p>`;
+
+    const wallets = await fetchHackWalletsServer();
+    if (wallets === null) {
+      container2.innerHTML = `
+        <div class="trk-card" style="text-align:center;padding:24px 16px;">
+          <p style="color:#f87171;margin-bottom:12px;">${tt('mywallet.load.fail')}</p>
+          <button class="trk-btn-outline" id="trk-hwt-retry" style="width:auto;padding:0 20px;">↻ ${tt('mywallet.refresh')}</button>
+        </div>`;
+      container2.querySelector('#trk-hwt-retry')?.addEventListener('click', renderMyWalletTab);
+      return;
+    }
 
     if (!wallets.length) {
       container2.innerHTML = `
         <div class="trk-card" style="text-align:center;padding:28px 16px;">
-          <p style="color:#888;margin-bottom:16px;">${tt('mywallet.no_wallets')}</p>
+          <p style="color:#888;margin-bottom:4px;">${tt('mywallet.no_wallets')}</p>
+          <p style="font-size:11px;color:#888;margin-bottom:16px;">${tt2('mywallet.max_hint', { n: HACK_WALLET_MAX })}</p>
           <button class="trk-btn-search" id="trk-hwt-add-first" style="width:auto;padding:0 24px;">+ ${tt('mywallet.add')}</button>
-        </div>
-        ${cloudBtnsHtml}`;
-      container2.querySelector('#trk-hwt-add-first').addEventListener('click', () => showHackWalletAddDialog(renderMyWalletTab));
-      bindCloudWallet(container2);
+        </div>`;
+      container2.querySelector('#trk-hwt-add-first').addEventListener('click', () => showHackWalletAddDialog(wallets, renderMyWalletTab));
       return;
     }
 
-    const active = getHackActiveWallet();
+    const active = wallets.find(w => w.id === getHackActiveId()) ?? wallets[0];
     setHackActiveId(active.id);
 
     container2.innerHTML = `
       <div class="trk-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <h3 style="margin:0;font-size:16px;">${tt('mywallet.title')}</h3>
+          <h3 style="margin:0;font-size:16px;">${tt('mywallet.title')} <span style="font-size:11px;color:#888;font-weight:400;">(${wallets.length}/${HACK_WALLET_MAX})</span></h3>
           <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-refresh" style="width:auto;padding:0 12px;">↻ ${tt('mywallet.refresh')}</button>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
           ${wallets.map(w => `
             <button class="trk-watch-chip${w.id === active.id ? ' active' : ''}" data-hwid="${w.id}">${esc(w.alias)}</button>`).join('')}
-          <button id="trk-hwt-add-btn" style="padding:4px 12px;border-radius:20px;font-size:12px;border:1px dashed var(--border);background:transparent;color:#888;cursor:pointer;">
+          ${wallets.length < HACK_WALLET_MAX ? `<button id="trk-hwt-add-btn" style="padding:4px 12px;border-radius:20px;font-size:12px;border:1px dashed var(--border);background:transparent;color:#888;cursor:pointer;">
             + ${tt('mywallet.add')}
-          </button>
+          </button>` : ''}
         </div>
-        ${cloudBtnsHtml}
       </div>
       <div id="trk-hwt-detail"></div>`;
 
     container2.querySelectorAll('[data-hwid]').forEach(btn => {
       btn.addEventListener('click', () => { setHackActiveId(btn.dataset.hwid); renderMyWalletTab(); });
     });
-    container2.querySelector('#trk-hwt-add-btn').addEventListener('click', () => showHackWalletAddDialog(renderMyWalletTab));
+    container2.querySelector('#trk-hwt-add-btn')?.addEventListener('click', () => showHackWalletAddDialog(wallets, renderMyWalletTab));
     container2.querySelector('#trk-hwt-refresh').addEventListener('click', renderMyWalletTab);
-    bindCloudWallet(container2);
     await loadHackWalletDetail(container2.querySelector('#trk-hwt-detail'), active, wallets);
-  }
-
-  function bindCloudWallet(root) {
-    root.querySelector('#trk-hwt-backup')?.addEventListener('click', backupHackWallets);
-    root.querySelector('#trk-hwt-restore')?.addEventListener('click', () => {
-      showConfirmDialog(tt('mywallet.cloud.restore'), tt('mywallet.restore.warn'), () => restoreHackWallets(renderMyWalletTab));
-    });
   }
 
   async function loadHackWalletDetail(detailEl, wallet, allWallets) {
@@ -896,14 +888,16 @@ export function renderTrackerPage(container, username, uid) {
         <p style="font-size:10px;color:#666;text-align:center;margin-top:8px;">${tt('mywallet.updated')}: ${new Date().toLocaleTimeString()}</p>`;
 
       detailEl.querySelector('#trk-hwt-edit-alias')?.addEventListener('click', () => {
-        showAliasDialog(wallet.id, wallet.alias, renderMyWalletTab);
+        showAliasDialog(wallet, allWallets, renderMyWalletTab);
       });
       detailEl.querySelector('#trk-hwt-del')?.addEventListener('click', () => {
-        showConfirmDialog(tt('mywallet.delete'), tt('mywallet.delete.confirm'), () => {
-          const remaining = getHackWallets().filter(w => w.id !== wallet.id);
-          saveHackWallets(remaining);
-          if (remaining.length) setHackActiveId(remaining[0].id);
-          renderMyWalletTab();
+        showConfirmDialog(tt('mywallet.delete'), tt('mywallet.delete.confirm'), async () => {
+          try {
+            const remaining = allWallets.filter(w => w.id !== wallet.id);
+            await saveHackWalletsServer(remaining);
+            if (remaining.length) setHackActiveId(remaining[0].id);
+            renderMyWalletTab();
+          } catch { showToast(tt('mywallet.cloud.fail')); }
         });
       });
     } catch (e) {
@@ -950,94 +944,83 @@ export function renderTrackerPage(container, username, uid) {
       </div>`;
   }
 
-  async function backupHackWallets() {
+  // ── 관심 지갑 탭 (서버가 원본 — pidex_watch_list) ──────
+  async function fetchWatchListServer() {
     const key = piUser || piUid;
-    if (!key || !db) { showToast(tt('mywallet.cloud.fail')); return; }
+    if (!key || !db) return null;
     try {
-      await db.collection('pidex_wallets').doc(key).set({
-        wallets: getHackWallets(), activeId: getHackActiveId(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      showToast(tt('mywallet.cloud.ok'));
-    } catch { showToast(tt('mywallet.cloud.fail')); }
+      const doc = await db.collection('pidex_watch_list').doc(key).get();
+      return doc.exists ? (doc.data().watchList || []) : [];
+    } catch { return null; }
   }
 
-  async function restoreHackWallets(onRestored) {
+  async function saveWatchListServer(list) {
     const key = piUser || piUid;
-    if (!key || !db) { showToast(tt('mywallet.cloud.fail')); return; }
-    try {
-      const doc = await db.collection('pidex_wallets').doc(key).get();
-      if (!doc.exists || !doc.data().wallets?.length) { showToast(tt('mywallet.cloud.no_data')); return; }
-      const data = doc.data();
-      saveHackWallets(data.wallets);
-      if (data.activeId) setHackActiveId(data.activeId);
-      else if (data.wallets[0]?.id) setHackActiveId(data.wallets[0].id);
-      showToast(tt('mywallet.restore.ok'));
-      onRestored();
-    } catch { showToast(tt('mywallet.cloud.fail')); }
+    if (!key || !db) throw new Error('no_login');
+    await db.collection('pidex_watch_list').doc(key).set({
+      watchList: list,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
   }
 
-  // ── 관심 지갑 탭 ─────────────────────────────────────
-  function renderWatchTab() {
+  async function renderWatchTab() {
     const container2 = container.querySelector('#trk-watch-content');
-    const list = getWatchList();
+    container2.innerHTML = `<p style="color:#888;padding:12px 0;">⏳ ${tt('mywallet.loading')}</p>`;
+
+    const list = await fetchWatchListServer();
+    if (list === null) {
+      container2.innerHTML = `
+        <div class="trk-card" style="text-align:center;padding:24px 16px;">
+          <p style="color:#f87171;margin-bottom:12px;">${tt('watch.load.fail')}</p>
+          <button class="trk-btn-outline" id="trk-watch-retry" style="width:auto;padding:0 20px;">↻ ${tt('mywallet.refresh')}</button>
+        </div>`;
+      container2.querySelector('#trk-watch-retry')?.addEventListener('click', renderWatchTab);
+      return;
+    }
 
     container2.innerHTML = `
       <div class="trk-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <h3 style="margin:0;">${tt('watch.title')}</h3>
+          <h3 style="margin:0;">${tt('watch.title')} <span style="font-size:11px;color:#888;font-weight:400;">${tt2('watch.max_hint', { n: WATCH_MAX })}</span></h3>
           <span style="font-size:12px;color:#888;">${list.length}/${WATCH_MAX}</span>
         </div>
         <div id="trk-watch-list-rows">
           ${list.length === 0
             ? `<p style="color:#888;">${tt('watch.empty')}</p>`
-            : (() => {
-                const latest = getWatchLatest();
-                return list.map(w => {
-                  const lastSeen = latest[w.address] || 0;
-                  const isNew = lastSeen > 0 && w.latestTxAt && w.latestTxAt > lastSeen;
-                  return `
-                    <div class="trk-watch-row">
-                      <div>
-                        <span class="trk-watch-alias">${esc(w.alias)}${isNew ? ' <span class="trk-new-badge">NEW</span>' : ''}</span>
-                        <span class="trk-watch-addr trk-copy-addr" data-copy-addr="${esc(w.address)}">${esc(w.address.slice(0,8))}···${esc(w.address.slice(-6))}</span>
-                      </div>
-                      <button class="trk-watch-del-btn" data-wid="${w.id}">✕</button>
-                    </div>`;
-                }).join('');
-              })()}
+            : list.map(w => `
+                <div class="trk-watch-row">
+                  <div>
+                    <span class="trk-watch-alias">${esc(w.alias)}</span>
+                    <span class="trk-watch-addr trk-copy-addr" data-copy-addr="${esc(w.address)}">${esc(w.address.slice(0,8))}···${esc(w.address.slice(-6))}</span>
+                  </div>
+                  <button class="trk-watch-del-btn" data-wid="${w.id}">✕</button>
+                </div>`).join('')}
         </div>
         ${list.length < WATCH_MAX ? `<button class="trk-btn-outline" id="trk-btn-watch-add" style="width:100%;margin-top:12px;">+ ${tt('watch.add.btn')}</button>` : ''}
-      </div>
-      <div style="display:flex;gap:8px;margin-top:10px;">
-        <button class="trk-btn-outline trk-btn-sm" id="trk-btn-watch-backup"  style="flex:1;font-size:11px;">☁️ ${tt('watch.cloud.backup')}</button>
-        <button class="trk-btn-outline trk-btn-sm" id="trk-btn-watch-restore" style="flex:1;font-size:11px;">📥 ${tt('watch.cloud.restore')}</button>
       </div>
       ${list.length > 0 ? `
         <button class="trk-btn-search" id="trk-btn-watch-fetch" style="width:100%;margin-top:10px;">🔍 ${tt('watch.fetch.btn')}</button>
         <div id="trk-watch-results"></div>` : ''}`;
 
-    container2.querySelector('#trk-btn-watch-backup')?.addEventListener('click', () => backupHackWatchList());
-    container2.querySelector('#trk-btn-watch-restore')?.addEventListener('click', () => {
-      showConfirmDialog(tt('watch.cloud.restore'), tt('watch.restore.warn'), () => restoreHackWatchList(renderWatchTab));
-    });
-
     container2.querySelectorAll('.trk-watch-del-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const updated = getWatchList().filter(w => w.id !== btn.dataset.wid);
-        saveWatchList(updated);
-        renderWatchTab();
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        try {
+          const updated = list.filter(w => w.id !== btn.dataset.wid);
+          await saveWatchListServer(updated);
+          renderWatchTab();
+        } catch { showToast(tt('watch.cloud.fail')); btn.disabled = false; }
       });
     });
 
     container2.querySelector('#trk-btn-watch-add')?.addEventListener('click', () => {
-      showWatchAddDialog(() => renderWatchTab());
+      showWatchAddDialog(list, () => renderWatchTab());
     });
 
-    container2.querySelector('#trk-btn-watch-fetch')?.addEventListener('click', () => fetchWatchData());
+    container2.querySelector('#trk-btn-watch-fetch')?.addEventListener('click', () => fetchWatchData(list));
   }
 
-  function showWatchAddDialog(onSaved) {
+  function showWatchAddDialog(currentList, onSaved) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
@@ -1055,23 +1038,25 @@ export function renderTrackerPage(container, username, uid) {
       </div>`;
     document.body.appendChild(overlay);
     overlay.querySelector('#trk-w-cancel').onclick = () => overlay.remove();
-    overlay.querySelector('#trk-w-save').onclick = () => {
+    overlay.querySelector('#trk-w-save').onclick = async () => {
       const addr  = overlay.querySelector('#trk-w-addr').value.trim();
       const alias = overlay.querySelector('#trk-w-alias').value.trim() || `${addr.slice(0,6)}···${addr.slice(-4)}`;
       const err   = overlay.querySelector('#trk-w-err');
+      const saveBtn = overlay.querySelector('#trk-w-save');
       if (!addr || addr.length < 10) { err.textContent = tt('watch.add.err_addr'); return; }
-      const cur = getWatchList();
-      if (cur.some(w => w.address === addr)) { err.textContent = tt('ctx.watch.exists'); return; }
-      if (cur.length >= WATCH_MAX) { err.textContent = tt('ctx.watch.full'); return; }
-      cur.push({ id: genWatchId(), address: addr, alias });
-      saveWatchList(cur);
-      overlay.remove();
-      onSaved();
+      if (currentList.some(w => w.address === addr)) { err.textContent = tt('ctx.watch.exists'); return; }
+      if (currentList.length >= WATCH_MAX) { err.textContent = tt('ctx.watch.full'); return; }
+      saveBtn.disabled = true;
+      try {
+        const updated = [...currentList, { id: genWatchId(), address: addr, alias }];
+        await saveWatchListServer(updated);
+        overlay.remove();
+        onSaved();
+      } catch { err.textContent = tt('watch.cloud.fail'); saveBtn.disabled = false; }
     };
   }
 
-  async function fetchWatchData() {
-    const list = getWatchList();
+  async function fetchWatchData(list) {
     if (!list.length) return;
     const resultsEl = container.querySelector('#trk-watch-results');
     if (!resultsEl) return;
@@ -1103,9 +1088,6 @@ export function renderTrackerPage(container, username, uid) {
         if (latestTx) {
           newTxMap[addr] = latestTx > (prevLatest[addr] || 0);
           newLatest[addr] = latestTx;
-          const watchList = getWatchList();
-          const idx = watchList.findIndex(w => w.address === addr);
-          if (idx !== -1) { watchList[idx].latestTxAt = latestTx; saveWatchList(watchList); }
         }
       });
       saveWatchLatest(newLatest);
@@ -1143,30 +1125,6 @@ export function renderTrackerPage(container, username, uid) {
       </div>`;
   }
 
-  async function backupHackWatchList() {
-    const key = piUser || piUid;
-    if (!key || !db) { showToast(tt('watch.cloud.fail')); return; }
-    try {
-      await db.collection('pidex_watch_list').doc(key).set({
-        watchList: getWatchList(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      showToast(tt('watch.cloud.ok'));
-    } catch { showToast(tt('watch.cloud.fail')); }
-  }
-
-  async function restoreHackWatchList(onRestored) {
-    const key = piUser || piUid;
-    if (!key || !db) { showToast(tt('watch.cloud.fail')); return; }
-    try {
-      const doc = await db.collection('pidex_watch_list').doc(key).get();
-      if (!doc.exists || !doc.data().watchList?.length) { showToast(tt('watch.cloud.no_data')); return; }
-      saveWatchList(doc.data().watchList);
-      showToast(tt('watch.restore.ok'));
-      onRestored();
-    } catch { showToast(tt('watch.cloud.fail')); }
-  }
-
   // ── 주소 컨텍스트 메뉴 ───────────────────────────────
   let menuAddr = '', menuDismissing = false;
 
@@ -1181,7 +1139,7 @@ export function renderTrackerPage(container, username, uid) {
       if (!addr) return;
       e.stopPropagation();
       menuAddr = addr;
-      updateAddrMenu();
+      updateAddrMenu().catch(() => {});
       const rect = el.getBoundingClientRect();
       const menuW = 240;
       let left = Math.min(rect.left, window.innerWidth - menuW - 8);
@@ -1198,14 +1156,21 @@ export function renderTrackerPage(container, username, uid) {
       }
     }, { passive: true });
 
-    function updateAddrMenu() {
-      const watch = getWatchList();
-      const slots = WATCH_MAX - watch.length;
-      const alreadyIn = inWatchList(menuAddr);
-      container.querySelector('#trk-amenu-watch').textContent = alreadyIn ? `✅ ${tt('ctx.watch.exists')}` : `👁 ${tt('ctx.watch')} (${tt2('ctx.watch.slot', { n: slots })})`;
-      container.querySelector('#trk-amenu-watch').disabled = alreadyIn || slots === 0;
+    async function updateAddrMenu() {
+      const askedAddr = menuAddr;
+      const watchBtn = container.querySelector('#trk-amenu-watch');
+      watchBtn.textContent = `👁 ${tt('ctx.watch')}...`;
+      watchBtn.disabled = true;
       container.querySelector('#trk-amenu-pidex').textContent = `📥 ${tt('ctx.register.both')}`;
       container.querySelector('#trk-amenu-copy').textContent  = `📋 ${tt('toast.copied')}`;
+
+      const watch = await fetchWatchListServer();
+      if (menuAddr !== askedAddr) return; // 메뉴가 다른 주소로 다시 열린 경우 무시
+      if (watch === null) { watchBtn.textContent = `👁 ${tt('watch.load.fail')}`; return; }
+      const slots = WATCH_MAX - watch.length;
+      const alreadyIn = watch.some(w => w.address === menuAddr);
+      watchBtn.textContent = alreadyIn ? `✅ ${tt('ctx.watch.exists')}` : `👁 ${tt('ctx.watch')} (${tt2('ctx.watch.slot', { n: slots })})`;
+      watchBtn.disabled = alreadyIn || slots === 0;
     }
 
     container.querySelector('#trk-amenu-watch').addEventListener('click', () => { hideAddrMenu(); addToWatchList(menuAddr); });
@@ -1221,10 +1186,11 @@ export function renderTrackerPage(container, username, uid) {
     menuAddr = '';
   }
 
-  function addToWatchList(addr) {
+  async function addToWatchList(addr) {
     if (!addr) return;
-    const list = getWatchList();
-    if (inWatchList(addr)) { showToast(tt('ctx.watch.exists')); return; }
+    const list = await fetchWatchListServer();
+    if (list === null) { showToast(tt('watch.load.fail')); return; }
+    if (list.some(w => w.address === addr)) { showToast(tt('ctx.watch.exists')); return; }
     if (list.length >= WATCH_MAX) { showToast(tt('ctx.watch.full')); return; }
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
@@ -1242,14 +1208,19 @@ export function renderTrackerPage(container, username, uid) {
       </div>`;
     document.body.appendChild(overlay);
     overlay.querySelector('#trk-watch-cancel').onclick = () => overlay.remove();
-    overlay.querySelector('#trk-watch-save').onclick = () => {
+    overlay.querySelector('#trk-watch-save').onclick = async () => {
+      const saveBtn = overlay.querySelector('#trk-watch-save');
       const alias = overlay.querySelector('#trk-watch-alias-input').value.trim() || `${addr.slice(0,6)}···${addr.slice(-4)}`;
-      const updated = getWatchList();
-      if (updated.length >= WATCH_MAX || inWatchList(addr)) { overlay.remove(); return; }
-      updated.push({ id: genWatchId(), address: addr, alias });
-      saveWatchList(updated);
-      showToast(`👁 ${alias} ${tt('ctx.watch.added')}`);
-      overlay.remove();
+      saveBtn.disabled = true;
+      try {
+        const fresh = await fetchWatchListServer();
+        if (fresh === null) { showToast(tt('watch.load.fail')); overlay.remove(); return; }
+        if (fresh.length >= WATCH_MAX || fresh.some(w => w.address === addr)) { overlay.remove(); return; }
+        const updated = [...fresh, { id: genWatchId(), address: addr, alias }];
+        await saveWatchListServer(updated);
+        showToast(`👁 ${alias} ${tt('ctx.watch.added')}`);
+        overlay.remove();
+      } catch { showToast(tt('watch.cloud.fail')); saveBtn.disabled = false; }
     };
   }
 
@@ -1274,11 +1245,12 @@ export function renderTrackerPage(container, username, uid) {
     overlay.querySelector('#trk-both-save').onclick = async () => {
       const alias = overlay.querySelector('#trk-both-alias').value.trim() || `★${addr.slice(0,6)}···${addr.slice(-4)}`;
       overlay.remove();
-      const hackWallets = getHackWallets();
-      if (!hackWallets.some(w => w.address === addr)) {
-        hackWallets.push({ id: genHackWalletId(), address: addr, alias, addedAt: Date.now() });
-        saveHackWallets(hackWallets);
-      }
+      try {
+        const hackWallets = await fetchHackWalletsServer();
+        if (hackWallets && !hackWallets.some(w => w.address === addr) && hackWallets.length < HACK_WALLET_MAX) {
+          await saveHackWalletsServer([...hackWallets, { id: genHackWalletId(), address: addr, alias, addedAt: Date.now() }]);
+        }
+      } catch {}
       if (db) {
         try {
           const docRef  = db.collection('pidex_pending_wallets').doc(piUser);
@@ -1295,7 +1267,7 @@ export function renderTrackerPage(container, username, uid) {
   }
 
   // ── 유틸 다이얼로그 ───────────────────────────────────
-  function showHackWalletAddDialog(onSaved) {
+  function showHackWalletAddDialog(currentWallets, onSaved) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
@@ -1316,30 +1288,34 @@ export function renderTrackerPage(container, username, uid) {
     document.body.appendChild(overlay);
     overlay.querySelector('#trk-add-x').onclick      = () => overlay.remove();
     overlay.querySelector('#trk-add-cancel').onclick = () => overlay.remove();
-    overlay.querySelector('#trk-add-save').onclick   = () => {
-      const addr  = overlay.querySelector('#trk-add-addr').value.trim();
-      const alias = overlay.querySelector('#trk-add-alias').value.trim() || `Wallet ${getHackWallets().length + 1}`;
-      const errEl = overlay.querySelector('#trk-add-err');
+    overlay.querySelector('#trk-add-save').onclick   = async () => {
+      const addr    = overlay.querySelector('#trk-add-addr').value.trim();
+      const alias   = overlay.querySelector('#trk-add-alias').value.trim() || `Wallet ${currentWallets.length + 1}`;
+      const errEl   = overlay.querySelector('#trk-add-err');
+      const saveBtn = overlay.querySelector('#trk-add-save');
       if (!addr.startsWith('G') || addr.length !== 56) { errEl.textContent = tt('mywallet.add.err_addr'); return; }
-      if (getHackWallets().some(w => w.address === addr)) { errEl.textContent = tt('mywallet.add.err_dup'); return; }
-      const wallet  = { id: genHackWalletId(), address: addr, alias };
-      const wallets = getHackWallets();
-      wallets.push(wallet);
-      saveHackWallets(wallets);
-      setHackActiveId(wallet.id);
-      overlay.remove();
-      onSaved();
+      if (currentWallets.some(w => w.address === addr)) { errEl.textContent = tt('mywallet.add.err_dup'); return; }
+      if (currentWallets.length >= HACK_WALLET_MAX) { errEl.textContent = tt('mywallet.add.err_full'); return; }
+      saveBtn.disabled = true;
+      try {
+        const wallet  = { id: genHackWalletId(), address: addr, alias };
+        const updated = [...currentWallets, wallet];
+        await saveHackWalletsServer(updated);
+        setHackActiveId(wallet.id);
+        overlay.remove();
+        onSaved();
+      } catch { errEl.textContent = tt('mywallet.cloud.fail'); saveBtn.disabled = false; }
     };
   }
 
-  function showAliasDialog(walletId, currentAlias, onSaved) {
+  function showAliasDialog(wallet, allWallets, onSaved) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
       <div class="modal-box" style="max-width:300px;">
         <div class="modal-header"><span>${tt('mywallet.alias.edit')}</span><button class="modal-close" id="trk-ea-x">✕</button></div>
         <div style="padding:16px;">
-          <input type="text" id="trk-ea-input" class="form-input" value="${esc(currentAlias)}" />
+          <input type="text" id="trk-ea-input" class="form-input" value="${esc(wallet.alias)}" />
           <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn-outline" id="trk-ea-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
             <button class="btn-primary" id="trk-ea-save" style="flex:1;">${tt('ctx.save')}</button>
@@ -1350,14 +1326,17 @@ export function renderTrackerPage(container, username, uid) {
     overlay.querySelector('#trk-ea-x').onclick      = () => overlay.remove();
     overlay.querySelector('#trk-ea-cancel').onclick = () => overlay.remove();
     overlay.querySelector('#trk-ea-input').select();
-    overlay.querySelector('#trk-ea-save').onclick   = () => {
-      const alias = overlay.querySelector('#trk-ea-input').value.trim();
+    overlay.querySelector('#trk-ea-save').onclick   = async () => {
+      const alias   = overlay.querySelector('#trk-ea-input').value.trim();
+      const saveBtn = overlay.querySelector('#trk-ea-save');
       if (!alias) return;
-      const wallets = getHackWallets();
-      const idx     = wallets.findIndex(w => w.id === walletId);
-      if (idx !== -1) { wallets[idx].alias = alias; saveHackWallets(wallets); }
-      overlay.remove();
-      onSaved();
+      saveBtn.disabled = true;
+      try {
+        const updated = allWallets.map(w => w.id === wallet.id ? { ...w, alias } : w);
+        await saveHackWalletsServer(updated);
+        overlay.remove();
+        onSaved();
+      } catch { showToast(tt('mywallet.cloud.fail')); saveBtn.disabled = false; }
     };
   }
 
