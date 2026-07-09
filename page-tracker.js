@@ -4,12 +4,15 @@ const HORIZON      = 'https://api.mainnet.minepi.com';
 const REPORTS_COL  = 'hack_reports';
 const CEX_DB       = new Map([]);
 
+// 언어 변경 시 트래커가 다시 렌더링되어도 보던 탭을 유지하기 위한 상태
+let lastTrackerTab = 'list';
+
 function getDb() {
   if (typeof firebase === 'undefined' || !firebase.apps.length) return null;
   return firebase.firestore();
 }
 
-// ── tracker 로컬 번역 (11개 언어, 나머지는 fallback) ──────
+// ── tracker 로컬 번역 (18개 언어) ──────
 const TT = {
   ko: {
     'tab.report': '신고하기', 'tab.search': '지갑 조회', 'tab.mywallet': '내 지갑', 'tab.watch': '관심 지갑',
@@ -2678,6 +2681,7 @@ export function renderTrackerPage(container, username, uid) {
 
   // ── 탭 전환 ──────────────────────────────────────────
   function switchTab(tabName) {
+    lastTrackerTab = tabName;
     container.querySelectorAll('.trk-tab').forEach(t => t.classList.remove('active'));
     container.querySelectorAll('.trk-tab-content').forEach(s => s.classList.remove('active'));
     container.querySelector(`.trk-tab[data-tab="${tabName}"]`)?.classList.add('active');
@@ -2819,6 +2823,9 @@ export function renderTrackerPage(container, username, uid) {
   container.querySelectorAll('.trk-tab').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
   });
+
+  // 언어 변경 등으로 재렌더링된 경우, 보고 있던 탭을 그대로 유지
+  if (lastTrackerTab !== 'list') switchTab(lastTrackerTab);
 
   // ── 사전 조회 ─────────────────────────────────────────
   const psInput = container.querySelector('#trk-ps-wallet');
