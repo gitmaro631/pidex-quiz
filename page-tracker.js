@@ -57,6 +57,8 @@ const TT = {
     'mywallet.fail': '불러오기 실패', 'mywallet.refresh': '새로고침',
     'mywallet.load.fail': '서버에서 내 지갑 목록을 불러오지 못했습니다.',
     'mywallet.not_activated': '이 지갑은 아직 Pi 메인넷에서 활성화되지 않았습니다. (Pi를 받은 적이 없으면 계정이 생성되지 않아요)',
+    'mywallet.not_activated.confirm': "그래도 추가하시겠습니까?",
+    'mywallet.not_activated.icon_title': "비활성 지갑 (Pi를 받은 적 없음)",
     'mywallet.max_hint': '최대 {n}개',
     'mywallet.pi.total': 'π 총 잔액', 'mywallet.pi.avail': '사용 가능', 'mywallet.pi.reserve': '최소 보유 (예상)',
     'mywallet.tokens': '보유 토큰', 'mywallet.txs': '최근 거래', 'mywallet.lp': 'LP 포지션',
@@ -131,6 +133,8 @@ const TT = {
     'mywallet.fail': 'Load failed', 'mywallet.refresh': 'Refresh',
     'mywallet.load.fail': 'Could not load your wallet list from the server.',
     'mywallet.not_activated': 'This wallet has not been activated on Pi mainnet yet. (An account is only created after it receives Pi at least once)',
+    'mywallet.not_activated.confirm': "Add it anyway?",
+    'mywallet.not_activated.icon_title': "Inactive wallet (never received Pi)",
     'mywallet.max_hint': 'Max {n}',
     'mywallet.pi.total': 'π Total Balance', 'mywallet.pi.avail': 'Available', 'mywallet.pi.reserve': 'Min Reserve (est.)',
     'mywallet.tokens': 'Tokens', 'mywallet.txs': 'Recent Transactions', 'mywallet.lp': 'LP Positions',
@@ -260,6 +264,8 @@ const TT = {
     "mywallet.refresh": "刷新",
     "mywallet.load.fail": "无法从服务器加载我的钱包列表。",
     "mywallet.not_activated": "该钱包尚未在Pi主网激活。（从未收到过Pi的账户不会被创建）",
+    'mywallet.not_activated.confirm': "仍要添加吗？",
+    'mywallet.not_activated.icon_title': "未激活钱包（从未收到过Pi）",
     "mywallet.max_hint": "最多 {n} 个",
     "mywallet.pi.total": "π 总余额",
     "mywallet.pi.avail": "可用",
@@ -415,6 +421,8 @@ const TT = {
     "mywallet.refresh": "Segarkan",
     "mywallet.load.fail": "Tidak dapat memuat daftar dompet Anda dari server.",
     "mywallet.not_activated": "Dompet ini belum diaktifkan di Pi mainnet. (Akun baru dibuat setelah menerima Pi minimal sekali)",
+    'mywallet.not_activated.confirm': "Tetap tambahkan?",
+    'mywallet.not_activated.icon_title': "Dompet tidak aktif (belum pernah menerima Pi)",
     "mywallet.max_hint": "Maks {n}",
     "mywallet.pi.total": "π Saldo Total",
     "mywallet.pi.avail": "Tersedia",
@@ -570,6 +578,8 @@ const TT = {
     "mywallet.refresh": "更新",
     "mywallet.load.fail": "サーバーからマイウォレットリストを読み込めませんでした。",
     "mywallet.not_activated": "このウォレットはまだPiメインネットで有効化されていません。（一度もPiを受け取っていないアカウントは作成されません）",
+    'mywallet.not_activated.confirm': "それでも追加しますか？",
+    'mywallet.not_activated.icon_title': "未有効化のウォレット（Pi受取履歴なし）",
     "mywallet.max_hint": "最大{n}個",
     "mywallet.pi.total": "π 総残高",
     "mywallet.pi.avail": "利用可能",
@@ -725,6 +735,8 @@ const TT = {
     "mywallet.refresh": "Actualizar",
     "mywallet.load.fail": "No se pudo cargar tu lista de carteras del servidor.",
     "mywallet.not_activated": "Esta cartera aún no ha sido activada en la mainnet de Pi. (Una cuenta solo se crea al recibir Pi al menos una vez)",
+    'mywallet.not_activated.confirm': "¿Agregar de todos modos?",
+    'mywallet.not_activated.icon_title': "Cartera inactiva (nunca recibió Pi)",
     "mywallet.max_hint": "Máx {n}",
     "mywallet.pi.total": "π Saldo Total",
     "mywallet.pi.avail": "Disponible",
@@ -880,6 +892,8 @@ const TT = {
     "mywallet.refresh": "Actualiser",
     "mywallet.load.fail": "Impossible de charger votre liste de portefeuilles depuis le serveur.",
     "mywallet.not_activated": "Ce portefeuille n'a pas encore été activé sur le mainnet Pi. (Un compte n'est créé qu'après avoir reçu du Pi au moins une fois)",
+    'mywallet.not_activated.confirm': "Ajouter quand même ?",
+    'mywallet.not_activated.icon_title': "Portefeuille inactif (jamais reçu de Pi)",
     "mywallet.max_hint": "Max {n}",
     "mywallet.pi.total": "π Solde Total",
     "mywallet.pi.avail": "Disponible",
@@ -1035,6 +1049,8 @@ const TT = {
     "mywallet.refresh": "Làm mới",
     "mywallet.load.fail": "Không thể tải danh sách ví của bạn từ server.",
     "mywallet.not_activated": "Ví này chưa được kích hoạt trên Pi mainnet. (Tài khoản chỉ được tạo sau khi nhận Pi ít nhất một lần)",
+    'mywallet.not_activated.confirm': "Vẫn thêm chứ?",
+    'mywallet.not_activated.icon_title': "Ví chưa kích hoạt (chưa từng nhận Pi)",
     "mywallet.max_hint": "Tối đa {n}",
     "mywallet.pi.total": "π Tổng số dư",
     "mywallet.pi.avail": "Khả dụng",
@@ -1190,6 +1206,8 @@ const TT = {
     "mywallet.refresh": "Atualizar",
     "mywallet.load.fail": "Não foi possível carregar sua lista de carteiras do servidor.",
     "mywallet.not_activated": "Esta carteira ainda não foi ativada na mainnet do Pi. (Uma conta só é criada após receber Pi pelo menos uma vez)",
+    'mywallet.not_activated.confirm': "Adicionar mesmo assim?",
+    'mywallet.not_activated.icon_title': "Carteira inativa (nunca recebeu Pi)",
     "mywallet.max_hint": "Máx {n}",
     "mywallet.pi.total": "π Saldo Total",
     "mywallet.pi.avail": "Disponível",
@@ -1345,6 +1363,8 @@ const TT = {
     "mywallet.refresh": "Muat Semula",
     "mywallet.load.fail": "Tidak dapat memuatkan senarai dompet anda dari pelayan.",
     "mywallet.not_activated": "Dompet ini belum diaktifkan pada mainnet Pi. (Akaun hanya dicipta selepas menerima Pi sekurang-kurangnya sekali)",
+    'mywallet.not_activated.confirm': "Tambah juga?",
+    'mywallet.not_activated.icon_title': "Dompet tidak aktif (tidak pernah menerima Pi)",
     "mywallet.max_hint": "Maks {n}",
     "mywallet.pi.total": "π Baki Keseluruhan",
     "mywallet.pi.avail": "Tersedia",
@@ -1500,6 +1520,8 @@ const TT = {
     "mywallet.refresh": "I-refresh",
     "mywallet.load.fail": "Hindi ma-load ang listahan ng iyong wallet mula sa server.",
     "mywallet.not_activated": "Ang wallet na ito ay hindi pa na-activate sa Pi mainnet. (Ang account ay nagagawa lang pagkatapos makatanggap ng Pi nang kahit isang beses)",
+    'mywallet.not_activated.confirm': "Idagdag pa rin?",
+    'mywallet.not_activated.icon_title': "Hindi aktibong wallet (hindi pa nakatanggap ng Pi)",
     "mywallet.max_hint": "Max {n}",
     "mywallet.pi.total": "π Kabuuang Balanse",
     "mywallet.pi.avail": "Available",
@@ -1655,6 +1677,8 @@ const TT = {
     "mywallet.refresh": "रीफ्रेश करें",
     "mywallet.load.fail": "सर्वर से आपकी वॉलेट सूची लोड नहीं हो सकी।",
     "mywallet.not_activated": "यह वॉलेट अभी तक Pi मेननेट पर सक्रिय नहीं हुआ है। (खाता तभी बनता है जब कम से कम एक बार Pi प्राप्त हो)",
+    'mywallet.not_activated.confirm': "फिर भी जोड़ें?",
+    'mywallet.not_activated.icon_title': "निष्क्रिय वॉलेट (कभी Pi प्राप्त नहीं हुआ)",
     "mywallet.max_hint": "अधिकतम {n}",
     "mywallet.pi.total": "π कुल बैलेंस",
     "mywallet.pi.avail": "उपलब्ध",
@@ -1810,6 +1834,8 @@ const TT = {
     "mywallet.refresh": "تحديث",
     "mywallet.load.fail": "تعذر تحميل قائمة محافظك من الخادم.",
     "mywallet.not_activated": "لم يتم تفعيل هذه المحفظة بعد على شبكة Pi الرئيسية. (يتم إنشاء الحساب فقط بعد استلام Pi مرة واحدة على الأقل)",
+    'mywallet.not_activated.confirm': "إضافة على أي حال؟",
+    'mywallet.not_activated.icon_title': "محفظة غير نشطة (لم تستلم Pi قط)",
     "mywallet.max_hint": "الحد الأقصى {n}",
     "mywallet.pi.total": "π الرصيد الإجمالي",
     "mywallet.pi.avail": "متاح",
@@ -1965,6 +1991,8 @@ const TT = {
     "mywallet.refresh": "Обновить",
     "mywallet.load.fail": "Не удалось загрузить список ваших кошельков с сервера.",
     "mywallet.not_activated": "Этот кошелёк ещё не активирован в основной сети Pi. (Аккаунт создаётся только после получения Pi хотя бы один раз)",
+    'mywallet.not_activated.confirm': "Всё равно добавить?",
+    'mywallet.not_activated.icon_title': "Неактивный кошелёк (никогда не получал Pi)",
     "mywallet.max_hint": "Макс. {n}",
     "mywallet.pi.total": "π Общий баланс",
     "mywallet.pi.avail": "Доступно",
@@ -2120,6 +2148,8 @@ const TT = {
     "mywallet.refresh": "রিফ্রেশ করুন",
     "mywallet.load.fail": "সার্ভার থেকে আপনার ওয়ালেট তালিকা লোড করা যায়নি।",
     "mywallet.not_activated": "এই ওয়ালেটটি এখনও Pi মেইননেটে সক্রিয় হয়নি। (অ্যাকাউন্ট শুধুমাত্র কমপক্ষে একবার Pi পাওয়ার পরে তৈরি হয়)",
+    'mywallet.not_activated.confirm': "তবুও যোগ করবেন?",
+    'mywallet.not_activated.icon_title': "নিষ্ক্রিয় ওয়ালেট (কখনও Pi পায়নি)",
     "mywallet.max_hint": "সর্বোচ্চ {n}",
     "mywallet.pi.total": "π মোট ব্যালেন্স",
     "mywallet.pi.avail": "উপলব্ধ",
@@ -2275,6 +2305,8 @@ const TT = {
     "mywallet.refresh": "Onyesha upya",
     "mywallet.load.fail": "Imeshindwa kupakia orodha ya pochi zako kutoka kwa seva.",
     "mywallet.not_activated": "Pochi hii bado haijaamilishwa kwenye mainnet ya Pi. (Akaunti huundwa tu baada ya kupokea Pi angalau mara moja)",
+    'mywallet.not_activated.confirm': "Ongeza hata hivyo?",
+    'mywallet.not_activated.icon_title': "Pochi isiyofanya kazi (haijawahi kupokea Pi)",
     "mywallet.max_hint": "Kiwango cha juu {n}",
     "mywallet.pi.total": "π Salio Jumla",
     "mywallet.pi.avail": "Inapatikana",
@@ -2430,6 +2462,8 @@ const TT = {
     "mywallet.refresh": "รีเฟรช",
     "mywallet.load.fail": "ไม่สามารถโหลดรายการกระเป๋าเงินของคุณจากเซิร์ฟเวอร์",
     "mywallet.not_activated": "กระเป๋าเงินนี้ยังไม่ได้เปิดใช้งานบน Pi mainnet (บัญชีจะถูกสร้างขึ้นหลังจากได้รับ Pi อย่างน้อยหนึ่งครั้งเท่านั้น)",
+    'mywallet.not_activated.confirm': "ยังต้องการเพิ่มหรือไม่?",
+    'mywallet.not_activated.icon_title': "กระเป๋าเงินไม่ได้ใช้งาน (ไม่เคยได้รับ Pi)",
     "mywallet.max_hint": "สูงสุด {n}",
     "mywallet.pi.total": "π ยอดคงเหลือทั้งหมด",
     "mywallet.pi.avail": "ใช้ได้",
@@ -2585,6 +2619,8 @@ const TT = {
     "mywallet.refresh": "Yenile",
     "mywallet.load.fail": "Cüzdan listeniz sunucudan yüklenemedi.",
     "mywallet.not_activated": "Bu cüzdan henüz Pi mainnet'te etkinleştirilmedi. (Hesap yalnızca en az bir kez Pi aldıktan sonra oluşturulur)",
+    'mywallet.not_activated.confirm': "Yine de eklensin mi?",
+    'mywallet.not_activated.icon_title': "Etkin olmayan cüzdan (hiç Pi almadı)",
     "mywallet.max_hint": "Maks {n}",
     "mywallet.pi.total": "π Toplam Bakiye",
     "mywallet.pi.avail": "Kullanılabilir",
@@ -3325,7 +3361,7 @@ export function renderTrackerPage(container, username, uid) {
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
           ${wallets.map(w => `
-            <button class="trk-watch-chip${w.id === active.id ? ' active' : ''}" data-hwid="${w.id}">${esc(w.alias)}</button>`).join('')}
+            <button class="trk-watch-chip${w.id === active.id ? ' active' : ''}" data-hwid="${w.id}" data-active-check="${esc(w.address)}">${esc(w.alias)}</button>`).join('')}
           ${wallets.length < HACK_WALLET_MAX ? `<button id="trk-hwt-add-btn" style="padding:4px 12px;border-radius:20px;font-size:12px;border:1px dashed var(--border);background:transparent;color:#888;cursor:pointer;">
             + ${tt('mywallet.add')}
           </button>` : ''}
@@ -3339,6 +3375,15 @@ export function renderTrackerPage(container, username, uid) {
     container2.querySelector('#trk-hwt-add-btn')?.addEventListener('click', () => showHackWalletAddDialog(wallets, renderMyWalletTab));
     container2.querySelector('#trk-hwt-refresh').addEventListener('click', renderMyWalletTab);
     await loadHackWalletDetail(container2.querySelector('#trk-hwt-detail'), active, wallets);
+
+    // 비활성 지갑 칩에 아이콘 표시 (병렬 조회 후 비동기로 반영)
+    container2.querySelectorAll('[data-active-check]').forEach(async (el) => {
+      const addr = el.dataset.activeCheck;
+      const isActive = await isWalletActive(addr);
+      if (!isActive && container2.isConnected) {
+        el.insertAdjacentHTML('afterbegin', `<span title="${esc(tt('mywallet.not_activated.icon_title'))}">⚠️ </span>`);
+      }
+    });
   }
 
   async function loadHackWalletDetail(detailEl, wallet, allWallets) {
@@ -3424,6 +3469,17 @@ export function renderTrackerPage(container, username, uid) {
         } catch { showToast(tt('mywallet.cloud.fail')); }
       });
     });
+  }
+
+  // 계정이 Pi 메인넷에서 활성화됐는지 확인 (한 번도 Pi를 받은 적 없으면 404)
+  // 네트워크 오류 시에는 fail-open(활성으로 간주)하여 불필요하게 경고를 막지 않음
+  async function isWalletActive(address) {
+    try {
+      const res = await fetch(`${HORIZON}/accounts/${address}`);
+      return res.ok;
+    } catch {
+      return true;
+    }
   }
 
   async function fetchAccountMainnet(address) {
@@ -3523,7 +3579,7 @@ export function renderTrackerPage(container, username, uid) {
             : list.map(w => `
                 <div class="trk-watch-row">
                   <div>
-                    <span class="trk-watch-alias">${esc(w.alias)}</span>
+                    <span class="trk-watch-alias" data-active-check="${esc(w.address)}">${esc(w.alias)}</span>
                     <span class="trk-watch-addr trk-copy-addr" data-copy-addr="${esc(w.address)}">${esc(w.address.slice(0,8))}···${esc(w.address.slice(-6))}</span>
                   </div>
                   <div style="display:flex;gap:4px;">
@@ -3561,6 +3617,15 @@ export function renderTrackerPage(container, username, uid) {
     });
 
     container2.querySelector('#trk-btn-watch-fetch')?.addEventListener('click', () => fetchWatchData(list));
+
+    // 비활성 지갑에 아이콘 표시 (병렬 조회 후 비동기로 반영)
+    container2.querySelectorAll('[data-active-check]').forEach(async (el) => {
+      const addr = el.dataset.activeCheck;
+      const active = await isWalletActive(addr);
+      if (!active && container2.isConnected) {
+        el.insertAdjacentHTML('afterbegin', `<span title="${esc(tt('mywallet.not_activated.icon_title'))}">⚠️ </span>`);
+      }
+    });
   }
 
   function showWatchAliasDialog(watch, currentList, onSaved) {
@@ -3626,12 +3691,23 @@ export function renderTrackerPage(container, username, uid) {
       if (currentList.some(w => w.address === addr)) { err.textContent = tt('ctx.watch.exists'); return; }
       if (currentList.length >= WATCH_MAX) { err.textContent = tt('ctx.watch.full'); return; }
       saveBtn.disabled = true;
-      try {
-        const updated = [...currentList, { id: genWatchId(), address: addr, alias }];
-        await saveWatchListServer(updated);
-        overlay.remove();
-        onSaved();
-      } catch { err.textContent = tt('watch.cloud.fail'); saveBtn.disabled = false; }
+
+      const doSave = async () => {
+        try {
+          const updated = [...currentList, { id: genWatchId(), address: addr, alias }];
+          await saveWatchListServer(updated);
+          overlay.remove();
+          onSaved();
+        } catch { err.textContent = tt('watch.cloud.fail'); saveBtn.disabled = false; }
+      };
+
+      const active = await isWalletActive(addr);
+      if (active) {
+        await doSave();
+      } else {
+        saveBtn.disabled = false;
+        showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doSave);
+      }
     };
   }
 
@@ -3773,15 +3849,25 @@ export function renderTrackerPage(container, username, uid) {
   async function addToWatchList(addr) {
     if (!addr) return;
     const alias = `👁${addr.slice(0,6)}···${addr.slice(-4)}`;
-    try {
-      const list = await fetchWatchListServer();
-      if (list === null) { showToast(tt('watch.load.fail')); return; }
-      if (list.some(w => w.address === addr)) { showToast(tt('ctx.watch.exists')); return; }
-      if (list.length >= WATCH_MAX) { showToast(tt('ctx.watch.full')); return; }
-      const updated = [...list, { id: genWatchId(), address: addr, alias }];
-      await saveWatchListServer(updated);
-      showToast(`👁 ${alias} ${tt('ctx.watch.added')}`);
-    } catch { showToast(tt('watch.cloud.fail')); }
+
+    const doAdd = async () => {
+      try {
+        const list = await fetchWatchListServer();
+        if (list === null) { showToast(tt('watch.load.fail')); return; }
+        if (list.some(w => w.address === addr)) { showToast(tt('ctx.watch.exists')); return; }
+        if (list.length >= WATCH_MAX) { showToast(tt('ctx.watch.full')); return; }
+        const updated = [...list, { id: genWatchId(), address: addr, alias }];
+        await saveWatchListServer(updated);
+        showToast(`👁 ${alias} ${tt('ctx.watch.added')}`);
+      } catch { showToast(tt('watch.cloud.fail')); }
+    };
+
+    const active = await isWalletActive(addr);
+    if (active) {
+      await doAdd();
+    } else {
+      showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doAdd);
+    }
   }
 
   // 파이덱스 유틸 테스트넷 지갑 (pidex_wallets 컬렉션, 서버가 원본)
@@ -3802,12 +3888,22 @@ export function renderTrackerPage(container, username, uid) {
   async function sendToPidexWallet(addr, presetAlias) {
     if (!piUser) { showToast(tt('ctx.pidex.no_login')); return; }
     const alias = presetAlias || `★${addr.slice(0,6)}···${addr.slice(-4)}`;
-    try {
-      const result = await registerInPidexWallet(piUser, addr, alias);
-      if (result === 'added')          showToast(tt('ctx.both.sent'));
-      else if (result === 'duplicate') showToast(tt('ctx.both.dup'));
-      else if (result === 'full')      showToast(tt2('ctx.both.full', { n: PIDEX_WALLET_MAX }));
-    } catch { showToast(tt('ctx.both.fail')); }
+
+    const doSend = async () => {
+      try {
+        const result = await registerInPidexWallet(piUser, addr, alias);
+        if (result === 'added')          showToast(tt('ctx.both.sent'));
+        else if (result === 'duplicate') showToast(tt('ctx.both.dup'));
+        else if (result === 'full')      showToast(tt2('ctx.both.full', { n: PIDEX_WALLET_MAX }));
+      } catch { showToast(tt('ctx.both.fail')); }
+    };
+
+    const active = await isWalletActive(addr);
+    if (active) {
+      await doSend();
+    } else {
+      showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doSend);
+    }
   }
 
   // ── 유틸 다이얼로그 ───────────────────────────────────
@@ -3841,14 +3937,25 @@ export function renderTrackerPage(container, username, uid) {
       if (currentWallets.some(w => w.address === addr)) { errEl.textContent = tt('mywallet.add.err_dup'); return; }
       if (currentWallets.length >= HACK_WALLET_MAX) { errEl.textContent = tt('mywallet.add.err_full'); return; }
       saveBtn.disabled = true;
-      try {
-        const wallet  = { id: genHackWalletId(), address: addr, alias };
-        const updated = [...currentWallets, wallet];
-        await saveHackWalletsServer(updated);
-        setHackActiveId(wallet.id);
-        overlay.remove();
-        onSaved();
-      } catch { errEl.textContent = tt('mywallet.cloud.fail'); saveBtn.disabled = false; }
+
+      const doSave = async () => {
+        try {
+          const wallet  = { id: genHackWalletId(), address: addr, alias };
+          const updated = [...currentWallets, wallet];
+          await saveHackWalletsServer(updated);
+          setHackActiveId(wallet.id);
+          overlay.remove();
+          onSaved();
+        } catch { errEl.textContent = tt('mywallet.cloud.fail'); saveBtn.disabled = false; }
+      };
+
+      const active = await isWalletActive(addr);
+      if (active) {
+        await doSave();
+      } else {
+        saveBtn.disabled = false;
+        showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doSave);
+      }
     };
   }
 
