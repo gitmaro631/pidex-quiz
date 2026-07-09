@@ -178,6 +178,10 @@ function tt2(key, vars) {
   return s;
 }
 
+function esc(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
 export function renderTrackerPage(container, username, uid) {
   const db = getDb();
   let piUser = username || null;
@@ -387,12 +391,12 @@ export function renderTrackerPage(container, username, uid) {
         const card = document.createElement('div');
         card.className = 'trk-report-card';
         card.innerHTML = `
-          <div class="trk-report-top"><span>👤 ${r.victimId || '?'}</span><span>${r.date || ''}</span></div>
+          <div class="trk-report-top"><span>👤 ${esc(r.victimId) || '?'}</span><span>${esc(r.date) || ''}</span></div>
           <div class="trk-report-amount">-${(r.amount||0).toLocaleString()} Pi</div>
-          <div class="trk-report-wallet">${r.suspectWallet}</div>
-          ${r.desc ? `<div class="trk-report-desc">"${r.desc}"</div>` : ''}
+          <div class="trk-report-wallet">${esc(r.suspectWallet)}</div>
+          ${r.desc ? `<div class="trk-report-desc">"${esc(r.desc)}"</div>` : ''}
           <div class="trk-report-actions">
-            <button class="trk-btn-link" data-search="${r.suspectWallet}">${tt('list.search_btn')}</button>
+            <button class="trk-btn-link" data-search="${esc(r.suspectWallet)}">${tt('list.search_btn')}</button>
           </div>`;
         card.querySelector('[data-search]').addEventListener('click', () => jumpToSearch(r.suspectWallet));
         resultEl.appendChild(card);
@@ -484,9 +488,9 @@ export function renderTrackerPage(container, username, uid) {
       ${stats.map((s, i) => `
         <div class="trk-top10-row">
           <span class="trk-top10-rank">${i + 1}</span>
-          <span class="trk-top10-addr trk-copy-addr" data-copy-addr="${s.addr}">${s.addr.slice(0,8)}···${s.addr.slice(-6)}</span>
+          <span class="trk-top10-addr trk-copy-addr" data-copy-addr="${esc(s.addr)}">${esc(s.addr.slice(0,8))}···${esc(s.addr.slice(-6))}</span>
           <span class="trk-top10-count">${s.reportCount}${tt('top10.cases')}</span>
-          <button class="trk-btn-link trk-top10-search" data-addr="${s.addr}">${tt('list.search_btn')}</button>
+          <button class="trk-btn-link trk-top10-search" data-addr="${esc(s.addr)}">${tt('list.search_btn')}</button>
         </div>`).join('')}`;
     el.querySelectorAll('.trk-top10-search').forEach(btn => {
       btn.addEventListener('click', () => jumpToSearch(btn.dataset.addr));
@@ -508,16 +512,16 @@ export function renderTrackerPage(container, username, uid) {
       card.className = 'trk-report-card';
       card.innerHTML = `
         <div class="trk-report-top">
-          <span class="trk-report-victim">👤 ${r.victimId}</span>
-          <span class="trk-report-date">${r.date || ''}</span>
+          <span class="trk-report-victim">👤 ${esc(r.victimId)}</span>
+          <span class="trk-report-date">${esc(r.date) || ''}</span>
         </div>
         <div class="trk-report-amount">-${(r.amount||0).toLocaleString()} Pi</div>
         <div class="trk-tx-dir">${tt('list.wallet')}</div>
-        <div class="trk-report-wallet trk-copy-addr" data-copy-addr="${r.suspectWallet}">${r.suspectWallet}</div>
-        ${r.desc ? `<div class="trk-report-desc">"${r.desc}"</div>` : ''}
+        <div class="trk-report-wallet trk-copy-addr" data-copy-addr="${esc(r.suspectWallet)}">${esc(r.suspectWallet)}</div>
+        ${r.desc ? `<div class="trk-report-desc">"${esc(r.desc)}"</div>` : ''}
         <div class="trk-report-actions">
-          <button class="trk-btn-link" data-search="${r.suspectWallet}">${tt('list.search_btn')}</button>
-          ${!isMine ? `<button class="trk-btn-verify ${alreadyVerified ? 'verified' : ''}" data-rid="${r.id}" data-wallet="${r.suspectWallet}" data-amount="${r.amount||0}" ${alreadyVerified ? 'disabled' : ''}>
+          <button class="trk-btn-link" data-search="${esc(r.suspectWallet)}">${tt('list.search_btn')}</button>
+          ${!isMine ? `<button class="trk-btn-verify ${alreadyVerified ? 'verified' : ''}" data-rid="${esc(r.id)}" data-wallet="${esc(r.suspectWallet)}" data-amount="${r.amount||0}" ${alreadyVerified ? 'disabled' : ''}>
             ✋ ${tt('verify.btn')}${verifyCount > 0 ? ` <span class="trk-verify-count">${verifyCount}</span>` : ''}
           </button>` : `<span style="font-size:12px;color:#888;">${tt('verify.mine')}${verifyCount > 0 ? ` · ${verifyCount}${tt('verify.confirmed')}` : ''}</span>`}
         </div>`;
@@ -648,7 +652,7 @@ export function renderTrackerPage(container, username, uid) {
     const grade = riskGrade(score);
     const amtClass = reports.length >= 3 ? 'danger' : reports.length > 0 ? 'warn' : 'ok';
     panel.innerHTML = `
-      <div class="trk-summary-wallet trk-copy-addr" data-copy-addr="${wallet}">${wallet}</div>
+      <div class="trk-summary-wallet trk-copy-addr" data-copy-addr="${esc(wallet)}">${esc(wallet)}</div>
       <div class="trk-risk-bar-wrap">
         <div class="trk-risk-bar-track">
           <div class="trk-risk-bar-fill ${grade.cls}" style="width:${score}%"></div>
@@ -672,9 +676,9 @@ export function renderTrackerPage(container, username, uid) {
       const card = document.createElement('div');
       card.className = 'trk-tx-card matched';
       card.innerHTML = `
-        <div class="trk-tx-top"><span>${tt('matched.victim_id')}: ${r.victimId}</span><span class="trk-tx-amount out">-${(r.amount||0).toLocaleString()} Pi</span></div>
-        <div class="trk-tx-addr">${r.date || ''}</div>
-        ${r.desc ? `<div class="trk-report-desc">"${r.desc}"</div>` : ''}
+        <div class="trk-tx-top"><span>${tt('matched.victim_id')}: ${esc(r.victimId)}</span><span class="trk-tx-amount out">-${(r.amount||0).toLocaleString()} Pi</span></div>
+        <div class="trk-tx-addr">${esc(r.date) || ''}</div>
+        ${r.desc ? `<div class="trk-report-desc">"${esc(r.desc)}"</div>` : ''}
         ${matched.map(tx => `<div style="font-size:12px;color:#fbbf24;">${tt('matched.chain')}: ${parseFloat(tx.amount).toFixed(2)} Pi / ${formatDate(tx.created_at)}</div>`).join('')}`;
       list.appendChild(card);
     });
@@ -700,8 +704,8 @@ export function renderTrackerPage(container, username, uid) {
     card.innerHTML = `
       <div class="trk-tx-top"><span class="trk-tx-date">${formatDate(p.created_at)}</span><span class="trk-tx-amount ${isOut ? 'out' : 'in'}">${isOut ? '-' : '+'}${amtStr} Pi</span></div>
       <div class="trk-tx-dir">${dirLabel}</div>
-      <div class="trk-tx-addr${counterpart ? ' trk-copy-addr' : ''}" ${counterpart ? `data-copy-addr="${counterpart}"` : ''}>${counterpart || '-'}</div>
-      ${isMatched ? `<div class="trk-match-badge">⚠️ ${tt2('tx.match', { n: matchedRpts.length })}</div><div style="font-size:12px;color:#f87171;">${tt('tx.victims')}: ${matchedRpts.map(r => r.victimId).join(', ')}</div>` : ''}
+      <div class="trk-tx-addr${counterpart ? ' trk-copy-addr' : ''}" ${counterpart ? `data-copy-addr="${esc(counterpart)}"` : ''}>${esc(counterpart) || '-'}</div>
+      ${isMatched ? `<div class="trk-match-badge">⚠️ ${tt2('tx.match', { n: matchedRpts.length })}</div><div style="font-size:12px;color:#f87171;">${tt('tx.victims')}: ${matchedRpts.map(r => esc(r.victimId)).join(', ')}</div>` : ''}
       <div style="font-size:10px;color:#555;margin-top:4px;">${p.transaction_hash || p.id}</div>`;
     list.appendChild(card);
   }
@@ -821,7 +825,7 @@ export function renderTrackerPage(container, username, uid) {
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
           ${wallets.map(w => `
-            <button class="trk-watch-chip${w.id === active.id ? ' active' : ''}" data-hwid="${w.id}">${w.alias}</button>`).join('')}
+            <button class="trk-watch-chip${w.id === active.id ? ' active' : ''}" data-hwid="${w.id}">${esc(w.alias)}</button>`).join('')}
           <button id="trk-hwt-add-btn" style="padding:4px 12px;border-radius:20px;font-size:12px;border:1px dashed var(--border);background:transparent;color:#888;cursor:pointer;">
             + ${tt('mywallet.add')}
           </button>
@@ -870,8 +874,8 @@ export function renderTrackerPage(container, username, uid) {
       detailEl.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:10px 12px;background:rgba(255,255,255,0.05);border-radius:10px;">
           <div>
-            <div style="font-size:13px;font-weight:600;color:#7dd3fc;margin-bottom:2px;">${wallet.alias}</div>
-            <div class="trk-copy-addr" data-copy-addr="${wallet.address}" style="font-size:11px;color:#888;font-family:monospace;cursor:pointer;">${wallet.address.slice(0,8)}···${wallet.address.slice(-8)}</div>
+            <div style="font-size:13px;font-weight:600;color:#7dd3fc;margin-bottom:2px;">${esc(wallet.alias)}</div>
+            <div class="trk-copy-addr" data-copy-addr="${esc(wallet.address)}" style="font-size:11px;color:#888;font-family:monospace;cursor:pointer;">${esc(wallet.address.slice(0,8))}···${esc(wallet.address.slice(-8))}</div>
           </div>
           <div style="display:flex;gap:4px;">
             <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-edit-alias">✏️</button>
@@ -929,9 +933,9 @@ export function renderTrackerPage(container, username, uid) {
     const color = isIn ? '#22c55e' : '#f0b429';
     const dir   = isIn ? tt('mywallet.tx_recv') : tt('mywallet.tx_sent');
     const arrow = isIn ? '↙' : '↗';
-    const myChip  = `<span style="background:rgba(255,255,255,0.10);padding:2px 7px;border-radius:4px;color:#7dd3fc;font-weight:600;">${wallet.alias}</span>`;
+    const myChip  = `<span style="background:rgba(255,255,255,0.10);padding:2px 7px;border-radius:4px;color:#7dd3fc;font-weight:600;">${esc(wallet.alias)}</span>`;
     const othChip = other
-      ? `<span class="trk-copy-addr" data-copy-addr="${other}" style="background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:4px;color:#999;font-family:monospace;cursor:pointer;">${short}</span>`
+      ? `<span class="trk-copy-addr" data-copy-addr="${esc(other)}" style="background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:4px;color:#999;font-family:monospace;cursor:pointer;">${esc(short)}</span>`
       : `<span style="background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:4px;color:#999;font-family:monospace;">?</span>`;
     const fromChip = isIn ? othChip : myChip;
     const toChip   = isIn ? myChip  : othChip;
@@ -995,8 +999,8 @@ export function renderTrackerPage(container, username, uid) {
                   return `
                     <div class="trk-watch-row">
                       <div>
-                        <span class="trk-watch-alias">${w.alias}${isNew ? ' <span class="trk-new-badge">NEW</span>' : ''}</span>
-                        <span class="trk-watch-addr trk-copy-addr" data-copy-addr="${w.address}">${w.address.slice(0,8)}···${w.address.slice(-6)}</span>
+                        <span class="trk-watch-alias">${esc(w.alias)}${isNew ? ' <span class="trk-new-badge">NEW</span>' : ''}</span>
+                        <span class="trk-watch-addr trk-copy-addr" data-copy-addr="${esc(w.address)}">${esc(w.address.slice(0,8))}···${esc(w.address.slice(-6))}</span>
                       </div>
                       <button class="trk-watch-del-btn" data-wid="${w.id}">✕</button>
                     </div>`;
@@ -1106,8 +1110,8 @@ export function renderTrackerPage(container, username, uid) {
       });
       saveWatchLatest(newLatest);
 
-      const newHtml = list.filter(w => newTxMap[w.address]).map(w => `<div class="trk-watch-new-alert">🆕 ${w.alias} — ${tt('watch.new.tx')}</div>`).join('');
-      const warnHtml = list.filter(w => reportHits.has(w.address)).map(w => `<div class="trk-watch-warn">⚠️ ${w.alias} — ${tt('watch.report.warn')}</div>`).join('');
+      const newHtml = list.filter(w => newTxMap[w.address]).map(w => `<div class="trk-watch-new-alert">🆕 ${esc(w.alias)} — ${tt('watch.new.tx')}</div>`).join('');
+      const warnHtml = list.filter(w => reportHits.has(w.address)).map(w => `<div class="trk-watch-warn">⚠️ ${esc(w.alias)} — ${tt('watch.report.warn')}</div>`).join('');
       const internalHtml = internal.length === 0 ? `<p style="color:#888;">${tt('watch.no.internal')}</p>` : internal.map(p => watchTxRowHtml(p, true)).join('');
       const seen = new Set();
       const feedHtml = allTxs.filter(p => { const k = p.id || p.transaction_hash; if (seen.has(k)) return false; seen.add(k); return true; }).map(p => watchTxRowHtml(p, false)).join('');
@@ -1130,11 +1134,11 @@ export function renderTrackerPage(container, username, uid) {
     const toShort   = p.to   ? `${p.to.slice(0,6)}···${p.to.slice(-4)}`   : '?';
     return `
       <div class="trk-tx-card ${isInternal ? 'matched' : ''}">
-        <div class="trk-tx-top"><span class="trk-tx-date">${p._watchAlias} · ${date}</span><span class="trk-tx-amount out">${amount} Pi</span></div>
+        <div class="trk-tx-top"><span class="trk-tx-date">${esc(p._watchAlias)} · ${date}</span><span class="trk-tx-amount out">${amount} Pi</span></div>
         <div style="font-size:11px;color:#888;margin-top:4px;">
-          <span class="trk-copy-addr" data-copy-addr="${p.from||''}">${fromShort}</span>
+          <span class="trk-copy-addr" data-copy-addr="${esc(p.from)}">${esc(fromShort)}</span>
           <span style="color:#555;margin:0 4px;">──→</span>
-          <span class="trk-copy-addr" data-copy-addr="${p.to||''}">${toShort}</span>
+          <span class="trk-copy-addr" data-copy-addr="${esc(p.to)}">${esc(toShort)}</span>
         </div>
       </div>`;
   }
@@ -1228,7 +1232,7 @@ export function renderTrackerPage(container, username, uid) {
       <div class="modal-box" style="max-width:320px;">
         <div class="modal-header"><span>${tt('ctx.watch.alias_title')}</span></div>
         <div style="padding:16px;">
-          <div style="font-size:11px;color:#888;font-family:monospace;margin-bottom:12px;word-break:break-all;">${addr}</div>
+          <div style="font-size:11px;color:#888;font-family:monospace;margin-bottom:12px;word-break:break-all;">${esc(addr)}</div>
           <input id="trk-watch-alias-input" type="text" class="form-input" placeholder="${tt('ctx.watch.alias_ph')}" maxlength="20" />
           <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn-outline" id="trk-watch-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
@@ -1257,7 +1261,7 @@ export function renderTrackerPage(container, username, uid) {
       <div class="modal-box" style="max-width:320px;">
         <div class="modal-header"><span>${tt('ctx.both.alias_title')}</span></div>
         <div style="padding:16px;">
-          <div style="font-size:11px;color:#888;font-family:monospace;margin-bottom:12px;word-break:break-all;">${addr}</div>
+          <div style="font-size:11px;color:#888;font-family:monospace;margin-bottom:12px;word-break:break-all;">${esc(addr)}</div>
           <input id="trk-both-alias" type="text" class="form-input" placeholder="${tt('ctx.both.alias_ph')}" maxlength="20" />
           <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn-outline" id="trk-both-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
@@ -1335,7 +1339,7 @@ export function renderTrackerPage(container, username, uid) {
       <div class="modal-box" style="max-width:300px;">
         <div class="modal-header"><span>${tt('mywallet.alias.edit')}</span><button class="modal-close" id="trk-ea-x">✕</button></div>
         <div style="padding:16px;">
-          <input type="text" id="trk-ea-input" class="form-input" value="${currentAlias}" />
+          <input type="text" id="trk-ea-input" class="form-input" value="${esc(currentAlias)}" />
           <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn-outline" id="trk-ea-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
             <button class="btn-primary" id="trk-ea-save" style="flex:1;">${tt('ctx.save')}</button>
