@@ -209,19 +209,19 @@ function applyNavLabels() {
   const quizEl     = document.getElementById('nav-label-quiz');
   const survivalEl = document.getElementById('nav-label-survival');
   const trackerEl  = document.getElementById('nav-label-tracker');
-  const opinionEl  = document.getElementById('nav-label-opinion');
+  const surveyEl   = document.getElementById('nav-label-survey');
   const moreEl     = document.getElementById('nav-label-more');
   const rankEl     = document.getElementById('more-label-rank');
   const statsEl    = document.getElementById('more-label-stats');
-  const surveyEl   = document.getElementById('more-label-survey');
+  const opinionEl  = document.getElementById('more-label-opinion');
   if (quizEl)     quizEl.textContent     = t('nav.quiz');
   if (survivalEl) survivalEl.textContent = t('nav.survival');
   if (trackerEl)  trackerEl.textContent  = t('nav.tracker');
-  if (opinionEl)  opinionEl.textContent  = t('nav.opinion');
+  if (surveyEl)   surveyEl.textContent   = t('nav.survey');
   if (moreEl)     moreEl.textContent     = t('nav.more');
   if (rankEl)     rankEl.textContent     = t('nav.rank');
   if (statsEl)    statsEl.textContent    = t('nav.stats');
-  if (surveyEl)   surveyEl.textContent   = t('nav.survey');
+  if (opinionEl)  opinionEl.textContent  = t('nav.opinion');
   const helpBtn = document.getElementById('btn-help');
   if (helpBtn) helpBtn.textContent = `❓ ${t('btn.help')}`;
 }
