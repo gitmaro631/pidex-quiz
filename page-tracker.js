@@ -1173,11 +1173,12 @@ export function renderTrackerPage(container, username, uid) {
       watchBtn.disabled = alreadyIn || slots === 0;
     }
 
-    container.querySelector('#trk-amenu-watch').addEventListener('click', () => { hideAddrMenu(); addToWatchList(menuAddr); });
-    container.querySelector('#trk-amenu-pidex').addEventListener('click', () => { hideAddrMenu(); registerBoth(menuAddr); });
+    container.querySelector('#trk-amenu-watch').addEventListener('click', () => { const addr = menuAddr; hideAddrMenu(); addToWatchList(addr); });
+    container.querySelector('#trk-amenu-pidex').addEventListener('click', () => { const addr = menuAddr; hideAddrMenu(); registerBoth(addr); });
     container.querySelector('#trk-amenu-copy').addEventListener('click', () => {
+      const addr = menuAddr;
       hideAddrMenu();
-      navigator.clipboard.writeText(menuAddr).then(() => showToast(tt('toast.copied'))).catch(() => {});
+      navigator.clipboard.writeText(addr).then(() => showToast(tt('toast.copied'))).catch(() => {});
     });
   }
 
