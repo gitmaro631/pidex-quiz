@@ -772,7 +772,7 @@ export function renderTrackerPage(container, username, uid) {
 
   // ── 내 지갑 탭 ───────────────────────────────────────
   async function fetchHackWalletsServer() {
-    const key = piUser || piUid;
+    const key = piUser;
     if (!key || !db) return null;
     try {
       const doc = await db.collection('hack_pending_wallets').doc(key).get();
@@ -781,7 +781,7 @@ export function renderTrackerPage(container, username, uid) {
   }
 
   async function saveHackWalletsServer(list) {
-    const key = piUser || piUid;
+    const key = piUser;
     if (!key || !db) throw new Error('no_login');
     await db.collection('hack_pending_wallets').doc(key).set({
       wallets: list,
@@ -946,7 +946,7 @@ export function renderTrackerPage(container, username, uid) {
 
   // ── 관심 지갑 탭 (서버가 원본 — pidex_watch_list) ──────
   async function fetchWatchListServer() {
-    const key = piUser || piUid;
+    const key = piUser;
     if (!key || !db) return null;
     try {
       const doc = await db.collection('pidex_watch_list').doc(key).get();
@@ -955,7 +955,7 @@ export function renderTrackerPage(container, username, uid) {
   }
 
   async function saveWatchListServer(list) {
-    const key = piUser || piUid;
+    const key = piUser;
     if (!key || !db) throw new Error('no_login');
     await db.collection('pidex_watch_list').doc(key).set({
       watchList: list,
