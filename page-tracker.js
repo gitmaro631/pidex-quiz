@@ -77,8 +77,9 @@ const TT = {
     'ctx.watch': '관심 지갑 추가', 'ctx.watch.slot': '여유 {n}개', 'ctx.watch.exists': '이미 추가됨',
     'ctx.watch.full': '관심 지갑이 가득 찼습니다 (최대 10개)', 'ctx.watch.alias_title': '별칭 입력',
     'ctx.watch.alias_ph': '별칭 (선택)', 'ctx.watch.added': '추가됨',
-    'ctx.register.both': 'PiDEX + 관심 동시 등록', 'ctx.both.alias_title': '별칭 입력',
+    'ctx.register.both': '파이덱스 유틸 테스트넷지갑에 등록', 'ctx.both.alias_title': '별칭 입력',
     'ctx.both.alias_ph': '별칭 (선택)', 'ctx.both.sent': '✅ 등록 완료', 'ctx.both.fail': '등록 실패',
+    'ctx.both.dup': '이미 등록된 주소입니다', 'ctx.both.full': '테스트넷 지갑이 이미 {n}개입니다. 파이덱스 유틸 앱에서 슬롯을 비운 후 다시 시도해주세요.',
     'ctx.pidex.no_login': 'Pi 로그인이 필요합니다.',
     'ctx.cancel': '취소', 'ctx.save': '저장',
     'toast.copied': '복사됨',
@@ -149,8 +150,9 @@ const TT = {
     'ctx.watch': 'Add to Watch List', 'ctx.watch.slot': '{n} slots left', 'ctx.watch.exists': 'Already added',
     'ctx.watch.full': 'Watch list is full (max 10)', 'ctx.watch.alias_title': 'Enter Alias',
     'ctx.watch.alias_ph': 'Alias (optional)', 'ctx.watch.added': 'Added',
-    'ctx.register.both': 'Add to PiDEX + Watch', 'ctx.both.alias_title': 'Enter Alias',
+    'ctx.register.both': 'Register to PiDEX Util Testnet Wallet', 'ctx.both.alias_title': 'Enter Alias',
     'ctx.both.alias_ph': 'Alias (optional)', 'ctx.both.sent': '✅ Registered', 'ctx.both.fail': 'Registration failed',
+    'ctx.both.dup': 'Already registered', 'ctx.both.full': 'Testnet wallet list is full ({n}). Free up a slot in the PiDEX Util app and try again.',
     'ctx.pidex.no_login': 'Pi login required.',
     'ctx.cancel': 'Cancel', 'ctx.save': 'Save',
     'toast.copied': 'Copied',
@@ -793,6 +795,14 @@ export function renderTrackerPage(container, username, uid) {
     const container2 = container.querySelector('#trk-mywallet-content');
     container2.innerHTML = `<p style="color:#888;padding:12px 0;">⏳ ${tt('mywallet.loading')}</p>`;
 
+    if (!piUser) {
+      container2.innerHTML = `
+        <div class="trk-card" style="text-align:center;padding:24px 16px;">
+          <p style="color:#f87171;">${tt('ctx.pidex.no_login')}</p>
+        </div>`;
+      return;
+    }
+
     const wallets = await fetchHackWalletsServer();
     if (wallets === null) {
       container2.innerHTML = `
@@ -871,6 +881,7 @@ export function renderTrackerPage(container, username, uid) {
           </div>
           <div style="display:flex;gap:4px;">
             <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-edit-alias">✏️</button>
+            <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-send-pidex" title="${tt('ctx.register.both')}">💼→</button>
             ${allWallets.length > 1 ? `<button class="trk-btn-outline trk-btn-sm" id="trk-hwt-del">🗑️</button>` : ''}
           </div>
         </div>
@@ -889,6 +900,9 @@ export function renderTrackerPage(container, username, uid) {
 
       detailEl.querySelector('#trk-hwt-edit-alias')?.addEventListener('click', () => {
         showAliasDialog(wallet, allWallets, renderMyWalletTab);
+      });
+      detailEl.querySelector('#trk-hwt-send-pidex')?.addEventListener('click', () => {
+        sendToPidexWallet(wallet.address, `★${wallet.alias}`);
       });
       detailEl.querySelector('#trk-hwt-del')?.addEventListener('click', () => {
         showConfirmDialog(tt('mywallet.delete'), tt('mywallet.delete.confirm'), async () => {
@@ -967,6 +981,14 @@ export function renderTrackerPage(container, username, uid) {
     const container2 = container.querySelector('#trk-watch-content');
     container2.innerHTML = `<p style="color:#888;padding:12px 0;">⏳ ${tt('mywallet.loading')}</p>`;
 
+    if (!piUser) {
+      container2.innerHTML = `
+        <div class="trk-card" style="text-align:center;padding:24px 16px;">
+          <p style="color:#f87171;">${tt('ctx.pidex.no_login')}</p>
+        </div>`;
+      return;
+    }
+
     const list = await fetchWatchListServer();
     if (list === null) {
       container2.innerHTML = `
@@ -993,7 +1015,10 @@ export function renderTrackerPage(container, username, uid) {
                     <span class="trk-watch-alias">${esc(w.alias)}</span>
                     <span class="trk-watch-addr trk-copy-addr" data-copy-addr="${esc(w.address)}">${esc(w.address.slice(0,8))}···${esc(w.address.slice(-6))}</span>
                   </div>
-                  <button class="trk-watch-del-btn" data-wid="${w.id}">✕</button>
+                  <div style="display:flex;gap:4px;">
+                    <button class="trk-watch-edit-btn" data-wid="${w.id}">✏️</button>
+                    <button class="trk-watch-del-btn" data-wid="${w.id}">✕</button>
+                  </div>
                 </div>`).join('')}
         </div>
         ${list.length < WATCH_MAX ? `<button class="trk-btn-outline" id="trk-btn-watch-add" style="width:100%;margin-top:12px;">+ ${tt('watch.add.btn')}</button>` : ''}
@@ -1001,6 +1026,13 @@ export function renderTrackerPage(container, username, uid) {
       ${list.length > 0 ? `
         <button class="trk-btn-search" id="trk-btn-watch-fetch" style="width:100%;margin-top:10px;">🔍 ${tt('watch.fetch.btn')}</button>
         <div id="trk-watch-results"></div>` : ''}`;
+
+    container2.querySelectorAll('.trk-watch-edit-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const w = list.find(x => x.id === btn.dataset.wid);
+        if (w) showWatchAliasDialog(w, list, () => renderWatchTab());
+      });
+    });
 
     container2.querySelectorAll('.trk-watch-del-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
@@ -1018,6 +1050,42 @@ export function renderTrackerPage(container, username, uid) {
     });
 
     container2.querySelector('#trk-btn-watch-fetch')?.addEventListener('click', () => fetchWatchData(list));
+  }
+
+  function showWatchAliasDialog(watch, currentList, onSaved) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal-box" style="max-width:300px;">
+        <div class="modal-header"><span>${tt('mywallet.alias.edit')}</span></div>
+        <div style="padding:16px;">
+          <input type="text" id="trk-wa-input" class="form-input" value="${esc(watch.alias)}" />
+          <p id="trk-wa-err" style="font-size:12px;color:#f87171;min-height:16px;margin-top:4px;"></p>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn-outline" id="trk-wa-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
+            <button class="btn-primary" id="trk-wa-save" style="flex:1;">${tt('ctx.save')}</button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#trk-wa-cancel').onclick = () => overlay.remove();
+    overlay.querySelector('#trk-wa-input').select();
+    overlay.querySelector('#trk-wa-save').onclick = async () => {
+      const alias   = overlay.querySelector('#trk-wa-input').value.trim();
+      const errEl   = overlay.querySelector('#trk-wa-err');
+      const saveBtn = overlay.querySelector('#trk-wa-save');
+      if (!alias) return;
+      saveBtn.disabled = true;
+      try {
+        const updated = currentList.map(w => w.id === watch.id ? { ...w, alias } : w);
+        await saveWatchListServer(updated);
+        overlay.remove();
+        onSaved();
+      } catch {
+        errEl.textContent = tt('watch.cloud.fail');
+        saveBtn.disabled = false;
+      }
+    };
   }
 
   function showWatchAddDialog(currentList, onSaved) {
@@ -1174,7 +1242,11 @@ export function renderTrackerPage(container, username, uid) {
     }
 
     container.querySelector('#trk-amenu-watch').addEventListener('click', () => { const addr = menuAddr; hideAddrMenu(); addToWatchList(addr); });
-    container.querySelector('#trk-amenu-pidex').addEventListener('click', () => { const addr = menuAddr; hideAddrMenu(); registerBoth(addr); });
+    container.querySelector('#trk-amenu-pidex').addEventListener('click', () => {
+      const addr = menuAddr;
+      hideAddrMenu();
+      sendToPidexWallet(addr, `★${addr.slice(0,6)}···${addr.slice(-4)}`);
+    });
     container.querySelector('#trk-amenu-copy').addEventListener('click', () => {
       const addr = menuAddr;
       hideAddrMenu();
@@ -1189,82 +1261,42 @@ export function renderTrackerPage(container, username, uid) {
 
   async function addToWatchList(addr) {
     if (!addr) return;
-    const list = await fetchWatchListServer();
-    if (list === null) { showToast(tt('watch.load.fail')); return; }
-    if (list.some(w => w.address === addr)) { showToast(tt('ctx.watch.exists')); return; }
-    if (list.length >= WATCH_MAX) { showToast(tt('ctx.watch.full')); return; }
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-    overlay.innerHTML = `
-      <div class="modal-box" style="max-width:320px;">
-        <div class="modal-header"><span>${tt('ctx.watch.alias_title')}</span></div>
-        <div style="padding:16px;">
-          <div style="font-size:11px;color:#888;font-family:monospace;margin-bottom:12px;word-break:break-all;">${esc(addr)}</div>
-          <input id="trk-watch-alias-input" type="text" class="form-input" placeholder="${tt('ctx.watch.alias_ph')}" maxlength="20" />
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn-outline" id="trk-watch-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
-            <button class="btn-primary" id="trk-watch-save" style="flex:1;">${tt('ctx.save')}</button>
-          </div>
-        </div>
-      </div>`;
-    document.body.appendChild(overlay);
-    overlay.querySelector('#trk-watch-cancel').onclick = () => overlay.remove();
-    overlay.querySelector('#trk-watch-save').onclick = async () => {
-      const saveBtn = overlay.querySelector('#trk-watch-save');
-      const alias = overlay.querySelector('#trk-watch-alias-input').value.trim() || `${addr.slice(0,6)}···${addr.slice(-4)}`;
-      saveBtn.disabled = true;
-      try {
-        const fresh = await fetchWatchListServer();
-        if (fresh === null) { showToast(tt('watch.load.fail')); overlay.remove(); return; }
-        if (fresh.length >= WATCH_MAX || fresh.some(w => w.address === addr)) { overlay.remove(); return; }
-        const updated = [...fresh, { id: genWatchId(), address: addr, alias }];
-        await saveWatchListServer(updated);
-        showToast(`👁 ${alias} ${tt('ctx.watch.added')}`);
-        overlay.remove();
-      } catch { showToast(tt('watch.cloud.fail')); saveBtn.disabled = false; }
-    };
+    const alias = `👁${addr.slice(0,6)}···${addr.slice(-4)}`;
+    try {
+      const list = await fetchWatchListServer();
+      if (list === null) { showToast(tt('watch.load.fail')); return; }
+      if (list.some(w => w.address === addr)) { showToast(tt('ctx.watch.exists')); return; }
+      if (list.length >= WATCH_MAX) { showToast(tt('ctx.watch.full')); return; }
+      const updated = [...list, { id: genWatchId(), address: addr, alias }];
+      await saveWatchListServer(updated);
+      showToast(`👁 ${alias} ${tt('ctx.watch.added')}`);
+    } catch { showToast(tt('watch.cloud.fail')); }
   }
 
-  async function registerBoth(addr) {
+  // 파이덱스 유틸 테스트넷 지갑 (pidex_wallets 컬렉션, 서버가 원본)
+  const PIDEX_WALLET_MAX = 30;
+
+  async function registerInPidexWallet(username, address, alias) {
+    if (!db || !username) throw new Error('no_login');
+    const docRef = db.collection('pidex_wallets').doc(username);
+    const doc     = await docRef.get();
+    const wallets = doc.exists ? (doc.data().wallets || []) : [];
+    if (wallets.some(w => w.address === address)) return 'duplicate';
+    if (wallets.length >= PIDEX_WALLET_MAX) return 'full';
+    wallets.push({ id: `p${Date.now()}`, address, alias });
+    await docRef.set({ wallets, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    return 'added';
+  }
+
+  async function sendToPidexWallet(addr, presetAlias) {
     if (!piUser) { showToast(tt('ctx.pidex.no_login')); return; }
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay';
-    overlay.innerHTML = `
-      <div class="modal-box" style="max-width:320px;">
-        <div class="modal-header"><span>${tt('ctx.both.alias_title')}</span></div>
-        <div style="padding:16px;">
-          <div style="font-size:11px;color:#888;font-family:monospace;margin-bottom:12px;word-break:break-all;">${esc(addr)}</div>
-          <input id="trk-both-alias" type="text" class="form-input" placeholder="${tt('ctx.both.alias_ph')}" maxlength="20" />
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn-outline" id="trk-both-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
-            <button class="btn-primary" id="trk-both-save" style="flex:1;">${tt('ctx.save')}</button>
-          </div>
-        </div>
-      </div>`;
-    document.body.appendChild(overlay);
-    overlay.querySelector('#trk-both-cancel').onclick = () => overlay.remove();
-    overlay.querySelector('#trk-both-save').onclick = async () => {
-      const alias = overlay.querySelector('#trk-both-alias').value.trim() || `★${addr.slice(0,6)}···${addr.slice(-4)}`;
-      overlay.remove();
-      try {
-        const hackWallets = await fetchHackWalletsServer();
-        if (hackWallets && !hackWallets.some(w => w.address === addr) && hackWallets.length < HACK_WALLET_MAX) {
-          await saveHackWalletsServer([...hackWallets, { id: genHackWalletId(), address: addr, alias, addedAt: Date.now() }]);
-        }
-      } catch {}
-      if (db) {
-        try {
-          const docRef  = db.collection('pidex_pending_wallets').doc(piUser);
-          const doc     = await docRef.get();
-          const pdxList = doc.exists ? (doc.data().wallets || []) : [];
-          if (!pdxList.some(w => w.address === addr)) {
-            pdxList.push({ address: addr, alias, addedAt: Date.now() });
-            await docRef.set({ wallets: pdxList });
-          }
-          showToast(tt('ctx.both.sent'));
-        } catch { showToast(tt('ctx.both.fail')); }
-      }
-    };
+    const alias = presetAlias || `★${addr.slice(0,6)}···${addr.slice(-4)}`;
+    try {
+      const result = await registerInPidexWallet(piUser, addr, alias);
+      if (result === 'added')          showToast(tt('ctx.both.sent'));
+      else if (result === 'duplicate') showToast(tt('ctx.both.dup'));
+      else if (result === 'full')      showToast(tt2('ctx.both.full', { n: PIDEX_WALLET_MAX }));
+    } catch { showToast(tt('ctx.both.fail')); }
   }
 
   // ── 유틸 다이얼로그 ───────────────────────────────────
