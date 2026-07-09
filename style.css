@@ -856,8 +856,22 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 
 /* ── 생존게임 (sv-*) ────────────────────────────────── */
 .sv-wrap { max-width: 480px; margin: 0 auto; padding: 4px 0 16px; }
+.sv-game-wrap { display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; padding: 4px 0 16px; }
+.sv-screen { padding: 4px 0 16px; }
+.sv-screen-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.sv-screen-sub   { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
 
 /* 지도 선택 */
+.sv-sub-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: rgba(0,191,165,0.1); border: 1px solid var(--accent);
+  border-radius: 12px; padding: 10px 14px; margin-bottom: 14px;
+  font-size: 12px; color: var(--text);
+}
+.sv-sub-banner-btn {
+  background: var(--accent); color: #08201c; border: none; border-radius: 8px;
+  padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
 .sv-map-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .sv-map-card {
   background: var(--surface2); border: 1px solid var(--border);
@@ -865,9 +879,15 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
   cursor: pointer;
 }
 .sv-map-card:active { opacity: 0.8; }
+.sv-map-card.locked, .sv-map-card.soon { opacity: 0.55; }
 .sv-map-icon  { font-size: 36px; margin-bottom: 8px; }
+.sv-map-info  { margin-bottom: 6px; }
 .sv-map-name  { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
 .sv-map-desc  { font-size: 11px; color: var(--muted); line-height: 1.4; }
+.sv-map-badge {
+  display: inline-block; font-size: 10px; font-weight: 600; color: var(--muted);
+  background: rgba(255,255,255,0.06); border-radius: 20px; padding: 2px 10px;
+}
 
 /* 아이템 선택 */
 .sv-item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
@@ -881,18 +901,35 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .sv-item-name  { font-size: 13px; font-weight: 600; color: #fff; }
 .sv-item-desc  { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-/* 상태바 */
-.sv-stat-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+/* 게임 중 상태바 (체력/배고픔) */
 .sv-stat-bar {
-  flex: 1; min-width: 80px; background: var(--surface2);
-  border: 1px solid var(--border); border-radius: 10px;
-  padding: 8px 10px; text-align: center;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 8px 12px; margin-bottom: 12px;
 }
-.sv-stat-label { font-size: 10px; color: var(--muted); margin-bottom: 3px; }
-.sv-stat-val   { font-size: 15px; font-weight: 700; color: #fff; }
-.sv-stat-val.danger { color: var(--wrong); }
-.sv-stat-val.warn   { color: #f0b429; }
-.sv-stat-val.ok     { color: var(--accent); }
+.sv-stat-group { display: flex; align-items: center; gap: 6px; flex: 1; }
+.sv-stat-icon  { font-size: 14px; }
+.sv-stat-track { flex: 1; height: 7px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+.sv-stat-fill {
+  height: 100%; background: var(--accent); border-radius: 99px;
+  transition: width 0.4s, background 0.3s;
+}
+.sv-stat-fill.hunger { background: #e0954a; }
+.sv-stat-fill.warn   { background: #f0b429; }
+.sv-stat-fill.danger { background: var(--wrong); }
+.sv-stat-num  { font-size: 11px; color: var(--muted); min-width: 24px; text-align: right; }
+.sv-stat-right {
+  display: flex; flex-direction: column; align-items: flex-end;
+  font-size: 11px; color: var(--muted); gap: 1px; min-width: 52px;
+}
+
+/* 보유 아이템 스트립 */
+.sv-item-strip { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.sv-item-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 4px 10px; font-size: 12px; color: var(--text);
+}
 
 /* 장면 */
 .sv-scene-box {
@@ -908,12 +945,15 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 12px; padding: 13px 14px; cursor: pointer;
   color: var(--text); font-size: 14px; text-align: left; width: 100%;
-  line-height: 1.5;
+  line-height: 1.5; display: flex; align-items: center; justify-content: space-between; gap: 10px;
 }
 .sv-choice-btn:active { opacity: 0.8; }
 .sv-choice-btn.correct { border-color: var(--correct); background: rgba(0,191,165,0.1); }
 .sv-choice-btn.wrong   { border-color: var(--wrong);   background: rgba(224,90,90,0.1); }
-.sv-choice-btn:disabled { cursor: default; }
+.sv-choice-btn.disabled, .sv-choice-btn:disabled { cursor: default; opacity: 0.5; }
+.sv-choice-text { flex: 1; }
+.sv-choice-pi   { font-size: 12px; font-weight: 700; color: #f0b429; white-space: nowrap; }
+.sv-choice-req  { font-size: 11px; color: var(--muted); white-space: nowrap; }
 .sv-outcome-text { font-size: 13px; color: var(--muted); line-height: 1.6; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
 
 /* 결과 */
@@ -923,16 +963,28 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 }
 .sv-end-icon  { font-size: 56px; margin-bottom: 12px; }
 .sv-end-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 8px; }
-.sv-end-score { font-size: 15px; color: var(--accent); margin-bottom: 16px; }
-.sv-end-pi    { font-size: 18px; font-weight: 700; color: #f0b429; margin-bottom: 16px; }
+.sv-end-text  { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+.sv-end-stats { display: flex; gap: 10px; margin-bottom: 16px; }
+.sv-end-stat {
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 10px; font-size: 12px; color: var(--muted);
+}
+.sv-end-stat strong { display: block; font-size: 16px; color: #fff; margin-top: 4px; }
+.sv-end-btns { display: flex; gap: 10px; margin-top: 16px; }
+.sv-end-btns .btn-outline, .sv-end-btns .btn-primary { flex: 1; width: auto; }
 
 /* 리더보드 */
-.sv-lb-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
-.sv-lb-table th { color: var(--muted); font-weight: 600; padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border); }
-.sv-lb-table td { padding: 8px 8px; border-bottom: 1px solid var(--border); color: var(--text); }
-.sv-lb-table tr:last-child td { border-bottom: none; }
-.sv-lb-rank { width: 32px; font-weight: 700; }
-.sv-lb-me { background: rgba(0,191,165,0.08); }
+.sv-lb-title   { font-size: 14px; font-weight: 700; color: #fff; margin-top: 18px; margin-bottom: 8px; text-align: left; }
+.sv-lb-loading, .sv-lb-empty { font-size: 12px; color: var(--muted); text-align: center; padding: 10px 0; }
+.sv-lb-table { width: 100%; font-size: 12px; margin-top: 4px; }
+.sv-lb-head, .sv-lb-row {
+  display: grid; grid-template-columns: 32px 1fr 48px 64px;
+  gap: 6px; align-items: center; padding: 7px 8px;
+}
+.sv-lb-head { color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+.sv-lb-row  { color: var(--text); border-bottom: 1px solid var(--border); }
+.sv-lb-row:last-child { border-bottom: none; }
+.sv-lb-me { background: rgba(0,191,165,0.08); border-radius: 8px; }
 
 /* 구독 모달 */
 .sv-sub-overlay {

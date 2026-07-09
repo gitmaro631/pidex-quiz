@@ -412,7 +412,7 @@ export function renderSurvivalPage(container, username) {
       else if (isSoon) { badgeHtml = `<span class="sv-map-badge" style="color:var(--muted)">${ts('map.soon')}</span>`; cardClass = 'soon'; }
       return `
         <div class="sv-map-card ${cardClass}" data-id="${map.id}" data-locked="${isLocked}" data-can="${canPlay}">
-          <div class="sv-map-emoji">${map.emoji}</div>
+          <div class="sv-map-icon">${map.emoji}</div>
           <div class="sv-map-info">
             <div class="sv-map-name">${ts('map.' + map.id + '.name')}</div>
             <div class="sv-map-desc">${isSoon ? ts('map.soon') : ts('map.' + map.id + '.desc')}</div>
@@ -462,14 +462,14 @@ export function renderSurvivalPage(container, username) {
       <div class="sv-screen">
         <h2 class="sv-screen-title">${ts('item.title')}</h2>
         <p class="sv-screen-sub">${ts('item.sub')}</p>
-        <div class="sv-item-pick-grid" id="sv-item-grid">
+        <div class="sv-item-grid" id="sv-item-grid">
           ${items.map(([id, it]) => {
             const enIt = storyEn?.items?.[id];
             return `
-              <div class="sv-item-pick-card" data-id="${id}">
-                <div class="sv-ip-emoji">${it.emoji}</div>
-                <div class="sv-ip-label">${enIt?.label || it.label}</div>
-                <div class="sv-ip-desc">${enIt?.desc || it.desc}</div>
+              <div class="sv-item-card" data-id="${id}">
+                <div class="sv-item-icon">${it.emoji}</div>
+                <div class="sv-item-name">${enIt?.label || it.label}</div>
+                <div class="sv-item-desc">${enIt?.desc || it.desc}</div>
               </div>`;
           }).join('')}
         </div>
@@ -477,7 +477,7 @@ export function renderSurvivalPage(container, username) {
       </div>`;
 
     let selected = [];
-    container.querySelectorAll('.sv-item-pick-card').forEach(card => {
+    container.querySelectorAll('.sv-item-card').forEach(card => {
       card.addEventListener('click', () => {
         const id = card.dataset.id;
         if (card.classList.contains('selected')) {
@@ -511,7 +511,7 @@ export function renderSurvivalPage(container, username) {
           </div>
           <div class="sv-stat-group">
             <span class="sv-stat-icon">🍖</span>
-            <div class="sv-stat-track"><div class="sv-stat-fill sv-hunger" id="sv-fill-hunger"></div></div>
+            <div class="sv-stat-track"><div class="sv-stat-fill hunger" id="sv-fill-hunger"></div></div>
             <span class="sv-stat-num" id="hunger-val">100</span>
           </div>
           <div class="sv-stat-right">
