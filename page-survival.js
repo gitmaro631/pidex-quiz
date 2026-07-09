@@ -247,7 +247,7 @@ const ST = {
     'end.days': 'Jours Survécus', 'end.days.unit': ' jours', 'end.pi': 'π Gagnés',
     'end.retry': '🔄 Réessayer', 'end.home': '🗺️ Sélection de Carte',
     'lb.title': 'Classement de Survie', 'lb.loading': 'Chargement...', 'lb.empty': 'Pas encore de records.',
-    'lb.fail': 'Erreur de chargement', 'lb.submit.fail': 'Échec de l'enregistrement du classement', 'lb.head.rank': 'Rang', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Jours', 'lb.head.pi': 'π',
+    'lb.fail': 'Erreur de chargement', 'lb.submit.fail': "Échec de l'enregistrement du classement", 'lb.head.rank': 'Rang', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Jours', 'lb.head.pi': 'π',
     'sub.badge': '⭐ Abonné', 'sub.free': 'Gratuit', 'sub.prompt': 'Abonnez-vous pour débloquer toutes les cartes!',
     'sub.btn': "S'abonner (1π/mois)", 'sub.restore': "Restaurer l'Abonnement", 'sub.restoring': 'Restauration...',
     'sub.memo': "Pass Survie 1 mois", 'sub.success': "Abonnement activé!", 'sub.error': "Erreur de paiement.",
