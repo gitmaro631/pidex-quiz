@@ -21,7 +21,7 @@ const STORIES = {
   volcano: VOLCANO, radiation: RADIATION,
 };
 
-const MAPS = [
+export const MAPS = [
   { id: 'jungle',    emoji: '🌿', free: true,  available: true  },
   { id: 'desert',    emoji: '🏜️', free: true,  available: true  },
   { id: 'mountain',  emoji: '🏔️', free: true,  available: true  },
@@ -333,7 +333,7 @@ const ST = {
   },
 };
 
-function ts(key) {
+export function ts(key) {
   const lang = getLang();
   return ST[lang]?.[key] ?? ST.en?.[key] ?? key;
 }

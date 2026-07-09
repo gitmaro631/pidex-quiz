@@ -110,13 +110,7 @@ export async function renderRankPage(container) {
 
         <!-- 생존 섹션 -->
         <div id="lb-survival-section" class="hidden">
-          <div class="lb-mode-tabs">
-            <button class="lb-sv-tab active" data-map="jungle">🌴 정글</button>
-            <button class="lb-sv-tab" data-map="desert">🏜️ 사막</button>
-            <button class="lb-sv-tab" data-map="mountain">🏔️ 산</button>
-            <button class="lb-sv-tab" data-map="underwater">🌊 심해</button>
-            <button class="lb-sv-tab" data-map="space">🚀 우주</button>
-          </div>
+          <div class="lb-mode-tabs" id="sv-map-tabs">${t('lb.loading')}</div>
           <div id="sv-leaderboard-list" class="leaderboard-loading">${t('lb.loading')}</div>
         </div>
       </div>
@@ -190,12 +184,25 @@ export async function renderRankPage(container) {
     }
   }
 
-  container.querySelectorAll('.lb-sv-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      container.querySelectorAll('.lb-sv-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      loadSurvivalLeaderboard(tab.dataset.map);
+  // 생존 맵 탭: 게임 쪽 맵 목록(page-survival.js)과 항상 동일하게 동적 생성
+  // (예전에는 5개만 하드코딩되어 있어 새로 추가된 맵의 탭이 누락되는 문제가 있었음)
+  const svTabsEl = container.querySelector('#sv-map-tabs');
+  import('./page-survival.js').then(({ MAPS, ts: survivalT }) => {
+    svTabsEl.innerHTML = MAPS.map((m, i) => `
+      <button class="lb-sv-tab ${i === 0 ? 'active' : ''}" data-map="${m.id}">${m.emoji} ${survivalT('map.' + m.id + '.name')}</button>
+    `).join('');
+
+    svTabsEl.querySelectorAll('.lb-sv-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        svTabsEl.querySelectorAll('.lb-sv-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        loadSurvivalLeaderboard(tab.dataset.map);
+      });
     });
+
+    if (!container.querySelector('#lb-survival-section').classList.contains('hidden')) {
+      loadSurvivalLeaderboard(MAPS[0].id);
+    }
   });
 
   // 퀴즈/생존 상단 탭
@@ -207,8 +214,8 @@ export async function renderRankPage(container) {
       container.querySelector('#lb-quiz-section').classList.toggle('hidden', !isQuiz);
       container.querySelector('#lb-survival-section').classList.toggle('hidden', isQuiz);
       if (!isQuiz) {
-        const activeMap = container.querySelector('.lb-sv-tab.active')?.dataset.map ?? 'jungle';
-        loadSurvivalLeaderboard(activeMap);
+        const activeMap = svTabsEl.querySelector('.lb-sv-tab.active')?.dataset.map;
+        if (activeMap) loadSurvivalLeaderboard(activeMap);
       }
     });
   });
