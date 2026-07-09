@@ -14,9 +14,11 @@ export async function renderRankPage(container) {
   const username  = document.getElementById('header-username')?.textContent ?? 'Pioneer';
 
   // 기기 변경/캐시 초기화로 로컬 통계가 서버 기록보다 낮으면 서버 값으로 동기화
-  if (mode) {
+  // 로컬에 선택된 모드 기록이 없는 기기(캐시 초기화 등)에서는 3개 모드 리더보드를 모두 확인
+  const modesToCheck = mode ? [mode] : Object.keys(MODES);
+  for (const m of modesToCheck) {
     try {
-      const entry = await fetchMyLeaderboardEntry(username, mode);
+      const entry = await fetchMyLeaderboardEntry(username, m);
       if (entry) {
         syncHighScore(entry.score ?? 0);
         if (entry.seen != null && entry.correct != null) syncStats(entry.correct, entry.seen);
