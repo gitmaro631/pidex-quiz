@@ -1,4 +1,4 @@
-import { t, getLang } from './util-i18n.js';
+import { t, getLang, detectCountry, countryToFlag } from './util-i18n.js';
 import { isSubscribed, setSubscription } from './util-storage.js';
 import { createSubscriptionPayment, syncSubscription } from './pi-sdk.js';
 import { submitSurvivalScore, fetchSurvivalLeaderboard } from './firebase.js';
@@ -65,7 +65,7 @@ const ST = {
     'end.days': '생존 일수', 'end.days.unit': '일', 'end.pi': '획득 π',
     'end.retry': '🔄 다시 도전', 'end.home': '🗺️ 맵 선택',
     'lb.title': '생존 랭킹', 'lb.loading': '랭킹 불러오는 중...', 'lb.empty': '아직 기록이 없습니다.',
-    'lb.fail': '랭킹 불러오기 실패', 'lb.head.rank': '순위', 'lb.head.pioneer': '파이오니어', 'lb.head.days': '일수', 'lb.head.pi': '획득 π',
+    'lb.fail': '랭킹 불러오기 실패', 'lb.submit.fail': '랭킹 등록 실패', 'lb.head.rank': '순위', 'lb.head.pioneer': '파이오니어', 'lb.head.days': '일수', 'lb.head.pi': '획득 π',
     'sub.badge': '⭐ 구독 중', 'sub.free': '무료', 'sub.prompt': '구독하면 모든 맵 잠금 해제!',
     'sub.btn': '구독 (1π/월)', 'sub.restore': '구독 복원', 'sub.restoring': '복원 중...',
     'sub.memo': '생존게임 1개월 이용권', 'sub.success': '구독 완료!', 'sub.error': '결제 오류가 발생했습니다.',
@@ -91,7 +91,7 @@ const ST = {
     'end.days': 'Days Survived', 'end.days.unit': ' days', 'end.pi': 'π Earned',
     'end.retry': '🔄 Try Again', 'end.home': '🗺️ Map Select',
     'lb.title': 'Survival Ranking', 'lb.loading': 'Loading ranking...', 'lb.empty': 'No records yet.',
-    'lb.fail': 'Failed to load ranking', 'lb.head.rank': 'Rank', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Days', 'lb.head.pi': 'π Earned',
+    'lb.fail': 'Failed to load ranking', 'lb.submit.fail': 'Failed to register ranking', 'lb.head.rank': 'Rank', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Days', 'lb.head.pi': 'π Earned',
     'sub.badge': '⭐ Subscribed', 'sub.free': 'Free', 'sub.prompt': 'Subscribe to unlock all maps!',
     'sub.btn': 'Subscribe (1π/mo)', 'sub.restore': 'Restore Subscription', 'sub.restoring': 'Restoring...',
     'sub.memo': 'Survival Game 1-month pass', 'sub.success': 'Subscription activated!', 'sub.error': 'Payment error occurred.',
@@ -117,7 +117,7 @@ const ST = {
     'end.days': '生存天数', 'end.days.unit': '天', 'end.pi': '获得π',
     'end.retry': '🔄 再试一次', 'end.home': '🗺️ 地图选择',
     'lb.title': '生存排名', 'lb.loading': '加载排名...', 'lb.empty': '暂无记录。',
-    'lb.fail': '加载排名失败', 'lb.head.rank': '排名', 'lb.head.pioneer': '先锋', 'lb.head.days': '天数', 'lb.head.pi': '获得π',
+    'lb.fail': '加载排名失败', 'lb.submit.fail': '排名注册失败', 'lb.head.rank': '排名', 'lb.head.pioneer': '先锋', 'lb.head.days': '天数', 'lb.head.pi': '获得π',
     'sub.badge': '⭐ 已订阅', 'sub.free': '免费', 'sub.prompt': '订阅解锁所有地图！',
     'sub.btn': '订阅 (1π/月)', 'sub.restore': '恢复订阅', 'sub.restoring': '恢复中...',
     'sub.memo': '生存游戏1个月通行证', 'sub.success': '订阅激活！', 'sub.error': '支付错误。',
@@ -143,7 +143,7 @@ const ST = {
     'end.days': 'Hari Bertahan', 'end.days.unit': ' hari', 'end.pi': 'π Diperoleh',
     'end.retry': '🔄 Coba Lagi', 'end.home': '🗺️ Pilih Peta',
     'lb.title': 'Peringkat Survival', 'lb.loading': 'Memuat peringkat...', 'lb.empty': 'Belum ada catatan.',
-    'lb.fail': 'Gagal memuat peringkat', 'lb.head.rank': 'Peringkat', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Hari', 'lb.head.pi': 'π',
+    'lb.fail': 'Gagal memuat peringkat', 'lb.submit.fail': 'Gagal mendaftarkan peringkat', 'lb.head.rank': 'Peringkat', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Hari', 'lb.head.pi': 'π',
     'sub.badge': '⭐ Berlangganan', 'sub.free': 'Gratis', 'sub.prompt': 'Berlangganan untuk membuka semua peta!',
     'sub.btn': 'Berlangganan (1π/bln)', 'sub.restore': 'Pulihkan Langganan', 'sub.restoring': 'Memulihkan...',
     'sub.memo': 'Langganan Survival 1 bulan', 'sub.success': 'Langganan aktif!', 'sub.error': 'Kesalahan pembayaran.',
@@ -169,7 +169,7 @@ const ST = {
     'end.days': '生存日数', 'end.days.unit': '日', 'end.pi': '獲得π',
     'end.retry': '🔄 再挑戦', 'end.home': '🗺️ マップ選択',
     'lb.title': 'サバイバルランキング', 'lb.loading': 'ランキング読込中...', 'lb.empty': 'まだ記録がありません。',
-    'lb.fail': 'ランキング読込失敗', 'lb.head.rank': '順位', 'lb.head.pioneer': 'パイオニア', 'lb.head.days': '日数', 'lb.head.pi': '獲得π',
+    'lb.fail': 'ランキング読込失敗', 'lb.submit.fail': 'ランキング登録失敗', 'lb.head.rank': '順位', 'lb.head.pioneer': 'パイオニア', 'lb.head.days': '日数', 'lb.head.pi': '獲得π',
     'sub.badge': '⭐ 購読中', 'sub.free': '無料', 'sub.prompt': '購読して全マップを解放！',
     'sub.btn': '購読 (1π/月)', 'sub.restore': '購読を復元', 'sub.restoring': '復元中...',
     'sub.memo': 'サバイバル1ヶ月利用券', 'sub.success': '購読完了！', 'sub.error': '決済エラーが発生しました。',
@@ -195,7 +195,7 @@ const ST = {
     'end.days': 'Ngày Sống Sót', 'end.days.unit': ' ngày', 'end.pi': 'π Kiếm Được',
     'end.retry': '🔄 Thử Lại', 'end.home': '🗺️ Chọn Bản Đồ',
     'lb.title': 'Bảng Xếp Hạng Sinh Tồn', 'lb.loading': 'Đang tải...', 'lb.empty': 'Chưa có kỷ lục.',
-    'lb.fail': 'Không thể tải bảng xếp hạng', 'lb.head.rank': 'Hạng', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Ngày', 'lb.head.pi': 'π',
+    'lb.fail': 'Không thể tải bảng xếp hạng', 'lb.submit.fail': 'Đăng ký xếp hạng thất bại', 'lb.head.rank': 'Hạng', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Ngày', 'lb.head.pi': 'π',
     'sub.badge': '⭐ Đã Đăng Ký', 'sub.free': 'Miễn Phí', 'sub.prompt': 'Đăng ký để mở khóa tất cả bản đồ!',
     'sub.btn': 'Đăng Ký (1π/tháng)', 'sub.restore': 'Khôi Phục Đăng Ký', 'sub.restoring': 'Đang khôi phục...',
     'sub.memo': 'Gói 1 tháng Survival', 'sub.success': 'Đăng ký thành công!', 'sub.error': 'Lỗi thanh toán.',
@@ -221,7 +221,7 @@ const ST = {
     'end.days': 'Días Sobrevividos', 'end.days.unit': ' días', 'end.pi': 'π Ganados',
     'end.retry': '🔄 Intentar de Nuevo', 'end.home': '🗺️ Seleccionar Mapa',
     'lb.title': 'Ranking de Supervivencia', 'lb.loading': 'Cargando ranking...', 'lb.empty': 'Sin registros todavía.',
-    'lb.fail': 'Error al cargar ranking', 'lb.head.rank': 'Rango', 'lb.head.pioneer': 'Pionero', 'lb.head.days': 'Días', 'lb.head.pi': 'π',
+    'lb.fail': 'Error al cargar ranking', 'lb.submit.fail': 'Error al registrar el ranking', 'lb.head.rank': 'Rango', 'lb.head.pioneer': 'Pionero', 'lb.head.days': 'Días', 'lb.head.pi': 'π',
     'sub.badge': '⭐ Suscrito', 'sub.free': 'Gratis', 'sub.prompt': '¡Suscríbete para desbloquear todos los mapas!',
     'sub.btn': 'Suscribirse (1π/mes)', 'sub.restore': 'Restaurar Suscripción', 'sub.restoring': 'Restaurando...',
     'sub.memo': 'Pase Survival 1 mes', 'sub.success': '¡Suscripción activada!', 'sub.error': 'Error de pago.',
@@ -247,7 +247,7 @@ const ST = {
     'end.days': 'Jours Survécus', 'end.days.unit': ' jours', 'end.pi': 'π Gagnés',
     'end.retry': '🔄 Réessayer', 'end.home': '🗺️ Sélection de Carte',
     'lb.title': 'Classement de Survie', 'lb.loading': 'Chargement...', 'lb.empty': 'Pas encore de records.',
-    'lb.fail': 'Erreur de chargement', 'lb.head.rank': 'Rang', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Jours', 'lb.head.pi': 'π',
+    'lb.fail': 'Erreur de chargement', 'lb.submit.fail': 'Échec de l'enregistrement du classement', 'lb.head.rank': 'Rang', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Jours', 'lb.head.pi': 'π',
     'sub.badge': '⭐ Abonné', 'sub.free': 'Gratuit', 'sub.prompt': 'Abonnez-vous pour débloquer toutes les cartes!',
     'sub.btn': "S'abonner (1π/mois)", 'sub.restore': "Restaurer l'Abonnement", 'sub.restoring': 'Restauration...',
     'sub.memo': "Pass Survie 1 mois", 'sub.success': "Abonnement activé!", 'sub.error': "Erreur de paiement.",
@@ -273,7 +273,7 @@ const ST = {
     'end.days': 'Dias Sobrevividos', 'end.days.unit': ' dias', 'end.pi': 'π Ganhos',
     'end.retry': '🔄 Tentar Novamente', 'end.home': '🗺️ Selecionar Mapa',
     'lb.title': 'Ranking de Sobrevivência', 'lb.loading': 'Carregando...', 'lb.empty': 'Sem registros ainda.',
-    'lb.fail': 'Falha ao carregar ranking', 'lb.head.rank': 'Rank', 'lb.head.pioneer': 'Pioneiro', 'lb.head.days': 'Dias', 'lb.head.pi': 'π',
+    'lb.fail': 'Falha ao carregar ranking', 'lb.submit.fail': 'Falha ao registrar o ranking', 'lb.head.rank': 'Rank', 'lb.head.pioneer': 'Pioneiro', 'lb.head.days': 'Dias', 'lb.head.pi': 'π',
     'sub.badge': '⭐ Assinante', 'sub.free': 'Grátis', 'sub.prompt': 'Assine para desbloquear todos os mapas!',
     'sub.btn': 'Assinar (1π/mês)', 'sub.restore': 'Restaurar Assinatura', 'sub.restoring': 'Restaurando...',
     'sub.memo': 'Passe Survival 1 mês', 'sub.success': 'Assinatura ativada!', 'sub.error': 'Erro de pagamento.',
@@ -299,7 +299,7 @@ const ST = {
     'end.days': 'जीवित रहे दिन', 'end.days.unit': ' दिन', 'end.pi': 'π अर्जित',
     'end.retry': '🔄 फिर प्रयास करें', 'end.home': '🗺️ मैप चुनें',
     'lb.title': 'सर्वाइवल रैंकिंग', 'lb.loading': 'लोड हो रहा है...', 'lb.empty': 'अभी कोई रिकॉर्ड नहीं।',
-    'lb.fail': 'रैंकिंग लोड विफल', 'lb.head.rank': 'रैंक', 'lb.head.pioneer': 'पायनियर', 'lb.head.days': 'दिन', 'lb.head.pi': 'π',
+    'lb.fail': 'रैंकिंग लोड विफल', 'lb.submit.fail': 'रैंकिंग पंजीकरण विफल', 'lb.head.rank': 'रैंक', 'lb.head.pioneer': 'पायनियर', 'lb.head.days': 'दिन', 'lb.head.pi': 'π',
     'sub.badge': '⭐ सदस्य', 'sub.free': 'मुफ़्त', 'sub.prompt': 'सभी मैप अनलॉक करने के लिए सदस्यता लें!',
     'sub.btn': 'सदस्यता (1π/माह)', 'sub.restore': 'सदस्यता पुनर्स्थापित करें', 'sub.restoring': 'पुनर्स्थापित हो रहा है...',
     'sub.memo': 'Survival 1 माह पास', 'sub.success': 'सदस्यता सक्रिय!', 'sub.error': 'भुगतान त्रुटि।',
@@ -325,7 +325,7 @@ const ST = {
     'end.days': 'Araw ng Survival', 'end.days.unit': ' araw', 'end.pi': 'π Nakuha',
     'end.retry': '🔄 Subukang Muli', 'end.home': '🗺️ Pumili ng Mapa',
     'lb.title': 'Survival Ranking', 'lb.loading': 'Naglo-load...', 'lb.empty': 'Wala pang rekord.',
-    'lb.fail': 'Hindi ma-load ang ranking', 'lb.head.rank': 'Rank', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Araw', 'lb.head.pi': 'π',
+    'lb.fail': 'Hindi ma-load ang ranking', 'lb.submit.fail': 'Nabigo ang pagpaparehistro ng ranking', 'lb.head.rank': 'Rank', 'lb.head.pioneer': 'Pioneer', 'lb.head.days': 'Araw', 'lb.head.pi': 'π',
     'sub.badge': '⭐ May Subscription', 'sub.free': 'Libre', 'sub.prompt': 'Mag-subscribe para ma-unlock ang lahat ng mapa!',
     'sub.btn': 'Mag-subscribe (1π/buwan)', 'sub.restore': 'I-restore ang Subscription', 'sub.restoring': 'Nire-restore...',
     'sub.memo': 'Survival 1-buwang pass', 'sub.success': 'Na-activate ang subscription!', 'sub.error': 'Error sa pagbabayad.',
@@ -630,24 +630,27 @@ export function renderSurvivalPage(container, username) {
   }
 
   async function submitAndShowLeaderboard() {
-    try { await submitSurvivalScore(state.username, state.map, state.day, state.piEarned); }
-    catch (e) { console.warn('랭킹 등록 실패:', e); }
-    loadLeaderboard();
+    let submitFailed = false;
+    try { await submitSurvivalScore(state.username, state.map, state.day, state.piEarned, detectCountry()); }
+    catch (e) { console.warn('랭킹 등록 실패:', e); submitFailed = true; }
+    loadLeaderboard(submitFailed);
   }
 
-  async function loadLeaderboard() {
+  async function loadLeaderboard(submitFailed = false) {
     const sec = container.querySelector('#sv-lb-section');
     if (!sec) return;
     const mapName = ts('map.' + state.map + '.name');
     const lbTitle = `${ts('lb.title')} — ${mapName}`;
+    const submitFailHtml = submitFailed ? `<p class="sv-lb-empty" style="color:#f87171;">⚠️ ${ts('lb.submit.fail')}</p>` : '';
     try {
       const rows = await fetchSurvivalLeaderboard(state.map);
       if (!rows.length) {
-        sec.innerHTML = `<div class="sv-lb-title">${lbTitle}</div><p class="sv-lb-empty">${ts('lb.empty')}</p>`;
+        sec.innerHTML = `<div class="sv-lb-title">${lbTitle}</div>${submitFailHtml}<p class="sv-lb-empty">${ts('lb.empty')}</p>`;
         return;
       }
       sec.innerHTML = `
         <div class="sv-lb-title">${lbTitle}</div>
+        ${submitFailHtml}
         <div class="sv-lb-table">
           <div class="sv-lb-head">
             <span>${ts('lb.head.rank')}</span>
@@ -655,13 +658,16 @@ export function renderSurvivalPage(container, username) {
             <span>${ts('lb.head.days')}</span>
             <span>${ts('lb.head.pi')}</span>
           </div>
-          ${rows.map((r, i) => `
+          ${rows.map((r, i) => {
+            const flag = r.country ? countryToFlag(r.country) : '';
+            return `
             <div class="sv-lb-row ${r.username === state.username ? 'sv-lb-me' : ''}">
               <span>${i + 1}</span>
-              <span>${r.username}</span>
+              <span>${flag ? `${flag} ` : ''}${r.username}</span>
               <span>${r.days}</span>
               <span>⬡ ${r.pi_earned || 0}π</span>
-            </div>`).join('')}
+            </div>`;
+          }).join('')}
         </div>`;
     } catch {
       sec.innerHTML = `<p class="sv-lb-empty">${ts('lb.fail')}</p>`;

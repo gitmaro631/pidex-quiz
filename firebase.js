@@ -195,7 +195,7 @@ export async function toggleOpinionLike(docId, username, isLiked) {
 }
 
 // ── 생존게임 랭킹 ────────────────────────────────────────
-export async function submitSurvivalScore(username, map, days, piEarned) {
+export async function submitSurvivalScore(username, map, days, piEarned, country) {
   if (!db) initFirebase();
   if (!db) return;
   const col    = `survival_${map}`;
@@ -211,12 +211,14 @@ export async function submitSurvivalScore(username, map, days, piEarned) {
         tx.set(docRef, {
           username, map, days,
           pi_earned: piEarned,
+          country: country || prev?.country || null,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
       }
     });
   } catch (e) {
     console.error('생존 랭킹 등록 실패:', e);
+    throw e;
   }
 }
 
