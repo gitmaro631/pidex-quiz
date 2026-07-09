@@ -325,6 +325,31 @@ const HELP_CONTENT = {
           '퀴즈 문항도 선택한 언어로 번역되어 표시됩니다.',
         ],
       },
+      {
+        title: '🌿 생존 게임',
+        items: [
+          '11개의 재난 시나리오 맵 중 하나를 선택하고, 아이템 2개를 골라 생존을 시작하세요.',
+          '이야기의 갈림길마다 선택을 내려 정해진 일수까지 살아남으면 성공입니다.',
+          '무료 맵(정글·사막·산)은 누구나, 유료 맵(심해·우주)은 구독자만 플레이할 수 있습니다. (아직 잠긴 맵은 "출시 예정"으로 표시)',
+          '성공으로 끝난 기록만 랭킹보드에 등록됩니다.',
+        ],
+      },
+      {
+        title: '🔍 트래커',
+        items: [
+          '지갑 주소로 다른 사람의 Pi 거래 내역을 조회하고 의심스러운 거래를 확인할 수 있습니다.',
+          '사기 피해를 입었다면 본인 계정으로 가해자 지갑을 신고할 수 있습니다. (실명제 운영, 허위 신고 시 법적 책임)',
+          '내 지갑 탭에서 메인넷 지갑을 최대 30개까지, 관심 지갑 탭에서 다른 사람의 지갑을 최대 10개까지 등록해 관리할 수 있습니다.',
+          '지갑 주소를 클릭하면 관심지갑 등록·파이덱스 지갑 등록·복사 메뉴가 나타납니다.',
+        ],
+      },
+      {
+        title: '💬 의견',
+        items: [
+          '다른 사용자들이 남긴 의견을 보고 좋아요를 누를 수 있습니다.',
+          '자신의 의견은 언제든 수정하거나 삭제할 수 있습니다.',
+        ],
+      },
     ],
     donation: {
       title: '💙 유틸 제작 지원',
@@ -391,6 +416,31 @@ const HELP_CONTENT = {
           'Change language on the app intro screen.',
           'Survey questions and UI adapt to your chosen language.',
           'Quiz questions are also shown in your selected language.',
+        ],
+      },
+      {
+        title: "🌿 Survival Game",
+        items: [
+          "Choose one of 11 disaster scenario maps and pick 2 items to start your survival.",
+          "Make choices at each story fork — survive the required number of days to succeed.",
+          "Free maps (Jungle, Desert, Mountain) are open to everyone; paid maps (Deep Sea, Space) require a subscription. (Locked maps show \"Coming Soon\")",
+          "Only successful runs are registered to the leaderboard.",
+        ],
+      },
+      {
+        title: "🔍 Tracker",
+        items: [
+          "Look up anyone's Pi transaction history by wallet address and check for suspicious transactions.",
+          "If you were scammed, you can report the offender's wallet under your own verified account. (Real-name policy — false reports may carry legal liability)",
+          "Register up to 30 mainnet wallets in My Wallet, and up to 10 wallets to watch in the Watchlist.",
+          "Click a wallet address to open the menu: add to watchlist, register to PiDEX wallet, or copy.",
+        ],
+      },
+      {
+        title: "💬 Opinion",
+        items: [
+          "View opinions left by other users and like them.",
+          "You can edit or delete your own opinion at any time.",
         ],
       },
     ],
@@ -461,6 +511,31 @@ const HELP_CONTENT = {
           'Soal kuis juga ditampilkan dalam bahasa yang kamu pilih.',
         ],
       },
+      {
+        title: "🌿 Permainan Survival",
+        items: [
+          "Pilih salah satu dari 11 peta skenario bencana, dan pilih 2 item untuk memulai survival.",
+          "Buat pilihan di setiap persimpangan cerita — bertahan hidup hingga jumlah hari yang ditentukan untuk berhasil.",
+          "Peta gratis (Hutan, Gurun, Gunung) terbuka untuk semua orang; peta berbayar (Laut Dalam, Luar Angkasa) memerlukan langganan. (Peta yang masih terkunci ditandai \"Segera Hadir\")",
+          "Hanya rekor yang berhasil yang didaftarkan ke papan peringkat.",
+        ],
+      },
+      {
+        title: "🔍 Pelacak",
+        items: [
+          "Lihat riwayat transaksi Pi orang lain dengan alamat dompet dan periksa transaksi yang mencurigakan.",
+          "Jika Anda menjadi korban penipuan, Anda dapat melaporkan dompet pelaku dengan akun terverifikasi Anda sendiri. (Kebijakan nama asli — laporan palsu dapat berakibat hukum)",
+          "Daftarkan hingga 30 dompet mainnet di tab Dompet Saya, dan hingga 10 dompet untuk dipantau di Daftar Pantau.",
+          "Klik alamat dompet untuk membuka menu: tambah ke daftar pantau, daftarkan ke dompet PiDEX, atau salin.",
+        ],
+      },
+      {
+        title: "💬 Masukan",
+        items: [
+          "Lihat masukan dari pengguna lain dan beri suka.",
+          "Anda dapat mengedit atau menghapus masukan Anda sendiri kapan saja.",
+        ],
+      },
     ],
     donation: {
       title: '💙 Dukung Pengembangan',
@@ -527,6 +602,31 @@ const HELP_CONTENT = {
           'Thay đổi ngôn ngữ trên màn hình giới thiệu ứng dụng.',
           'Câu hỏi khảo sát và giao diện thích ứng theo ngôn ngữ bạn chọn.',
           'Câu hỏi quiz cũng được hiển thị bằng ngôn ngữ bạn đã chọn.',
+        ],
+      },
+      {
+        title: "🌿 Trò chơi Sinh tồn",
+        items: [
+          "Chọn một trong 11 bản đồ kịch bản thảm họa và chọn 2 vật phẩm để bắt đầu sinh tồn.",
+          "Đưa ra lựa chọn ở mỗi ngã rẽ câu chuyện — sống sót đến số ngày quy định để thành công.",
+          "Bản đồ miễn phí (Rừng, Sa mạc, Núi) mở cho mọi người; bản đồ trả phí (Biển sâu, Vũ trụ) yêu cầu gói đăng ký. (Bản đồ chưa mở khóa hiển thị \"Sắp ra mắt\")",
+          "Chỉ những lượt chơi thành công mới được đăng ký lên bảng xếp hạng.",
+        ],
+      },
+      {
+        title: "🔍 Trình theo dõi",
+        items: [
+          "Tra cứu lịch sử giao dịch Pi của người khác bằng địa chỉ ví và kiểm tra các giao dịch đáng ngờ.",
+          "Nếu bạn bị lừa đảo, bạn có thể báo cáo ví của kẻ lừa đảo bằng tài khoản đã xác thực của mình. (Chính sách tên thật — báo cáo sai có thể chịu trách nhiệm pháp lý)",
+          "Đăng ký tối đa 30 ví mainnet trong tab Ví của tôi, và tối đa 10 ví theo dõi trong Danh sách theo dõi.",
+          "Nhấp vào địa chỉ ví để mở menu: thêm vào danh sách theo dõi, đăng ký vào ví PiDEX, hoặc sao chép.",
+        ],
+      },
+      {
+        title: "💬 Ý kiến",
+        items: [
+          "Xem ý kiến của người dùng khác và thích chúng.",
+          "Bạn có thể chỉnh sửa hoặc xóa ý kiến của mình bất cứ lúc nào.",
         ],
       },
     ],
@@ -597,6 +697,31 @@ const HELP_CONTENT = {
           '测验题目也会以您选择的语言显示。',
         ],
       },
+      {
+        title: "🌿 生存游戏",
+        items: [
+          "从11个灾难情景地图中选择一个，选择2件道具开始生存。",
+          "在故事的每个分岔点做出选择，坚持到规定天数即为成功。",
+          "免费地图（丛林、沙漠、山）任何人都可以玩；付费地图（深海、太空）需要订阅。（尚未解锁的地图显示\"即将推出\"）",
+          "只有成功的记录才会登记到排行榜。",
+        ],
+      },
+      {
+        title: "🔍 追踪器",
+        items: [
+          "通过钱包地址查询他人的Pi交易记录并检查可疑交易。",
+          "如果您遭受诈骗，可以用本人已验证账户举报加害者钱包。（实名制运营，虚假举报可能承担法律责任）",
+          "在\"我的钱包\"标签最多可注册30个主网钱包，在\"关注钱包\"标签最多可注册10个他人钱包进行追踪。",
+          "点击钱包地址会出现菜单：加入关注钱包、注册到PiDEX钱包、或复制。",
+        ],
+      },
+      {
+        title: "💬 意见",
+        items: [
+          "查看其他用户留下的意见并点赞。",
+          "您可以随时修改或删除自己的意见。",
+        ],
+      },
     ],
     donation: {
       title: '💙 支持开发',
@@ -663,6 +788,31 @@ const HELP_CONTENT = {
           'アプリのイントロ画面で言語を変更できます。',
           'アンケートとUIは選択した言語に対応します。',
           'クイズ問題も選択した言語で表示されます。',
+        ],
+      },
+      {
+        title: "🌿 サバイバルゲーム",
+        items: [
+          "11種類の災害シナリオマップから1つを選び、アイテムを2つ選んでサバイバルを開始しましょう。",
+          "物語の分岐ごとに選択を行い、定められた日数まで生き延びれば成功です。",
+          "無料マップ（ジャングル・砂漠・山）は誰でも、有料マップ（深海・宇宙）は購読者のみプレイできます。（未解放のマップは「近日公開」と表示）",
+          "成功で終わった記録のみランキングボードに登録されます。",
+        ],
+      },
+      {
+        title: "🔍 トラッカー",
+        items: [
+          "ウォレットアドレスで他人のPi取引履歴を照会し、不審な取引を確認できます。",
+          "詐欺被害に遭った場合、本人確認済みアカウントで加害者のウォレットを通報できます。（実名制運営、虚偽通報には法的責任が伴う場合があります）",
+          "「マイウォレット」タブでメインネットウォレットを最大30個、「ウォッチリスト」タブで他人のウォレットを最大10個登録・管理できます。",
+          "ウォレットアドレスをクリックするとメニューが表示されます：ウォッチリストに追加・PiDEXウォレットに登録・コピー。",
+        ],
+      },
+      {
+        title: "💬 意見",
+        items: [
+          "他のユーザーが残した意見を見て「いいね」を押せます。",
+          "自分の意見はいつでも編集・削除できます。",
         ],
       },
     ],
@@ -733,6 +883,31 @@ const HELP_CONTENT = {
           'Ang mga tanong sa quiz ay ipinapakita rin sa napiling wika mo.',
         ],
       },
+      {
+        title: "🌿 Survival Game",
+        items: [
+          "Pumili ng isa sa 11 disaster scenario maps, at pumili ng 2 item para simulan ang survival.",
+          "Gumawa ng mga desisyon sa bawat sangang-daan ng kwento — mabuhay hanggang sa itinakdang bilang ng araw para magtagumpay.",
+          "Bukas sa lahat ang libreng mapa (Jungle, Desert, Mountain); kailangan ng subscription ang paid maps (Underwater, Space). (Ang mga naka-lock na mapa ay may markang \"Coming Soon\")",
+          "Mga matagumpay na laro lang ang naitatala sa leaderboard.",
+        ],
+      },
+      {
+        title: "🔍 Tracker",
+        items: [
+          "Tingnan ang Pi transaction history ng iba gamit ang wallet address at suriin ang mga kahina-hinalang transaksyon.",
+          "Kung na-scam ka, maaari mong i-report ang wallet ng nanloko gamit ang verified account mo. (Real-name policy — may legal na pananagutan ang maling report)",
+          "Magrehistro ng hanggang 30 mainnet wallet sa My Wallet tab, at hanggang 10 wallet na susubaybayan sa Watchlist.",
+          "I-click ang wallet address para lumabas ang menu: idagdag sa watchlist, irehistro sa PiDEX wallet, o kopyahin.",
+        ],
+      },
+      {
+        title: "💬 Opinion",
+        items: [
+          "Tingnan ang mga opinyon ng ibang user at bigyan ng like.",
+          "Maaari mong i-edit o i-delete ang sarili mong opinyon anumang oras.",
+        ],
+      },
     ],
     donation: {
       title: '💙 Suportahan ang Pagbuo',
@@ -799,6 +974,31 @@ const HELP_CONTENT = {
           'ऐप इंट्रो स्क्रीन पर भाषा बदलें।',
           'सर्वेक्षण प्रश्न और UI आपकी चुनी हुई भाषा के अनुसार अनुकूलित होते हैं।',
           'क्विज़ प्रश्न भी आपकी चुनी हुई भाषा में दिखाए जाते हैं।',
+        ],
+      },
+      {
+        title: "🌿 सर्वाइवल गेम",
+        items: [
+          "11 आपदा परिदृश्य मानचित्रों में से एक चुनें, और सर्वाइवल शुरू करने के लिए 2 आइटम चुनें।",
+          "कहानी के हर मोड़ पर निर्णय लें — निर्धारित दिनों तक जीवित रहने पर सफलता मिलती है।",
+          "मुफ्त मानचित्र (जंगल, रेगिस्तान, पर्वत) सभी के लिए हैं; भुगतान वाले मानचित्र (गहरा समुद्र, अंतरिक्ष) के लिए सदस्यता आवश्यक है। (अभी लॉक मानचित्रों पर \"जल्द आ रहा है\" दिखता है)",
+          "केवल सफल रिकॉर्ड ही रैंकिंगबोर्ड पर दर्ज होते हैं।",
+        ],
+      },
+      {
+        title: "🔍 ट्रैकर",
+        items: [
+          "वॉलेट पते से किसी और के Pi लेनदेन इतिहास की जांच करें और संदिग्ध लेनदेन देखें।",
+          "अगर आप धोखाधड़ी के शिकार हुए हैं, तो अपने सत्यापित खाते से अपराधी के वॉलेट की रिपोर्ट कर सकते हैं। (वास्तविक-नाम नीति — झूठी रिपोर्ट पर कानूनी जिम्मेदारी हो सकती है)",
+          "माई वॉलेट टैब में अधिकतम 30 मेननेट वॉलेट, और वॉचलिस्ट में अन्य लोगों के अधिकतम 10 वॉलेट पंजीकृत करें।",
+          "वॉलेट पते पर क्लिक करने पर मेनू दिखता है: वॉचलिस्ट में जोड़ें, PiDEX वॉलेट में पंजीकृत करें, या कॉपी करें।",
+        ],
+      },
+      {
+        title: "💬 राय",
+        items: [
+          "अन्य उपयोगकर्ताओं की राय देखें और लाइक करें।",
+          "आप अपनी राय कभी भी संपादित या हटा सकते हैं।",
         ],
       },
     ],
@@ -869,6 +1069,31 @@ const HELP_CONTENT = {
           'কুইজ প্রশ্নও আপনার বেছে নেওয়া ভাষায় দেখানো হয়।',
         ],
       },
+      {
+        title: "🌿 সার্ভাইভাল গেম",
+        items: [
+          "১১টি দুর্যোগ পরিস্থিতি ম্যাপের মধ্যে একটি বেছে নিন এবং সার্ভাইভাল শুরু করতে ২টি আইটেম বেছে নিন।",
+          "গল্পের প্রতিটি বাঁকে সিদ্ধান্ত নিন — নির্ধারিত দিন পর্যন্ত টিকে থাকলে সাফল্য।",
+          "বিনামূল্যের ম্যাপ (জঙ্গল, মরুভূমি, পর্বত) সবার জন্য; পেইড ম্যাপ (গভীর সমুদ্র, মহাকাশ) সাবস্ক্রাইবারদের জন্য। (এখনও আনলক না হওয়া ম্যাপে \"শীঘ্রই আসছে\" দেখাবে)",
+          "শুধুমাত্র সফল রেকর্ডই র‍্যাংকিং বোর্ডে নথিভুক্ত হয়।",
+        ],
+      },
+      {
+        title: "🔍 ট্র্যাকার",
+        items: [
+          "ওয়ালেট ঠিকানা দিয়ে অন্য কারো Pi লেনদেনের ইতিহাস দেখুন এবং সন্দেহজনক লেনদেন যাচাই করুন।",
+          "প্রতারণার শিকার হলে, আপনার যাচাইকৃত অ্যাকাউন্ট দিয়ে প্রতারকের ওয়ালেট রিপোর্ট করতে পারেন। (প্রকৃত নাম নীতি — মিথ্যা রিপোর্টে আইনি দায় হতে পারে)",
+          "মাই ওয়ালেট ট্যাবে সর্বোচ্চ ৩০টি মেইননেট ওয়ালেট এবং ওয়াচলিস্টে অন্যদের সর্বোচ্চ ১০টি ওয়ালেট নিবন্ধন করুন।",
+          "ওয়ালেট ঠিকানায় ক্লিক করলে মেনু আসে: ওয়াচলিস্টে যোগ করুন, PiDEX ওয়ালেটে নিবন্ধন করুন, অথবা কপি করুন।",
+        ],
+      },
+      {
+        title: "💬 মতামত",
+        items: [
+          "অন্য ব্যবহারকারীদের মতামত দেখুন এবং লাইক দিন।",
+          "আপনি যেকোনো সময় নিজের মতামত সম্পাদনা বা মুছে ফেলতে পারেন।",
+        ],
+      },
     ],
     donation: {
       title: '💙 উন্নয়নে সহায়তা করুন',
@@ -935,6 +1160,31 @@ const HELP_CONTENT = {
           'เปลี่ยนภาษาได้ที่หน้าจอแนะนำแอป',
           'คำถามแบบสำรวจและ UI ปรับตามภาษาที่เลือก',
           'คำถามแบบทดสอบก็แสดงในภาษาที่คุณเลือกด้วยเช่นกัน',
+        ],
+      },
+      {
+        title: "🌿 เกมเอาชีวิตรอด",
+        items: [
+          "เลือกแผนที่สถานการณ์ภัยพิบัติหนึ่งใน 11 แบบ และเลือกไอเทม 2 ชิ้นเพื่อเริ่มเอาชีวิตรอด",
+          "ตัดสินใจในทุกจุดแยกของเรื่องราว — รอดชีวิตจนถึงจำนวนวันที่กำหนดเพื่อความสำเร็จ",
+          "แผนที่ฟรี (ป่า ทะเลทราย ภูเขา) เล่นได้ทุกคน แผนที่เสียเงิน (ใต้ทะเลลึก อวกาศ) ต้องสมัครสมาชิก (แผนที่ที่ยังไม่ปลดล็อกจะแสดง \"เร็วๆ นี้\")",
+          "มีเพียงการเล่นที่สำเร็จเท่านั้นที่จะถูกบันทึกลงในลีดเดอร์บอร์ด",
+        ],
+      },
+      {
+        title: "🔍 Tracker",
+        items: [
+          "ตรวจสอบประวัติการทำธุรกรรม Pi ของผู้อื่นด้วยที่อยู่กระเป๋าเงิน และตรวจสอบธุรกรรมที่น่าสงสัย",
+          "หากคุณถูกหลอกลวง คุณสามารถรายงานกระเป๋าเงินของผู้กระทำผิดด้วยบัญชีที่ยืนยันตัวตนแล้วของคุณ (นโยบายใช้ชื่อจริง — การรายงานเท็จอาจมีความรับผิดทางกฎหมาย)",
+          "ลงทะเบียนกระเป๋าเงิน mainnet ได้สูงสุด 30 กระเป๋าในแท็บกระเป๋าของฉัน และติดตามกระเป๋าผู้อื่นได้สูงสุด 10 กระเป๋าในรายการเฝ้าดู",
+          "คลิกที่อยู่กระเป๋าเงินเพื่อเปิดเมนู: เพิ่มในรายการเฝ้าดู ลงทะเบียนในกระเป๋า PiDEX หรือคัดลอก",
+        ],
+      },
+      {
+        title: "💬 ความคิดเห็น",
+        items: [
+          "ดูความคิดเห็นของผู้ใช้อื่นและกดไลค์",
+          "คุณสามารถแก้ไขหรือลบความคิดเห็นของตัวเองได้ตลอดเวลา",
         ],
       },
     ],
@@ -1005,6 +1255,31 @@ const HELP_CONTENT = {
           'Soalan kuiz turut dipaparkan dalam bahasa yang anda pilih.',
         ],
       },
+      {
+        title: "🌿 Permainan Survival",
+        items: [
+          "Pilih salah satu daripada 11 peta senario bencana, dan pilih 2 item untuk memulakan survival.",
+          "Buat pilihan pada setiap persimpangan cerita — terus hidup sehingga bilangan hari yang ditetapkan untuk berjaya.",
+          "Peta percuma (Hutan, Gurun, Gunung) terbuka untuk semua; peta berbayar (Laut Dalam, Angkasa) memerlukan langganan. (Peta yang masih dikunci dipaparkan \"Akan Datang\")",
+          "Hanya rekod yang berjaya direkodkan ke papan pendahulu.",
+        ],
+      },
+      {
+        title: "🔍 Tracker",
+        items: [
+          "Lihat sejarah transaksi Pi orang lain menggunakan alamat dompet dan semak transaksi yang mencurigakan.",
+          "Jika anda menjadi mangsa penipuan, anda boleh melaporkan dompet pesalah menggunakan akaun disahkan anda sendiri. (Dasar nama sebenar — laporan palsu boleh membawa liabiliti undang-undang)",
+          "Daftarkan sehingga 30 dompet mainnet dalam tab Dompet Saya, dan sehingga 10 dompet untuk dipantau dalam Senarai Pantauan.",
+          "Klik alamat dompet untuk membuka menu: tambah ke senarai pantauan, daftar ke dompet PiDEX, atau salin.",
+        ],
+      },
+      {
+        title: "💬 Pendapat",
+        items: [
+          "Lihat pendapat yang ditinggalkan oleh pengguna lain dan tekan suka.",
+          "Anda boleh mengedit atau memadam pendapat anda sendiri pada bila-bila masa.",
+        ],
+      },
     ],
     donation: {
       title: '💙 Sokong Pembangunan',
@@ -1071,6 +1346,31 @@ const HELP_CONTENT = {
           'Cambia el idioma en la pantalla de introducción de la app.',
           'Las preguntas de encuesta y la UI se adaptan al idioma elegido.',
           'Las preguntas del cuestionario también se muestran en el idioma que elegiste.',
+        ],
+      },
+      {
+        title: "🌿 Juego de Supervivencia",
+        items: [
+          "Elige uno de los 11 mapas de escenarios de desastre y selecciona 2 objetos para iniciar la supervivencia.",
+          "Toma decisiones en cada bifurcación de la historia — sobrevive el número de días requerido para tener éxito.",
+          "Los mapas gratuitos (Selva, Desierto, Montaña) están abiertos a todos; los mapas de pago (Mar Profundo, Espacio) requieren suscripción. (Los mapas aún bloqueados muestran \"Próximamente\")",
+          "Solo las partidas exitosas se registran en el marcador.",
+        ],
+      },
+      {
+        title: "🔍 Rastreador",
+        items: [
+          "Consulta el historial de transacciones de Pi de otras personas mediante la dirección de la cartera y revisa transacciones sospechosas.",
+          "Si fuiste víctima de una estafa, puedes reportar la cartera del infractor con tu cuenta verificada. (Política de nombre real — los informes falsos pueden acarrear responsabilidad legal)",
+          "Registra hasta 30 carteras de mainnet en la pestaña Mi Cartera, y hasta 10 carteras para vigilar en la Lista de Seguimiento.",
+          "Haz clic en una dirección de cartera para abrir el menú: agregar a la lista de seguimiento, registrar en la cartera PiDEX, o copiar.",
+        ],
+      },
+      {
+        title: "💬 Opinión",
+        items: [
+          "Consulta las opiniones de otros usuarios y dales me gusta.",
+          "Puedes editar o eliminar tu propia opinión en cualquier momento.",
         ],
       },
     ],
@@ -1141,6 +1441,31 @@ const HELP_CONTENT = {
           'As perguntas do quiz também são exibidas no idioma escolhido.',
         ],
       },
+      {
+        title: "🌿 Jogo de Sobrevivência",
+        items: [
+          "Escolha um dos 11 mapas de cenários de desastre e selecione 2 itens para iniciar a sobrevivência.",
+          "Tome decisões em cada bifurcação da história — sobreviva pelo número de dias exigido para ter sucesso.",
+          "Mapas gratuitos (Selva, Deserto, Montanha) estão abertos a todos; mapas pagos (Mar Profundo, Espaço) exigem assinatura. (Mapas ainda bloqueados mostram \"Em Breve\")",
+          "Somente partidas bem-sucedidas são registradas no placar.",
+        ],
+      },
+      {
+        title: "🔍 Rastreador",
+        items: [
+          "Consulte o histórico de transações Pi de outras pessoas pelo endereço da carteira e verifique transações suspeitas.",
+          "Se você foi vítima de golpe, pode denunciar a carteira do golpista com sua conta verificada. (Política de nome real — denúncias falsas podem gerar responsabilidade legal)",
+          "Registre até 30 carteiras mainnet na aba Minha Carteira, e até 10 carteiras para monitorar na Lista de Observação.",
+          "Clique no endereço da carteira para abrir o menu: adicionar à lista de observação, registrar na carteira PiDEX, ou copiar.",
+        ],
+      },
+      {
+        title: "💬 Opinião",
+        items: [
+          "Veja as opiniões deixadas por outros usuários e curta.",
+          "Você pode editar ou excluir sua própria opinião a qualquer momento.",
+        ],
+      },
     ],
     donation: {
       title: '💙 Apoie o Desenvolvimento',
@@ -1207,6 +1532,31 @@ const HELP_CONTENT = {
           'Changez de langue sur l\'écran d\'introduction de l\'application.',
           'Les questions de sondage et l\'interface s\'adaptent à la langue choisie.',
           'Les questions du quiz s\'affichent aussi dans la langue choisie.',
+        ],
+      },
+      {
+        title: "🌿 Jeu de Survie",
+        items: [
+          "Choisissez l'une des 11 cartes de scénarios de catastrophe et sélectionnez 2 objets pour commencer la survie.",
+          "Faites des choix à chaque embranchement de l'histoire — survivez le nombre de jours requis pour réussir.",
+          "Les cartes gratuites (Jungle, Désert, Montagne) sont ouvertes à tous ; les cartes payantes (Mer Profonde, Espace) nécessitent un abonnement. (Les cartes encore verrouillées affichent \"Bientôt disponible\")",
+          "Seules les parties réussies sont enregistrées dans le classement.",
+        ],
+      },
+      {
+        title: "🔍 Traqueur",
+        items: [
+          "Consultez l'historique des transactions Pi d'une autre personne via son adresse de portefeuille et vérifiez les transactions suspectes.",
+          "Si vous avez été victime d'une arnaque, vous pouvez signaler le portefeuille du fraudeur avec votre compte vérifié. (Politique du vrai nom — les faux signalements peuvent engager une responsabilité légale)",
+          "Enregistrez jusqu'à 30 portefeuilles mainnet dans l'onglet Mon Portefeuille, et jusqu'à 10 portefeuilles à surveiller dans la Liste de surveillance.",
+          "Cliquez sur une adresse de portefeuille pour ouvrir le menu : ajouter à la liste de surveillance, enregistrer dans le portefeuille PiDEX, ou copier.",
+        ],
+      },
+      {
+        title: "💬 Avis",
+        items: [
+          "Consultez les avis laissés par d'autres utilisateurs et aimez-les.",
+          "Vous pouvez modifier ou supprimer votre propre avis à tout moment.",
         ],
       },
     ],
@@ -1277,6 +1627,31 @@ const HELP_CONTENT = {
           'Вопросы викторины также отображаются на выбранном вами языке.',
         ],
       },
+      {
+        title: "🌿 Игра на выживание",
+        items: [
+          "Выберите одну из 11 карт сценариев катастроф и выберите 2 предмета, чтобы начать выживание.",
+          "Принимайте решения на каждой развилке истории — выживите нужное количество дней, чтобы добиться успеха.",
+          "Бесплатные карты (Джунгли, Пустыня, Гора) доступны всем; платные карты (Глубины моря, Космос) требуют подписки. (Заблокированные карты отмечены как «Скоро»)",
+          "В таблицу лидеров записываются только успешные прохождения.",
+        ],
+      },
+      {
+        title: "🔍 Трекер",
+        items: [
+          "Просматривайте историю Pi-транзакций других пользователей по адресу кошелька и проверяйте подозрительные транзакции.",
+          "Если вас обманули, вы можете сообщить о кошельке мошенника со своего проверенного аккаунта. (Политика настоящих имён — ложные жалобы могут повлечь юридическую ответственность)",
+          "Зарегистрируйте до 30 кошельков mainnet во вкладке «Мой кошелёк» и до 10 кошельков для отслеживания в списке наблюдения.",
+          "Нажмите на адрес кошелька, чтобы открыть меню: добавить в список наблюдения, зарегистрировать в кошельке PiDEX или скопировать.",
+        ],
+      },
+      {
+        title: "💬 Отзыв",
+        items: [
+          "Просматривайте отзывы других пользователей и ставьте лайки.",
+          "Вы можете редактировать или удалять свой отзыв в любое время.",
+        ],
+      },
     ],
     donation: {
       title: '💙 Поддержите разработку',
@@ -1343,6 +1718,31 @@ const HELP_CONTENT = {
           'Uygulama giriş ekranından dil değiştirebilirsiniz.',
           'Anket soruları ve arayüz seçilen dile göre uyarlanır.',
           'Test soruları da seçtiğiniz dilde gösterilir.',
+        ],
+      },
+      {
+        title: "🌿 Hayatta Kalma Oyunu",
+        items: [
+          "11 felaket senaryosu haritasından birini seçin ve hayatta kalmaya başlamak için 2 eşya seçin.",
+          "Hikayenin her dönüm noktasında seçim yapın — başarılı olmak için belirlenen gün sayısı kadar hayatta kalın.",
+          "Ücretsiz haritalar (Orman, Çöl, Dağ) herkese açıktır; ücretli haritalar (Derin Deniz, Uzay) abonelik gerektirir. (Henüz kilitli haritalar \"Yakında\" olarak gösterilir)",
+          "Yalnızca başarılı oyunlar liderlik tablosuna kaydedilir.",
+        ],
+      },
+      {
+        title: "🔍 İzleyici",
+        items: [
+          "Cüzdan adresiyle başkalarının Pi işlem geçmişini görüntüleyin ve şüpheli işlemleri kontrol edin.",
+          "Dolandırıcılığa uğradıysanız, doğrulanmış hesabınızla faili bildirebilirsiniz. (Gerçek isim politikası — yanlış bildirimler yasal sorumluluk doğurabilir)",
+          "Cüzdanım sekmesinde 30 adede kadar mainnet cüzdanı, İzleme Listesi'nde ise 10 adede kadar başka cüzdanı kaydedin.",
+          "Bir cüzdan adresine tıklayarak menüyü açın: izleme listesine ekle, PiDEX cüzdanına kaydet veya kopyala.",
+        ],
+      },
+      {
+        title: "💬 Görüş",
+        items: [
+          "Diğer kullanıcıların bıraktığı görüşleri görüntüleyin ve beğenin.",
+          "Kendi görüşünüzü istediğiniz zaman düzenleyebilir veya silebilirsiniz.",
         ],
       },
     ],
@@ -1413,6 +1813,31 @@ const HELP_CONTENT = {
           'تُعرض أسئلة الاختبار أيضاً باللغة التي اخترتها.',
         ],
       },
+      {
+        title: "🌿 لعبة البقاء",
+        items: [
+          "اختر واحدة من 11 خريطة سيناريو كوارث، واختر عنصرين لبدء البقاء.",
+          "اتخذ قرارات عند كل مفترق في القصة — انجُ للعدد المطلوب من الأيام لتحقق النجاح.",
+          "الخرائط المجانية (الغابة، الصحراء، الجبل) متاحة للجميع؛ الخرائط المدفوعة (أعماق البحر، الفضاء) تتطلب اشتراكاً. (الخرائط المقفلة تظهر بعلامة \"قريباً\")",
+          "يتم تسجيل السجلات الناجحة فقط في لوحة المتصدرين.",
+        ],
+      },
+      {
+        title: "🔍 المتتبع",
+        items: [
+          "اطّلع على سجل معاملات Pi الخاصة بشخص آخر عبر عنوان المحفظة وتحقق من المعاملات المشبوهة.",
+          "إذا تعرضت للاحتيال، يمكنك الإبلاغ عن محفظة الجاني باستخدام حسابك الموثّق. (سياسة الاسم الحقيقي — قد تترتب مسؤولية قانونية على البلاغات الكاذبة)",
+          "سجّل حتى 30 محفظة mainnet في تبويب محفظتي، وحتى 10 محافظ للمتابعة في قائمة المراقبة.",
+          "انقر على عنوان المحفظة لفتح القائمة: أضف إلى قائمة المراقبة، سجّل في محفظة PiDEX، أو انسخ.",
+        ],
+      },
+      {
+        title: "💬 الرأي",
+        items: [
+          "اطّلع على آراء المستخدمين الآخرين وأعجب بها.",
+          "يمكنك تعديل أو حذف رأيك الخاص في أي وقت.",
+        ],
+      },
     ],
     donation: {
       title: '💙 ادعم التطوير',
@@ -1479,6 +1904,31 @@ const HELP_CONTENT = {
           'Badilisha lugha kwenye skrini ya utangulizi wa programu.',
           'Maswali ya tafiti na kiolesura vinajirekebisha kulingana na lugha uliyochagua.',
           'Maswali ya maswali pia yanaonyeshwa kwa lugha uliyochagua.',
+        ],
+      },
+      {
+        title: "🌿 Mchezo wa Kuishi",
+        items: [
+          "Chagua ramani moja kati ya ramani 11 za matukio ya maafa, na chagua vitu 2 kuanza kuishi.",
+          "Fanya maamuzi kwenye kila njia panda ya hadithi — ishi hadi idadi ya siku iliyowekwa ili kufaulu.",
+          "Ramani za bure (Msitu, Jangwa, Mlima) ziko wazi kwa kila mtu; ramani za kulipia (Bahari Kuu, Anga) zinahitaji usajili. (Ramani ambazo bado hazijafunguliwa zinaonyesha \"Zinakuja Hivi Karibuni\")",
+          "Ni rekodi zilizofanikiwa tu zinazosajiliwa kwenye orodha ya viongozi.",
+        ],
+      },
+      {
+        title: "🔍 Kifuatiliaji",
+        items: [
+          "Angalia historia ya miamala ya Pi ya mtu mwingine kwa anwani ya pochi na kagua miamala ya kutiliwa shaka.",
+          "Ikiwa umedanganywa, unaweza kuripoti pochi ya mhalifu ukitumia akaunti yako iliyothibitishwa. (Sera ya jina halisi — ripoti za uongo zinaweza kusababisha dhima ya kisheria)",
+          "Sajili hadi pochi 30 za mainnet kwenye kichupo cha Pochi Yangu, na hadi pochi 10 za kufuatilia kwenye Orodha ya Ufuatiliaji.",
+          "Bofya anwani ya pochi ili kufungua menyu: ongeza kwenye orodha ya ufuatiliaji, sajili kwenye pochi ya PiDEX, au nakili.",
+        ],
+      },
+      {
+        title: "💬 Maoni",
+        items: [
+          "Angalia maoni yaliyoachwa na watumiaji wengine na uyapende.",
+          "Unaweza kuhariri au kufuta maoni yako mwenyewe wakati wowote.",
         ],
       },
     ],
