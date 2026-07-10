@@ -3350,7 +3350,7 @@ export function renderTrackerPage(container, username, uid) {
       ${stats.map((s, i) => `
         <div class="trk-top10-row">
           <span class="trk-top10-rank">${i + 1}</span>
-          <span class="trk-top10-addr trk-copy-addr" data-copy-addr="${esc(s.addr)}">${esc(s.addr.slice(0,8))}···${esc(s.addr.slice(-6))}</span>
+          <span class="trk-top10-addr trk-copy-addr" data-copy-addr="${esc(s.addr)}">${esc(s.addr.slice(0,4))}···${esc(s.addr.slice(-3))}</span>
           <span class="trk-top10-count">${s.reportCount}${tt('top10.cases')}</span>
           <button class="trk-btn-link trk-top10-search" data-addr="${esc(s.addr)}">${tt('list.search_btn')}</button>
         </div>`).join('')}`;
@@ -3791,7 +3791,7 @@ export function renderTrackerPage(container, username, uid) {
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:10px 12px;background:rgba(255,255,255,0.05);border-radius:10px;">
           <div>
             <div style="font-size:13px;font-weight:600;color:#7dd3fc;margin-bottom:2px;">${esc(wallet.alias)}</div>
-            <div class="trk-copy-addr" data-copy-addr="${esc(wallet.address)}" style="font-size:11px;color:#888;font-family:monospace;cursor:pointer;">${esc(wallet.address.slice(0,8))}···${esc(wallet.address.slice(-8))}</div>
+            <div class="trk-copy-addr" data-copy-addr="${esc(wallet.address)}" style="font-size:14px;color:#888;font-family:monospace;cursor:pointer;padding:5px 3px;display:inline-block;">${esc(wallet.address.slice(0,5))}···${esc(wallet.address.slice(-4))}</div>
           </div>
           <div style="display:flex;gap:4px;">
             <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-edit-alias">✏️</button>
@@ -3820,7 +3820,7 @@ export function renderTrackerPage(container, username, uid) {
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:10px 12px;background:rgba(255,255,255,0.05);border-radius:10px;">
           <div>
             <div style="font-size:13px;font-weight:600;color:#7dd3fc;margin-bottom:2px;">${esc(wallet.alias)}</div>
-            <div class="trk-copy-addr" data-copy-addr="${esc(wallet.address)}" style="font-size:11px;color:#888;font-family:monospace;cursor:pointer;">${esc(wallet.address.slice(0,8))}···${esc(wallet.address.slice(-8))}</div>
+            <div class="trk-copy-addr" data-copy-addr="${esc(wallet.address)}" style="font-size:14px;color:#888;font-family:monospace;cursor:pointer;padding:5px 3px;display:inline-block;">${esc(wallet.address.slice(0,5))}···${esc(wallet.address.slice(-4))}</div>
           </div>
           <div style="display:flex;gap:4px;">
             <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-edit-alias">✏️</button>
@@ -3916,16 +3916,16 @@ export function renderTrackerPage(container, username, uid) {
   function hackWalletTxRowHtml(p, wallet) {
     const isIn  = p.to === wallet.address;
     const other = isIn ? p.from : p.to;
-    const short = other ? `${other.slice(0,6)}···${other.slice(-4)}` : '?';
+    const short = other ? `${other.slice(0,4)}···${other.slice(-3)}` : '?';
     const amt   = parseFloat(p.amount ?? 0).toFixed(2);
     const date  = p.created_at ? new Date(p.created_at).toLocaleDateString() : '';
     const color = isIn ? '#22c55e' : '#f0b429';
     const dir   = isIn ? tt('mywallet.tx_recv') : tt('mywallet.tx_sent');
     const arrow = isIn ? '↙' : '↗';
-    const myChip  = `<span style="background:rgba(255,255,255,0.10);padding:2px 7px;border-radius:4px;color:#7dd3fc;font-weight:600;">${esc(wallet.alias)}</span>`;
+    const myChip  = `<span style="background:rgba(255,255,255,0.10);padding:5px 9px;border-radius:4px;color:#7dd3fc;font-weight:600;">${esc(wallet.alias)}</span>`;
     const othChip = other
-      ? `<span class="trk-copy-addr" data-copy-addr="${esc(other)}" style="background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:4px;color:#999;font-family:monospace;cursor:pointer;">${esc(short)}</span>`
-      : `<span style="background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:4px;color:#999;font-family:monospace;">?</span>`;
+      ? `<span class="trk-copy-addr" data-copy-addr="${esc(other)}" style="background:rgba(255,255,255,0.06);padding:5px 9px;border-radius:4px;color:#999;font-family:monospace;cursor:pointer;">${esc(short)}</span>`
+      : `<span style="background:rgba(255,255,255,0.06);padding:5px 9px;border-radius:4px;color:#999;font-family:monospace;">?</span>`;
     const fromChip = isIn ? othChip : myChip;
     const toChip   = isIn ? myChip  : othChip;
     return `
@@ -3934,7 +3934,7 @@ export function renderTrackerPage(container, username, uid) {
           <span style="font-size:11px;font-weight:600;color:${color};">${arrow} ${dir}</span>
           <span style="font-size:13px;font-weight:700;color:${color};">${amt} π</span>
         </div>
-        <div style="display:flex;align-items:center;gap:4px;font-size:11px;flex-wrap:wrap;">${fromChip}<span style="color:#555;font-size:13px;">──→</span>${toChip}</div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:13px;flex-wrap:wrap;">${fromChip}<span style="color:#555;font-size:13px;">──→</span>${toChip}</div>
         <div style="font-size:10px;color:#666;margin-top:4px;">${date}</div>
       </div>`;
   }
@@ -3997,7 +3997,7 @@ export function renderTrackerPage(container, username, uid) {
                 <div class="trk-watch-row">
                   <div>
                     <span class="trk-watch-alias" data-active-check="${esc(w.address)}">${esc(w.alias)}</span>
-                    <span class="trk-watch-addr trk-copy-addr" data-copy-addr="${esc(w.address)}">${esc(w.address.slice(0,8))}···${esc(w.address.slice(-6))}</span>
+                    <span class="trk-watch-addr trk-copy-addr" data-copy-addr="${esc(w.address)}">${esc(w.address.slice(0,4))}···${esc(w.address.slice(-3))}</span>
                   </div>
                   <div style="display:flex;gap:4px;">
                     <button class="trk-watch-edit-btn" data-wid="${w.id}">✏️</button>
@@ -4193,15 +4193,15 @@ export function renderTrackerPage(container, username, uid) {
   function watchTxRowHtml(p, isInternal) {
     const amount  = parseFloat(p.amount ?? 0).toFixed(2);
     const date    = p.created_at ? new Date(p.created_at).toLocaleDateString() : '';
-    const fromShort = p.from ? `${p.from.slice(0,6)}···${p.from.slice(-4)}` : '?';
-    const toShort   = p.to   ? `${p.to.slice(0,6)}···${p.to.slice(-4)}`   : '?';
+    const fromShort = p.from ? `${p.from.slice(0,4)}···${p.from.slice(-3)}` : '?';
+    const toShort   = p.to   ? `${p.to.slice(0,4)}···${p.to.slice(-3)}`   : '?';
     return `
       <div class="trk-tx-card ${isInternal ? 'matched' : ''}">
         <div class="trk-tx-top"><span class="trk-tx-date">${esc(p._watchAlias)} · ${date}</span><span class="trk-tx-amount out">${amount} Pi</span></div>
-        <div style="font-size:11px;color:#888;margin-top:4px;">
-          <span class="trk-copy-addr" data-copy-addr="${esc(p.from)}">${esc(fromShort)}</span>
+        <div style="font-size:14px;color:#aaa;margin-top:6px;display:flex;align-items:center;">
+          <span class="trk-copy-addr" data-copy-addr="${esc(p.from)}" style="padding:5px 3px;">${esc(fromShort)}</span>
           <span style="color:#555;margin:0 4px;">──→</span>
-          <span class="trk-copy-addr" data-copy-addr="${esc(p.to)}">${esc(toShort)}</span>
+          <span class="trk-copy-addr" data-copy-addr="${esc(p.to)}" style="padding:5px 3px;">${esc(toShort)}</span>
         </div>
       </div>`;
   }
