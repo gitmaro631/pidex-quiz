@@ -65,6 +65,21 @@ const TT = {
     'mywallet.lock.title': "잠금 잔액",
     'mywallet.lock.total': "잠긴 금액",
     'mywallet.lock.claimable': "청구 가능",
+    "backup.title": "백업 / 복구",
+    "backup.load_fail": "슬롯을 불러오지 못했습니다",
+    "backup.empty": "비어있음",
+    "backup.slot": "슬롯 {n}",
+    "backup.slot_info": "{n}개 · {date}",
+    "backup.btn.full_backup": "전체 백업",
+    "backup.btn.append_backup": "추가 백업",
+    "backup.btn.full_restore": "전체 복원",
+    "backup.btn.append_restore": "추가 복원",
+    "backup.saved": "백업 완료",
+    "backup.fail": "오류가 발생했습니다",
+    "backup.confirm.overwrite": "슬롯 {n}의 기존 기록이 삭제되고 현재 목록으로 교체됩니다. 계속할까요?",
+    "backup.confirm.save": "슬롯 {n}에 현재 목록을 백업합니다.",
+    "backup.confirm.truncate": "최대 {n}개까지만 저장되고 {dropped}개는 제외됩니다. 계속할까요?",
+    "backup.confirm.restore_full": "현재 목록이 모두 지워지고 슬롯 {n}의 내용으로 교체됩니다. 계속할까요?",
     'mywallet.no_lp': 'LP 없음', 'mywallet.tx_none': '거래 내역 없음', 'mywallet.updated': '업데이트',
     'mywallet.tx_sent': '전송', 'mywallet.tx_recv': '수신',
     'mywallet.add.title': '지갑 추가', 'mywallet.add.alias_ph': '별칭 (예: 메인 지갑)',
@@ -145,6 +160,21 @@ const TT = {
     'mywallet.lock.title': "Locked Balance",
     'mywallet.lock.total': "Locked Amount",
     'mywallet.lock.claimable': "Claimable Now",
+    "backup.title": "Backup / Restore",
+    "backup.load_fail": "Could not load slots",
+    "backup.empty": "Empty",
+    "backup.slot": "Slot {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "Full Backup",
+    "backup.btn.append_backup": "Append Backup",
+    "backup.btn.full_restore": "Full Restore",
+    "backup.btn.append_restore": "Append Restore",
+    "backup.saved": "Backup saved",
+    "backup.fail": "An error occurred",
+    "backup.confirm.overwrite": "Slot {n}'s existing data will be deleted and replaced with the current list. Continue?",
+    "backup.confirm.save": "Back up the current list to Slot {n}.",
+    "backup.confirm.truncate": "Only up to {n} will be saved and {dropped} will be dropped. Continue?",
+    "backup.confirm.restore_full": "The current list will be cleared and replaced with Slot {n}. Continue?",
     'mywallet.no_lp': 'No LP positions', 'mywallet.tx_none': 'No transactions', 'mywallet.updated': 'Updated',
     'mywallet.tx_sent': 'Sent', 'mywallet.tx_recv': 'Received',
     'mywallet.add.title': 'Add Wallet', 'mywallet.add.alias_ph': 'Alias (e.g. Main Wallet)',
@@ -285,6 +315,21 @@ const TT = {
     'mywallet.lock.title': "锁仓余额",
     'mywallet.lock.total': "锁定金额",
     'mywallet.lock.claimable': "可立即领取",
+    "backup.title": "备份 / 恢复",
+    "backup.load_fail": "无法加载插槽",
+    "backup.empty": "空",
+    "backup.slot": "插槽 {n}",
+    "backup.slot_info": "{n}个 · {date}",
+    "backup.btn.full_backup": "完全备份",
+    "backup.btn.append_backup": "追加备份",
+    "backup.btn.full_restore": "完全恢复",
+    "backup.btn.append_restore": "追加恢复",
+    "backup.saved": "备份完成",
+    "backup.fail": "发生错误",
+    "backup.confirm.overwrite": "插槽 {n} 的现有记录将被删除并替换为当前列表。是否继续？",
+    "backup.confirm.save": "将当前列表备份到插槽 {n}。",
+    "backup.confirm.truncate": "最多只能保存 {n} 个，{dropped} 个将被排除。是否继续？",
+    "backup.confirm.restore_full": "当前列表将被清空并替换为插槽 {n} 的内容。是否继续？",
     "mywallet.no_lp": "无LP",
     "mywallet.tx_none": "无交易记录",
     "mywallet.updated": "更新时间",
@@ -447,6 +492,21 @@ const TT = {
     'mywallet.lock.title': "Saldo Terkunci",
     'mywallet.lock.total': "Jumlah Terkunci",
     'mywallet.lock.claimable': "Dapat Diklaim Sekarang",
+    "backup.title": "Backup / Pulihkan",
+    "backup.load_fail": "Gagal memuat slot",
+    "backup.empty": "Kosong",
+    "backup.slot": "Slot {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "Backup Penuh",
+    "backup.btn.append_backup": "Backup Tambahan",
+    "backup.btn.full_restore": "Pulihkan Penuh",
+    "backup.btn.append_restore": "Pulihkan Tambahan",
+    "backup.saved": "Backup tersimpan",
+    "backup.fail": "Terjadi kesalahan",
+    "backup.confirm.overwrite": "Data yang ada di Slot {n} akan dihapus dan diganti dengan daftar saat ini. Lanjutkan?",
+    "backup.confirm.save": "Backup daftar saat ini ke Slot {n}.",
+    "backup.confirm.truncate": "Hanya {n} yang akan disimpan dan {dropped} akan dibuang. Lanjutkan?",
+    "backup.confirm.restore_full": "Daftar saat ini akan dihapus dan diganti dengan isi Slot {n}. Lanjutkan?",
     "mywallet.no_lp": "Tidak ada LP",
     "mywallet.tx_none": "Tidak ada transaksi",
     "mywallet.updated": "Diperbarui",
@@ -609,6 +669,21 @@ const TT = {
     'mywallet.lock.title': "ロック残高",
     'mywallet.lock.total': "ロック中の金額",
     'mywallet.lock.claimable': "今すぐ請求可能",
+    "backup.title": "バックアップ / 復元",
+    "backup.load_fail": "スロットを読み込めませんでした",
+    "backup.empty": "空き",
+    "backup.slot": "スロット {n}",
+    "backup.slot_info": "{n}個 · {date}",
+    "backup.btn.full_backup": "全体バックアップ",
+    "backup.btn.append_backup": "追加バックアップ",
+    "backup.btn.full_restore": "全体復元",
+    "backup.btn.append_restore": "追加復元",
+    "backup.saved": "バックアップ完了",
+    "backup.fail": "エラーが発生しました",
+    "backup.confirm.overwrite": "スロット{n}の既存データが削除され、現在のリストに置き換わります。続けますか？",
+    "backup.confirm.save": "現在のリストをスロット{n}にバックアップします。",
+    "backup.confirm.truncate": "最大{n}個のみ保存され、{dropped}個は除外されます。続けますか？",
+    "backup.confirm.restore_full": "現在のリストがすべて削除され、スロット{n}の内容に置き換わります。続けますか？",
     "mywallet.no_lp": "LPなし",
     "mywallet.tx_none": "取引履歴なし",
     "mywallet.updated": "更新",
@@ -771,6 +846,21 @@ const TT = {
     'mywallet.lock.title': "Saldo Bloqueado",
     'mywallet.lock.total': "Monto Bloqueado",
     'mywallet.lock.claimable': "Reclamable Ahora",
+    "backup.title": "Copia de seguridad / Restaurar",
+    "backup.load_fail": "No se pudieron cargar las ranuras",
+    "backup.empty": "Vacío",
+    "backup.slot": "Ranura {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "Copia Completa",
+    "backup.btn.append_backup": "Copia Añadida",
+    "backup.btn.full_restore": "Restauración Completa",
+    "backup.btn.append_restore": "Restauración Añadida",
+    "backup.saved": "Copia guardada",
+    "backup.fail": "Ocurrió un error",
+    "backup.confirm.overwrite": "Los datos existentes en la Ranura {n} se eliminarán y se reemplazarán con la lista actual. ¿Continuar?",
+    "backup.confirm.save": "Respaldar la lista actual en la Ranura {n}.",
+    "backup.confirm.truncate": "Solo se guardarán hasta {n} y se descartarán {dropped}. ¿Continuar?",
+    "backup.confirm.restore_full": "La lista actual se borrará y se reemplazará con el contenido de la Ranura {n}. ¿Continuar?",
     "mywallet.no_lp": "Sin posiciones LP",
     "mywallet.tx_none": "Sin transacciones",
     "mywallet.updated": "Actualizado",
@@ -933,6 +1023,21 @@ const TT = {
     'mywallet.lock.title': "Solde Verrouillé",
     'mywallet.lock.total': "Montant Verrouillé",
     'mywallet.lock.claimable': "Réclamable Maintenant",
+    "backup.title": "Sauvegarde / Restauration",
+    "backup.load_fail": "Impossible de charger les emplacements",
+    "backup.empty": "Vide",
+    "backup.slot": "Emplacement {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "Sauvegarde Complète",
+    "backup.btn.append_backup": "Sauvegarde Ajoutée",
+    "backup.btn.full_restore": "Restauration Complète",
+    "backup.btn.append_restore": "Restauration Ajoutée",
+    "backup.saved": "Sauvegarde enregistrée",
+    "backup.fail": "Une erreur est survenue",
+    "backup.confirm.overwrite": "Les données existantes de l'emplacement {n} seront supprimées et remplacées par la liste actuelle. Continuer ?",
+    "backup.confirm.save": "Sauvegarder la liste actuelle dans l'emplacement {n}.",
+    "backup.confirm.truncate": "Seuls {n} seront enregistrés et {dropped} seront exclus. Continuer ?",
+    "backup.confirm.restore_full": "La liste actuelle sera effacée et remplacée par le contenu de l'emplacement {n}. Continuer ?",
     "mywallet.no_lp": "Aucune position LP",
     "mywallet.tx_none": "Aucune transaction",
     "mywallet.updated": "Mis à jour",
@@ -1095,6 +1200,21 @@ const TT = {
     'mywallet.lock.title': "Số Dư Bị Khóa",
     'mywallet.lock.total': "Số Tiền Bị Khóa",
     'mywallet.lock.claimable': "Có Thể Nhận Ngay",
+    "backup.title": "Sao lưu / Khôi phục",
+    "backup.load_fail": "Không thể tải các khe",
+    "backup.empty": "Trống",
+    "backup.slot": "Khe {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "Sao lưu Toàn bộ",
+    "backup.btn.append_backup": "Sao lưu Bổ sung",
+    "backup.btn.full_restore": "Khôi phục Toàn bộ",
+    "backup.btn.append_restore": "Khôi phục Bổ sung",
+    "backup.saved": "Đã lưu sao lưu",
+    "backup.fail": "Đã xảy ra lỗi",
+    "backup.confirm.overwrite": "Dữ liệu hiện có trong Khe {n} sẽ bị xóa và thay bằng danh sách hiện tại. Tiếp tục?",
+    "backup.confirm.save": "Sao lưu danh sách hiện tại vào Khe {n}.",
+    "backup.confirm.truncate": "Chỉ {n} mục sẽ được lưu và {dropped} mục sẽ bị loại bỏ. Tiếp tục?",
+    "backup.confirm.restore_full": "Danh sách hiện tại sẽ bị xóa và thay bằng nội dung của Khe {n}. Tiếp tục?",
     "mywallet.no_lp": "Không có LP",
     "mywallet.tx_none": "Không có giao dịch",
     "mywallet.updated": "Đã cập nhật",
@@ -1257,6 +1377,21 @@ const TT = {
     'mywallet.lock.title': "Saldo Bloqueado",
     'mywallet.lock.total': "Valor Bloqueado",
     'mywallet.lock.claimable': "Resgatável Agora",
+    "backup.title": "Backup / Restaurar",
+    "backup.load_fail": "Não foi possível carregar os slots",
+    "backup.empty": "Vazio",
+    "backup.slot": "Slot {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "Backup Completo",
+    "backup.btn.append_backup": "Backup Adicional",
+    "backup.btn.full_restore": "Restauração Completa",
+    "backup.btn.append_restore": "Restauração Adicional",
+    "backup.saved": "Backup salvo",
+    "backup.fail": "Ocorreu um erro",
+    "backup.confirm.overwrite": "Os dados existentes no Slot {n} serão excluídos e substituídos pela lista atual. Continuar?",
+    "backup.confirm.save": "Fazer backup da lista atual no Slot {n}.",
+    "backup.confirm.truncate": "Apenas {n} serão salvos e {dropped} serão descartados. Continuar?",
+    "backup.confirm.restore_full": "A lista atual será apagada e substituída pelo conteúdo do Slot {n}. Continuar?",
     "mywallet.no_lp": "Sem posições LP",
     "mywallet.tx_none": "Sem transações",
     "mywallet.updated": "Atualizado",
@@ -1419,6 +1554,21 @@ const TT = {
     'mywallet.lock.title': "Baki Terkunci",
     'mywallet.lock.total': "Jumlah Terkunci",
     'mywallet.lock.claimable': "Boleh Dituntut Sekarang",
+    "backup.title": "Sandaran / Pulihkan",
+    "backup.load_fail": "Tidak dapat memuatkan slot",
+    "backup.empty": "Kosong",
+    "backup.slot": "Slot {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "Sandaran Penuh",
+    "backup.btn.append_backup": "Sandaran Tambahan",
+    "backup.btn.full_restore": "Pemulihan Penuh",
+    "backup.btn.append_restore": "Pemulihan Tambahan",
+    "backup.saved": "Sandaran disimpan",
+    "backup.fail": "Ralat berlaku",
+    "backup.confirm.overwrite": "Data sedia ada dalam Slot {n} akan dipadam dan digantikan dengan senarai semasa. Teruskan?",
+    "backup.confirm.save": "Sandarkan senarai semasa ke Slot {n}.",
+    "backup.confirm.truncate": "Hanya {n} akan disimpan dan {dropped} akan digugurkan. Teruskan?",
+    "backup.confirm.restore_full": "Senarai semasa akan dipadam dan digantikan dengan kandungan Slot {n}. Teruskan?",
     "mywallet.no_lp": "Tiada LP",
     "mywallet.tx_none": "Tiada transaksi",
     "mywallet.updated": "Dikemas kini",
@@ -1581,6 +1731,21 @@ const TT = {
     'mywallet.lock.title': "Naka-lock na Balanse",
     'mywallet.lock.total': "Naka-lock na Halaga",
     'mywallet.lock.claimable': "Puwedeng Kunin Na",
+    "backup.title": "Backup / Ibalik",
+    "backup.load_fail": "Hindi ma-load ang mga slot",
+    "backup.empty": "Walang laman",
+    "backup.slot": "Slot {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "Buong Backup",
+    "backup.btn.append_backup": "Karagdagang Backup",
+    "backup.btn.full_restore": "Buong Pagbawi",
+    "backup.btn.append_restore": "Karagdagang Pagbawi",
+    "backup.saved": "Na-save ang backup",
+    "backup.fail": "May naganap na error",
+    "backup.confirm.overwrite": "Ang datos sa Slot {n} ay tatanggalin at papalitan ng kasalukuyang listahan. Magpatuloy?",
+    "backup.confirm.save": "I-backup ang kasalukuyang listahan sa Slot {n}.",
+    "backup.confirm.truncate": "{n} lang ang mase-save at {dropped} ang aalisin. Magpatuloy?",
+    "backup.confirm.restore_full": "Ang kasalukuyang listahan ay tatanggalin at papalitan ng laman ng Slot {n}. Magpatuloy?",
     "mywallet.no_lp": "Walang LP",
     "mywallet.tx_none": "Walang transaksyon",
     "mywallet.updated": "Na-update",
@@ -1743,6 +1908,21 @@ const TT = {
     'mywallet.lock.title': "लॉक बैलेंस",
     'mywallet.lock.total': "लॉक राशि",
     'mywallet.lock.claimable': "अभी क्लेम करने योग्य",
+    "backup.title": "बैकअप / पुनर्स्थापित करें",
+    "backup.load_fail": "स्लॉट लोड नहीं हो सके",
+    "backup.empty": "खाली",
+    "backup.slot": "स्लॉट {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "पूर्ण बैकअप",
+    "backup.btn.append_backup": "अतिरिक्त बैकअप",
+    "backup.btn.full_restore": "पूर्ण पुनर्स्थापन",
+    "backup.btn.append_restore": "अतिरिक्त पुनर्स्थापन",
+    "backup.saved": "बैकअप सहेजा गया",
+    "backup.fail": "एक त्रुटि हुई",
+    "backup.confirm.overwrite": "स्लॉट {n} का मौजूदा डेटा हटा दिया जाएगा और वर्तमान सूची से बदल दिया जाएगा। जारी रखें?",
+    "backup.confirm.save": "वर्तमान सूची को स्लॉट {n} में बैकअप करें।",
+    "backup.confirm.truncate": "केवल {n} तक सहेजे जाएंगे और {dropped} हटा दिए जाएंगे। जारी रखें?",
+    "backup.confirm.restore_full": "वर्तमान सूची पूरी तरह हटा दी जाएगी और स्लॉट {n} की सामग्री से बदल दी जाएगी। जारी रखें?",
     "mywallet.no_lp": "कोई LP नहीं",
     "mywallet.tx_none": "कोई लेनदेन नहीं",
     "mywallet.updated": "अपडेट किया गया",
@@ -1905,6 +2085,21 @@ const TT = {
     'mywallet.lock.title': "الرصيد المقفل",
     'mywallet.lock.total': "المبلغ المقفل",
     'mywallet.lock.claimable': "قابل للمطالبة الآن",
+    "backup.title": "نسخ احتياطي / استعادة",
+    "backup.load_fail": "تعذر تحميل الفتحات",
+    "backup.empty": "فارغ",
+    "backup.slot": "الفتحة {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "نسخ احتياطي كامل",
+    "backup.btn.append_backup": "نسخ احتياطي إضافي",
+    "backup.btn.full_restore": "استعادة كاملة",
+    "backup.btn.append_restore": "استعادة إضافية",
+    "backup.saved": "تم حفظ النسخة الاحتياطية",
+    "backup.fail": "حدث خطأ",
+    "backup.confirm.overwrite": "سيتم حذف البيانات الموجودة في الفتحة {n} واستبدالها بالقائمة الحالية. هل تريد المتابعة؟",
+    "backup.confirm.save": "نسخ القائمة الحالية احتياطياً إلى الفتحة {n}.",
+    "backup.confirm.truncate": "سيتم حفظ {n} فقط وإزالة {dropped}. هل تريد المتابعة؟",
+    "backup.confirm.restore_full": "سيتم مسح القائمة الحالية واستبدالها بمحتوى الفتحة {n}. هل تريد المتابعة؟",
     "mywallet.no_lp": "لا يوجد LP",
     "mywallet.tx_none": "لا توجد معاملات",
     "mywallet.updated": "تم التحديث",
@@ -2067,6 +2262,21 @@ const TT = {
     'mywallet.lock.title': "Заблокированный баланс",
     'mywallet.lock.total': "Заблокированная сумма",
     'mywallet.lock.claimable': "Доступно для получения",
+    "backup.title": "Резервная копия / Восстановление",
+    "backup.load_fail": "Не удалось загрузить слоты",
+    "backup.empty": "Пусто",
+    "backup.slot": "Слот {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "Полное резервирование",
+    "backup.btn.append_backup": "Дополнительное резервирование",
+    "backup.btn.full_restore": "Полное восстановление",
+    "backup.btn.append_restore": "Дополнительное восстановление",
+    "backup.saved": "Резервная копия сохранена",
+    "backup.fail": "Произошла ошибка",
+    "backup.confirm.overwrite": "Существующие данные в слоте {n} будут удалены и заменены текущим списком. Продолжить?",
+    "backup.confirm.save": "Сохранить текущий список в слот {n}.",
+    "backup.confirm.truncate": "Будет сохранено только {n}, а {dropped} будет исключено. Продолжить?",
+    "backup.confirm.restore_full": "Текущий список будет очищен и заменён содержимым слота {n}. Продолжить?",
     "mywallet.no_lp": "Нет LP",
     "mywallet.tx_none": "Нет транзакций",
     "mywallet.updated": "Обновлено",
@@ -2229,6 +2439,21 @@ const TT = {
     'mywallet.lock.title': "লক করা ব্যালেন্স",
     'mywallet.lock.total': "লক করা পরিমাণ",
     'mywallet.lock.claimable': "এখনই দাবিযোগ্য",
+    "backup.title": "ব্যাকআপ / পুনরুদ্ধার",
+    "backup.load_fail": "স্লট লোড করা যায়নি",
+    "backup.empty": "খালি",
+    "backup.slot": "স্লট {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "সম্পূর্ণ ব্যাকআপ",
+    "backup.btn.append_backup": "সংযোজন ব্যাকআপ",
+    "backup.btn.full_restore": "সম্পূর্ণ পুনরুদ্ধার",
+    "backup.btn.append_restore": "সংযোজন পুনরুদ্ধার",
+    "backup.saved": "ব্যাকআপ সংরক্ষিত হয়েছে",
+    "backup.fail": "একটি ত্রুটি ঘটেছে",
+    "backup.confirm.overwrite": "স্লট {n}-এর বিদ্যমান তথ্য মুছে ফেলা হবে এবং বর্তমান তালিকা দিয়ে প্রতিস্থাপিত হবে। চালিয়ে যাবেন?",
+    "backup.confirm.save": "বর্তমান তালিকা স্লট {n}-এ ব্যাকআপ করুন।",
+    "backup.confirm.truncate": "শুধুমাত্র {n}টি সংরক্ষিত হবে এবং {dropped}টি বাদ যাবে। চালিয়ে যাবেন?",
+    "backup.confirm.restore_full": "বর্তমান তালিকা সম্পূর্ণ মুছে ফেলা হবে এবং স্লট {n}-এর বিষয়বস্তু দিয়ে প্রতিস্থাপিত হবে। চালিয়ে যাবেন?",
     "mywallet.no_lp": "কোনো LP নেই",
     "mywallet.tx_none": "কোনো লেনদেন নেই",
     "mywallet.updated": "আপডেট হয়েছে",
@@ -2391,6 +2616,21 @@ const TT = {
     'mywallet.lock.title': "Salio Lililofungwa",
     'mywallet.lock.total': "Kiasi Kilichofungwa",
     'mywallet.lock.claimable': "Kinaweza Kudaiwa Sasa",
+    "backup.title": "Hifadhi Nakala / Rejesha",
+    "backup.load_fail": "Imeshindwa kupakia nafasi",
+    "backup.empty": "Tupu",
+    "backup.slot": "Nafasi {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "Hifadhi Kamili",
+    "backup.btn.append_backup": "Hifadhi ya Ziada",
+    "backup.btn.full_restore": "Urejeshaji Kamili",
+    "backup.btn.append_restore": "Urejeshaji wa Ziada",
+    "backup.saved": "Nakala imehifadhiwa",
+    "backup.fail": "Hitilafu imetokea",
+    "backup.confirm.overwrite": "Data iliyopo kwenye Nafasi {n} itafutwa na kubadilishwa na orodha ya sasa. Endelea?",
+    "backup.confirm.save": "Hifadhi orodha ya sasa kwenye Nafasi {n}.",
+    "backup.confirm.truncate": "{n} tu ndizo zitahifadhiwa na {dropped} zitaondolewa. Endelea?",
+    "backup.confirm.restore_full": "Orodha ya sasa itafutwa yote na kubadilishwa na maudhui ya Nafasi {n}. Endelea?",
     "mywallet.no_lp": "Hakuna LP",
     "mywallet.tx_none": "Hakuna miamala",
     "mywallet.updated": "Imesasishwa",
@@ -2553,6 +2793,21 @@ const TT = {
     'mywallet.lock.title': "ยอดเงินที่ถูกล็อก",
     'mywallet.lock.total': "จำนวนที่ถูกล็อก",
     'mywallet.lock.claimable': "สามารถเคลมได้ตอนนี้",
+    "backup.title": "สำรองข้อมูล / กู้คืน",
+    "backup.load_fail": "ไม่สามารถโหลดช่องได้",
+    "backup.empty": "ว่างเปล่า",
+    "backup.slot": "ช่อง {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "สำรองข้อมูลทั้งหมด",
+    "backup.btn.append_backup": "สำรองข้อมูลเพิ่มเติม",
+    "backup.btn.full_restore": "กู้คืนทั้งหมด",
+    "backup.btn.append_restore": "กู้คืนเพิ่มเติม",
+    "backup.saved": "บันทึกการสำรองข้อมูลแล้ว",
+    "backup.fail": "เกิดข้อผิดพลาด",
+    "backup.confirm.overwrite": "ข้อมูลที่มีอยู่ในช่อง {n} จะถูกลบและแทนที่ด้วยรายการปัจจุบัน ดำเนินการต่อหรือไม่?",
+    "backup.confirm.save": "สำรองรายการปัจจุบันไปยังช่อง {n}",
+    "backup.confirm.truncate": "จะบันทึกได้สูงสุด {n} รายการเท่านั้น และ {dropped} รายการจะถูกตัดออก ดำเนินการต่อหรือไม่?",
+    "backup.confirm.restore_full": "รายการปัจจุบันจะถูกล้างทั้งหมดและแทนที่ด้วยเนื้อหาของช่อง {n} ดำเนินการต่อหรือไม่?",
     "mywallet.no_lp": "ไม่มี LP",
     "mywallet.tx_none": "ไม่มีธุรกรรม",
     "mywallet.updated": "อัปเดตแล้ว",
@@ -2715,6 +2970,21 @@ const TT = {
     'mywallet.lock.title': "Kilitli Bakiye",
     'mywallet.lock.total': "Kilitli Miktar",
     'mywallet.lock.claimable': "Şimdi Talep Edilebilir",
+    "backup.title": "Yedekle / Geri Yükle",
+    "backup.load_fail": "Slotlar yüklenemedi",
+    "backup.empty": "Boş",
+    "backup.slot": "Slot {n}",
+    "backup.slot_info": "{n} · {date}",
+    "backup.btn.full_backup": "Tam Yedekleme",
+    "backup.btn.append_backup": "Ekleme Yedekleme",
+    "backup.btn.full_restore": "Tam Geri Yükleme",
+    "backup.btn.append_restore": "Ekleme Geri Yükleme",
+    "backup.saved": "Yedekleme kaydedildi",
+    "backup.fail": "Bir hata oluştu",
+    "backup.confirm.overwrite": "Slot {n}'deki mevcut veriler silinecek ve geçerli listeyle değiştirilecek. Devam edilsin mi?",
+    "backup.confirm.save": "Geçerli listeyi Slot {n}'e yedekleyin.",
+    "backup.confirm.truncate": "Yalnızca {n} kaydedilecek ve {dropped} çıkarılacak. Devam edilsin mi?",
+    "backup.confirm.restore_full": "Geçerli liste tamamen silinecek ve Slot {n} içeriğiyle değiştirilecek. Devam edilsin mi?",
     "mywallet.no_lp": "LP yok",
     "mywallet.tx_none": "İşlem yok",
     "mywallet.updated": "Güncellendi",
@@ -3443,7 +3713,10 @@ export function renderTrackerPage(container, username, uid) {
       <div class="trk-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <h3 style="margin:0;font-size:16px;">${tt('mywallet.title')} <span style="font-size:11px;color:#888;font-weight:400;">(${wallets.length}/${HACK_WALLET_MAX})</span></h3>
-          <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-refresh" style="width:auto;padding:0 12px;">↻ ${tt('mywallet.refresh')}</button>
+          <div style="display:flex;gap:4px;">
+            <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-backup" style="width:auto;padding:0 12px;">☁️</button>
+            <button class="trk-btn-outline trk-btn-sm" id="trk-hwt-refresh" style="width:auto;padding:0 12px;">↻ ${tt('mywallet.refresh')}</button>
+          </div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
           ${wallets.map(w => `
@@ -3460,6 +3733,12 @@ export function renderTrackerPage(container, username, uid) {
     });
     container2.querySelector('#trk-hwt-add-btn')?.addEventListener('click', () => showHackWalletAddDialog(wallets, renderMyWalletTab));
     container2.querySelector('#trk-hwt-refresh').addEventListener('click', renderMyWalletTab);
+    container2.querySelector('#trk-hwt-backup').addEventListener('click', () => {
+      openBackupModal('mainnet', wallets, HACK_WALLET_MAX, async (newList) => {
+        await saveHackWalletsServer(newList);
+        renderMyWalletTab();
+      });
+    });
     await loadHackWalletDetail(container2.querySelector('#trk-hwt-detail'), active, wallets);
 
     // 비활성 지갑 칩에 아이콘 표시 (병렬 조회 후 비동기로 반영)
@@ -3706,7 +3985,10 @@ export function renderTrackerPage(container, username, uid) {
       <div class="trk-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
           <h3 style="margin:0;">${tt('watch.title')} <span style="font-size:11px;color:#888;font-weight:400;">${tt2('watch.max_hint', { n: WATCH_MAX })}</span></h3>
-          <span style="font-size:12px;color:#888;">${list.length}/${WATCH_MAX}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:12px;color:#888;">${list.length}/${WATCH_MAX}</span>
+            <button class="trk-btn-outline trk-btn-sm" id="trk-watch-backup" style="width:auto;padding:0 12px;">☁️</button>
+          </div>
         </div>
         <div id="trk-watch-list-rows">
           ${list.length === 0
@@ -3752,6 +4034,12 @@ export function renderTrackerPage(container, username, uid) {
     });
 
     container2.querySelector('#trk-btn-watch-fetch')?.addEventListener('click', () => fetchWatchData(list));
+    container2.querySelector('#trk-watch-backup').addEventListener('click', () => {
+      openBackupModal('watch', list, WATCH_MAX, async (newList) => {
+        await saveWatchListServer(newList);
+        renderWatchTab();
+      });
+    });
 
     // 비활성 지갑에 아이콘 표시 (병렬 조회 후 비동기로 반영)
     container2.querySelectorAll('[data-active-check]').forEach(async (el) => {
@@ -4039,6 +4327,165 @@ export function renderTrackerPage(container, username, uid) {
     } else {
       showConfirmDialog(tt('mywallet.not_activated.icon_title'), tt('mywallet.not_activated.confirm'), doSend, tt('ctx.continue'));
     }
+  }
+
+  // ── 클라우드 백업/복구 (Google Cloud Storage, 슬롯 5개) ──
+  function dedupeWalletsByAddress(list) {
+    const seen = new Set();
+    const out = [];
+    for (const w of list) {
+      if (seen.has(w.address)) continue;
+      seen.add(w.address);
+      out.push(w);
+    }
+    return out;
+  }
+
+  async function fetchBackupSlot(category, slot) {
+    const res = await fetch('/api/backup/get', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ category, username: piUser, slot }),
+    });
+    if (!res.ok) throw new Error('backup get failed');
+    return res.json();
+  }
+
+  async function putBackupSlot(category, slot, wallets) {
+    const res = await fetch('/api/backup/put', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ category, username: piUser, slot, wallets }),
+    });
+    if (!res.ok) throw new Error('backup put failed');
+    return res.json();
+  }
+
+  function openBackupModal(category, currentWallets, maxCount, onApplied) {
+    if (!piUser) { showToast(tt('ctx.pidex.no_login')); return; }
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal-box" style="max-width:380px;">
+        <div class="modal-header"><span>☁️ ${tt('backup.title')}</span><button class="modal-close" id="bk-x">✕</button></div>
+        <div style="padding:16px;max-height:70vh;overflow-y:auto;" id="bk-body">
+          <p style="color:#888;font-size:13px;">${tt('mywallet.loading')}</p>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#bk-x').onclick = () => overlay.remove();
+
+    const bodyEl = overlay.querySelector('#bk-body');
+    let slotsData = [];
+
+    async function loadSlots() {
+      bodyEl.innerHTML = `<p style="color:#888;font-size:13px;">${tt('mywallet.loading')}</p>`;
+      try {
+        slotsData = await Promise.all([1, 2, 3, 4, 5].map(s => fetchBackupSlot(category, s)));
+        renderSlots();
+      } catch {
+        bodyEl.innerHTML = `<p style="color:#f87171;font-size:13px;">${tt('backup.load_fail')}</p>`;
+      }
+    }
+
+    function renderSlots() {
+      bodyEl.innerHTML = slotsData.map((s, i) => {
+        const slotNum = i + 1;
+        const empty = !s.exists;
+        const dateStr = empty ? '' : new Date(s.updatedAt).toLocaleString();
+        const aliasPreview = empty ? '' : s.wallets.map(w => esc(w.alias)).join(', ');
+        return `
+          <div style="border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <b style="font-size:13px;">${tt2('backup.slot', { n: slotNum })}</b>
+              <span style="font-size:11px;color:#888;">${empty ? tt('backup.empty') : tt2('backup.slot_info', { n: s.wallets.length, date: dateStr })}</span>
+            </div>
+            ${empty ? '' : `<div style="font-size:11px;color:#aaa;margin-bottom:8px;line-height:1.5;word-break:break-all;">${aliasPreview}</div>`}
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+              <button class="trk-btn-outline trk-btn-sm" data-act="backup-full" data-slot="${slotNum}">${tt('backup.btn.full_backup')}</button>
+              <button class="trk-btn-outline trk-btn-sm" data-act="backup-append" data-slot="${slotNum}">${tt('backup.btn.append_backup')}</button>
+              <button class="trk-btn-outline trk-btn-sm" data-act="restore-full" data-slot="${slotNum}" ${empty ? 'disabled' : ''}>${tt('backup.btn.full_restore')}</button>
+              <button class="trk-btn-outline trk-btn-sm" data-act="restore-append" data-slot="${slotNum}" ${empty ? 'disabled' : ''}>${tt('backup.btn.append_restore')}</button>
+            </div>
+          </div>`;
+      }).join('');
+
+      bodyEl.querySelectorAll('[data-act]').forEach(btn => {
+        btn.addEventListener('click', () => handleAction(btn.dataset.act, Number(btn.dataset.slot)));
+      });
+    }
+
+    async function handleAction(act, slotNum) {
+      const slotInfo = slotsData[slotNum - 1];
+
+      if (act === 'backup-full') {
+        const msg = slotInfo.exists ? tt2('backup.confirm.overwrite', { n: slotNum }) : tt2('backup.confirm.save', { n: slotNum });
+        showConfirmDialog(tt('backup.title'), msg, async () => {
+          try {
+            await putBackupSlot(category, slotNum, currentWallets);
+            showToast(tt('backup.saved'));
+            loadSlots();
+          } catch { showToast(tt('backup.fail')); }
+        }, tt('backup.btn.full_backup'));
+        return;
+      }
+
+      if (act === 'backup-append') {
+        const existing = slotInfo.exists ? slotInfo.wallets : [];
+        const merged = dedupeWalletsByAddress([...existing, ...currentWallets]);
+        const doSave = async (list) => {
+          try {
+            await putBackupSlot(category, slotNum, list);
+            showToast(tt('backup.saved'));
+            loadSlots();
+          } catch { showToast(tt('backup.fail')); }
+        };
+        if (merged.length > maxCount) {
+          showConfirmDialog(
+            tt('backup.title'),
+            tt2('backup.confirm.truncate', { n: maxCount, dropped: merged.length - maxCount }),
+            () => doSave(merged.slice(0, maxCount)),
+            tt('ctx.continue')
+          );
+        } else {
+          await doSave(merged);
+        }
+        return;
+      }
+
+      if (act === 'restore-full') {
+        showConfirmDialog(tt('backup.title'), tt2('backup.confirm.restore_full', { n: slotNum }), async () => {
+          try {
+            await onApplied(slotInfo.wallets);
+            overlay.remove();
+          } catch { showToast(tt('backup.fail')); }
+        }, tt('backup.btn.full_restore'));
+        return;
+      }
+
+      if (act === 'restore-append') {
+        const merged = dedupeWalletsByAddress([...currentWallets, ...slotInfo.wallets]);
+        const doRestore = async (list) => {
+          try {
+            await onApplied(list);
+            overlay.remove();
+          } catch { showToast(tt('backup.fail')); }
+        };
+        if (merged.length > maxCount) {
+          showConfirmDialog(
+            tt('backup.title'),
+            tt2('backup.confirm.truncate', { n: maxCount, dropped: merged.length - maxCount }),
+            () => doRestore(merged.slice(0, maxCount)),
+            tt('ctx.continue')
+          );
+        } else {
+          await doRestore(merged);
+        }
+        return;
+      }
+    }
+
+    loadSlots();
   }
 
   // ── 유틸 다이얼로그 ───────────────────────────────────
