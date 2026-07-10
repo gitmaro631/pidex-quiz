@@ -152,7 +152,8 @@
   'S_KYC.failed':          '시도했지만 실패',
   'S_KYC.notTried':        '아직 시도 안 함',
 
-  'S_NODE_GROUP.ecosystemMsg': '노드 운영자는 파이 네트워크 탈중앙화의 핵심입니다. 여러분의 답변이 파이 생태계 발전에 직접 기여합니다 🌐',
+    'S_NODE_GROUP.q':              '파이 노드를 운영하고 계신가요?',
+'S_NODE_GROUP.ecosystemMsg': '노드 운영자는 파이 네트워크 탈중앙화의 핵심입니다. 여러분의 답변이 파이 생태계 발전에 직접 기여합니다 🌐',
   'S_NODE.q':              '파이 노드를 운영하고 계신가요?',
   'S_NODE.running':        '현재 운영 중',
   'S_NODE.stopped':        '돌리다가 중단했어요',

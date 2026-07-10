@@ -151,7 +151,8 @@
   'S_KYC.failed':          'Nilijaribu lakini imeshindwa',
   'S_KYC.notTried':        'Sijajaribu bado',
 
-  'S_NODE_GROUP.ecosystemMsg': 'Waendeshaji wa nodi ni uti wa mgongo wa usambazaji wa Pi Network. Majibu yako yanachangia moja kwa moja maendeleo ya mfumo wa Pi 🌐',
+    'S_NODE_GROUP.q':              'Je, unaendesha nodi ya Pi?',
+'S_NODE_GROUP.ecosystemMsg': 'Waendeshaji wa nodi ni uti wa mgongo wa usambazaji wa Pi Network. Majibu yako yanachangia moja kwa moja maendeleo ya mfumo wa Pi 🌐',
   'S_NODE.q':              'Je, unaendesha nodi ya Pi?',
   'S_NODE.running':        'Inaendesha sasa hivi',
   'S_NODE.stopped':        'Niliiendesha lakini nilisimamisha',

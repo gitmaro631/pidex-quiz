@@ -151,7 +151,8 @@
   'S_KYC.failed':          'Nasubukan ngunit nabigo',
   'S_KYC.notTried':        'Hindi pa nasubukan',
 
-  'S_NODE_GROUP.ecosystemMsg': 'Ang mga node operator ay gulugod ng desentralisasyon ng Pi Network. Ang iyong mga sagot ay direktang nag-aambag sa pagpapaunlad ng ekosistema ng Pi 🌐',
+    'S_NODE_GROUP.q':              'Nagpapatakbo ka ba ng Pi node?',
+'S_NODE_GROUP.ecosystemMsg': 'Ang mga node operator ay gulugod ng desentralisasyon ng Pi Network. Ang iyong mga sagot ay direktang nag-aambag sa pagpapaunlad ng ekosistema ng Pi 🌐',
   'S_NODE.q':              'Nagpapatakbo ka ba ng Pi node?',
   'S_NODE.running':        'Kasalukuyang tumatakbo',
   'S_NODE.stopped':        'Pinatakbo ngunit hinto na',

@@ -151,7 +151,8 @@
   'S_KYC.failed':          'Essayé mais échoué',
   'S_KYC.notTried':        'Pas encore essayé',
 
-  'S_NODE_GROUP.ecosystemMsg': 'Les opérateurs de nœuds sont l\'épine dorsale de la décentralisation de Pi Network. Vos réponses contribuent directement au développement de l\'écosystème Pi 🌐',
+    'S_NODE_GROUP.q':              'Exécutez-vous un nœud Pi ?',
+'S_NODE_GROUP.ecosystemMsg': 'Les opérateurs de nœuds sont l\'épine dorsale de la décentralisation de Pi Network. Vos réponses contribuent directement au développement de l\'écosystème Pi 🌐',
   'S_NODE.q':              'Exécutez-vous un nœud Pi ?',
   'S_NODE.running':        'En cours d\'exécution',
   'S_NODE.stopped':        'L\'ai exécuté mais arrêté',

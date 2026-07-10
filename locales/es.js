@@ -151,7 +151,8 @@
   'S_KYC.failed':          'Lo intenté pero fallé',
   'S_KYC.notTried':        'Aún no lo he intentado',
 
-  'S_NODE_GROUP.ecosystemMsg': 'Los operadores de nodos son la columna vertebral de la descentralización de Pi Network. Tus respuestas contribuyen directamente al desarrollo del ecosistema Pi 🌐',
+    'S_NODE_GROUP.q':              '¿Estás ejecutando un nodo Pi?',
+'S_NODE_GROUP.ecosystemMsg': 'Los operadores de nodos son la columna vertebral de la descentralización de Pi Network. Tus respuestas contribuyen directamente al desarrollo del ecosistema Pi 🌐',
   'S_NODE.q':              '¿Estás ejecutando un nodo Pi?',
   'S_NODE.running':        'Actualmente en ejecución',
   'S_NODE.stopped':        'Lo ejecuté pero lo detuve',

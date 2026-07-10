@@ -151,7 +151,8 @@
   'S_KYC.failed':          'Đã thử nhưng thất bại',
   'S_KYC.notTried':        'Chưa thử',
 
-  'S_NODE_GROUP.ecosystemMsg': 'Người vận hành node là xương sống của sự phân quyền Pi Network. Câu trả lời của bạn đóng góp trực tiếp vào sự phát triển hệ sinh thái Pi 🌐',
+    'S_NODE_GROUP.q':              'Bạn có đang chạy node Pi không?',
+'S_NODE_GROUP.ecosystemMsg': 'Người vận hành node là xương sống của sự phân quyền Pi Network. Câu trả lời của bạn đóng góp trực tiếp vào sự phát triển hệ sinh thái Pi 🌐',
   'S_NODE.q':              'Bạn có đang chạy node Pi không?',
   'S_NODE.running':        'Đang chạy',
   'S_NODE.stopped':        'Đã chạy nhưng đã dừng',

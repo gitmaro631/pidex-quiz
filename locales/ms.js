@@ -151,7 +151,8 @@
   'S_KYC.failed':          'Sudah cuba tetapi gagal',
   'S_KYC.notTried':        'Belum pernah mencuba',
 
-  'S_NODE_GROUP.ecosystemMsg': 'Pengendali node adalah tulang belakang desentralisasi Pi Network. Jawapan anda menyumbang secara langsung kepada pembangunan ekosistem Pi 🌐',
+    'S_NODE_GROUP.q':              'Adakah anda menjalankan node Pi?',
+'S_NODE_GROUP.ecosystemMsg': 'Pengendali node adalah tulang belakang desentralisasi Pi Network. Jawapan anda menyumbang secara langsung kepada pembangunan ekosistem Pi 🌐',
   'S_NODE.q':              'Adakah anda menjalankan node Pi?',
   'S_NODE.running':        'Sedang berjalan',
   'S_NODE.stopped':        'Pernah jalankan tetapi berhenti',

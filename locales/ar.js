@@ -151,7 +151,8 @@
   'S_KYC.failed':          'حاولت لكنها فشلت',
   'S_KYC.notTried':        'لم أحاول بعد',
 
-  'S_NODE_GROUP.ecosystemMsg': 'مشغّلو العقد هم العمود الفقري لامركزية Pi Network. إجاباتك تساهم مباشرة في تطوير نظام Pi البيئي 🌐',
+    'S_NODE_GROUP.q':              'هل تشغّل عقدة Pi؟',
+'S_NODE_GROUP.ecosystemMsg': 'مشغّلو العقد هم العمود الفقري لامركزية Pi Network. إجاباتك تساهم مباشرة في تطوير نظام Pi البيئي 🌐',
   'S_NODE.q':              'هل تشغّل عقدة Pi؟',
   'S_NODE.running':        'تعمل حالياً',
   'S_NODE.stopped':        'شغّلتها لكنني أوقفتها',

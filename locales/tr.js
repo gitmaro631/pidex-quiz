@@ -151,7 +151,8 @@
   'S_KYC.failed':          'Denedim ama başarısız',
   'S_KYC.notTried':        'Henüz denemedi',
 
-  'S_NODE_GROUP.ecosystemMsg': 'Düğüm operatörleri Pi Network\'in merkeziyetsizliğinin omurgasıdır. Cevaplarınız Pi ekosistemine doğrudan katkı sağlar 🌐',
+    'S_NODE_GROUP.q':              'Pi düğümü çalıştırıyor musunuz?',
+'S_NODE_GROUP.ecosystemMsg': 'Düğüm operatörleri Pi Network\'in merkeziyetsizliğinin omurgasıdır. Cevaplarınız Pi ekosistemine doğrudan katkı sağlar 🌐',
   'S_NODE.q':              'Pi düğümü çalıştırıyor musunuz?',
   'S_NODE.running':        'Şu anda çalışıyor',
   'S_NODE.stopped':        'Çalıştırdım ama durdurdum',

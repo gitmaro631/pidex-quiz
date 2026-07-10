@@ -151,7 +151,8 @@
   'S_KYC.failed':          '已申请，但失败',
   'S_KYC.notTried':        '尚未尝试',
 
-  'S_NODE_GROUP.ecosystemMsg': '节点运营者是Pi Network去中心化的核心。您的回答直接贡献于Pi生态系统的发展 🌐',
+    'S_NODE_GROUP.q':              '您在运行Pi节点吗？',
+'S_NODE_GROUP.ecosystemMsg': '节点运营者是Pi Network去中心化的核心。您的回答直接贡献于Pi生态系统的发展 🌐',
   'S_NODE.q':              '您在运行Pi节点吗？',
   'S_NODE.running':        '正在运行',
   'S_NODE.stopped':        '运行过但已停止',

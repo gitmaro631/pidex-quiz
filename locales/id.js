@@ -151,7 +151,8 @@
   'S_KYC.failed':          'Sudah mencoba tapi gagal',
   'S_KYC.notTried':        'Belum pernah mencoba',
 
-  'S_NODE_GROUP.ecosystemMsg': 'Operator node adalah tulang punggung desentralisasi Pi Network. Jawaban Anda berkontribusi langsung pada pengembangan ekosistem Pi 🌐',
+    'S_NODE_GROUP.q':              'Apakah Anda menjalankan node Pi?',
+'S_NODE_GROUP.ecosystemMsg': 'Operator node adalah tulang punggung desentralisasi Pi Network. Jawaban Anda berkontribusi langsung pada pengembangan ekosistem Pi 🌐',
   'S_NODE.q':              'Apakah Anda menjalankan node Pi?',
   'S_NODE.running':        'Sedang berjalan',
   'S_NODE.stopped':        'Pernah menjalankan tapi berhenti',

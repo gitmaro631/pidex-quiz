@@ -151,7 +151,8 @@
   'S_KYC.failed':          'Tried but failed',
   'S_KYC.notTried':        'Not attempted yet',
 
-  'S_NODE_GROUP.ecosystemMsg': 'Node operators are the backbone of Pi Network decentralization. Your answers directly contribute to the development of the Pi ecosystem 🌐',
+    'S_NODE_GROUP.q':              'Are you running a Pi node?',
+'S_NODE_GROUP.ecosystemMsg': 'Node operators are the backbone of Pi Network decentralization. Your answers directly contribute to the development of the Pi ecosystem 🌐',
   'S_NODE.q':              'Are you running a Pi node?',
   'S_NODE.running':        'Currently running',
   'S_NODE.stopped':        'Ran it but stopped',

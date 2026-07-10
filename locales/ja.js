@@ -151,7 +151,8 @@
   'S_KYC.failed':          '申請したが失敗',
   'S_KYC.notTried':        'まだ試していない',
 
-  'S_NODE_GROUP.ecosystemMsg': 'ノードオペレーターはPi Networkの分散化の要です。あなたの回答がPiエコシステムの発展に直接貢献します 🌐',
+    'S_NODE_GROUP.q':              'Piノードを運営していますか？',
+'S_NODE_GROUP.ecosystemMsg': 'ノードオペレーターはPi Networkの分散化の要です。あなたの回答がPiエコシステムの発展に直接貢献します 🌐',
   'S_NODE.q':              'Piノードを運営していますか？',
   'S_NODE.running':        '現在運営中',
   'S_NODE.stopped':        '運営していたが停止',

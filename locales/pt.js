@@ -151,7 +151,8 @@
   'S_KYC.failed':          'Tentei mas falhei',
   'S_KYC.notTried':        'Ainda não tentei',
 
-  'S_NODE_GROUP.ecosystemMsg': 'Os operadores de nós são a espinha dorsal da descentralização da Pi Network. Suas respostas contribuem diretamente para o desenvolvimento do ecossistema Pi 🌐',
+    'S_NODE_GROUP.q':              'Você está executando um nó Pi?',
+'S_NODE_GROUP.ecosystemMsg': 'Os operadores de nós são a espinha dorsal da descentralização da Pi Network. Suas respostas contribuem diretamente para o desenvolvimento do ecossistema Pi 🌐',
   'S_NODE.q':              'Você está executando um nó Pi?',
   'S_NODE.running':        'Atualmente em execução',
   'S_NODE.stopped':        'Executei mas parei',
