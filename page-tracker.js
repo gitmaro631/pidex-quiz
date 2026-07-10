@@ -16,7 +16,7 @@ function getDb() {
 const TT = {
   ko: {
     'tab.report': '신고하기', 'tab.search': '지갑 조회', 'tab.mywallet': '내 지갑', 'tab.watch': '관심 지갑',
-    'report.title': '🚨 피해 신고', 'report.victim_id': '피해자 Pi ID', 'report.suspect_wallet': '의심 지갑 주소',
+    'report.title': '🚨 피해 신고', 'report.realname_warn': "⚠️ 본 신고는 <strong>실명제</strong>로 운영됩니다.<br>Pi 계정으로 로그인한 본인만 신고할 수 있으며,<br>허위 신고 시 법적 책임이 따를 수 있습니다.", 'report.victim_id': '피해자 Pi ID', 'report.suspect_wallet': '의심 지갑 주소',
     'report.amount': '피해 금액 (Pi)', 'report.date': '피해 날짜', 'report.txhash': '트랜잭션 해시 (선택)',
     'report.desc': '상황 설명 (선택)', 'report.btn': '신고 제출', 'report.btn.loading': '제출 중...',
     'report.success': '✅ 신고가 접수되었습니다.', 'report.err.required': '필수 항목을 모두 입력해주세요.',
@@ -96,7 +96,7 @@ const TT = {
   },
   en: {
     'tab.report': 'Report', 'tab.search': 'Wallet Search', 'tab.mywallet': 'My Wallet', 'tab.watch': 'Watch List',
-    'report.title': '🚨 Report Hack', 'report.victim_id': 'Victim Pi ID', 'report.suspect_wallet': 'Suspect Wallet Address',
+    'report.title': '🚨 Report Hack', 'report.realname_warn': "⚠️ This report is operated under a <strong>real-name policy</strong>.<br>Only the logged-in Pi account holder can file a report,<br>and false reports may carry legal liability.", 'report.victim_id': 'Victim Pi ID', 'report.suspect_wallet': 'Suspect Wallet Address',
     'report.amount': 'Amount Lost (Pi)', 'report.date': 'Date of Incident', 'report.txhash': 'Transaction Hash (optional)',
     'report.desc': 'Description (optional)', 'report.btn': 'Submit Report', 'report.btn.loading': 'Submitting...',
     'report.success': '✅ Report submitted.', 'report.err.required': 'Please fill in all required fields.',
@@ -180,6 +180,7 @@ const TT = {
     "tab.mywallet": "我的钱包",
     "tab.watch": "关注钱包",
     "report.title": "🚨 举报诈骗",
+    'report.realname_warn': "⚠️ 本举报采用<strong>实名制</strong>运营。<br>只有登录的Pi账户本人才能举报，<br>虚假举报可能承担法律责任。",
     "report.victim_id": "受害者 Pi ID",
     "report.suspect_wallet": "嫌疑钱包地址",
     "report.amount": "损失金额 (Pi)",
@@ -341,6 +342,7 @@ const TT = {
     "tab.mywallet": "Dompet Saya",
     "tab.watch": "Daftar Pantau",
     "report.title": "🚨 Laporkan Penipuan",
+    'report.realname_warn': "⚠️ Laporan ini dioperasikan dengan <strong>kebijakan nama asli</strong>.<br>Hanya pemegang akun Pi yang login yang dapat melaporkan,<br>dan laporan palsu dapat berakibat hukum.",
     "report.victim_id": "Pi ID Korban",
     "report.suspect_wallet": "Alamat Dompet Terduga",
     "report.amount": "Jumlah Kerugian (Pi)",
@@ -502,6 +504,7 @@ const TT = {
     "tab.mywallet": "マイウォレット",
     "tab.watch": "ウォッチリスト",
     "report.title": "🚨 被害通報",
+    'report.realname_warn': "⚠️ 本報告は<strong>実名制</strong>で運営されています。<br>ログインしたご本人のPiアカウントのみ報告できます。<br>虚偽の報告には法的責任が伴う場合があります。",
     "report.victim_id": "被害者 Pi ID",
     "report.suspect_wallet": "疑わしいウォレットアドレス",
     "report.amount": "被害額 (Pi)",
@@ -663,6 +666,7 @@ const TT = {
     "tab.mywallet": "Mi Cartera",
     "tab.watch": "Lista de Seguimiento",
     "report.title": "🚨 Reportar Estafa",
+    'report.realname_warn': "⚠️ Este reporte se gestiona bajo una <strong>política de nombre real</strong>.<br>Solo el titular de la cuenta Pi con sesión iniciada puede reportar,<br>y los reportes falsos pueden acarrear responsabilidad legal.",
     "report.victim_id": "ID Pi de la Víctima",
     "report.suspect_wallet": "Dirección de Cartera Sospechosa",
     "report.amount": "Monto Perdido (Pi)",
@@ -824,6 +828,7 @@ const TT = {
     "tab.mywallet": "Mon Portefeuille",
     "tab.watch": "Liste de Surveillance",
     "report.title": "🚨 Signaler une Arnaque",
+    'report.realname_warn': "⚠️ Ce signalement est géré selon une <strong>politique du vrai nom</strong>.<br>Seul le titulaire du compte Pi connecté peut signaler,<br>et les faux signalements peuvent engager une responsabilité légale.",
     "report.victim_id": "ID Pi de la Victime",
     "report.suspect_wallet": "Adresse du Portefeuille Suspect",
     "report.amount": "Montant Perdu (Pi)",
@@ -985,6 +990,7 @@ const TT = {
     "tab.mywallet": "Ví của tôi",
     "tab.watch": "Danh sách theo dõi",
     "report.title": "🚨 Báo cáo Lừa đảo",
+    'report.realname_warn': "⚠️ Báo cáo này được vận hành theo <strong>chính sách tên thật</strong>.<br>Chỉ chủ tài khoản Pi đã đăng nhập mới có thể báo cáo,<br>và báo cáo sai có thể chịu trách nhiệm pháp lý.",
     "report.victim_id": "ID Pi của Nạn nhân",
     "report.suspect_wallet": "Địa chỉ Ví Nghi ngờ",
     "report.amount": "Số tiền Mất (Pi)",
@@ -1146,6 +1152,7 @@ const TT = {
     "tab.mywallet": "Minha Carteira",
     "tab.watch": "Lista de Observação",
     "report.title": "🚨 Denunciar Golpe",
+    'report.realname_warn': "⚠️ Esta denúncia é operada sob uma <strong>política de nome real</strong>.<br>Somente o titular da conta Pi conectado pode denunciar,<br>e denúncias falsas podem gerar responsabilidade legal.",
     "report.victim_id": "ID Pi da Vítima",
     "report.suspect_wallet": "Endereço da Carteira Suspeita",
     "report.amount": "Valor Perdido (Pi)",
@@ -1307,6 +1314,7 @@ const TT = {
     "tab.mywallet": "Dompet Saya",
     "tab.watch": "Senarai Pantauan",
     "report.title": "🚨 Laporkan Penipuan",
+    'report.realname_warn': "⚠️ Laporan ini dikendalikan di bawah <strong>dasar nama sebenar</strong>.<br>Hanya pemegang akaun Pi yang log masuk boleh melaporkan,<br>dan laporan palsu boleh membawa liabiliti undang-undang.",
     "report.victim_id": "ID Pi Mangsa",
     "report.suspect_wallet": "Alamat Dompet Disyaki",
     "report.amount": "Jumlah Kerugian (Pi)",
@@ -1468,6 +1476,7 @@ const TT = {
     "tab.mywallet": "Aking Wallet",
     "tab.watch": "Watchlist",
     "report.title": "🚨 I-report ang Scam",
+    'report.realname_warn': "⚠️ Ang ulat na ito ay pinapatakbo sa ilalim ng <strong>patakaran ng tunay na pangalan</strong>.<br>Tanging ang may-ari ng Pi account na naka-login ang maaaring mag-ulat,<br>at ang mga huwad na ulat ay maaaring magdulot ng legal na pananagutan.",
     "report.victim_id": "Pi ID ng Biktima",
     "report.suspect_wallet": "Address ng Suspicious na Wallet",
     "report.amount": "Halagang Nawala (Pi)",
@@ -1629,6 +1638,7 @@ const TT = {
     "tab.mywallet": "मेरा वॉलेट",
     "tab.watch": "वॉचलिस्ट",
     "report.title": "🚨 धोखाधड़ी की रिपोर्ट करें",
+    'report.realname_warn': "⚠️ यह रिपोर्ट <strong>वास्तविक-नाम नीति</strong> के तहत संचालित होती है।<br>केवल लॉग इन किया गया Pi खाता धारक ही रिपोर्ट कर सकता है,<br>और झूठी रिपोर्ट पर कानूनी जिम्मेदारी हो सकती है।",
     "report.victim_id": "पीड़ित का Pi ID",
     "report.suspect_wallet": "संदिग्ध वॉलेट पता",
     "report.amount": "खोई गई राशि (Pi)",
@@ -1790,6 +1800,7 @@ const TT = {
     "tab.mywallet": "محفظتي",
     "tab.watch": "قائمة المراقبة",
     "report.title": "🚨 الإبلاغ عن احتيال",
+    'report.realname_warn': "⚠️ تُدار هذه الشكوى وفق <strong>سياسة الاسم الحقيقي</strong>.<br>يمكن فقط لصاحب حساب Pi المسجّل الدخول تقديم الشكوى،<br>وقد تترتب مسؤولية قانونية على الشكاوى الكاذبة.",
     "report.victim_id": "معرف Pi للضحية",
     "report.suspect_wallet": "عنوان المحفظة المشتبه بها",
     "report.amount": "المبلغ المفقود (Pi)",
@@ -1951,6 +1962,7 @@ const TT = {
     "tab.mywallet": "Мой кошелёк",
     "tab.watch": "Список наблюдения",
     "report.title": "🚨 Сообщить о мошенничестве",
+    'report.realname_warn': "⚠️ Эта жалоба обрабатывается согласно <strong>политике настоящих имён</strong>.<br>Подать жалобу может только владелец вошедшего в систему аккаунта Pi,<br>а ложные жалобы могут повлечь юридическую ответственность.",
     "report.victim_id": "Pi ID жертвы",
     "report.suspect_wallet": "Адрес подозрительного кошелька",
     "report.amount": "Сумма убытка (Pi)",
@@ -2112,6 +2124,7 @@ const TT = {
     "tab.mywallet": "আমার ওয়ালেট",
     "tab.watch": "ওয়াচলিস্ট",
     "report.title": "🚨 প্রতারণা রিপোর্ট করুন",
+    'report.realname_warn': "⚠️ এই রিপোর্ট <strong>প্রকৃত-নাম নীতি</strong>র অধীনে পরিচালিত হয়।<br>শুধুমাত্র লগইন করা Pi অ্যাকাউন্টধারীই রিপোর্ট করতে পারবেন,<br>এবং মিথ্যা রিপোর্টে আইনি দায় হতে পারে।",
     "report.victim_id": "ভুক্তভোগীর Pi ID",
     "report.suspect_wallet": "সন্দেহভাজন ওয়ালেট ঠিকানা",
     "report.amount": "হারানো পরিমাণ (Pi)",
@@ -2273,6 +2286,7 @@ const TT = {
     "tab.mywallet": "Pochi Yangu",
     "tab.watch": "Orodha ya Ufuatiliaji",
     "report.title": "🚨 Ripoti Udanganyifu",
+    'report.realname_warn': "⚠️ Ripoti hii inaendeshwa chini ya <strong>sera ya jina halisi</strong>.<br>Ni mmiliki wa akaunti ya Pi aliyeingia pekee anayeweza kuripoti,<br>na ripoti za uongo zinaweza kusababisha dhima ya kisheria.",
     "report.victim_id": "Pi ID ya Mwathirika",
     "report.suspect_wallet": "Anwani ya Pochi Inayoshukiwa",
     "report.amount": "Kiasi Kilichopotea (Pi)",
@@ -2434,6 +2448,7 @@ const TT = {
     "tab.mywallet": "กระเป๋าของฉัน",
     "tab.watch": "รายการเฝ้าดู",
     "report.title": "🚨 รายงานการหลอกลวง",
+    'report.realname_warn': "⚠️ รายงานนี้ดำเนินการภายใต้<strong>นโยบายใช้ชื่อจริง</strong><br>เฉพาะเจ้าของบัญชี Pi ที่เข้าสู่ระบบเท่านั้นที่สามารถรายงานได้<br>และการรายงานเท็จอาจมีความรับผิดทางกฎหมาย",
     "report.victim_id": "Pi ID ของผู้เสียหาย",
     "report.suspect_wallet": "ที่อยู่กระเป๋าเงินที่ต้องสงสัย",
     "report.amount": "จำนวนที่สูญเสีย (Pi)",
@@ -2595,6 +2610,7 @@ const TT = {
     "tab.mywallet": "Cüzdanım",
     "tab.watch": "İzleme Listesi",
     "report.title": "🚨 Dolandırıcılık Bildir",
+    'report.realname_warn': "⚠️ Bu bildirim <strong>gerçek isim politikası</strong> kapsamında yürütülür.<br>Yalnızca oturum açmış Pi hesabı sahibi bildirimde bulunabilir,<br>ve yanlış bildirimler yasal sorumluluk doğurabilir.",
     "report.victim_id": "Mağdurun Pi ID'si",
     "report.suspect_wallet": "Şüpheli Cüzdan Adresi",
     "report.amount": "Kaybedilen Miktar (Pi)",
@@ -2830,9 +2846,7 @@ export function renderTrackerPage(container, username, uid) {
         <div class="trk-section">
           <h3 class="trk-section-title">${tt('report.title')}</h3>
           <div class="trk-realname-warn">
-            ⚠️ 본 신고는 <strong>실명제</strong>로 운영됩니다.<br>
-            Pi 계정으로 로그인한 본인만 신고할 수 있으며,<br>
-            허위 신고 시 법적 책임이 따를 수 있습니다.
+            ${tt('report.realname_warn')}
           </div>
           <label class="trk-label">${tt('report.victim_id')} *</label>
           <input id="trk-f-victim-id" class="trk-input" type="text" value="${username ? '@' + username : ''}" readonly style="opacity:0.7;cursor:default;" />
