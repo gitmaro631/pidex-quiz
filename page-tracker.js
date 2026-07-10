@@ -4150,8 +4150,11 @@ export function renderTrackerPage(container, username, uid) {
         } catch { return []; }
       }));
 
-      const reportSnap = db ? await db.collection(REPORTS_COL)
-        .where('suspectWallet', 'in', [...addrSet].slice(0, 10)).get() : null;
+      let reportSnap = null;
+      try {
+        reportSnap = db ? await db.collection(REPORTS_COL)
+          .where('suspectWallet', 'in', [...addrSet].slice(0, 10)).get() : null;
+      } catch { reportSnap = null; }
       const reportHits = new Set(reportSnap?.docs?.map(d => d.data().suspectWallet) || []);
 
       const allTxs  = results.flat().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
