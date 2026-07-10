@@ -62,6 +62,9 @@ const TT = {
     'mywallet.max_hint': '최대 {n}개',
     'mywallet.pi.total': 'π 총 잔액', 'mywallet.pi.avail': '사용 가능', 'mywallet.pi.reserve': '최소 보유 (예상)',
     'mywallet.tokens': '보유 토큰', 'mywallet.txs': '최근 거래', 'mywallet.lp': 'LP 포지션',
+    'mywallet.lock.title': "잠금 잔액",
+    'mywallet.lock.total': "잠긴 금액",
+    'mywallet.lock.claimable': "청구 가능",
     'mywallet.no_lp': 'LP 없음', 'mywallet.tx_none': '거래 내역 없음', 'mywallet.updated': '업데이트',
     'mywallet.tx_sent': '전송', 'mywallet.tx_recv': '수신',
     'mywallet.add.title': '지갑 추가', 'mywallet.add.alias_ph': '별칭 (예: 메인 지갑)',
@@ -139,6 +142,9 @@ const TT = {
     'mywallet.max_hint': 'Max {n}',
     'mywallet.pi.total': 'π Total Balance', 'mywallet.pi.avail': 'Available', 'mywallet.pi.reserve': 'Min Reserve (est.)',
     'mywallet.tokens': 'Tokens', 'mywallet.txs': 'Recent Transactions', 'mywallet.lp': 'LP Positions',
+    'mywallet.lock.title': "Locked Balance",
+    'mywallet.lock.total': "Locked Amount",
+    'mywallet.lock.claimable': "Claimable Now",
     'mywallet.no_lp': 'No LP positions', 'mywallet.tx_none': 'No transactions', 'mywallet.updated': 'Updated',
     'mywallet.tx_sent': 'Sent', 'mywallet.tx_recv': 'Received',
     'mywallet.add.title': 'Add Wallet', 'mywallet.add.alias_ph': 'Alias (e.g. Main Wallet)',
@@ -275,6 +281,9 @@ const TT = {
     "mywallet.tokens": "持有代币",
     "mywallet.txs": "最近交易",
     "mywallet.lp": "LP 持仓",
+    'mywallet.lock.title': "锁仓余额",
+    'mywallet.lock.total': "锁定金额",
+    'mywallet.lock.claimable': "可立即领取",
     "mywallet.no_lp": "无LP",
     "mywallet.tx_none": "无交易记录",
     "mywallet.updated": "更新时间",
@@ -433,6 +442,9 @@ const TT = {
     "mywallet.tokens": "Token",
     "mywallet.txs": "Transaksi Terbaru",
     "mywallet.lp": "Posisi LP",
+    'mywallet.lock.title': "Saldo Terkunci",
+    'mywallet.lock.total': "Jumlah Terkunci",
+    'mywallet.lock.claimable': "Dapat Diklaim Sekarang",
     "mywallet.no_lp": "Tidak ada LP",
     "mywallet.tx_none": "Tidak ada transaksi",
     "mywallet.updated": "Diperbarui",
@@ -591,6 +603,9 @@ const TT = {
     "mywallet.tokens": "保有トークン",
     "mywallet.txs": "最近の取引",
     "mywallet.lp": "LPポジション",
+    'mywallet.lock.title': "ロック残高",
+    'mywallet.lock.total': "ロック中の金額",
+    'mywallet.lock.claimable': "今すぐ請求可能",
     "mywallet.no_lp": "LPなし",
     "mywallet.tx_none": "取引履歴なし",
     "mywallet.updated": "更新",
@@ -749,6 +764,9 @@ const TT = {
     "mywallet.tokens": "Tokens",
     "mywallet.txs": "Transacciones Recientes",
     "mywallet.lp": "Posiciones LP",
+    'mywallet.lock.title': "Saldo Bloqueado",
+    'mywallet.lock.total': "Monto Bloqueado",
+    'mywallet.lock.claimable': "Reclamable Ahora",
     "mywallet.no_lp": "Sin posiciones LP",
     "mywallet.tx_none": "Sin transacciones",
     "mywallet.updated": "Actualizado",
@@ -907,6 +925,9 @@ const TT = {
     "mywallet.tokens": "Jetons",
     "mywallet.txs": "Transactions Récentes",
     "mywallet.lp": "Positions LP",
+    'mywallet.lock.title': "Solde Verrouillé",
+    'mywallet.lock.total': "Montant Verrouillé",
+    'mywallet.lock.claimable': "Réclamable Maintenant",
     "mywallet.no_lp": "Aucune position LP",
     "mywallet.tx_none": "Aucune transaction",
     "mywallet.updated": "Mis à jour",
@@ -1065,6 +1086,9 @@ const TT = {
     "mywallet.tokens": "Token",
     "mywallet.txs": "Giao dịch Gần đây",
     "mywallet.lp": "Vị thế LP",
+    'mywallet.lock.title': "Số Dư Bị Khóa",
+    'mywallet.lock.total': "Số Tiền Bị Khóa",
+    'mywallet.lock.claimable': "Có Thể Nhận Ngay",
     "mywallet.no_lp": "Không có LP",
     "mywallet.tx_none": "Không có giao dịch",
     "mywallet.updated": "Đã cập nhật",
@@ -1223,6 +1247,9 @@ const TT = {
     "mywallet.tokens": "Tokens",
     "mywallet.txs": "Transações Recentes",
     "mywallet.lp": "Posições LP",
+    'mywallet.lock.title': "Saldo Bloqueado",
+    'mywallet.lock.total': "Valor Bloqueado",
+    'mywallet.lock.claimable': "Resgatável Agora",
     "mywallet.no_lp": "Sem posições LP",
     "mywallet.tx_none": "Sem transações",
     "mywallet.updated": "Atualizado",
@@ -1381,6 +1408,9 @@ const TT = {
     "mywallet.tokens": "Token",
     "mywallet.txs": "Transaksi Terkini",
     "mywallet.lp": "Kedudukan LP",
+    'mywallet.lock.title': "Baki Terkunci",
+    'mywallet.lock.total': "Jumlah Terkunci",
+    'mywallet.lock.claimable': "Boleh Dituntut Sekarang",
     "mywallet.no_lp": "Tiada LP",
     "mywallet.tx_none": "Tiada transaksi",
     "mywallet.updated": "Dikemas kini",
@@ -1539,6 +1569,9 @@ const TT = {
     "mywallet.tokens": "Mga Token",
     "mywallet.txs": "Kamakailang Transaksyon",
     "mywallet.lp": "LP Position",
+    'mywallet.lock.title': "Naka-lock na Balanse",
+    'mywallet.lock.total': "Naka-lock na Halaga",
+    'mywallet.lock.claimable': "Puwedeng Kunin Na",
     "mywallet.no_lp": "Walang LP",
     "mywallet.tx_none": "Walang transaksyon",
     "mywallet.updated": "Na-update",
@@ -1697,6 +1730,9 @@ const TT = {
     "mywallet.tokens": "टोकन",
     "mywallet.txs": "हाल के लेनदेन",
     "mywallet.lp": "LP पोज़िशन",
+    'mywallet.lock.title': "लॉक बैलेंस",
+    'mywallet.lock.total': "लॉक राशि",
+    'mywallet.lock.claimable': "अभी क्लेम करने योग्य",
     "mywallet.no_lp": "कोई LP नहीं",
     "mywallet.tx_none": "कोई लेनदेन नहीं",
     "mywallet.updated": "अपडेट किया गया",
@@ -1855,6 +1891,9 @@ const TT = {
     "mywallet.tokens": "العملات",
     "mywallet.txs": "المعاملات الأخيرة",
     "mywallet.lp": "مراكز LP",
+    'mywallet.lock.title': "الرصيد المقفل",
+    'mywallet.lock.total': "المبلغ المقفل",
+    'mywallet.lock.claimable': "قابل للمطالبة الآن",
     "mywallet.no_lp": "لا يوجد LP",
     "mywallet.tx_none": "لا توجد معاملات",
     "mywallet.updated": "تم التحديث",
@@ -2013,6 +2052,9 @@ const TT = {
     "mywallet.tokens": "Токены",
     "mywallet.txs": "Недавние транзакции",
     "mywallet.lp": "LP-позиции",
+    'mywallet.lock.title': "Заблокированный баланс",
+    'mywallet.lock.total': "Заблокированная сумма",
+    'mywallet.lock.claimable': "Доступно для получения",
     "mywallet.no_lp": "Нет LP",
     "mywallet.tx_none": "Нет транзакций",
     "mywallet.updated": "Обновлено",
@@ -2171,6 +2213,9 @@ const TT = {
     "mywallet.tokens": "টোকেন",
     "mywallet.txs": "সাম্প্রতিক লেনদেন",
     "mywallet.lp": "LP অবস্থান",
+    'mywallet.lock.title': "লক করা ব্যালেন্স",
+    'mywallet.lock.total': "লক করা পরিমাণ",
+    'mywallet.lock.claimable': "এখনই দাবিযোগ্য",
     "mywallet.no_lp": "কোনো LP নেই",
     "mywallet.tx_none": "কোনো লেনদেন নেই",
     "mywallet.updated": "আপডেট হয়েছে",
@@ -2329,6 +2374,9 @@ const TT = {
     "mywallet.tokens": "Tokeni",
     "mywallet.txs": "Miamala ya Hivi Karibuni",
     "mywallet.lp": "Nafasi za LP",
+    'mywallet.lock.title': "Salio Lililofungwa",
+    'mywallet.lock.total': "Kiasi Kilichofungwa",
+    'mywallet.lock.claimable': "Kinaweza Kudaiwa Sasa",
     "mywallet.no_lp": "Hakuna LP",
     "mywallet.tx_none": "Hakuna miamala",
     "mywallet.updated": "Imesasishwa",
@@ -2487,6 +2535,9 @@ const TT = {
     "mywallet.tokens": "โทเคน",
     "mywallet.txs": "ธุรกรรมล่าสุด",
     "mywallet.lp": "ตำแหน่ง LP",
+    'mywallet.lock.title': "ยอดเงินที่ถูกล็อก",
+    'mywallet.lock.total': "จำนวนที่ถูกล็อก",
+    'mywallet.lock.claimable': "สามารถเคลมได้ตอนนี้",
     "mywallet.no_lp": "ไม่มี LP",
     "mywallet.tx_none": "ไม่มีธุรกรรม",
     "mywallet.updated": "อัปเดตแล้ว",
@@ -2645,6 +2696,9 @@ const TT = {
     "mywallet.tokens": "Tokenler",
     "mywallet.txs": "Son İşlemler",
     "mywallet.lp": "LP Pozisyonları",
+    'mywallet.lock.title': "Kilitli Bakiye",
+    'mywallet.lock.total': "Kilitli Miktar",
+    'mywallet.lock.claimable': "Şimdi Talep Edilebilir",
     "mywallet.no_lp": "LP yok",
     "mywallet.tx_none": "İşlem yok",
     "mywallet.updated": "Güncellendi",
@@ -3407,9 +3461,10 @@ export function renderTrackerPage(container, username, uid) {
   async function loadHackWalletDetail(detailEl, wallet, allWallets) {
     detailEl.innerHTML = `<p style="color:#888;font-size:13px;padding:8px 0;">${tt('mywallet.loading')}</p>`;
     try {
-      const [account, paymentsData] = await Promise.all([
+      const [account, paymentsData, claims] = await Promise.all([
         fetchAccountMainnet(wallet.address),
         fetchPayments(wallet.address),
+        fetchClaimableBalances(wallet.address).catch(() => []),
       ]);
       const payments    = paymentsData.payments;
       const subentries  = account.raw.subentry_count ?? 0;
@@ -3424,6 +3479,20 @@ export function renderTrackerPage(container, username, uid) {
       const txHtml = payments.length === 0
         ? `<p style="color:#888;">${tt('mywallet.tx_none')}</p>`
         : payments.map(p => hackWalletTxRowHtml(p, wallet)).join('');
+
+      const now = new Date();
+      const claimableNow = claims.filter(c => !c.unlockAt || c.unlockAt <= now);
+      const stillLocked  = claims.filter(c => c.unlockAt && c.unlockAt > now).sort((a, b) => a.unlockAt - b.unlockAt);
+      const lockedTotal    = stillLocked.reduce((s, c) => s + c.amount, 0);
+      const claimableTotal = claimableNow.reduce((s, c) => s + c.amount, 0);
+
+      const lockHtml = claims.length === 0 ? '' : `
+        <div class="trk-section-label">🔒 ${tt('mywallet.lock.title')}</div>
+        <div class="trk-card">
+          <div style="display:flex;justify-content:space-between;padding:6px 0;font-weight:700;"><span>${tt('mywallet.lock.total')}</span><span>${lockedTotal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} π</span></div>
+          ${claimableTotal > 0 ? `<div style="display:flex;justify-content:space-between;padding:6px 0;color:#22c55e;"><span>${tt('mywallet.lock.claimable')}</span><span>${claimableTotal.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} π</span></div>` : ''}
+          ${stillLocked.map(c => `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px;color:#aaa;"><span>${c.unlockAt.toLocaleDateString()}</span><span>${c.amount.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})} π</span></div>`).join('')}
+        </div>`;
 
       detailEl.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:10px 12px;background:rgba(255,255,255,0.05);border-radius:10px;">
@@ -3444,6 +3513,7 @@ export function renderTrackerPage(container, username, uid) {
           <div style="display:flex;justify-content:space-between;padding:6px 0;color:#f87171;"><span>${tt('mywallet.pi.reserve')}</span><span>~${minReserve.toFixed(2)} π</span></div>
         </div>
         ${tokensWithBal.length > 0 ? `<div class="trk-section-label">🪙 ${tt('mywallet.tokens')}</div><div class="trk-card">${tokensWithBal.map(tok => `<div style="display:flex;justify-content:space-between;padding:6px 0;"><span>${tok.asset_code ?? tok.asset_type}</span><span>${parseFloat(tok.balance).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>`).join('')}</div>` : ''}
+        ${lockHtml}
         <div class="trk-section-label">📡 ${tt('mywallet.txs')}</div>
         <div style="padding-bottom:8px;">${txHtml}</div>
         <div class="trk-section-label">💧 ${tt('mywallet.lp')}</div>
@@ -3515,6 +3585,39 @@ export function renderTrackerPage(container, username, uid) {
     const tokens   = data.balances.filter(b => b.asset_type !== 'native' && b.asset_type !== 'liquidity_pool_shares');
     const lpShares = data.balances.filter(b => b.asset_type === 'liquidity_pool_shares');
     return { pi: parseFloat(pi?.balance ?? 0), tokens, lpShares, raw: data };
+  }
+
+  // Pi 마이그레이션 락업은 Stellar Claimable Balance로 구현됨.
+  // predicate: { not: { abs_before: <ISO> } } → 그 날짜 전에는 청구 불가(잠김), 이후엔 청구 가능
+  // predicate가 없거나 unconditional이면 즉시 청구 가능
+  function parseClaimUnlockDate(claimant) {
+    const pred = claimant?.predicate;
+    if (!pred) return null;
+    if (pred.not?.abs_before) return new Date(pred.not.abs_before);
+    return null; // unconditional 등 그 외 조건은 즉시 청구 가능으로 취급
+  }
+
+  async function fetchClaimableBalances(address) {
+    const balances = [];
+    let url = `${HORIZON}/claimable_balances?claimant=${address}&limit=200&order=asc`;
+    for (let page = 0; page < 20 && url; page++) {
+      const res = await fetch(url);
+      if (!res.ok) break;
+      const data = await res.json();
+      const records = data._embedded?.records ?? [];
+      for (const r of records) {
+        const mine = r.claimants.find(c => c.destination === address) ?? r.claimants[0];
+        balances.push({
+          id: r.id,
+          asset: r.asset === 'native' ? 'π' : r.asset,
+          amount: parseFloat(r.amount),
+          unlockAt: parseClaimUnlockDate(mine),
+        });
+      }
+      const next = data._links?.next?.href;
+      url = (next && records.length > 0) ? next : null;
+    }
+    return balances;
   }
 
   function hackWalletTxRowHtml(p, wallet) {
