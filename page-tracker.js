@@ -4390,7 +4390,10 @@ export function renderTrackerPage(container, username, uid) {
       <div class="trk-card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <h3 style="margin:0;">${tt('trade.title')} <span style="font-size:11px;color:#888;font-weight:400;">${tt2('watch.max_hint', { n: TRADE_MAX })}</span></h3>
-          <span style="font-size:12px;color:#888;">${list.length}/${TRADE_MAX}</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:12px;color:#888;">${list.length}/${TRADE_MAX}</span>
+            <button class="trk-btn-outline trk-btn-sm" id="trk-trade-backup" style="width:auto;padding:0 12px;">☁️</button>
+          </div>
         </div>
         <p style="font-size:12px;color:#888;margin:0 0 12px;">${tt('trade.desc')}</p>
         <div id="trk-trade-list-rows">
@@ -4431,6 +4434,13 @@ export function renderTrackerPage(container, username, uid) {
 
     container2.querySelector('#trk-btn-trade-add')?.addEventListener('click', () => {
       showTradeAddDialog(list, () => renderTradeTab());
+    });
+
+    container2.querySelector('#trk-trade-backup').addEventListener('click', () => {
+      openBackupModal('trade', list, TRADE_MAX, async (newList) => {
+        await saveTradeWalletsServer(newList);
+        renderTradeTab();
+      });
     });
   }
 

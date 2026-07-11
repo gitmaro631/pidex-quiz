@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-const ALLOWED_CATEGORIES = ['mainnet', 'watch'];
+const ALLOWED_CATEGORIES = ['mainnet', 'watch', 'trade'];
 
 function b64url(input) {
   return Buffer.from(input).toString('base64url');
