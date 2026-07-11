@@ -3185,9 +3185,9 @@ export function renderTrackerPage(container, username, uid) {
   let piUid  = uid     || null;
 
   let allPayments = [], pageCursor = null, currentWallet = '', currentReports = [], allReports = [];
-  let tradeAliasMap = new Map();
-  function aliasFor(addr) { return addr ? tradeAliasMap.get(addr) : undefined; }
-  loadTradeAliasMap();
+  let addressAliases = {};
+  function aliasFor(addr) { return addr ? addressAliases[addr] : undefined; }
+  migrateAddressAliasesIfNeeded().catch(() => {});
 
   // ── localStorage helpers (UI 상태만 — 실제 목록은 서버가 원본) ──
   const HACK_ACTIVE_KEY  = 'hack_active_wallet';
@@ -3814,6 +3814,7 @@ export function renderTrackerPage(container, username, uid) {
       wallets: list,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
+    await syncAddressAliasesFromList(list);
   }
 
   async function renderMyWalletTab() {
@@ -3864,7 +3865,7 @@ export function renderTrackerPage(container, username, uid) {
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
           ${wallets.map(w => `
-            <button class="trk-watch-chip${w.id === active.id ? ' active' : ''}" data-hwid="${w.id}" data-active-check="${esc(w.address)}">${esc(w.alias)}</button>`).join('')}
+            <button class="trk-watch-chip${w.id === active.id ? ' active' : ''}" data-hwid="${w.id}" data-active-check="${esc(w.address)}">${esc(aliasFor(w.address) || w.alias)}</button>`).join('')}
           ${wallets.length < HACK_WALLET_MAX ? `<button id="trk-hwt-add-btn" style="padding:4px 12px;border-radius:20px;font-size:12px;border:1px dashed var(--border);background:transparent;color:#888;cursor:pointer;">
             + ${tt('mywallet.add')}
           </button>` : ''}
@@ -3934,7 +3935,7 @@ export function renderTrackerPage(container, username, uid) {
       detailEl.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:10px 12px;background:rgba(255,255,255,0.05);border-radius:10px;">
           <div>
-            <div style="font-size:13px;font-weight:600;color:#7dd3fc;margin-bottom:2px;">${esc(wallet.alias)}</div>
+            <div style="font-size:13px;font-weight:600;color:#7dd3fc;margin-bottom:2px;">${esc(aliasFor(wallet.address) || wallet.alias)}</div>
             <div class="trk-copy-addr" data-copy-addr="${esc(wallet.address)}" style="font-size:14px;color:#888;font-family:monospace;cursor:pointer;padding:5px 3px;display:inline-block;">${esc(wallet.address.slice(0,5))}···${esc(wallet.address.slice(-4))}</div>
           </div>
           <div style="display:flex;gap:4px;">
@@ -3963,7 +3964,7 @@ export function renderTrackerPage(container, username, uid) {
       detailEl.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:10px 12px;background:rgba(255,255,255,0.05);border-radius:10px;">
           <div>
-            <div style="font-size:13px;font-weight:600;color:#7dd3fc;margin-bottom:2px;">${esc(wallet.alias)}</div>
+            <div style="font-size:13px;font-weight:600;color:#7dd3fc;margin-bottom:2px;">${esc(aliasFor(wallet.address) || wallet.alias)}</div>
             <div class="trk-copy-addr" data-copy-addr="${esc(wallet.address)}" style="font-size:14px;color:#888;font-family:monospace;cursor:pointer;padding:5px 3px;display:inline-block;">${esc(wallet.address.slice(0,5))}···${esc(wallet.address.slice(-4))}</div>
           </div>
           <div style="display:flex;gap:4px;">
@@ -4066,7 +4067,7 @@ export function renderTrackerPage(container, username, uid) {
     const color = isIn ? '#22c55e' : '#f0b429';
     const dir   = isIn ? tt('mywallet.tx_recv') : tt('mywallet.tx_sent');
     const arrow = isIn ? '↙' : '↗';
-    const myChip  = `<span style="background:rgba(255,255,255,0.10);padding:5px 9px;border-radius:4px;color:#7dd3fc;font-weight:600;">${esc(wallet.alias)}</span>`;
+    const myChip  = `<span style="background:rgba(255,255,255,0.10);padding:5px 9px;border-radius:4px;color:#7dd3fc;font-weight:600;">${esc(aliasFor(wallet.address) || wallet.alias)}</span>`;
     const othChip = other
       ? `<span class="trk-copy-addr" data-copy-addr="${esc(other)}" style="background:rgba(255,255,255,0.06);padding:5px 9px;border-radius:4px;color:#999;font-family:monospace;cursor:pointer;">${esc(short)}</span>`
       : `<span style="background:rgba(255,255,255,0.06);padding:5px 9px;border-radius:4px;color:#999;font-family:monospace;">?</span>`;
@@ -4100,6 +4101,7 @@ export function renderTrackerPage(container, username, uid) {
       watchList: list,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
+    await syncAddressAliasesFromList(list);
   }
 
   async function renderWatchTab() {
@@ -4140,7 +4142,7 @@ export function renderTrackerPage(container, username, uid) {
             : list.map(w => `
                 <div class="trk-watch-row">
                   <div>
-                    <span class="trk-watch-alias" data-active-check="${esc(w.address)}">${esc(w.alias)}</span>
+                    <span class="trk-watch-alias" data-active-check="${esc(w.address)}">${esc(aliasFor(w.address) || w.alias)}</span>
                     <span class="trk-watch-addr trk-copy-addr" data-copy-addr="${esc(w.address)}">${esc(w.address.slice(0,4))}···${esc(w.address.slice(-3))}</span>
                   </div>
                   <div style="display:flex;gap:4px;">
@@ -4202,7 +4204,7 @@ export function renderTrackerPage(container, username, uid) {
       <div class="modal-box" style="max-width:300px;">
         <div class="modal-header"><span>${tt('mywallet.alias.edit')}</span></div>
         <div style="padding:16px;">
-          <input type="text" id="trk-wa-input" class="form-input" value="${esc(watch.alias)}" />
+          <input type="text" id="trk-wa-input" class="form-input" value="${esc(aliasFor(watch.address) || watch.alias)}" />
           <p id="trk-wa-err" style="font-size:12px;color:#f87171;min-height:16px;margin-top:4px;"></p>
           <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn-outline" id="trk-wa-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
@@ -4290,7 +4292,7 @@ export function renderTrackerPage(container, username, uid) {
         try {
           const res  = await fetch(`${HORIZON}/accounts/${w.address}/payments?order=desc&limit=50&include_failed=false`);
           const data = await res.json();
-          return (data._embedded?.records || []).map(p => ({ ...p, _watchAlias: w.alias, _watchAddr: w.address }));
+          return (data._embedded?.records || []).map(p => ({ ...p, _watchAlias: aliasFor(w.address) || w.alias, _watchAddr: w.address }));
         } catch { return []; }
       }));
 
@@ -4317,8 +4319,8 @@ export function renderTrackerPage(container, username, uid) {
       });
       saveWatchLatest(newLatest);
 
-      const newHtml = list.filter(w => newTxMap[w.address]).map(w => `<div class="trk-watch-new-alert">🆕 ${esc(w.alias)} — ${tt('watch.new.tx')}</div>`).join('');
-      const warnHtml = list.filter(w => reportHits.has(w.address)).map(w => `<div class="trk-watch-warn">⚠️ ${esc(w.alias)} — ${tt('watch.report.warn')}</div>`).join('');
+      const newHtml = list.filter(w => newTxMap[w.address]).map(w => `<div class="trk-watch-new-alert">🆕 ${esc(aliasFor(w.address) || w.alias)} — ${tt('watch.new.tx')}</div>`).join('');
+      const warnHtml = list.filter(w => reportHits.has(w.address)).map(w => `<div class="trk-watch-warn">⚠️ ${esc(aliasFor(w.address) || w.alias)} — ${tt('watch.report.warn')}</div>`).join('');
       const internalHtml = internal.length === 0 ? `<p style="color:#888;">${tt('watch.no.internal')}</p>` : internal.map(p => watchTxRowHtml(p, true)).join('');
       const seen = new Set();
       const feedHtml = allTxs.filter(p => { const k = p.id || p.transaction_hash; if (seen.has(k)) return false; seen.add(k); return true; }).map(p => watchTxRowHtml(p, false)).join('');
@@ -4350,17 +4352,66 @@ export function renderTrackerPage(container, username, uid) {
       </div>`;
   }
 
-  // ── 거래 지갑 탭 (상대방 주소 별칭 등록, 서버가 원본 — pidex_trade_wallets) ──
-  async function loadTradeAliasMap() {
-    const key = piUser;
-    if (!key || !db) { tradeAliasMap = new Map(); return; }
+  // ── 공용 주소 별칭 사전 (주소당 별칭 하나 — pidex_address_aliases, 두 앱 공유) ──
+  async function migrateAddressAliasesIfNeeded() {
+    if (!piUser || !db) return;
+    const ref = db.collection('pidex_address_aliases').doc(piUser);
+    const snap = await ref.get();
+    if (snap.exists && snap.data().migratedAt) {
+      addressAliases = snap.data().aliases || {};
+      return;
+    }
+    const merged = { ...(snap.exists ? (snap.data().aliases || {}) : {}) };
     try {
-      const doc = await db.collection('pidex_trade_wallets').doc(key).get();
-      const list = doc.exists ? (doc.data().mainnet || []) : [];
-      tradeAliasMap = new Map(list.map(w => [w.address, w.alias]));
-    } catch { tradeAliasMap = new Map(); }
+      const [hackDoc, pidexDoc, watchDoc, tradeDoc] = await Promise.all([
+        db.collection('hack_pending_wallets').doc(piUser).get(),
+        db.collection('pidex_wallets').doc(piUser).get(),
+        db.collection('pidex_watch_list').doc(piUser).get(),
+        db.collection('pidex_trade_wallets').doc(piUser).get(),
+      ]);
+      const tradeList = tradeDoc.exists ? (tradeDoc.data().mainnet || []) : [];
+      const watchList = watchDoc.exists ? (watchDoc.data().watchList || []) : [];
+      const pidexList = pidexDoc.exists ? (pidexDoc.data().wallets || []) : [];
+      const hackList  = hackDoc.exists  ? (hackDoc.data().wallets || [])  : [];
+      // 우선순위(낮음→높음): 거래지갑 < 관심지갑 < 파이덱스앱 내 지갑 < 퀴즈파이 내 지갑
+      for (const w of tradeList) if (w.address && w.alias) merged[w.address] = w.alias;
+      for (const w of watchList) if (w.address && w.alias) merged[w.address] = w.alias;
+      for (const w of pidexList) if (w.address && w.alias) merged[w.address] = w.alias;
+      for (const w of hackList)  if (w.address && w.alias) merged[w.address] = w.alias;
+    } catch { /* 마이그레이션 실패해도 이번 세션은 계속 진행 */ }
+
+    addressAliases = merged;
+    try {
+      await ref.set({ aliases: merged, migratedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    } catch { /* 저장 실패해도 이번 세션 메모리상 별칭은 사용 가능 */ }
   }
 
+  async function setAddressAlias(address, alias) {
+    if (!piUser || !db || !address) return;
+    try {
+      await db.collection('pidex_address_aliases').doc(piUser).set({
+        aliases: { [address]: alias },
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+      addressAliases = { ...addressAliases, [address]: alias };
+    } catch { /* 실패해도 각 목록 자체의 alias로 계속 표시되므로 무시 */ }
+  }
+
+  async function syncAddressAliasesFromList(list) {
+    if (!piUser || !db || !list?.length) return;
+    const patch = {};
+    for (const w of list) if (w.address && w.alias) patch[w.address] = w.alias;
+    if (!Object.keys(patch).length) return;
+    try {
+      await db.collection('pidex_address_aliases').doc(piUser).set({
+        aliases: patch,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+      addressAliases = { ...addressAliases, ...patch };
+    } catch { /* 실패해도 무시 — 다음 저장 때 다시 시도됨 */ }
+  }
+
+  // ── 거래 지갑 탭 (상대방 주소 별칭 등록, 서버가 원본 — pidex_trade_wallets) ──
   async function fetchTradeWalletsServer() {
     const key = piUser;
     if (!key || !db) return null;
@@ -4377,7 +4428,7 @@ export function renderTrackerPage(container, username, uid) {
       mainnet: list,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
-    tradeAliasMap = new Map(list.map(w => [w.address, w.alias]));
+    await syncAddressAliasesFromList(list);
   }
 
   async function renderTradeTab() {
@@ -4403,7 +4454,7 @@ export function renderTrackerPage(container, username, uid) {
       return;
     }
 
-    tradeAliasMap = new Map(list.map(w => [w.address, w.alias]));
+    syncAddressAliasesFromList(list);
 
     container2.innerHTML = `
       <div class="trk-card">
@@ -4421,7 +4472,7 @@ export function renderTrackerPage(container, username, uid) {
             : list.map(w => `
                 <div class="trk-watch-row">
                   <div>
-                    <span class="trk-watch-alias">${esc(w.alias)}</span>
+                    <span class="trk-watch-alias">${esc(aliasFor(w.address) || w.alias)}</span>
                     <span class="trk-watch-addr trk-copy-addr" data-copy-addr="${esc(w.address)}">${esc(w.address.slice(0,4))}···${esc(w.address.slice(-3))}</span>
                   </div>
                   <div style="display:flex;gap:4px;">
@@ -4470,7 +4521,7 @@ export function renderTrackerPage(container, username, uid) {
       <div class="modal-box" style="max-width:300px;">
         <div class="modal-header"><span>${tt('mywallet.alias.edit')}</span></div>
         <div style="padding:16px;">
-          <input type="text" id="trk-ta-input" class="form-input" value="${esc(entry.alias)}" />
+          <input type="text" id="trk-ta-input" class="form-input" value="${esc(aliasFor(entry.address) || entry.alias)}" />
           <p id="trk-ta-err" style="font-size:12px;color:#f87171;min-height:16px;margin-top:4px;"></p>
           <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn-outline" id="trk-ta-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
@@ -4665,6 +4716,7 @@ export function renderTrackerPage(container, username, uid) {
     if (wallets.length >= PIDEX_WALLET_MAX) return 'full';
     wallets.push({ id: `p${Date.now()}`, address, alias });
     await docRef.set({ wallets, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    await setAddressAlias(address, alias);
     return 'added';
   }
 
@@ -4908,7 +4960,7 @@ export function renderTrackerPage(container, username, uid) {
       <div class="modal-box" style="max-width:300px;">
         <div class="modal-header"><span>${tt('mywallet.alias.edit')}</span><button class="modal-close" id="trk-ea-x">✕</button></div>
         <div style="padding:16px;">
-          <input type="text" id="trk-ea-input" class="form-input" value="${esc(wallet.alias)}" />
+          <input type="text" id="trk-ea-input" class="form-input" value="${esc(aliasFor(wallet.address) || wallet.alias)}" />
           <div style="display:flex;gap:8px;margin-top:12px;">
             <button class="btn-outline" id="trk-ea-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
             <button class="btn-primary" id="trk-ea-save" style="flex:1;">${tt('ctx.save')}</button>
