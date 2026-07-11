@@ -3983,7 +3983,7 @@ export function renderTrackerPage(container, username, uid) {
       showAliasDialog(wallet, allWallets, renderMyWalletTab);
     });
     detailEl.querySelector('#trk-hwt-send-pidex')?.addEventListener('click', () => {
-      sendToPidexWallet(wallet.address, `★${wallet.alias}`);
+      sendToPidexWallet(wallet.address, `★${aliasFor(wallet.address) || wallet.alias}`);
     });
     detailEl.querySelector('#trk-hwt-del')?.addEventListener('click', () => {
       showConfirmDialog(tt('mywallet.delete'), tt('mywallet.delete.confirm'), async () => {
