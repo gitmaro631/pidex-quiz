@@ -4253,7 +4253,7 @@ export function renderTrackerPage(container, username, uid) {
     overlay.querySelector('#trk-w-cancel').onclick = () => overlay.remove();
     overlay.querySelector('#trk-w-save').onclick = async () => {
       const addr  = overlay.querySelector('#trk-w-addr').value.trim();
-      const alias = overlay.querySelector('#trk-w-alias').value.trim() || `${addr.slice(0,6)}···${addr.slice(-4)}`;
+      const alias = overlay.querySelector('#trk-w-alias').value.trim() || aliasFor(addr) || `${addr.slice(0,6)}···${addr.slice(-4)}`;
       const err   = overlay.querySelector('#trk-w-err');
       const saveBtn = overlay.querySelector('#trk-w-save');
       if (!addr || addr.length < 10) { err.textContent = tt('watch.add.err_addr'); return; }
@@ -4570,7 +4570,7 @@ export function renderTrackerPage(container, username, uid) {
     overlay.querySelector('#trk-t-cancel').onclick = () => overlay.remove();
     overlay.querySelector('#trk-t-save').onclick = async () => {
       const addr  = overlay.querySelector('#trk-t-addr').value.trim();
-      const alias = overlay.querySelector('#trk-t-alias').value.trim() || `${addr.slice(0,6)}···${addr.slice(-4)}`;
+      const alias = overlay.querySelector('#trk-t-alias').value.trim() || aliasFor(addr) || `${addr.slice(0,6)}···${addr.slice(-4)}`;
       const err   = overlay.querySelector('#trk-t-err');
       const saveBtn = overlay.querySelector('#trk-t-save');
       if (!addr || addr.length < 10) { err.textContent = tt('watch.add.err_addr'); return; }
@@ -4652,7 +4652,7 @@ export function renderTrackerPage(container, username, uid) {
     container.querySelector('#trk-amenu-pidex').addEventListener('click', () => {
       const addr = menuAddr;
       hideAddrMenu();
-      sendToPidexWallet(addr, `★${addr.slice(0,6)}···${addr.slice(-4)}`);
+      sendToPidexWallet(addr, aliasFor(addr) || `★${addr.slice(0,6)}···${addr.slice(-4)}`);
     });
     container.querySelector('#trk-amenu-copy').addEventListener('click', () => {
       const addr = menuAddr;
@@ -4663,7 +4663,7 @@ export function renderTrackerPage(container, username, uid) {
 
   async function addToTradeWalletsQuick(addr) {
     if (!addr) return;
-    const alias = `${addr.slice(0,6)}···${addr.slice(-4)}`;
+    const alias = aliasFor(addr) || `${addr.slice(0,6)}···${addr.slice(-4)}`;
     try {
       const list = await fetchTradeWalletsServer();
       if (list === null) { showToast(tt('mywallet.load.fail')); return; }
@@ -4682,7 +4682,7 @@ export function renderTrackerPage(container, username, uid) {
 
   async function addToWatchList(addr) {
     if (!addr) return;
-    const alias = `👁${addr.slice(0,6)}···${addr.slice(-4)}`;
+    const alias = aliasFor(addr) || `👁${addr.slice(0,6)}···${addr.slice(-4)}`;
 
     const doAdd = async () => {
       try {
@@ -4924,7 +4924,7 @@ export function renderTrackerPage(container, username, uid) {
     overlay.querySelector('#trk-add-cancel').onclick = () => overlay.remove();
     overlay.querySelector('#trk-add-save').onclick   = async () => {
       const addr    = overlay.querySelector('#trk-add-addr').value.trim();
-      const alias   = overlay.querySelector('#trk-add-alias').value.trim() || `Wallet ${currentWallets.length + 1}`;
+      const alias   = overlay.querySelector('#trk-add-alias').value.trim() || aliasFor(addr) || `Wallet ${currentWallets.length + 1}`;
       const errEl   = overlay.querySelector('#trk-add-err');
       const saveBtn = overlay.querySelector('#trk-add-save');
       if (!addr.startsWith('G') || addr.length !== 56) { errEl.textContent = tt('mywallet.add.err_addr'); return; }
