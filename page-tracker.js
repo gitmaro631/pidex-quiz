@@ -97,6 +97,10 @@ const TT = {
     'watch.feed.title': '📡 전체 피드', 'watch.no.internal': '내부 거래 없음',
     'watch.new.tx': '새 거래 감지', 'watch.report.warn': '신고된 지갑',
     'watch.cloud.fail': '서버 오류가 발생했습니다.',
+    "backup.alias_conflict.title": "별칭 충돌",
+    "backup.alias_conflict.desc": "{n}개 주소의 별칭이 현재와 다릅니다. 어떤 별칭을 사용할까요?",
+    "backup.alias_conflict.keep_latest": "최신 별칭 유지 (권장)",
+    "backup.alias_conflict.use_backup": "백업 시점 별칭 사용",
     "ctx.trade": "거래 지갑에 추가",
     "tab.trade": "거래 지갑",
     "trade.title": "거래 지갑 별칭",
@@ -199,6 +203,10 @@ const TT = {
     'watch.feed.title': '📡 Full Feed', 'watch.no.internal': 'No internal transfers',
     'watch.new.tx': 'New transaction detected', 'watch.report.warn': 'Reported wallet',
     'watch.cloud.fail': 'A server error occurred.',
+    "backup.alias_conflict.title": "Alias Conflict",
+    "backup.alias_conflict.desc": "{n} address(es) have a different alias than your current setup. Which should be used?",
+    "backup.alias_conflict.keep_latest": "Keep Latest Alias (Recommended)",
+    "backup.alias_conflict.use_backup": "Use Backup-Time Alias",
     "ctx.trade": "Add to Trade Wallets",
     "tab.trade": "Trade Wallets",
     "trade.title": "Trade Wallet Aliases",
@@ -374,6 +382,10 @@ const TT = {
     "watch.new.tx": "检测到新交易",
     "watch.report.warn": "已举报钱包",
     "watch.cloud.fail": "服务器发生错误。",
+    "backup.alias_conflict.title": "别名冲突",
+    "backup.alias_conflict.desc": "{n}个地址的别名与当前不同。要使用哪个别名？",
+    "backup.alias_conflict.keep_latest": "保留最新别名（推荐）",
+    "backup.alias_conflict.use_backup": "使用备份时的别名",
     "ctx.trade": "添加到交易钱包",
     "tab.trade": "交易钱包",
     "trade.title": "交易钱包别名",
@@ -558,6 +570,10 @@ const TT = {
     "watch.new.tx": "Transaksi baru terdeteksi",
     "watch.report.warn": "Dompet dilaporkan",
     "watch.cloud.fail": "Terjadi kesalahan server.",
+    "backup.alias_conflict.title": "Konflik Alias",
+    "backup.alias_conflict.desc": "{n} alamat memiliki alias yang berbeda dari saat ini. Alias mana yang akan digunakan?",
+    "backup.alias_conflict.keep_latest": "Pertahankan Alias Terbaru (Disarankan)",
+    "backup.alias_conflict.use_backup": "Gunakan Alias Saat Backup",
     "ctx.trade": "Tambah ke Dompet Transaksi",
     "tab.trade": "Dompet Transaksi",
     "trade.title": "Alias Dompet Transaksi",
@@ -742,6 +758,10 @@ const TT = {
     "watch.new.tx": "新しい取引を検出",
     "watch.report.warn": "通報済みウォレット",
     "watch.cloud.fail": "サーバーエラーが発生しました。",
+    "backup.alias_conflict.title": "エイリアスの競合",
+    "backup.alias_conflict.desc": "{n}件のアドレスのエイリアスが現在と異なります。どちらを使用しますか？",
+    "backup.alias_conflict.keep_latest": "最新のエイリアスを維持（推奨）",
+    "backup.alias_conflict.use_backup": "バックアップ時点のエイリアスを使用",
     "ctx.trade": "取引ウォレットに追加",
     "tab.trade": "取引ウォレット",
     "trade.title": "取引ウォレットのエイリアス",
@@ -926,6 +946,10 @@ const TT = {
     "watch.new.tx": "Nueva transacción detectada",
     "watch.report.warn": "Cartera reportada",
     "watch.cloud.fail": "Ocurrió un error del servidor.",
+    "backup.alias_conflict.title": "Conflicto de Alias",
+    "backup.alias_conflict.desc": "{n} direcciones tienen un alias diferente al actual. ¿Cuál desea usar?",
+    "backup.alias_conflict.keep_latest": "Mantener Alias Más Reciente (Recomendado)",
+    "backup.alias_conflict.use_backup": "Usar Alias del Momento del Backup",
     "ctx.trade": "Agregar a Carteras de Transacción",
     "tab.trade": "Carteras de Transacción",
     "trade.title": "Alias de Carteras de Transacción",
@@ -1110,6 +1134,10 @@ const TT = {
     "watch.new.tx": "Nouvelle transaction détectée",
     "watch.report.warn": "Portefeuille signalé",
     "watch.cloud.fail": "Une erreur serveur est survenue.",
+    "backup.alias_conflict.title": "Conflit d'Alias",
+    "backup.alias_conflict.desc": "{n} adresse(s) ont un alias différent de l'actuel. Lequel utiliser ?",
+    "backup.alias_conflict.keep_latest": "Conserver l'Alias le Plus Récent (Recommandé)",
+    "backup.alias_conflict.use_backup": "Utiliser l'Alias au Moment de la Sauvegarde",
     "ctx.trade": "Ajouter aux Portefeuilles de Transaction",
     "tab.trade": "Portefeuilles de Transaction",
     "trade.title": "Alias des Portefeuilles de Transaction",
@@ -1294,6 +1322,10 @@ const TT = {
     "watch.new.tx": "Phát hiện giao dịch mới",
     "watch.report.warn": "Ví đã bị báo cáo",
     "watch.cloud.fail": "Đã xảy ra lỗi server.",
+    "backup.alias_conflict.title": "Xung Đột Biệt Danh",
+    "backup.alias_conflict.desc": "{n} địa chỉ có biệt danh khác với hiện tại. Dùng biệt danh nào?",
+    "backup.alias_conflict.keep_latest": "Giữ Biệt Danh Mới Nhất (Khuyên dùng)",
+    "backup.alias_conflict.use_backup": "Dùng Biệt Danh Lúc Sao Lưu",
     "ctx.trade": "Thêm vào Ví Giao Dịch",
     "tab.trade": "Ví Giao Dịch",
     "trade.title": "Biệt Danh Ví Giao Dịch",
@@ -1478,6 +1510,10 @@ const TT = {
     "watch.new.tx": "Nova transação detectada",
     "watch.report.warn": "Carteira denunciada",
     "watch.cloud.fail": "Ocorreu um erro no servidor.",
+    "backup.alias_conflict.title": "Conflito de Apelido",
+    "backup.alias_conflict.desc": "{n} endereço(s) têm um apelido diferente do atual. Qual usar?",
+    "backup.alias_conflict.keep_latest": "Manter Apelido Mais Recente (Recomendado)",
+    "backup.alias_conflict.use_backup": "Usar Apelido do Momento do Backup",
     "ctx.trade": "Adicionar às Carteiras de Transação",
     "tab.trade": "Carteiras de Transação",
     "trade.title": "Apelidos de Carteiras de Transação",
@@ -1662,6 +1698,10 @@ const TT = {
     "watch.new.tx": "Transaksi baharu dikesan",
     "watch.report.warn": "Dompet dilaporkan",
     "watch.cloud.fail": "Ralat pelayan berlaku.",
+    "backup.alias_conflict.title": "Konflik Alias",
+    "backup.alias_conflict.desc": "{n} alamat mempunyai alias berbeza daripada semasa. Alias mana hendak digunakan?",
+    "backup.alias_conflict.keep_latest": "Kekalkan Alias Terkini (Disyorkan)",
+    "backup.alias_conflict.use_backup": "Guna Alias Semasa Sandaran",
     "ctx.trade": "Tambah ke Dompet Transaksi",
     "tab.trade": "Dompet Transaksi",
     "trade.title": "Alias Dompet Transaksi",
@@ -1846,6 +1886,10 @@ const TT = {
     "watch.new.tx": "May natukoy na bagong transaksyon",
     "watch.report.warn": "Naireport na wallet",
     "watch.cloud.fail": "May naganap na server error.",
+    "backup.alias_conflict.title": "Salungat na Alias",
+    "backup.alias_conflict.desc": "{n} address ang may ibang alias kumpara sa kasalukuyan. Aling alias ang gagamitin?",
+    "backup.alias_conflict.keep_latest": "Panatilihin ang Pinakabagong Alias (Inirerekomenda)",
+    "backup.alias_conflict.use_backup": "Gamitin ang Alias Noong Backup",
     "ctx.trade": "Idagdag sa Wallet ng Transaksyon",
     "tab.trade": "Wallet ng Transaksyon",
     "trade.title": "Alias ng Wallet ng Transaksyon",
@@ -2030,6 +2074,10 @@ const TT = {
     "watch.new.tx": "नया लेनदेन पाया गया",
     "watch.report.warn": "रिपोर्ट किया गया वॉलेट",
     "watch.cloud.fail": "सर्वर त्रुटि हुई।",
+    "backup.alias_conflict.title": "उपनाम टकराव",
+    "backup.alias_conflict.desc": "{n} पते का उपनाम वर्तमान से अलग है। कौन सा उपनाम उपयोग करें?",
+    "backup.alias_conflict.keep_latest": "नवीनतम उपनाम रखें (अनुशंसित)",
+    "backup.alias_conflict.use_backup": "बैकअप के समय का उपनाम उपयोग करें",
     "ctx.trade": "लेनदेन वॉलेट में जोड़ें",
     "tab.trade": "लेनदेन वॉलेट",
     "trade.title": "लेनदेन वॉलेट उपनाम",
@@ -2214,6 +2262,10 @@ const TT = {
     "watch.new.tx": "تم اكتشاف معاملة جديدة",
     "watch.report.warn": "محفظة تم الإبلاغ عنها",
     "watch.cloud.fail": "حدث خطأ في الخادم.",
+    "backup.alias_conflict.title": "تعارض الاسم المستعار",
+    "backup.alias_conflict.desc": "يوجد {n} عنوان بأسماء مستعارة مختلفة عن الحالية. أي اسم مستعار تريد استخدامه؟",
+    "backup.alias_conflict.keep_latest": "الاحتفاظ بأحدث اسم مستعار (موصى به)",
+    "backup.alias_conflict.use_backup": "استخدام الاسم المستعار وقت النسخ الاحتياطي",
     "ctx.trade": "إضافة إلى محافظ المعاملات",
     "tab.trade": "محافظ المعاملات",
     "trade.title": "أسماء محافظ المعاملات المستعارة",
@@ -2398,6 +2450,10 @@ const TT = {
     "watch.new.tx": "Обнаружена новая транзакция",
     "watch.report.warn": "Кошелёк, о котором сообщили",
     "watch.cloud.fail": "Произошла ошибка сервера.",
+    "backup.alias_conflict.title": "Конфликт псевдонимов",
+    "backup.alias_conflict.desc": "У {n} адресов псевдоним отличается от текущего. Какой использовать?",
+    "backup.alias_conflict.keep_latest": "Оставить последний псевдоним (рекомендуется)",
+    "backup.alias_conflict.use_backup": "Использовать псевдоним на момент резервной копии",
     "ctx.trade": "Добавить в торговые кошельки",
     "tab.trade": "Торговые кошельки",
     "trade.title": "Псевдонимы торговых кошельков",
@@ -2582,6 +2638,10 @@ const TT = {
     "watch.new.tx": "নতুন লেনদেন সনাক্ত হয়েছে",
     "watch.report.warn": "রিপোর্ট করা ওয়ালেট",
     "watch.cloud.fail": "সার্ভার ত্রুটি ঘটেছে।",
+    "backup.alias_conflict.title": "ডাকনাম দ্বন্দ্ব",
+    "backup.alias_conflict.desc": "{n}টি ঠিকানার ডাকনাম বর্তমানের চেয়ে ভিন্ন। কোনটি ব্যবহার করবেন?",
+    "backup.alias_conflict.keep_latest": "সর্বশেষ ডাকনাম রাখুন (প্রস্তাবিত)",
+    "backup.alias_conflict.use_backup": "ব্যাকআপের সময়ের ডাকনাম ব্যবহার করুন",
     "ctx.trade": "লেনদেন ওয়ালেটে যোগ করুন",
     "tab.trade": "লেনদেন ওয়ালেট",
     "trade.title": "লেনদেন ওয়ালেট ডাকনাম",
@@ -2766,6 +2826,10 @@ const TT = {
     "watch.new.tx": "Muamala mpya umegunduliwa",
     "watch.report.warn": "Pochi iliyoripotiwa",
     "watch.cloud.fail": "Hitilafu ya seva imetokea.",
+    "backup.alias_conflict.title": "Mgongano wa Jina la Utani",
+    "backup.alias_conflict.desc": "Anwani {n} zina jina la utani tofauti na la sasa. Ni lipi litumike?",
+    "backup.alias_conflict.keep_latest": "Weka Jina la Utani Jipya Zaidi (Inapendekezwa)",
+    "backup.alias_conflict.use_backup": "Tumia Jina la Utani la Wakati wa Hifadhi",
     "ctx.trade": "Ongeza kwenye Pochi za Miamala",
     "tab.trade": "Pochi za Miamala",
     "trade.title": "Majina ya Pochi za Miamala",
@@ -2950,6 +3014,10 @@ const TT = {
     "watch.new.tx": "ตรวจพบธุรกรรมใหม่",
     "watch.report.warn": "กระเป๋าเงินที่ถูกรายงาน",
     "watch.cloud.fail": "เกิดข้อผิดพลาดของเซิร์ฟเวอร์",
+    "backup.alias_conflict.title": "ชื่อเล่นขัดแย้งกัน",
+    "backup.alias_conflict.desc": "มี {n} ที่อยู่ที่มีชื่อเล่นต่างจากปัจจุบัน จะใช้ชื่อเล่นไหน?",
+    "backup.alias_conflict.keep_latest": "ใช้ชื่อเล่นล่าสุด (แนะนำ)",
+    "backup.alias_conflict.use_backup": "ใช้ชื่อเล่นตอนสำรองข้อมูล",
     "ctx.trade": "เพิ่มในกระเป๋าคู่ค้า",
     "tab.trade": "กระเป๋าคู่ค้า",
     "trade.title": "ชื่อเล่นกระเป๋าคู่ค้า",
@@ -3134,6 +3202,10 @@ const TT = {
     "watch.new.tx": "Yeni işlem tespit edildi",
     "watch.report.warn": "Bildirilen cüzdan",
     "watch.cloud.fail": "Bir sunucu hatası oluştu.",
+    "backup.alias_conflict.title": "Takma Ad Çakışması",
+    "backup.alias_conflict.desc": "{n} adresin takma adı mevcuttan farklı. Hangisi kullanılsın?",
+    "backup.alias_conflict.keep_latest": "En Son Takma Adı Koru (Önerilen)",
+    "backup.alias_conflict.use_backup": "Yedekleme Anındaki Takma Adı Kullan",
     "ctx.trade": "İşlem Cüzdanlarına Ekle",
     "tab.trade": "İşlem Cüzdanları",
     "trade.title": "İşlem Cüzdanı Takma Adları",
@@ -4867,10 +4939,15 @@ export function renderTrackerPage(container, username, uid) {
 
       if (act === 'restore-full') {
         showConfirmDialog(tt('backup.title'), tt2('backup.confirm.restore_full', { n: slotNum }), async () => {
-          try {
-            await onApplied(slotInfo.wallets);
-            overlay.remove();
-          } catch { showToast(tt('backup.fail')); }
+          const conflicts = findAliasConflicts(slotInfo.wallets);
+          const proceed = async (useLatest) => {
+            try {
+              await onApplied(applyAliasChoice(slotInfo.wallets, conflicts, useLatest));
+              overlay.remove();
+            } catch { showToast(tt('backup.fail')); }
+          };
+          if (conflicts.length) showAliasConflictDialog(conflicts, proceed);
+          else await proceed(false);
         }, tt('backup.btn.full_restore'));
         return;
       }
@@ -4883,18 +4960,62 @@ export function renderTrackerPage(container, username, uid) {
             overlay.remove();
           } catch { showToast(tt('backup.fail')); }
         };
-        if (merged.length > maxCount) {
-          showConfirmDialog(
-            tt('backup.title'),
-            tt2('backup.confirm.truncate', { n: maxCount, dropped: merged.length - maxCount }),
-            () => doRestore(merged.slice(0, maxCount)),
-            tt('ctx.continue')
-          );
-        } else {
-          await doRestore(merged);
-        }
+        const conflicts = findAliasConflicts(merged);
+        const proceedWithChoice = async (useLatest) => {
+          const finalList = applyAliasChoice(merged, conflicts, useLatest);
+          if (finalList.length > maxCount) {
+            showConfirmDialog(
+              tt('backup.title'),
+              tt2('backup.confirm.truncate', { n: maxCount, dropped: finalList.length - maxCount }),
+              () => doRestore(finalList.slice(0, maxCount)),
+              tt('ctx.continue')
+            );
+          } else {
+            await doRestore(finalList);
+          }
+        };
+        if (conflicts.length) showAliasConflictDialog(conflicts, proceedWithChoice);
+        else await proceedWithChoice(false);
         return;
       }
+    }
+
+    function findAliasConflicts(list) {
+      const conflicts = [];
+      for (const w of list) {
+        if (!w.address || !w.alias) continue;
+        const current = addressAliases[w.address];
+        if (current && current !== w.alias) conflicts.push({ address: w.address, current, backup: w.alias });
+      }
+      return conflicts;
+    }
+
+    function applyAliasChoice(list, conflicts, useLatest) {
+      if (!useLatest || !conflicts.length) return list;
+      const map = new Map(conflicts.map(c => [c.address, c.current]));
+      return list.map(w => map.has(w.address) ? { ...w, alias: map.get(w.address) } : w);
+    }
+
+    function showAliasConflictDialog(conflicts, onChoice) {
+      const box = document.createElement('div');
+      box.className = 'modal-overlay';
+      box.innerHTML = `
+        <div class="modal-box" style="max-width:360px;">
+          <div class="modal-header"><span>${tt('backup.alias_conflict.title')}</span></div>
+          <div style="padding:16px;">
+            <p style="font-size:13px;color:#ccc;line-height:1.6;margin-bottom:12px;">${tt2('backup.alias_conflict.desc', { n: conflicts.length })}</p>
+            <div style="max-height:160px;overflow-y:auto;font-size:12px;color:#999;margin-bottom:14px;line-height:1.8;">
+              ${conflicts.slice(0, 30).map(c => `<div>${esc(c.address.slice(0,4))}···${esc(c.address.slice(-3))}: <b style="color:#7dd3fc;">${esc(c.current)}</b> → ${esc(c.backup)}</div>`).join('')}
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <button class="btn-primary" id="bkc-latest">${tt('backup.alias_conflict.keep_latest')}</button>
+              <button class="btn-outline" id="bkc-backup">${tt('backup.alias_conflict.use_backup')}</button>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(box);
+      box.querySelector('#bkc-latest').onclick = () => { box.remove(); onChoice(true); };
+      box.querySelector('#bkc-backup').onclick = () => { box.remove(); onChoice(false); };
     }
 
     loadSlots();
