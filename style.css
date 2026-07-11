@@ -1015,8 +1015,20 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
 .trk-wrap { max-width: 520px; margin: 0 auto; }
 
 /* 탭 */
+.trk-tabs-wrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+.trk-tabs-wrap::after {
+  content: '';
+  position: absolute; top: 4px; right: 0; bottom: 4px;
+  width: 28px;
+  background: linear-gradient(to right, transparent, var(--surface2) 70%);
+  pointer-events: none;
+  border-radius: 0 10px 10px 0;
+}
 .trk-tabs {
-  display: flex; gap: 4px; margin-bottom: 16px;
+  display: flex; gap: 4px;
   background: var(--surface2); border-radius: 10px; padding: 4px;
   overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
 }

@@ -3209,12 +3209,14 @@ export function renderTrackerPage(container, username, uid) {
   // ── HTML 렌더 ────────────────────────────────────────
   container.innerHTML = `
     <div class="trk-wrap">
-      <div class="trk-tabs">
-        <button class="trk-tab active" data-tab="list">${tt('tab.report')}</button>
-        <button class="trk-tab" data-tab="search">${tt('tab.search')}</button>
-        <button class="trk-tab" data-tab="mywallet">${tt('tab.mywallet')}</button>
-        <button class="trk-tab" data-tab="watch">${tt('tab.watch')}</button>
-        <button class="trk-tab" data-tab="trade">${tt('tab.trade')}</button>
+      <div class="trk-tabs-wrap">
+        <div class="trk-tabs">
+          <button class="trk-tab active" data-tab="list">${tt('tab.report')}</button>
+          <button class="trk-tab" data-tab="search">${tt('tab.search')}</button>
+          <button class="trk-tab" data-tab="mywallet">${tt('tab.mywallet')}</button>
+          <button class="trk-tab" data-tab="watch">${tt('tab.watch')}</button>
+          <button class="trk-tab" data-tab="trade">${tt('tab.trade')}</button>
+        </div>
       </div>
 
       <!-- 신고 목록 탭 -->
