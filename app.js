@@ -11,6 +11,28 @@ import { renderOpinionPage }  from './page-opinion.js';
 import { initFirebase, loadSurveyFromFirestore, updateLeaderboardCountry } from './firebase.js';
 import { mergeSurveyFromCloud } from './util-storage.js';
 const NOTICE = {
+  version: '2026-07-11',
+  ko: "📢 업데이트 안내 (2026-07-11)\n\n① 지갑 클라우드 백업 · 복원 기능 추가 (5슬롯)\n② 거래 지갑 별칭 기능 추가 — 거래내역에 별칭 표시 (최대 100개)\n③ 트래커 상단 탭 가로 스크롤 지원",
+  en: "📢 Update Notice (2026-07-11)\n\n① Added cloud backup/restore for wallets (5 slots)\n② Added Trade Wallet aliases — shown in transaction history (up to 100)\n③ Tracker's top tab bar now supports horizontal scrolling",
+  zh: "📢 更新通知 (2026-07-11)\n\n① 新增钱包云备份/恢复功能（5个插槽）\n② 新增交易钱包别名功能 — 交易记录中显示别名（最多100个）\n③ 追踪器顶部标签栏支持横向滑动",
+  id: "📢 Pemberitahuan Pembaruan (2026-07-11)\n\n① Ditambahkan fitur backup/pulihkan cloud untuk dompet (5 slot)\n② Ditambahkan alias Dompet Transaksi — ditampilkan di riwayat transaksi (hingga 100)\n③ Bilah tab atas Tracker kini mendukung gulir horizontal",
+  ja: "📢 アップデートのお知らせ (2026-07-11)\n\n① ウォレットのクラウドバックアップ・復元機能を追加（5スロット）\n② 取引ウォレットのエイリアス機能を追加 — 取引履歴にエイリアス表示（最大100件）\n③ トラッカー上部のタブバーが横スクロールに対応",
+  es: "📢 Aviso de actualización (2026-07-11)\n\n① Se añadió backup/restauración en la nube para carteras (5 ranuras)\n② Se añadió alias de Cartera de Transacción — se muestra en el historial de transacciones (hasta 100)\n③ La barra de pestañas superior del Rastreador ahora se puede desplazar horizontalmente",
+  fr: "📢 Avis de mise à jour (2026-07-11)\n\n① Ajout de la sauvegarde/restauration cloud pour les portefeuilles (5 emplacements)\n② Ajout des alias de Portefeuille de Transaction — affichés dans l'historique des transactions (jusqu'à 100)\n③ La barre d'onglets du Traqueur peut désormais défiler horizontalement",
+  vi: "📢 Thông báo cập nhật (2026-07-11)\n\n① Đã thêm sao lưu/khôi phục đám mây cho ví (5 khe)\n② Đã thêm biệt danh Ví Giao Dịch — hiển thị trong lịch sử giao dịch (tối đa 100)\n③ Thanh tab trên cùng của Theo dõi giờ có thể cuộn ngang",
+  pt: "📢 Aviso de atualização (2026-07-11)\n\n① Adicionado backup/restauração em nuvem para carteiras (5 slots)\n② Adicionado alias de Carteira de Transação — exibido no histórico de transações (até 100)\n③ A barra de abas superior do Rastreador agora tem rolagem horizontal",
+  ms: "📢 Notis Kemas Kini (2026-07-11)\n\n① Ditambah sandaran/pemulihan awan untuk dompet (5 slot)\n② Ditambah alias Dompet Transaksi — dipaparkan dalam sejarah transaksi (sehingga 100)\n③ Bar tab atas Penjejak kini menyokong tatal mendatar",
+  tl: "📢 Abiso sa Update (2026-07-11)\n\n① Idinagdag ang cloud backup/restore para sa wallet (5 slot)\n② Idinagdag ang alias ng Wallet ng Transaksyon — makikita sa transaction history (hanggang 100)\n③ Ang tab bar sa itaas ng Tracker ay pwede nang i-scroll pahalang",
+  hi: "📢 अपडेट सूचना (2026-07-11)\n\n① वॉलेट के लिए क्लाउड बैकअप/पुनर्स्थापन जोड़ा गया (5 स्लॉट)\n② लेनदेन वॉलेट उपनाम जोड़ा गया — लेनदेन इतिहास में उपनाम दिखता है (100 तक)\n③ ट्रैकर की ऊपरी टैब बार अब क्षैतिज स्क्रॉल करती है",
+  ar: "📢 إشعار التحديث (2026-07-11)\n\n① تمت إضافة النسخ الاحتياطي/الاستعادة السحابية للمحافظ (5 خانات)\n② تمت إضافة أسماء محافظ المعاملات المستعارة — تظهر في سجل المعاملات (حتى 100)\n③ أصبح شريط علامات التبويب العلوي في المتتبع قابلاً للتمرير أفقياً",
+  ru: "📢 Уведомление об обновлении (2026-07-11)\n\n① Добавлено облачное резервное копирование/восстановление кошельков (5 слотов)\n② Добавлены псевдонимы Торговых кошельков — отображаются в истории транзакций (до 100)\n③ Верхняя панель вкладок Трекера теперь прокручивается по горизонтали",
+  bn: "📢 আপডেট বিজ্ঞপ্তি (2026-07-11)\n\n① ওয়ালেটের জন্য ক্লাউড ব্যাকআপ/পুনরুদ্ধার যোগ করা হয়েছে (৫ স্লট)\n② লেনদেন ওয়ালেট ডাকনাম যোগ করা হয়েছে — লেনদেন তালিকায় ডাকনাম দেখা যায় (১০০ পর্যন্ত)\n③ ট্র্যাকারের উপরের ট্যাব বার এখন অনুভূমিকভাবে স্ক্রল করা যায়",
+  sw: "📢 Taarifa ya Sasisho (2026-07-11)\n\n① Imeongeza hifadhi/kurejesha wingu kwa pochi (nafasi 5)\n② Imeongeza majina ya Pochi za Miamala — yanaonyeshwa kwenye historia ya miamala (hadi 100)\n③ Upau wa vichupo vya juu vya Mfuatiliaji sasa unaweza kusogezwa kwa mlalo",
+  th: "📢 แจ้งอัปเดต (2026-07-11)\n\n① เพิ่มฟีเจอร์สำรอง/กู้คืนกระเป๋าเงินบนคลาวด์ (5 ช่อง)\n② เพิ่มชื่อเล่นกระเป๋าคู่ค้า — แสดงในรายการธุรกรรม (สูงสุด 100 รายการ)\n③ แถบแท็บด้านบนของตัวติดตามเลื่อนแนวนอนได้แล้ว",
+  tr: "📢 Güncelleme Bildirimi (2026-07-11)\n\n① Cüzdanlar için bulut yedekleme/geri yükleme eklendi (5 slot)\n② İşlem Cüzdanı takma adları eklendi — işlem geçmişinde gösterilir (100'e kadar)\n③ İzleyicinin üst sekme çubuğu artık yatay kaydırmayı destekliyor",
+};
+
+const NOTICE_PREV = {
   version: '2026-07-10',
   ko: "📢 업데이트 안내\n\n① 지갑 주소 클릭 메뉴(관심지갑 추가·파이덱스 등록·복사)가 작동하지 않던 문제를 수정했습니다\n② 내 지갑·관심 지갑 목록도 서버에 저장됩니다 (지갑 30개·관심지갑 10개)\n③ 관심 지갑에도 별칭 수정 버튼이 추가되었습니다\n④ '랭킹보드' 화면이 정리되었습니다\n⑤ 노드 운영 설문 질문이 일부 언어에서 번역되지 않던 문제를 수정했습니다",
   en: "📢 Update Notice\n\n① Fixed the wallet address menu (add to watchlist · register to PiDEX · copy) not working\n② My Wallet and Watchlist are now stored on the server (30 wallets · 10 watched)\n③ Added an edit-alias button to the Watchlist\n④ Cleaned up the 'Leaderboard' screen\n⑤ Fixed a survey question (node operation) that wasn't translated in some languages",
@@ -30,28 +52,6 @@ const NOTICE = {
   sw: "📢 Taarifa ya Sasisho\n\n① Imerekebisha menyu ya anwani ya pochi (ongeza kwenye orodha ya ufuatiliaji · sajili kwenye PiDEX · nakili) ambayo haikufanya kazi\n② Pochi Yangu na Orodha ya Ufuatiliaji sasa zinahifadhiwa kwenye seva (pochi 30 · ufuatiliaji 10)\n③ Kimeongezwa kitufe cha kuhariri jina la utani kwenye Orodha ya Ufuatiliaji\n④ Skrini ya 'Ubao wa Nafasi' imepangwa upya\n⑤ Imerekebisha swali la uchunguzi (uendeshaji wa nodi) ambalo halikutafsiriwa katika baadhi ya lugha",
   th: "📢 แจ้งอัปเดต\n\n① แก้ไขเมนูที่อยู่กระเป๋าเงิน (เพิ่มในรายการเฝ้าดู · ลงทะเบียนใน PiDEX · คัดลอก) ที่ไม่ทำงาน\n② กระเป๋าของฉันและรายการเฝ้าดูตอนนี้บันทึกไว้บนเซิร์ฟเวอร์แล้ว (กระเป๋า 30 · เฝ้าดู 10)\n③ เพิ่มปุ่มแก้ไขชื่อเล่นในรายการเฝ้าดู\n④ จัดหน้าจอ 'แรงกิ้งบอร์ด' ให้เรียบร้อยขึ้น\n⑤ แก้ไขคำถามแบบสำรวจ (การดำเนินการโหนด) ที่ไม่ได้แปลในบางภาษา",
   tr: "📢 Güncelleme Bildirimi\n\n① Çalışmayan cüzdan adresi menüsü (izleme listesine ekle · PiDEX'e kaydet · kopyala) düzeltildi\n② Cüzdanım ve İzleme Listesi artık sunucuda saklanıyor (30 cüzdan · 10 izleme)\n③ İzleme Listesi'ne takma ad düzenleme düğmesi eklendi\n④ 'Skor Tablosu' ekranı düzenlendi\n⑤ Bazı dillerde çevrilmemiş olan anket sorusunu (node işletimi) düzelttik",
-};
-
-const NOTICE_PREV = {
-  version: '2026-07-09-merge',
-  ko: "📢 새 탭이 추가되었습니다!\n\n🌿 생존 — 극한 환경에서 살아남는 텍스트 어드벤처\n🔍 트래커 — Pi 해킹 신고·지갑 조회·관심 지갑 추적\n\n하단 탭에서 바로 이용하세요!",
-  en: "📢 New tabs added!\n\n🌿 Survival — Text adventure: survive in extreme environments\n🔍 Tracker — Pi hack reports, wallet lookup & watch list\n\nFind them in the bottom navigation!",
-  zh: "📢 新增标签页！\n\n🌿 生存 — 极端环境下的文字冒险\n🔍 追踪 — Pi 黑客举报·钱包查询·关注列表\n\n在底部导航栏中即可使用！",
-  id: "📢 Tab baru ditambahkan!\n\n🌿 Survival — Petualangan teks di lingkungan ekstrem\n🔍 Tracker — Laporan hack Pi, pencarian dompet & daftar pantau\n\nTemukan di navigasi bawah!",
-  ja: "📢 新しいタブが追加されました！\n\n🌿 サバイバル — 極限環境でのテキストアドベンチャー\n🔍 トラッカー — Piハッキング報告・ウォレット照会・注目リスト\n\n下部のナビゲーションからご利用ください！",
-  es: "📢 ¡Nuevas pestañas añadidas!\n\n🌿 Supervivencia — Aventura de texto en entornos extremos\n🔍 Rastreador — Denuncias de hackeos Pi, búsqueda de billetera y lista de seguimiento\n\n¡Encuéntralas en la barra de navegación inferior!",
-  fr: "📢 Nouveaux onglets ajoutés !\n\n🌿 Survie — Aventure textuelle en environnements extrêmes\n🔍 Traqueur — Signalements de piratage Pi, recherche de portefeuille & liste de suivi\n\nTrouvez-les dans la barre de navigation inférieure !",
-  vi: "📢 Đã thêm tab mới!\n\n🌿 Sinh tồn — Phiêu lưu văn bản trong môi trường khắc nghiệt\n🔍 Theo dõi — Báo cáo hack Pi, tra cứu ví & danh sách theo dõi\n\nTìm thấy chúng trong thanh điều hướng phía dưới!",
-  pt: "📢 Novas abas adicionadas!\n\n🌿 Sobrevivência — Aventura em texto em ambientes extremos\n🔍 Rastreador — Denúncias de hack Pi, busca de carteira e lista de observação\n\nEncontre-as na barra de navegação inferior!",
-  ms: "📢 Tab baharu ditambah!\n\n🌿 Survival — Pengembaraan teks dalam persekitaran ekstrem\n🔍 Penjejak — Laporan penggodaman Pi, carian dompet & senarai pantau\n\nJumpai mereka di navigasi bawah!",
-  tl: "📢 Mga bagong tab na idinagdag!\n\n🌿 Survival — Text adventure sa matinding kapaligiran\n🔍 Tracker — Mga ulat ng Pi hack, paghahanap ng wallet at watch list\n\nHanapin sa ibabang navigation!",
-  hi: "📢 नए टैब जोड़े गए!\n\n🌿 सर्वाइवल — चरम परिस्थितियों में जीवित रहने का टेक्स्ट एडवेंचर\n🔍 ट्रैकर — Pi हैक रिपोर्ट, वॉलेट खोज और वॉच लिस्ट\n\nनीचे नेविगेशन में पाएं!",
-  ar: "📢 تمت إضافة تبويبات جديدة!\n\n🌿 البقاء — مغامرة نصية في بيئات قاسية\n🔍 المتتبع — تقارير اختراق Pi والبحث عن المحفظة وقائمة المراقبة\n\nاعثر عليها في شريط التنقل السفلي!",
-  ru: "📢 Добавлены новые вкладки!\n\n🌿 Выживание — Текстовое приключение в экстремальных условиях\n🔍 Трекер — Отчёты о взломах Pi, поиск кошелька и список наблюдения\n\nНайдите их в нижней панели навигации!",
-  bn: "📢 নতুন ট্যাব যোগ হয়েছে!\n\n🌿 সার্ভাইভাল — চরম পরিবেশে বেঁচে থাকার টেক্সট অ্যাডভেঞ্চার\n🔍 ট্র্যাকার — Pi হ্যাক রিপোর্ট, ওয়ালেট অনুসন্ধান ও ওয়াচ লিস্ট\n\nনিচের নেভিগেশনে খুঁজুন!",
-  sw: "📢 Vichupo vipya vimeongezwa!\n\n🌿 Maisha — Mchezo wa maandishi katika mazingira magumu\n🔍 Mfuatiliaji — Ripoti za udanganyifu wa Pi, utafutaji wa pochi na orodha ya ufuatiliaji\n\nVipata kwenye urambazaji wa chini!",
-  th: "📢 เพิ่มแท็บใหม่แล้ว!\n\n🌿 เอาชีวิตรอด — ผจญภัยแบบข้อความในสภาพแวดล้อมสุดโหด\n🔍 ติดตาม — รายงานการแฮ็ก Pi, ค้นหากระเป๋าเงิน & รายการเฝ้าดู\n\nค้นหาได้ที่แถบนำทางด้านล่าง!",
-  tr: "📢 Yeni sekmeler eklendi!\n\n🌿 Hayatta Kal — Aşırı ortamlarda metin macerası\n🔍 İzleyici — Pi hack raporları, cüzdan sorgulama & izleme listesi\n\nAlt gezinti çubuğunda bulabilirsiniz!",
 };
 
 // ── 공지 팝업 ────────────────────────────────────────
