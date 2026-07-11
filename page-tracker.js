@@ -97,6 +97,7 @@ const TT = {
     'watch.feed.title': '📡 전체 피드', 'watch.no.internal': '내부 거래 없음',
     'watch.new.tx': '새 거래 감지', 'watch.report.warn': '신고된 지갑',
     'watch.cloud.fail': '서버 오류가 발생했습니다.',
+    "ctx.trade": "거래 지갑에 추가",
     "tab.trade": "거래 지갑",
     "trade.title": "거래 지갑 별칭",
     "trade.desc": "등록해두면 거래내역에서 이 주소가 별칭으로 표시됩니다.",
@@ -198,6 +199,7 @@ const TT = {
     'watch.feed.title': '📡 Full Feed', 'watch.no.internal': 'No internal transfers',
     'watch.new.tx': 'New transaction detected', 'watch.report.warn': 'Reported wallet',
     'watch.cloud.fail': 'A server error occurred.',
+    "ctx.trade": "Add to Trade Wallets",
     "tab.trade": "Trade Wallets",
     "trade.title": "Trade Wallet Aliases",
     "trade.desc": "Registered addresses will be shown with their alias in transaction lists.",
@@ -372,6 +374,7 @@ const TT = {
     "watch.new.tx": "检测到新交易",
     "watch.report.warn": "已举报钱包",
     "watch.cloud.fail": "服务器发生错误。",
+    "ctx.trade": "添加到交易钱包",
     "tab.trade": "交易钱包",
     "trade.title": "交易钱包别名",
     "trade.desc": "注册后，该地址会在交易记录中以别名显示。",
@@ -555,6 +558,7 @@ const TT = {
     "watch.new.tx": "Transaksi baru terdeteksi",
     "watch.report.warn": "Dompet dilaporkan",
     "watch.cloud.fail": "Terjadi kesalahan server.",
+    "ctx.trade": "Tambah ke Dompet Transaksi",
     "tab.trade": "Dompet Transaksi",
     "trade.title": "Alias Dompet Transaksi",
     "trade.desc": "Alamat yang didaftarkan akan ditampilkan dengan aliasnya di daftar transaksi.",
@@ -738,6 +742,7 @@ const TT = {
     "watch.new.tx": "新しい取引を検出",
     "watch.report.warn": "通報済みウォレット",
     "watch.cloud.fail": "サーバーエラーが発生しました。",
+    "ctx.trade": "取引ウォレットに追加",
     "tab.trade": "取引ウォレット",
     "trade.title": "取引ウォレットのエイリアス",
     "trade.desc": "登録したアドレスは取引履歴でエイリアス表示されます。",
@@ -921,6 +926,7 @@ const TT = {
     "watch.new.tx": "Nueva transacción detectada",
     "watch.report.warn": "Cartera reportada",
     "watch.cloud.fail": "Ocurrió un error del servidor.",
+    "ctx.trade": "Agregar a Carteras de Transacción",
     "tab.trade": "Carteras de Transacción",
     "trade.title": "Alias de Carteras de Transacción",
     "trade.desc": "Las direcciones registradas se mostrarán con su alias en el historial de transacciones.",
@@ -1104,6 +1110,7 @@ const TT = {
     "watch.new.tx": "Nouvelle transaction détectée",
     "watch.report.warn": "Portefeuille signalé",
     "watch.cloud.fail": "Une erreur serveur est survenue.",
+    "ctx.trade": "Ajouter aux Portefeuilles de Transaction",
     "tab.trade": "Portefeuilles de Transaction",
     "trade.title": "Alias des Portefeuilles de Transaction",
     "trade.desc": "Les adresses enregistrées s'afficheront avec leur alias dans l'historique des transactions.",
@@ -1287,6 +1294,7 @@ const TT = {
     "watch.new.tx": "Phát hiện giao dịch mới",
     "watch.report.warn": "Ví đã bị báo cáo",
     "watch.cloud.fail": "Đã xảy ra lỗi server.",
+    "ctx.trade": "Thêm vào Ví Giao Dịch",
     "tab.trade": "Ví Giao Dịch",
     "trade.title": "Biệt Danh Ví Giao Dịch",
     "trade.desc": "Địa chỉ đã đăng ký sẽ hiển thị bằng biệt danh trong danh sách giao dịch.",
@@ -1470,6 +1478,7 @@ const TT = {
     "watch.new.tx": "Nova transação detectada",
     "watch.report.warn": "Carteira denunciada",
     "watch.cloud.fail": "Ocorreu um erro no servidor.",
+    "ctx.trade": "Adicionar às Carteiras de Transação",
     "tab.trade": "Carteiras de Transação",
     "trade.title": "Apelidos de Carteiras de Transação",
     "trade.desc": "Endereços registrados serão exibidos com seu apelido na lista de transações.",
@@ -1653,6 +1662,7 @@ const TT = {
     "watch.new.tx": "Transaksi baharu dikesan",
     "watch.report.warn": "Dompet dilaporkan",
     "watch.cloud.fail": "Ralat pelayan berlaku.",
+    "ctx.trade": "Tambah ke Dompet Transaksi",
     "tab.trade": "Dompet Transaksi",
     "trade.title": "Alias Dompet Transaksi",
     "trade.desc": "Alamat yang didaftarkan akan dipaparkan dengan alias dalam senarai transaksi.",
@@ -1836,6 +1846,7 @@ const TT = {
     "watch.new.tx": "May natukoy na bagong transaksyon",
     "watch.report.warn": "Naireport na wallet",
     "watch.cloud.fail": "May naganap na server error.",
+    "ctx.trade": "Idagdag sa Wallet ng Transaksyon",
     "tab.trade": "Wallet ng Transaksyon",
     "trade.title": "Alias ng Wallet ng Transaksyon",
     "trade.desc": "Ang mga rehistradong address ay ipapakita gamit ang alias sa listahan ng transaksyon.",
@@ -2019,6 +2030,7 @@ const TT = {
     "watch.new.tx": "नया लेनदेन पाया गया",
     "watch.report.warn": "रिपोर्ट किया गया वॉलेट",
     "watch.cloud.fail": "सर्वर त्रुटि हुई।",
+    "ctx.trade": "लेनदेन वॉलेट में जोड़ें",
     "tab.trade": "लेनदेन वॉलेट",
     "trade.title": "लेनदेन वॉलेट उपनाम",
     "trade.desc": "पंजीकृत पते लेनदेन सूची में उपनाम के साथ दिखाए जाएंगे।",
@@ -2202,6 +2214,7 @@ const TT = {
     "watch.new.tx": "تم اكتشاف معاملة جديدة",
     "watch.report.warn": "محفظة تم الإبلاغ عنها",
     "watch.cloud.fail": "حدث خطأ في الخادم.",
+    "ctx.trade": "إضافة إلى محافظ المعاملات",
     "tab.trade": "محافظ المعاملات",
     "trade.title": "أسماء محافظ المعاملات المستعارة",
     "trade.desc": "سيتم عرض العناوين المسجلة باسمها المستعار في قائمة المعاملات.",
@@ -2385,6 +2398,7 @@ const TT = {
     "watch.new.tx": "Обнаружена новая транзакция",
     "watch.report.warn": "Кошелёк, о котором сообщили",
     "watch.cloud.fail": "Произошла ошибка сервера.",
+    "ctx.trade": "Добавить в торговые кошельки",
     "tab.trade": "Торговые кошельки",
     "trade.title": "Псевдонимы торговых кошельков",
     "trade.desc": "Зарегистрированные адреса будут отображаться под псевдонимом в списке транзакций.",
@@ -2568,6 +2582,7 @@ const TT = {
     "watch.new.tx": "নতুন লেনদেন সনাক্ত হয়েছে",
     "watch.report.warn": "রিপোর্ট করা ওয়ালেট",
     "watch.cloud.fail": "সার্ভার ত্রুটি ঘটেছে।",
+    "ctx.trade": "লেনদেন ওয়ালেটে যোগ করুন",
     "tab.trade": "লেনদেন ওয়ালেট",
     "trade.title": "লেনদেন ওয়ালেট ডাকনাম",
     "trade.desc": "নিবন্ধিত ঠিকানাগুলি লেনদেন তালিকায় ডাকনাম হিসেবে দেখানো হবে।",
@@ -2751,6 +2766,7 @@ const TT = {
     "watch.new.tx": "Muamala mpya umegunduliwa",
     "watch.report.warn": "Pochi iliyoripotiwa",
     "watch.cloud.fail": "Hitilafu ya seva imetokea.",
+    "ctx.trade": "Ongeza kwenye Pochi za Miamala",
     "tab.trade": "Pochi za Miamala",
     "trade.title": "Majina ya Pochi za Miamala",
     "trade.desc": "Anwani zilizosajiliwa zitaonyeshwa kwa jina lake katika orodha ya miamala.",
@@ -2934,6 +2950,7 @@ const TT = {
     "watch.new.tx": "ตรวจพบธุรกรรมใหม่",
     "watch.report.warn": "กระเป๋าเงินที่ถูกรายงาน",
     "watch.cloud.fail": "เกิดข้อผิดพลาดของเซิร์ฟเวอร์",
+    "ctx.trade": "เพิ่มในกระเป๋าคู่ค้า",
     "tab.trade": "กระเป๋าคู่ค้า",
     "trade.title": "ชื่อเล่นกระเป๋าคู่ค้า",
     "trade.desc": "ที่อยู่ที่ลงทะเบียนจะแสดงเป็นชื่อเล่นในรายการธุรกรรม",
@@ -3117,6 +3134,7 @@ const TT = {
     "watch.new.tx": "Yeni işlem tespit edildi",
     "watch.report.warn": "Bildirilen cüzdan",
     "watch.cloud.fail": "Bir sunucu hatası oluştu.",
+    "ctx.trade": "İşlem Cüzdanlarına Ekle",
     "tab.trade": "İşlem Cüzdanları",
     "trade.title": "İşlem Cüzdanı Takma Adları",
     "trade.desc": "Kayıtlı adresler işlem listesinde takma adlarıyla gösterilecektir.",
@@ -3331,6 +3349,7 @@ export function renderTrackerPage(container, username, uid) {
     <div id="trk-addr-menu" class="trk-addr-menu hidden">
       <button id="trk-amenu-watch"></button>
       <button id="trk-amenu-pidex"></button>
+      <button id="trk-amenu-trade"></button>
       <button id="trk-amenu-copy"></button>
     </div>
   `;
@@ -4550,21 +4569,35 @@ export function renderTrackerPage(container, username, uid) {
     async function updateAddrMenu() {
       const askedAddr = menuAddr;
       const watchBtn = container.querySelector('#trk-amenu-watch');
+      const tradeBtn = container.querySelector('#trk-amenu-trade');
       watchBtn.textContent = `👁 ${tt('ctx.watch')}...`;
       watchBtn.disabled = true;
+      tradeBtn.textContent = `🏷️ ${tt('ctx.trade')}...`;
+      tradeBtn.disabled = true;
       container.querySelector('#trk-amenu-pidex').textContent = `📥 ${tt('ctx.register.both')}`;
       container.querySelector('#trk-amenu-copy').textContent  = `📋 ${tt('toast.copied')}`;
 
-      const watch = await fetchWatchListServer();
+      const [watch, trade] = await Promise.all([fetchWatchListServer(), fetchTradeWalletsServer()]);
       if (menuAddr !== askedAddr) return; // 메뉴가 다른 주소로 다시 열린 경우 무시
-      if (watch === null) { watchBtn.textContent = `👁 ${tt('watch.load.fail')}`; return; }
-      const slots = WATCH_MAX - watch.length;
-      const alreadyIn = watch.some(w => w.address === menuAddr);
-      watchBtn.textContent = alreadyIn ? `✅ ${tt('ctx.watch.exists')}` : `👁 ${tt('ctx.watch')} (${tt2('ctx.watch.slot', { n: slots })})`;
-      watchBtn.disabled = alreadyIn || slots === 0;
+
+      if (watch === null) { watchBtn.textContent = `👁 ${tt('watch.load.fail')}`; }
+      else {
+        const slots = WATCH_MAX - watch.length;
+        const alreadyIn = watch.some(w => w.address === menuAddr);
+        watchBtn.textContent = alreadyIn ? `✅ ${tt('ctx.watch.exists')}` : `👁 ${tt('ctx.watch')} (${tt2('ctx.watch.slot', { n: slots })})`;
+        watchBtn.disabled = alreadyIn || slots === 0;
+      }
+
+      if (trade === null) { tradeBtn.textContent = `🏷️ ${tt('mywallet.load.fail')}`; }
+      else {
+        const tAlreadyIn = trade.some(w => w.address === menuAddr);
+        tradeBtn.textContent = tAlreadyIn ? `✅ ${tt('ctx.watch.exists')}` : `🏷️ ${tt('ctx.trade')}`;
+        tradeBtn.disabled = tAlreadyIn || trade.length >= TRADE_MAX;
+      }
     }
 
     container.querySelector('#trk-amenu-watch').addEventListener('click', () => { const addr = menuAddr; hideAddrMenu(); addToWatchList(addr); });
+    container.querySelector('#trk-amenu-trade').addEventListener('click', () => { const addr = menuAddr; hideAddrMenu(); addToTradeWalletsQuick(addr); });
     container.querySelector('#trk-amenu-pidex').addEventListener('click', () => {
       const addr = menuAddr;
       hideAddrMenu();
@@ -4575,6 +4608,20 @@ export function renderTrackerPage(container, username, uid) {
       hideAddrMenu();
       navigator.clipboard.writeText(addr).then(() => showToast(tt('toast.copied'))).catch(() => {});
     });
+  }
+
+  async function addToTradeWalletsQuick(addr) {
+    if (!addr) return;
+    const alias = `${addr.slice(0,6)}···${addr.slice(-4)}`;
+    try {
+      const list = await fetchTradeWalletsServer();
+      if (list === null) { showToast(tt('mywallet.load.fail')); return; }
+      if (list.some(w => w.address === addr)) { showToast(tt('ctx.watch.exists')); return; }
+      if (list.length >= TRADE_MAX) { showToast(tt2('trade.add.err_full', { n: TRADE_MAX })); return; }
+      const updated = [...list, { id: genTradeId(), address: addr, alias }];
+      await saveTradeWalletsServer(updated);
+      showToast(`🏷️ ${alias} ${tt('ctx.watch.added')}`);
+    } catch { showToast(tt('watch.cloud.fail')); }
   }
 
   function hideAddrMenu() {
