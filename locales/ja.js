@@ -1063,6 +1063,18 @@
   'notice_skip_week': '今日は表示しない',
   'notice_confirm': '確認',
 
+  "msg_dialog_title": "💬 管理者へのメッセージ",
+  "msg_dialog_placeholder": "お問い合わせやご意見をご記入ください",
+  "msg_cancel": "キャンセル",
+  "msg_send": "送信",
+  "msg_required": "内容を入力してください",
+  "msg_error": "エラーが発生しました",
+  "msg_send_fail": "送信に失敗しました。もう一度お試しください",
+  "msg_sent": "送信完了",
+  "admin_tab_messages": "💬 メッセージ",
+  "admin_msg_loading": "読み込み中...",
+  "admin_msg_empty": "受信したメッセージがありません",
+  "admin_msg_load_fail": "メッセージの読み込みに失敗しました",
   'ptr_pull': "引いて更新",
 
 };

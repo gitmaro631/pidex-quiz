@@ -1036,6 +1036,18 @@
   'notice_skip_week': 'Bir gün gösterme',
   'notice_confirm': 'Tamam',
 
+  "msg_dialog_title": "💬 Yöneticiye Mesaj",
+  "msg_dialog_placeholder": "Sorunuzu veya önerinizi buraya yazın",
+  "msg_cancel": "İptal",
+  "msg_send": "Gönder",
+  "msg_required": "Lütfen bir mesaj girin",
+  "msg_error": "Bir hata oluştu",
+  "msg_send_fail": "Gönderilemedi, tekrar deneyin",
+  "msg_sent": "Gönderildi",
+  "admin_tab_messages": "💬 Mesajlar",
+  "admin_msg_loading": "Yükleniyor...",
+  "admin_msg_empty": "Alınan mesaj yok",
+  "admin_msg_load_fail": "Mesajlar yüklenemedi",
   'ptr_pull': "Yenilemek için çekin",
 
 };

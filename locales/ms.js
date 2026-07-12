@@ -1036,6 +1036,18 @@
   'notice_skip_week': 'Jangan tunjuk sehari',
   'notice_confirm': 'OK',
 
+  "msg_dialog_title": "💬 Mesej kepada Admin",
+  "msg_dialog_placeholder": "Tulis soalan atau cadangan anda di sini",
+  "msg_cancel": "Batal",
+  "msg_send": "Hantar",
+  "msg_required": "Sila masukkan mesej",
+  "msg_error": "Ralat berlaku",
+  "msg_send_fail": "Gagal menghantar, sila cuba lagi",
+  "msg_sent": "Berjaya dihantar",
+  "admin_tab_messages": "💬 Mesej",
+  "admin_msg_loading": "Memuatkan...",
+  "admin_msg_empty": "Tiada mesej diterima",
+  "admin_msg_load_fail": "Gagal memuatkan mesej",
   'ptr_pull': "Tarik untuk muat semula",
 
 };

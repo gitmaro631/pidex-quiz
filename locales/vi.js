@@ -1036,6 +1036,18 @@
   'notice_skip_week': 'Không hiển thị trong một ngày',
   'notice_confirm': 'Xác nhận',
 
+  "msg_dialog_title": "💬 Gửi tin nhắn cho quản trị viên",
+  "msg_dialog_placeholder": "Viết câu hỏi hoặc góp ý của bạn ở đây",
+  "msg_cancel": "Hủy",
+  "msg_send": "Gửi",
+  "msg_required": "Vui lòng nhập nội dung",
+  "msg_error": "Đã xảy ra lỗi",
+  "msg_send_fail": "Gửi thất bại, vui lòng thử lại",
+  "msg_sent": "Đã gửi",
+  "admin_tab_messages": "💬 Tin nhắn",
+  "admin_msg_loading": "Đang tải...",
+  "admin_msg_empty": "Chưa có tin nhắn nào",
+  "admin_msg_load_fail": "Tải tin nhắn thất bại",
   'ptr_pull': "Kéo xuống để làm mới",
 
 };

@@ -445,6 +445,18 @@
   'notice_skip_week': '하루동안 팝업 보지 않기',
   'notice_confirm': '확인',
 
+  "msg_dialog_title": "💬 관리자에게 메시지",
+  "msg_dialog_placeholder": "문의·건의하고 싶은 내용을 적어주세요",
+  "msg_cancel": "취소",
+  "msg_send": "보내기",
+  "msg_required": "내용을 입력해주세요",
+  "msg_error": "오류가 발생했습니다",
+  "msg_send_fail": "전송 실패, 다시 시도해주세요",
+  "msg_sent": "전송 완료",
+  "admin_tab_messages": "💬 메시지",
+  "admin_msg_loading": "불러오는 중...",
+  "admin_msg_empty": "받은 메시지가 없습니다",
+  "admin_msg_load_fail": "메시지 로드 실패",
   'ptr_pull': "당겨서 새로고침",
 
 };

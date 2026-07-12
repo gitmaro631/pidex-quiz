@@ -1036,6 +1036,18 @@
   'notice_skip_week': 'एक दिन के लिए न दिखाएं',
   'notice_confirm': 'ठीक है',
 
+  "msg_dialog_title": "💬 एडमिन को संदेश",
+  "msg_dialog_placeholder": "अपना सवाल या सुझाव यहाँ लिखें",
+  "msg_cancel": "रद्द करें",
+  "msg_send": "भेजें",
+  "msg_required": "कृपया संदेश दर्ज करें",
+  "msg_error": "एक त्रुटि हुई",
+  "msg_send_fail": "भेजने में विफल, फिर से प्रयास करें",
+  "msg_sent": "भेज दिया गया",
+  "admin_tab_messages": "💬 संदेश",
+  "admin_msg_loading": "लोड हो रहा है...",
+  "admin_msg_empty": "कोई संदेश प्राप्त नहीं हुआ",
+  "admin_msg_load_fail": "संदेश लोड करने में विफल",
   'ptr_pull': "खींचकर ताज़ा करें",
 
 };

@@ -1063,6 +1063,18 @@
   'notice_skip_week': "Don't show for a day",
   'notice_confirm': 'OK',
 
+  "msg_dialog_title": "💬 Message to Admin",
+  "msg_dialog_placeholder": "Write your question or suggestion here",
+  "msg_cancel": "Cancel",
+  "msg_send": "Send",
+  "msg_required": "Please enter a message",
+  "msg_error": "An error occurred",
+  "msg_send_fail": "Failed to send, please try again",
+  "msg_sent": "Sent",
+  "admin_tab_messages": "💬 Messages",
+  "admin_msg_loading": "Loading...",
+  "admin_msg_empty": "No messages received",
+  "admin_msg_load_fail": "Failed to load messages",
   'ptr_pull': "Pull to refresh",
 
 };

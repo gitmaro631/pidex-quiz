@@ -1063,6 +1063,18 @@
   'notice_skip_week': 'Jangan tampilkan selama sehari',
   'notice_confirm': 'OK',
 
+  "msg_dialog_title": "💬 Pesan untuk Admin",
+  "msg_dialog_placeholder": "Tuliskan pertanyaan atau saran Anda di sini",
+  "msg_cancel": "Batal",
+  "msg_send": "Kirim",
+  "msg_required": "Silakan masukkan pesan",
+  "msg_error": "Terjadi kesalahan",
+  "msg_send_fail": "Gagal mengirim, silakan coba lagi",
+  "msg_sent": "Terkirim",
+  "admin_tab_messages": "💬 Pesan",
+  "admin_msg_loading": "Memuat...",
+  "admin_msg_empty": "Belum ada pesan yang diterima",
+  "admin_msg_load_fail": "Gagal memuat pesan",
   'ptr_pull': "Tarik untuk refresh",
 
 };

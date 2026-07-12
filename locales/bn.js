@@ -1036,6 +1036,18 @@
   'notice_skip_week': 'একদিন দেখাবেন না',
   'notice_confirm': 'ঠিক আছে',
 
+  "msg_dialog_title": "💬 অ্যাডমিনকে বার্তা",
+  "msg_dialog_placeholder": "আপনার প্রশ্ন বা পরামর্শ এখানে লিখুন",
+  "msg_cancel": "বাতিল",
+  "msg_send": "পাঠান",
+  "msg_required": "অনুগ্রহ করে বার্তা লিখুন",
+  "msg_error": "একটি ত্রুটি ঘটেছে",
+  "msg_send_fail": "পাঠাতে ব্যর্থ, আবার চেষ্টা করুন",
+  "msg_sent": "পাঠানো হয়েছে",
+  "admin_tab_messages": "💬 বার্তা",
+  "admin_msg_loading": "লোড হচ্ছে...",
+  "admin_msg_empty": "কোনো বার্তা পাওয়া যায়নি",
+  "admin_msg_load_fail": "বার্তা লোড ব্যর্থ হয়েছে",
   'ptr_pull': "টেনে রিফ্রেশ করুন",
 
 };

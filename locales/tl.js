@@ -1036,6 +1036,18 @@
   'notice_skip_week': 'Huwag ipakita sa isang araw',
   'notice_confirm': 'OK',
 
+  "msg_dialog_title": "💬 Mensahe sa Admin",
+  "msg_dialog_placeholder": "Isulat ang inyong tanong o mungkahi dito",
+  "msg_cancel": "Kanselahin",
+  "msg_send": "Ipadala",
+  "msg_required": "Maglagay ng mensahe",
+  "msg_error": "May naganap na error",
+  "msg_send_fail": "Nabigo ang pagpapadala, subukan muli",
+  "msg_sent": "Naipadala na",
+  "admin_tab_messages": "💬 Mga Mensahe",
+  "admin_msg_loading": "Naglo-load...",
+  "admin_msg_empty": "Walang natanggap na mensahe",
+  "admin_msg_load_fail": "Nabigo ang pag-load ng mensahe",
   'ptr_pull': "I-pull para i-refresh",
 
 };

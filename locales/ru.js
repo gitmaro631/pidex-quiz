@@ -1036,6 +1036,18 @@
   'notice_skip_week': 'Не показывать день',
   'notice_confirm': 'ОК',
 
+  "msg_dialog_title": "💬 Сообщение администратору",
+  "msg_dialog_placeholder": "Напишите здесь свой вопрос или предложение",
+  "msg_cancel": "Отмена",
+  "msg_send": "Отправить",
+  "msg_required": "Пожалуйста, введите сообщение",
+  "msg_error": "Произошла ошибка",
+  "msg_send_fail": "Не удалось отправить, попробуйте снова",
+  "msg_sent": "Отправлено",
+  "admin_tab_messages": "💬 Сообщения",
+  "admin_msg_loading": "Загрузка...",
+  "admin_msg_empty": "Нет полученных сообщений",
+  "admin_msg_load_fail": "Не удалось загрузить сообщения",
   'ptr_pull': "Потяните для обновления",
 
 };

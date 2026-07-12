@@ -1036,6 +1036,18 @@
   'notice_skip_week': 'ไม่แสดงเป็นเวลาหนึ่งวัน',
   'notice_confirm': 'ตกลง',
 
+  "msg_dialog_title": "💬 ข้อความถึงผู้ดูแลระบบ",
+  "msg_dialog_placeholder": "เขียนคำถามหรือข้อเสนอแนะของคุณที่นี่",
+  "msg_cancel": "ยกเลิก",
+  "msg_send": "ส่ง",
+  "msg_required": "กรุณากรอกข้อความ",
+  "msg_error": "เกิดข้อผิดพลาด",
+  "msg_send_fail": "ส่งไม่สำเร็จ กรุณาลองใหม่",
+  "msg_sent": "ส่งเรียบร้อยแล้ว",
+  "admin_tab_messages": "💬 ข้อความ",
+  "admin_msg_loading": "กำลังโหลด...",
+  "admin_msg_empty": "ยังไม่มีข้อความที่ได้รับ",
+  "admin_msg_load_fail": "โหลดข้อความล้มเหลว",
   'ptr_pull': "ดึงลงเพื่อรีเฟรช",
 
 };

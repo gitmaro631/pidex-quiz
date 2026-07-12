@@ -1036,6 +1036,18 @@
   'notice_skip_week': 'No mostrar por un día',
   'notice_confirm': 'Aceptar',
 
+  "msg_dialog_title": "💬 Mensaje al Administrador",
+  "msg_dialog_placeholder": "Escriba su pregunta o sugerencia aquí",
+  "msg_cancel": "Cancelar",
+  "msg_send": "Enviar",
+  "msg_required": "Por favor ingrese un mensaje",
+  "msg_error": "Ocurrió un error",
+  "msg_send_fail": "Error al enviar, intente de nuevo",
+  "msg_sent": "Enviado",
+  "admin_tab_messages": "💬 Mensajes",
+  "admin_msg_loading": "Cargando...",
+  "admin_msg_empty": "No hay mensajes recibidos",
+  "admin_msg_load_fail": "Error al cargar mensajes",
   'ptr_pull': "Desliza para actualizar",
 
 };

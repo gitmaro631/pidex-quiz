@@ -1036,6 +1036,18 @@
   'notice_skip_week': 'لا تعرض لمدة يوم',
   'notice_confirm': 'موافق',
 
+  "msg_dialog_title": "💬 رسالة إلى المسؤول",
+  "msg_dialog_placeholder": "اكتب سؤالك أو اقتراحك هنا",
+  "msg_cancel": "إلغاء",
+  "msg_send": "إرسال",
+  "msg_required": "الرجاء إدخال رسالة",
+  "msg_error": "حدث خطأ",
+  "msg_send_fail": "فشل الإرسال، حاول مرة أخرى",
+  "msg_sent": "تم الإرسال",
+  "admin_tab_messages": "💬 الرسائل",
+  "admin_msg_loading": "جارٍ التحميل...",
+  "admin_msg_empty": "لا توجد رسائل مستلمة",
+  "admin_msg_load_fail": "فشل تحميل الرسائل",
   'ptr_pull': "اسحب للتحديث",
 
 };

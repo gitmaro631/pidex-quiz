@@ -1036,6 +1036,18 @@
   'notice_skip_week': 'Usionyeshe kwa siku moja',
   'notice_confirm': 'Sawa',
 
+  "msg_dialog_title": "💬 Ujumbe kwa Msimamizi",
+  "msg_dialog_placeholder": "Andika swali lako au pendekezo hapa",
+  "msg_cancel": "Ghairi",
+  "msg_send": "Tuma",
+  "msg_required": "Tafadhali ingiza ujumbe",
+  "msg_error": "Hitilafu imetokea",
+  "msg_send_fail": "Imeshindwa kutuma, jaribu tena",
+  "msg_sent": "Imetumwa",
+  "admin_tab_messages": "💬 Ujumbe",
+  "admin_msg_loading": "Inapakia...",
+  "admin_msg_empty": "Hakuna ujumbe uliopokelewa",
+  "admin_msg_load_fail": "Imeshindwa kupakia ujumbe",
   'ptr_pull': "Vuta kusasisha",
 
 };

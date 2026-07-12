@@ -1063,6 +1063,18 @@
   'notice_skip_week': '今天不再显示',
   'notice_confirm': '确认',
 
+  "msg_dialog_title": "💬 给管理员留言",
+  "msg_dialog_placeholder": "请输入您的问题或建议",
+  "msg_cancel": "取消",
+  "msg_send": "发送",
+  "msg_required": "请输入内容",
+  "msg_error": "发生错误",
+  "msg_send_fail": "发送失败，请重试",
+  "msg_sent": "发送完成",
+  "admin_tab_messages": "💬 消息",
+  "admin_msg_loading": "加载中...",
+  "admin_msg_empty": "暂无收到的消息",
+  "admin_msg_load_fail": "消息加载失败",
   'ptr_pull': "下拉刷新",
 
 };
