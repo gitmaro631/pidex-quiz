@@ -221,6 +221,20 @@ async function loadAdminStatsWithGrowth(db) {
   return { current, prev };
 }
 
+// 관리자가 통계 탭을 안 열어도, 아무 유저나 접속하면 그날 스냅샷이 자동으로 한 번 기록됨
+async function maybeRecordDailyStatsSnapshot() {
+  try {
+    if (typeof firebase === 'undefined' || !firebase.apps.length) return;
+    const db    = firebase.firestore();
+    const today = new Date().toISOString().slice(0, 10);
+    const ref   = db.collection(STATS_HISTORY_COL).doc(today);
+    const snap  = await ref.get();
+    if (snap.exists) return;
+    const current = await computeAdminStats(db);
+    await ref.set({ date: today, ...current, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+  } catch { /* 조용히 무시 — 일반 유저 경험에 영향 없어야 함 */ }
+}
+
 async function fetchSubscriberCount() {
   try {
     const r = await fetch(`/api/admin-stats?username=${encodeURIComponent(ADMIN_USERNAME)}`);
@@ -404,6 +418,7 @@ async function doLogin() {
     applyNavLabels();
     switchPage('quiz');
     showNoticeIfNeeded();
+    maybeRecordDailyStatsSnapshot();
   } catch (e) {
     btn.disabled = false;
     btn.textContent = t('login.btn');
