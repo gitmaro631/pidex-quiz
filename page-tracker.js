@@ -20,7 +20,8 @@ const TT = {
     'ledger.in': '입금', 'ledger.out': '출금', 'ledger.net': '순증감', 'ledger.year_total': '연간 합계',
     'ledger.export': '📤 CSV 내보내기', 'ledger.refresh': '↻ 새로고침',
     'ledger.note': '⚠️ 이 장부는 처음 연 시점부터의 지갑 입출금 내역을 수집합니다. 2027년 과세 연도부터는 그 해 1월 1일까지 자동으로 소급해서 채웁니다. 실제 세무 신고 시엔 거래소 매수 체결내역을 취득가액의 근거로 사용하세요 — 이 장부는 지갑의 입출금 흐름 참고용입니다.',
-    'ledger.fail': '내역을 불러오지 못했습니다.', 'ledger.counterpart_all': '상대 지갑: 전체',
+    'ledger.fail': '내역을 불러오지 못했습니다.', 'ledger.counterpart_all': '상대 지갑 (선택 안 하면 전체 표시)',
+    'ledger.mode_combined': '합계', 'ledger.mode_individual': '개별',
     'ledger.incomplete_warn': '이 지갑은 거래량이 많아 올해 1월 1일까지 전부 자동으로 불러오지 못했습니다. 관리자에게 문의해주세요 (상한을 올려 다시 동기화해드릴 수 있습니다).',
     'report.title': '🚨 피해 신고', 'report.realname_warn': "⚠️ 본 신고는 <strong>실명제</strong>로 운영됩니다.<br>Pi 계정으로 로그인한 본인만 신고할 수 있으며,<br>허위 신고 시 법적 책임이 따를 수 있습니다.", 'report.victim_id': '피해자 Pi ID', 'report.suspect_wallet': '의심 지갑 주소',
     'report.amount': '피해 금액 (Pi)', 'report.date': '피해 날짜', 'report.txhash': '트랜잭션 해시 (선택)',
@@ -132,7 +133,8 @@ const TT = {
     'ledger.in': 'In', 'ledger.out': 'Out', 'ledger.net': 'Net', 'ledger.year_total': 'Year Total',
     'ledger.export': '📤 Export CSV', 'ledger.refresh': '↻ Refresh',
     'ledger.note': '⚠️ This ledger collects wallet in/out history starting from when you first open it. From tax year 2027 onward, it automatically backfills to January 1st of that year. For actual tax filing, use your exchange trade records as the basis for acquisition cost — this ledger is for reference on wallet in/out flow only.',
-    'ledger.fail': 'Failed to load history.', 'ledger.counterpart_all': 'Counterparty: All',
+    'ledger.fail': 'Failed to load history.', 'ledger.counterpart_all': 'Counterparty (shows all if none selected)',
+    'ledger.mode_combined': 'Combined', 'ledger.mode_individual': 'Individual',
     'ledger.incomplete_warn': 'This wallet has too much activity to fully sync back to January 1st this year automatically. Please contact the admin (the sync limit can be raised and re-run for you).',
     'report.title': '🚨 Report Hack', 'report.realname_warn': "⚠️ This report is operated under a <strong>real-name policy</strong>.<br>Only the logged-in Pi account holder can file a report,<br>and false reports may carry legal liability.", 'report.victim_id': 'Victim Pi ID', 'report.suspect_wallet': 'Suspect Wallet Address',
     'report.amount': 'Amount Lost (Pi)', 'report.date': 'Date of Incident', 'report.txhash': 'Transaction Hash (optional)',
@@ -247,7 +249,8 @@ const TT = {
     "ledger.in": "收入", "ledger.out": "支出", "ledger.net": "净额", "ledger.year_total": "年度合计",
     "ledger.export": "📤 导出CSV", "ledger.refresh": "↻ 刷新",
     "ledger.note": "⚠️ 此账本从您第一次打开时开始收集钱包收支记录。从2027纳税年度起，将自动追溯补齐到当年1月1日。实际报税时请以交易所的成交记录作为取得成本的依据——此账本仅供钱包收支流水参考。",
-    "ledger.fail": "加载记录失败。", "ledger.counterpart_all": "对方钱包：全部",
+    "ledger.fail": "加载记录失败。", "ledger.counterpart_all": "对方钱包（不选则显示全部）",
+    "ledger.mode_combined": "合计", "ledger.mode_individual": "个别",
     "ledger.incomplete_warn": "该钱包交易量过大，未能自动同步到今年1月1日。请联系管理员（可以提高上限后为您重新同步）。",
     "report.title": "🚨 举报诈骗",
     'report.realname_warn': "⚠️ 本举报采用<strong>实名制</strong>运营。<br>只有登录的Pi账户本人才能举报，<br>虚假举报可能承担法律责任。",
@@ -441,7 +444,8 @@ const TT = {
     "ledger.in": "Masuk", "ledger.out": "Keluar", "ledger.net": "Bersih", "ledger.year_total": "Total Tahunan",
     "ledger.export": "📤 Ekspor CSV", "ledger.refresh": "↻ Segarkan",
     "ledger.note": "⚠️ Buku besar ini mengumpulkan riwayat masuk/keluar dompet mulai dari saat Anda pertama kali membukanya. Mulai tahun pajak 2027, secara otomatis akan disinkronkan mundur hingga 1 Januari tahun tersebut. Untuk pelaporan pajak sebenarnya, gunakan catatan transaksi bursa Anda sebagai dasar biaya perolehan — buku besar ini hanya untuk referensi arus masuk/keluar dompet.",
-    "ledger.fail": "Gagal memuat riwayat.", "ledger.counterpart_all": "Rekanan: Semua",
+    "ledger.fail": "Gagal memuat riwayat.", "ledger.counterpart_all": "Rekanan (tampilkan semua jika tidak dipilih)",
+    "ledger.mode_combined": "Gabungan", "ledger.mode_individual": "Individual",
     "ledger.incomplete_warn": "Dompet ini memiliki terlalu banyak aktivitas untuk disinkronkan otomatis hingga 1 Januari tahun ini. Silakan hubungi admin (batas dapat dinaikkan dan disinkronkan ulang untuk Anda).",
     "report.title": "🚨 Laporkan Penipuan",
     'report.realname_warn': "⚠️ Laporan ini dioperasikan dengan <strong>kebijakan nama asli</strong>.<br>Hanya pemegang akun Pi yang login yang dapat melaporkan,<br>dan laporan palsu dapat berakibat hukum.",
@@ -635,7 +639,8 @@ const TT = {
     "ledger.in": "入金", "ledger.out": "出金", "ledger.net": "純増減", "ledger.year_total": "年間合計",
     "ledger.export": "📤 CSVエクスポート", "ledger.refresh": "↻ 更新",
     "ledger.note": "⚠️ この台帳は初めて開いた時点からのウォレットの入出金履歴を収集します。2027年の課税年度からは、その年の1月1日まで自動的に遡って収集します。実際の税務申告には取引所の約定履歴を取得原価の根拠として使用してください — この台帳はウォレットの入出金の流れの参考用です。",
-    "ledger.fail": "履歴の読み込みに失敗しました。", "ledger.counterpart_all": "相手ウォレット：すべて",
+    "ledger.fail": "履歴の読み込みに失敗しました。", "ledger.counterpart_all": "相手ウォレット（未選択なら全て表示）",
+    "ledger.mode_combined": "合計", "ledger.mode_individual": "個別",
     "ledger.incomplete_warn": "このウォレットは取引量が多いため、今年の1月1日まで自動的に同期できませんでした。管理者にお問い合わせください（上限を引き上げて再同期できます）。",
     "report.title": "🚨 被害通報",
     'report.realname_warn': "⚠️ 本報告は<strong>実名制</strong>で運営されています。<br>ログインしたご本人のPiアカウントのみ報告できます。<br>虚偽の報告には法的責任が伴う場合があります。",
@@ -829,7 +834,8 @@ const TT = {
     "ledger.in": "Entrada", "ledger.out": "Salida", "ledger.net": "Neto", "ledger.year_total": "Total Anual",
     "ledger.export": "📤 Exportar CSV", "ledger.refresh": "↻ Actualizar",
     "ledger.note": "⚠️ Este libro mayor recopila el historial de entrada/salida de la cartera desde el momento en que lo abre por primera vez. A partir del año fiscal 2027, se sincronizará automáticamente hacia atrás hasta el 1 de enero de ese año. Para la declaración de impuestos real, use los registros de operaciones de su exchange como base del costo de adquisición — este libro mayor es solo para referencia del flujo de entrada/salida de la cartera.",
-    "ledger.fail": "Error al cargar el historial.", "ledger.counterpart_all": "Contraparte: Todas",
+    "ledger.fail": "Error al cargar el historial.", "ledger.counterpart_all": "Contraparte (muestra todas si no se selecciona ninguna)",
+    "ledger.mode_combined": "Combinado", "ledger.mode_individual": "Individual",
     "ledger.incomplete_warn": "Esta cartera tiene demasiada actividad para sincronizarse automáticamente hasta el 1 de enero de este año. Contacte al administrador (el límite se puede aumentar y resincronizar para usted).",
     "report.title": "🚨 Reportar Estafa",
     'report.realname_warn': "⚠️ Este reporte se gestiona bajo una <strong>política de nombre real</strong>.<br>Solo el titular de la cuenta Pi con sesión iniciada puede reportar,<br>y los reportes falsos pueden acarrear responsabilidad legal.",
@@ -1023,7 +1029,8 @@ const TT = {
     "ledger.in": "Entrée", "ledger.out": "Sortie", "ledger.net": "Net", "ledger.year_total": "Total Annuel",
     "ledger.export": "📤 Exporter en CSV", "ledger.refresh": "↻ Actualiser",
     "ledger.note": "⚠️ Ce registre collecte l'historique des entrées/sorties du portefeuille à partir du moment où vous l'ouvrez pour la première fois. À partir de l'année fiscale 2027, il se synchronisera automatiquement en arrière jusqu'au 1er janvier de cette année-là. Pour la déclaration fiscale réelle, utilisez les relevés de transactions de votre plateforme d'échange comme base du coût d'acquisition — ce registre est uniquement à titre de référence pour les flux entrants/sortants du portefeuille.",
-    "ledger.fail": "Échec du chargement de l'historique.", "ledger.counterpart_all": "Contrepartie : Toutes",
+    "ledger.fail": "Échec du chargement de l'historique.", "ledger.counterpart_all": "Contrepartie (affiche toutes si aucune sélection)",
+    "ledger.mode_combined": "Combiné", "ledger.mode_individual": "Individuel",
     "ledger.incomplete_warn": "Ce portefeuille a une activité trop importante pour se synchroniser automatiquement jusqu'au 1er janvier de cette année. Veuillez contacter l'administrateur (la limite peut être augmentée et resynchronisée pour vous).",
     "report.title": "🚨 Signaler une Arnaque",
     'report.realname_warn': "⚠️ Ce signalement est géré selon une <strong>politique du vrai nom</strong>.<br>Seul le titulaire du compte Pi connecté peut signaler,<br>et les faux signalements peuvent engager une responsabilité légale.",
@@ -1217,7 +1224,8 @@ const TT = {
     "ledger.in": "Vào", "ledger.out": "Ra", "ledger.net": "Ròng", "ledger.year_total": "Tổng Năm",
     "ledger.export": "📤 Xuất CSV", "ledger.refresh": "↻ Làm mới",
     "ledger.note": "⚠️ Sổ cái này thu thập lịch sử vào/ra của ví kể từ lần đầu tiên bạn mở nó. Từ năm tính thuế 2027 trở đi, sổ cái sẽ tự động đồng bộ ngược về ngày 1 tháng 1 năm đó. Khi khai thuế thực tế, hãy dùng lịch sử khớp lệnh trên sàn giao dịch làm cơ sở giá vốn — sổ cái này chỉ mang tính tham khảo cho dòng tiền vào/ra của ví.",
-    "ledger.fail": "Không tải được lịch sử.", "ledger.counterpart_all": "Đối tác: Tất cả",
+    "ledger.fail": "Không tải được lịch sử.", "ledger.counterpart_all": "Đối tác (hiển thị tất cả nếu không chọn)",
+    "ledger.mode_combined": "Tổng hợp", "ledger.mode_individual": "Riêng lẻ",
     "ledger.incomplete_warn": "Ví này có quá nhiều hoạt động để tự động đồng bộ đến ngày 1 tháng 1 năm nay. Vui lòng liên hệ quản trị viên (có thể nâng giới hạn và đồng bộ lại cho bạn).",
     "report.title": "🚨 Báo cáo Lừa đảo",
     'report.realname_warn': "⚠️ Báo cáo này được vận hành theo <strong>chính sách tên thật</strong>.<br>Chỉ chủ tài khoản Pi đã đăng nhập mới có thể báo cáo,<br>và báo cáo sai có thể chịu trách nhiệm pháp lý.",
@@ -1411,7 +1419,8 @@ const TT = {
     "ledger.in": "Entrada", "ledger.out": "Saída", "ledger.net": "Líquido", "ledger.year_total": "Total Anual",
     "ledger.export": "📤 Exportar CSV", "ledger.refresh": "↻ Atualizar",
     "ledger.note": "⚠️ Este livro-razão coleta o histórico de entrada/saída da carteira a partir do momento em que você o abre pela primeira vez. A partir do ano fiscal de 2027, ele sincronizará automaticamente retroativamente até 1º de janeiro daquele ano. Para a declaração de impostos real, use os registros de negociação da sua corretora como base do custo de aquisição — este livro-razão é apenas para referência do fluxo de entrada/saída da carteira.",
-    "ledger.fail": "Falha ao carregar o histórico.", "ledger.counterpart_all": "Contraparte: Todas",
+    "ledger.fail": "Falha ao carregar o histórico.", "ledger.counterpart_all": "Contraparte (mostra todas se nenhuma selecionada)",
+    "ledger.mode_combined": "Combinado", "ledger.mode_individual": "Individual",
     "ledger.incomplete_warn": "Esta carteira tem atividade demais para sincronizar automaticamente até 1º de janeiro deste ano. Entre em contato com o administrador (o limite pode ser aumentado e ressincronizado para você).",
     "report.title": "🚨 Denunciar Golpe",
     'report.realname_warn': "⚠️ Esta denúncia é operada sob uma <strong>política de nome real</strong>.<br>Somente o titular da conta Pi conectado pode denunciar,<br>e denúncias falsas podem gerar responsabilidade legal.",
@@ -1605,7 +1614,8 @@ const TT = {
     "ledger.in": "Masuk", "ledger.out": "Keluar", "ledger.net": "Bersih", "ledger.year_total": "Jumlah Tahunan",
     "ledger.export": "📤 Eksport CSV", "ledger.refresh": "↻ Segar Semula",
     "ledger.note": "⚠️ Lejar ini mengumpul sejarah masuk/keluar dompet bermula dari masa anda membukanya buat kali pertama. Mulai tahun cukai 2027, ia akan disegerakkan secara automatik ke belakang sehingga 1 Januari tahun tersebut. Untuk pemfailan cukai sebenar, gunakan rekod dagangan bursa anda sebagai asas kos perolehan — lejar ini hanya untuk rujukan aliran masuk/keluar dompet.",
-    "ledger.fail": "Gagal memuatkan sejarah.", "ledger.counterpart_all": "Rakan Niaga: Semua",
+    "ledger.fail": "Gagal memuatkan sejarah.", "ledger.counterpart_all": "Rakan Niaga (papar semua jika tiada dipilih)",
+    "ledger.mode_combined": "Gabungan", "ledger.mode_individual": "Individu",
     "ledger.incomplete_warn": "Dompet ini mempunyai aktiviti yang terlalu banyak untuk disegerakkan secara automatik sehingga 1 Januari tahun ini. Sila hubungi admin (had boleh dinaikkan dan disegerakkan semula untuk anda).",
     "report.title": "🚨 Laporkan Penipuan",
     'report.realname_warn': "⚠️ Laporan ini dikendalikan di bawah <strong>dasar nama sebenar</strong>.<br>Hanya pemegang akaun Pi yang log masuk boleh melaporkan,<br>dan laporan palsu boleh membawa liabiliti undang-undang.",
@@ -1799,7 +1809,8 @@ const TT = {
     "ledger.in": "Papasok", "ledger.out": "Palabas", "ledger.net": "Net", "ledger.year_total": "Kabuuang Taunan",
     "ledger.export": "📤 I-export ang CSV", "ledger.refresh": "↻ I-refresh",
     "ledger.note": "⚠️ Ang talaang ito ay nangongolekta ng kasaysayan ng papasok/palabas ng wallet simula sa unang pagbukas mo nito. Simula sa taong buwis 2027, awtomatiko itong mag-sync pabalik hanggang Enero 1 ng taong iyon. Para sa aktwal na pag-file ng buwis, gamitin ang mga talaan ng kalakalan sa iyong exchange bilang batayan ng gastos sa pagkuha — ang talaang ito ay para lamang sa sanggunian ng daloy ng papasok/palabas ng wallet.",
-    "ledger.fail": "Nabigong i-load ang kasaysayan.", "ledger.counterpart_all": "Katapat: Lahat",
+    "ledger.fail": "Nabigong i-load ang kasaysayan.", "ledger.counterpart_all": "Katapat (ipapakita lahat kung walang napili)",
+    "ledger.mode_combined": "Kombinado", "ledger.mode_individual": "Indibidwal",
     "ledger.incomplete_warn": "Masyadong maraming aktibidad ang wallet na ito para awtomatikong ma-sync hanggang Enero 1 ngayong taon. Mangyaring makipag-ugnayan sa admin (maaaring itaas ang limitasyon at i-sync muli para sa iyo).",
     "report.title": "🚨 I-report ang Scam",
     'report.realname_warn': "⚠️ Ang ulat na ito ay pinapatakbo sa ilalim ng <strong>patakaran ng tunay na pangalan</strong>.<br>Tanging ang may-ari ng Pi account na naka-login ang maaaring mag-ulat,<br>at ang mga huwad na ulat ay maaaring magdulot ng legal na pananagutan.",
@@ -1993,7 +2004,8 @@ const TT = {
     "ledger.in": "जमा", "ledger.out": "निकासी", "ledger.net": "शुद्ध", "ledger.year_total": "वार्षिक कुल",
     "ledger.export": "📤 CSV निर्यात करें", "ledger.refresh": "↻ रीफ्रेश करें",
     "ledger.note": "⚠️ यह बहीखाता आपके पहली बार खोलने के क्षण से वॉलेट के आवक/जावक इतिहास को एकत्र करता है। कर वर्ष 2027 से, यह स्वचालित रूप से उस वर्ष की 1 जनवरी तक पीछे की ओर सिंक हो जाएगा। वास्तविक कर फाइलिंग के लिए, अधिग्रहण लागत के आधार के रूप में अपने एक्सचेंज के व्यापार रिकॉर्ड का उपयोग करें — यह बहीखाता केवल वॉलेट के आवक/जावक प्रवाह के संदर्भ के लिए है।",
-    "ledger.fail": "इतिहास लोड करने में विफल।", "ledger.counterpart_all": "प्रतिपक्ष: सभी",
+    "ledger.fail": "इतिहास लोड करने में विफल।", "ledger.counterpart_all": "प्रतिपक्ष (कुछ न चुनने पर सभी दिखेगा)",
+    "ledger.mode_combined": "संयुक्त", "ledger.mode_individual": "व्यक्तिगत",
     "ledger.incomplete_warn": "इस वॉलेट में इतनी अधिक गतिविधि है कि यह इस वर्ष 1 जनवरी तक स्वचालित रूप से सिंक नहीं हो सका। कृपया व्यवस्थापक से संपर्क करें (सीमा बढ़ाकर आपके लिए फिर से सिंक किया जा सकता है)।",
     "report.title": "🚨 धोखाधड़ी की रिपोर्ट करें",
     'report.realname_warn': "⚠️ यह रिपोर्ट <strong>वास्तविक-नाम नीति</strong> के तहत संचालित होती है।<br>केवल लॉग इन किया गया Pi खाता धारक ही रिपोर्ट कर सकता है,<br>और झूठी रिपोर्ट पर कानूनी जिम्मेदारी हो सकती है।",
@@ -2187,7 +2199,8 @@ const TT = {
     "ledger.in": "وارد", "ledger.out": "صادر", "ledger.net": "الصافي", "ledger.year_total": "الإجمالي السنوي",
     "ledger.export": "📤 تصدير CSV", "ledger.refresh": "↻ تحديث",
     "ledger.note": "⚠️ يجمع هذا السجل تاريخ الوارد/الصادر للمحفظة اعتبارًا من اللحظة التي تفتحه فيها لأول مرة. اعتبارًا من السنة الضريبية 2027، ستتم المزامنة تلقائيًا للخلف حتى 1 يناير من ذلك العام. عند تقديم الإقرار الضريبي الفعلي، استخدم سجلات صفقات منصة التداول كأساس لتكلفة الاقتناء — هذا السجل مخصص فقط كمرجع لتدفق الأموال داخل وخارج المحفظة.",
-    "ledger.fail": "فشل تحميل السجل.", "ledger.counterpart_all": "الطرف المقابل: الكل",
+    "ledger.fail": "فشل تحميل السجل.", "ledger.counterpart_all": "الطرف المقابل (يعرض الكل إذا لم يتم التحديد)",
+    "ledger.mode_combined": "مجمّع", "ledger.mode_individual": "فردي",
     "ledger.incomplete_warn": "هذه المحفظة بها نشاط كثير جدًا بحيث لا يمكن مزامنتها تلقائيًا حتى 1 يناير من هذا العام. يرجى التواصل مع المسؤول (يمكن رفع الحد وإعادة المزامنة لك).",
     "report.title": "🚨 الإبلاغ عن احتيال",
     'report.realname_warn': "⚠️ تُدار هذه الشكوى وفق <strong>سياسة الاسم الحقيقي</strong>.<br>يمكن فقط لصاحب حساب Pi المسجّل الدخول تقديم الشكوى،<br>وقد تترتب مسؤولية قانونية على الشكاوى الكاذبة.",
@@ -2381,7 +2394,8 @@ const TT = {
     "ledger.in": "Поступления", "ledger.out": "Списания", "ledger.net": "Итого", "ledger.year_total": "Итого за год",
     "ledger.export": "📤 Экспорт CSV", "ledger.refresh": "↻ Обновить",
     "ledger.note": "⚠️ Этот гроссбух собирает историю поступлений/списаний кошелька с момента первого открытия. Начиная с налогового 2027 года, он будет автоматически синхронизироваться назад до 1 января того года. Для реальной налоговой отчётности используйте историю сделок вашей биржи как основу для расчёта стоимости приобретения — этот гроссбух предназначен только для справки по движению средств кошелька.",
-    "ledger.fail": "Не удалось загрузить историю.", "ledger.counterpart_all": "Контрагент: Все",
+    "ledger.fail": "Не удалось загрузить историю.", "ledger.counterpart_all": "Контрагент (показывает всех, если ничего не выбрано)",
+    "ledger.mode_combined": "Итого", "ledger.mode_individual": "Отдельно",
     "ledger.incomplete_warn": "У этого кошелька слишком много активности, чтобы автоматически синхронизироваться до 1 января этого года. Пожалуйста, свяжитесь с администратором (лимит можно повысить и синхронизировать заново).",
     "report.title": "🚨 Сообщить о мошенничестве",
     'report.realname_warn': "⚠️ Эта жалоба обрабатывается согласно <strong>политике настоящих имён</strong>.<br>Подать жалобу может только владелец вошедшего в систему аккаунта Pi,<br>а ложные жалобы могут повлечь юридическую ответственность.",
@@ -2575,7 +2589,8 @@ const TT = {
     "ledger.in": "জমা", "ledger.out": "উত্তোলন", "ledger.net": "নিট", "ledger.year_total": "বার্ষিক মোট",
     "ledger.export": "📤 CSV রপ্তানি করুন", "ledger.refresh": "↻ রিফ্রেশ করুন",
     "ledger.note": "⚠️ এই খতিয়ানটি আপনি প্রথমবার খোলার মুহূর্ত থেকে ওয়ালেটের আসা/যাওয়ার ইতিহাস সংগ্রহ করে। ২০২৭ কর বছর থেকে, এটি স্বয়ংক্রিয়ভাবে সেই বছরের ১ জানুয়ারি পর্যন্ত পিছনে সিঙ্ক হবে। প্রকৃত কর ফাইলিংয়ের জন্য, অর্জন ব্যয়ের ভিত্তি হিসেবে আপনার এক্সচেঞ্জের ট্রেড রেকর্ড ব্যবহার করুন — এই খতিয়ানটি শুধুমাত্র ওয়ালেটের আসা/যাওয়ার প্রবাহের রেফারেন্সের জন্য।",
-    "ledger.fail": "ইতিহাস লোড করতে ব্যর্থ হয়েছে।", "ledger.counterpart_all": "প্রতিপক্ষ: সব",
+    "ledger.fail": "ইতিহাস লোড করতে ব্যর্থ হয়েছে।", "ledger.counterpart_all": "প্রতিপক্ষ (কিছু নির্বাচন না করলে সব দেখাবে)",
+    "ledger.mode_combined": "সম্মিলিত", "ledger.mode_individual": "পৃথক",
     "ledger.incomplete_warn": "এই ওয়ালেটে এত বেশি কার্যকলাপ রয়েছে যে এটি এই বছরের ১ জানুয়ারি পর্যন্ত স্বয়ংক্রিয়ভাবে সিঙ্ক করা যায়নি। অনুগ্রহ করে অ্যাডমিনের সাথে যোগাযোগ করুন (সীমা বাড়িয়ে আপনার জন্য পুনরায় সিঙ্ক করা যেতে পারে)।",
     "report.title": "🚨 প্রতারণা রিপোর্ট করুন",
     'report.realname_warn': "⚠️ এই রিপোর্ট <strong>প্রকৃত-নাম নীতি</strong>র অধীনে পরিচালিত হয়।<br>শুধুমাত্র লগইন করা Pi অ্যাকাউন্টধারীই রিপোর্ট করতে পারবেন,<br>এবং মিথ্যা রিপোর্টে আইনি দায় হতে পারে।",
@@ -2769,7 +2784,8 @@ const TT = {
     "ledger.in": "Ndani", "ledger.out": "Nje", "ledger.net": "Jumla Halisi", "ledger.year_total": "Jumla ya Mwaka",
     "ledger.export": "📤 Hamisha CSV", "ledger.refresh": "↻ Onyesha upya",
     "ledger.note": "⚠️ Kitabu hiki cha hesabu hukusanya historia ya ndani/nje ya pochi kuanzia wakati unapokifungua kwa mara ya kwanza. Kuanzia mwaka wa kodi 2027, kitasawazishwa kiotomatiki nyuma hadi Januari 1 ya mwaka huo. Kwa ajili ya kufungua mizigo ya kodi halisi, tumia rekodi za biashara za soko lako kama msingi wa gharama ya ununuzi — kitabu hiki cha hesabu ni kwa ajili ya marejeleo ya mtiririko wa pochi pekee.",
-    "ledger.fail": "Imeshindwa kupakia historia.", "ledger.counterpart_all": "Mshirika: Wote",
+    "ledger.fail": "Imeshindwa kupakia historia.", "ledger.counterpart_all": "Mshirika (huonyesha wote ikiwa hakuna aliyechaguliwa)",
+    "ledger.mode_combined": "Jumla", "ledger.mode_individual": "Kibinafsi",
     "ledger.incomplete_warn": "Pochi hii ina shughuli nyingi mno kusawazishwa kiotomatiki hadi Januari 1 mwaka huu. Tafadhali wasiliana na msimamizi (kikomo kinaweza kuongezwa na kusawazishwa upya kwa ajili yako).",
     "report.title": "🚨 Ripoti Udanganyifu",
     'report.realname_warn': "⚠️ Ripoti hii inaendeshwa chini ya <strong>sera ya jina halisi</strong>.<br>Ni mmiliki wa akaunti ya Pi aliyeingia pekee anayeweza kuripoti,<br>na ripoti za uongo zinaweza kusababisha dhima ya kisheria.",
@@ -2963,7 +2979,8 @@ const TT = {
     "ledger.in": "เข้า", "ledger.out": "ออก", "ledger.net": "สุทธิ", "ledger.year_total": "ยอดรวมรายปี",
     "ledger.export": "📤 ส่งออก CSV", "ledger.refresh": "↻ รีเฟรช",
     "ledger.note": "⚠️ บัญชีนี้รวบรวมประวัติเข้า/ออกของกระเป๋าเงินตั้งแต่ช่วงเวลาที่คุณเปิดครั้งแรก ตั้งแต่ปีภาษี 2027 เป็นต้นไป จะซิงค์ย้อนหลังโดยอัตโนมัติไปจนถึงวันที่ 1 มกราคมของปีนั้น สำหรับการยื่นภาษีจริง โปรดใช้ประวัติการซื้อขายจากตลาดแลกเปลี่ยนของคุณเป็นฐานต้นทุนการได้มา — บัญชีนี้มีไว้เพื่ออ้างอิงกระแสเงินเข้า/ออกของกระเป๋าเงินเท่านั้น",
-    "ledger.fail": "โหลดประวัติไม่สำเร็จ", "ledger.counterpart_all": "คู่ค้า: ทั้งหมด",
+    "ledger.fail": "โหลดประวัติไม่สำเร็จ", "ledger.counterpart_all": "คู่ค้า (แสดงทั้งหมดหากไม่ได้เลือก)",
+    "ledger.mode_combined": "รวม", "ledger.mode_individual": "แยกราย",
     "ledger.incomplete_warn": "กระเป๋าเงินนี้มีกิจกรรมมากเกินไปจนไม่สามารถซิงค์อัตโนมัติย้อนไปถึงวันที่ 1 มกราคมของปีนี้ได้ กรุณาติดต่อผู้ดูแลระบบ (สามารถปรับเพิ่มขีดจำกัดและซิงค์ใหม่ให้ได้)",
     "report.title": "🚨 รายงานการหลอกลวง",
     'report.realname_warn': "⚠️ รายงานนี้ดำเนินการภายใต้<strong>นโยบายใช้ชื่อจริง</strong><br>เฉพาะเจ้าของบัญชี Pi ที่เข้าสู่ระบบเท่านั้นที่สามารถรายงานได้<br>และการรายงานเท็จอาจมีความรับผิดทางกฎหมาย",
@@ -3157,7 +3174,8 @@ const TT = {
     "ledger.in": "Gelen", "ledger.out": "Giden", "ledger.net": "Net", "ledger.year_total": "Yıllık Toplam",
     "ledger.export": "📤 CSV Dışa Aktar", "ledger.refresh": "↻ Yenile",
     "ledger.note": "⚠️ Bu defter, ilk açtığınız andan itibaren cüzdan giriş/çıkış geçmişini toplar. 2027 vergi yılından itibaren, o yılın 1 Ocak'ına kadar otomatik olarak geriye doğru senkronize edilecektir. Gerçek vergi beyanı için edinim maliyeti temeli olarak borsanızın işlem kayıtlarını kullanın — bu defter yalnızca cüzdan giriş/çıkış akışı referansı içindir.",
-    "ledger.fail": "Geçmiş yüklenemedi.", "ledger.counterpart_all": "Karşı Taraf: Tümü",
+    "ledger.fail": "Geçmiş yüklenemedi.", "ledger.counterpart_all": "Karşı Taraf (hiçbiri seçilmezse tümü gösterilir)",
+    "ledger.mode_combined": "Toplam", "ledger.mode_individual": "Bireysel",
     "ledger.incomplete_warn": "Bu cüzdanda bu yılın 1 Ocak'ına kadar otomatik olarak senkronize edilemeyecek kadar çok işlem var. Lütfen yöneticiyle iletişime geçin (sınır artırılıp sizin için yeniden senkronize edilebilir).",
     "report.title": "🚨 Dolandırıcılık Bildir",
     'report.realname_warn': "⚠️ Bu bildirim <strong>gerçek isim politikası</strong> kapsamında yürütülür.<br>Yalnızca oturum açmış Pi hesabı sahibi bildirimde bulunabilir,<br>ve yanlış bildirimler yasal sorumluluk doğurabilir.",
@@ -3905,24 +3923,96 @@ export function renderTrackerPage(container, username, uid) {
     } catch { return false; }
   }
 
-  function buildLedgerRows(entries, address) {
+  // ── 자산 일봉 종가 (OKX 공개 시세, 인증 불필요) — 세무 참고용 원화/달러 환산에 사용 ──
+  const PRICE_COL        = 'asset_daily_prices';
+  const ASSET_OKX_SYMBOL = { 'π': 'PI-USDT', 'GRAM': 'GRAM-USDT' }; // 매핑 없는 자산은 가격 조회 생략
+
+  function dateKeyUTC(isoOrMs) {
+    return new Date(isoOrMs).toISOString().slice(0, 10);
+  }
+
+  async function fetchOkxDailyCandles(instId, after) {
+    let url = `https://www.okx.com/api/v5/market/history-candles?instId=${instId}&bar=1Dutc&limit=100`;
+    if (after) url += `&after=${after}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`OKX API error (${res.status})`);
+    const json = await res.json();
+    if (json.code !== '0') throw new Error(json.msg || 'OKX API error');
+    return json.data; // [[ts, open, high, low, close, ...], ...] 최신순
+  }
+
+  async function syncAssetDailyPrices(asset) {
+    const symbol = ASSET_OKX_SYMBOL[asset];
+    if (!symbol) return; // 매핑 안 된 자산은 스킵
+    const db2 = getDb();
+    if (!db2) return;
+    const priceRef = db2.collection(PRICE_COL).doc(asset);
+    let doc;
+    try { doc = await priceRef.get(); } catch { return; }
+    const lastDate = doc.exists ? doc.data().lastDate : null;
+
+    // 최신부터 역순으로 페이지 넘기며, 이전에 저장해둔 날짜에 도달하면 멈춤 (지갑 동기화와 동일한 패턴)
+    const newCloses = {};
+    let after = null;
+    let stop  = false;
+    for (let page = 0; page < 20 && !stop; page++) {
+      let candles;
+      try { candles = await fetchOkxDailyCandles(symbol, after); } catch { break; }
+      if (!candles.length) break;
+      for (const c of candles) {
+        const dateKey = dateKeyUTC(parseInt(c[0], 10));
+        if (lastDate && dateKey <= lastDate) { stop = true; break; }
+        newCloses[dateKey] = parseFloat(c[4]);
+      }
+      if (stop) break;
+      after = candles[candles.length - 1][0]; // 가장 오래된 캔들 ts로 다음(더 과거) 페이지 요청
+    }
+    if (Object.keys(newCloses).length === 0) return;
+    const newest = Object.keys(newCloses).sort().pop();
+    await priceRef.set({
+      closes:   newCloses,
+      lastDate: (!lastDate || newest > lastDate) ? newest : lastDate,
+    }, { merge: true });
+  }
+
+  async function fetchAssetDailyCloses(asset) {
+    const db2 = getDb();
+    if (!db2 || !ASSET_OKX_SYMBOL[asset]) return {};
+    try {
+      const doc = await db2.collection(PRICE_COL).doc(asset).get();
+      return doc.exists ? (doc.data().closes || {}) : {};
+    } catch { return {}; }
+  }
+
+  function buildLedgerRows(entries, address, priceMaps = {}) {
     const map = {};
     entries.forEach(e => {
       if (!e.created_at || e.amount == null) return;
       const d = new Date(e.created_at);
       const y = d.getFullYear(), m = d.getMonth() + 1;
       const key = `${y}-${String(m).padStart(2, '0')}|${e.asset}`;
-      if (!map[key]) map[key] = { year: y, month: m, asset: e.asset, in: 0, out: 0 };
-      const amt = parseFloat(e.amount);
-      if (e.to === address) map[key].in += amt;
-      else if (e.from === address) map[key].out += amt;
+      if (!map[key]) map[key] = { year: y, month: m, asset: e.asset, in: 0, out: 0, valueIn: 0, valueOut: 0, hasValue: false, byCounterpart: {} };
+      const amt   = parseFloat(e.amount);
+      const close = (priceMaps[e.asset] || {})[dateKeyUTC(e.created_at)];
+      const cp    = counterpartOf(e, address);
+      if (!map[key].byCounterpart[cp]) map[key].byCounterpart[cp] = { in: 0, out: 0 };
+      if (close != null) map[key].hasValue = true;
+      if (e.to === address) {
+        map[key].in += amt;
+        map[key].byCounterpart[cp].in += amt;
+        if (close != null) map[key].valueIn += amt * close;
+      } else if (e.from === address) {
+        map[key].out += amt;
+        map[key].byCounterpart[cp].out += amt;
+        if (close != null) map[key].valueOut += amt * close;
+      }
     });
     return Object.values(map).sort((a, b) => b.year - a.year || b.month - a.month || a.asset.localeCompare(b.asset));
   }
 
   function ledgerRowsToCsv(rows, address) {
-    const header = 'wallet,year,month,asset,in,out,net\n';
-    const lines = rows.map(r => `${address},${r.year},${r.month},${r.asset},${r.in},${r.out},${r.in - r.out}`);
+    const header = 'wallet,year,month,asset,in,out,net,value_in_usdt,value_out_usdt,value_net_usdt\n';
+    const lines = rows.map(r => `${address},${r.year},${r.month},${r.asset},${r.in},${r.out},${r.in - r.out},${r.valueIn.toFixed(2)},${r.valueOut.toFixed(2)},${(r.valueIn - r.valueOut).toFixed(2)}`);
     return header + lines.join('\n');
   }
 
@@ -3952,7 +4042,7 @@ export function renderTrackerPage(container, username, uid) {
     return [...seen.entries()].sort((a, b) => a[1].localeCompare(b[1]));
   }
 
-  function renderLedgerRowsHtml(rows) {
+  function renderLedgerRowsHtml(rows, showContrib = false) {
     if (rows.length === 0) {
       return `<div class="trk-card" style="text-align:center;padding:24px 16px;"><p style="color:#888;">${tt('ledger.empty')}</p></div>`;
     }
@@ -3970,14 +4060,31 @@ export function renderTrackerPage(container, username, uid) {
       yearIn += r.in; yearOut += r.out;
       const net = r.in - r.out;
       const netColor = net > 0 ? '#22c55e' : net < 0 ? '#f87171' : '#888';
+      const netValue = r.valueIn - r.valueOut;
+      const valueLine = r.hasValue
+        ? `<div style="font-size:11px;color:#888;text-align:right;margin-top:2px;">≈ $${r.valueIn.toFixed(2)} / $${r.valueOut.toFixed(2)} (${tt('ledger.net')} $${netValue.toFixed(2)})</div>`
+        : '';
+      const cpAddrs = Object.keys(r.byCounterpart);
+      const contribLine = (showContrib && cpAddrs.length > 1)
+        ? `<div style="font-size:11px;color:#666;margin-top:3px;">${cpAddrs.map(addr => {
+            const c = r.byCounterpart[addr];
+            const inPct  = r.in  > 0 ? Math.round(c.in  / r.in  * 100) : 0;
+            const outPct = r.out > 0 ? Math.round(c.out / r.out * 100) : 0;
+            return `${esc(counterpartLabel(addr))} (${tt('ledger.in')} ${inPct}% / ${tt('ledger.out')} ${outPct}%)`;
+          }).join(' · ')}</div>`
+        : '';
       html += `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;">
-          <span style="color:#ccc;">${r.year}-${String(r.month).padStart(2,'0')} · ${esc(r.asset)}</span>
-          <span>
-            <span style="color:#22c55e;">+${r.in.toFixed(2)}</span>
-            <span style="color:#f87171;margin-left:6px;">-${r.out.toFixed(2)}</span>
-            <span style="color:${netColor};margin-left:6px;font-weight:600;">= ${net.toFixed(2)}</span>
-          </span>
+        <div style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:#ccc;">${r.year}-${String(r.month).padStart(2,'0')} · ${esc(r.asset)}</span>
+            <span>
+              <span style="color:#22c55e;">+${r.in.toFixed(2)}</span>
+              <span style="color:#f87171;margin-left:6px;">-${r.out.toFixed(2)}</span>
+              <span style="color:${netColor};margin-left:6px;font-weight:600;">= ${net.toFixed(2)}</span>
+            </span>
+          </div>
+          ${valueLine}
+          ${contribLine}
         </div>`;
     });
     flushYear();
@@ -4020,9 +4127,12 @@ export function renderTrackerPage(container, username, uid) {
           ${wallets.map(w => `
             <button class="trk-watch-chip${w.id === active.id ? ' active' : ''}" data-ldg-wid="${w.id}">${esc(aliasFor(w.address) || w.alias)}</button>`).join('')}
         </div>
-        <select id="trk-ldg-counterpart" class="trk-input" style="margin-top:4px;">
-          <option value="">${tt('ledger.counterpart_all')}</option>
-        </select>
+        <div style="font-size:11px;color:#888;margin-top:8px;">${tt('ledger.counterpart_all')}</div>
+        <div id="trk-ldg-cp-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;"></div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button class="trk-btn-outline trk-btn-sm active" id="trk-ldg-mode-combined" style="width:auto;padding:0 12px;">${tt('ledger.mode_combined')}</button>
+          <button class="trk-btn-outline trk-btn-sm" id="trk-ldg-mode-individual" style="width:auto;padding:0 12px;">${tt('ledger.mode_individual')}</button>
+        </div>
         <p style="font-size:11px;color:#888;margin:8px 0 0;">${tt('ledger.note')}</p>
       </div>
       <div id="trk-ldg-detail"></div>`;
@@ -4035,8 +4145,10 @@ export function renderTrackerPage(container, username, uid) {
       renderLedgerTab();
     });
 
-    const detailEl      = container2.querySelector('#trk-ldg-detail');
-    const counterpartSel = container2.querySelector('#trk-ldg-counterpart');
+    const detailEl  = container2.querySelector('#trk-ldg-detail');
+    const cpChipsEl  = container2.querySelector('#trk-ldg-cp-chips');
+    const modeCombinedBtn   = container2.querySelector('#trk-ldg-mode-combined');
+    const modeIndividualBtn = container2.querySelector('#trk-ldg-mode-individual');
     try {
       await syncWalletLedger(active.address);
       const entries = await fetchLedgerEntries(active.address);
@@ -4047,24 +4159,61 @@ export function renderTrackerPage(container, username, uid) {
       }
 
       listCounterparts(entries, active.address).forEach(([addr, label]) => {
-        const opt = document.createElement('option');
-        opt.value = addr; opt.textContent = label;
-        counterpartSel.appendChild(opt);
+        const chip = document.createElement('button');
+        chip.className = 'trk-watch-chip';
+        chip.dataset.cpAddr = addr;
+        chip.textContent = label;
+        cpChipsEl.appendChild(chip);
       });
 
+      // 이 지갑 내역에 등장한 자산들의 일봉 종가를 동기화 (매핑 없는 자산은 syncAssetDailyPrices 내부에서 스킵)
+      const assetsSeen = [...new Set(entries.map(e => e.asset))];
+      await Promise.all(assetsSeen.map(a => syncAssetDailyPrices(a).catch(() => {})));
+      const priceMaps = {};
+      await Promise.all(assetsSeen.map(async a => { priceMaps[a] = await fetchAssetDailyCloses(a); }));
+
+      const selectedCps = () => [...cpChipsEl.querySelectorAll('.active')].map(el => el.dataset.cpAddr);
+
       const renderFiltered = () => {
-        const cp = counterpartSel.value;
-        const filtered = cp ? entries.filter(e => counterpartOf(e, active.address) === cp) : entries;
-        const rows = buildLedgerRows(filtered, active.address);
-        detailEl.innerHTML = renderLedgerRowsHtml(rows);
-        return rows;
+        const selected   = selectedCps();
+        const individual = modeIndividualBtn.classList.contains('active');
+        const targets    = selected.length ? selected : listCounterparts(entries, active.address).map(([addr]) => addr);
+
+        if (individual) {
+          const allRows = [];
+          let html = '';
+          targets.forEach(addr => {
+            const filtered = entries.filter(e => counterpartOf(e, active.address) === addr);
+            const rows = buildLedgerRows(filtered, active.address, priceMaps);
+            allRows.push(...rows);
+            html += `<div class="trk-section-label" style="margin-top:16px;">${esc(counterpartLabel(addr))}</div>${renderLedgerRowsHtml(rows, false)}`;
+          });
+          detailEl.innerHTML = html || renderLedgerRowsHtml([], false);
+          return allRows;
+        } else {
+          const filtered = selected.length ? entries.filter(e => selected.includes(counterpartOf(e, active.address))) : entries;
+          const rows = buildLedgerRows(filtered, active.address, priceMaps);
+          detailEl.innerHTML = renderLedgerRowsHtml(rows, selected.length > 1);
+          return rows;
+        }
       };
 
       let currentRows = renderFiltered();
-      counterpartSel.addEventListener('change', () => { currentRows = renderFiltered(); });
+      cpChipsEl.querySelectorAll('[data-cp-addr]').forEach(chip => {
+        chip.addEventListener('click', () => { chip.classList.toggle('active'); currentRows = renderFiltered(); });
+      });
+      modeCombinedBtn.addEventListener('click', () => {
+        modeCombinedBtn.classList.add('active'); modeIndividualBtn.classList.remove('active');
+        currentRows = renderFiltered();
+      });
+      modeIndividualBtn.addEventListener('click', () => {
+        modeIndividualBtn.classList.add('active'); modeCombinedBtn.classList.remove('active');
+        currentRows = renderFiltered();
+      });
 
       container2.querySelector('#trk-ldg-export').addEventListener('click', () => {
-        const suffix = counterpartSel.value ? `_${counterpartLabel(counterpartSel.value)}` : '';
+        const selected = selectedCps();
+        const suffix   = selected.length ? `_${selected.map(counterpartLabel).join('-')}` : '';
         downloadCsv(`ledger_${(aliasFor(active.address) || active.alias)}${suffix}_${new Date().toISOString().slice(0,10)}.csv`, ledgerRowsToCsv(currentRows, active.address));
       });
     } catch (e) {
