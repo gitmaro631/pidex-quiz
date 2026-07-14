@@ -11,6 +11,28 @@ import { renderOpinionPage }  from './page-opinion.js';
 import { initFirebase, loadSurveyFromFirestore, updateLeaderboardCountry } from './firebase.js';
 import { mergeSurveyFromCloud } from './util-storage.js';
 const NOTICE = {
+  version: '2026-07-15',
+  ko: "📢 업데이트 안내 (2026-07-15)\n\n① 내 지갑 탭에 '장부' 기능 추가 — 월별/연별 입출금 내역 자동 정리\n② 상대 지갑 다중 선택 가능 — 여러 지갑과의 거래를 합계/개별로 비교\n③ 일봉 종가 기준 참고 환산가 표시",
+  en: "📢 Update Notice (2026-07-15)\n\n① Added a 'Ledger' feature to My Wallet — automatically organizes monthly/yearly in/out history\n② You can now select multiple counterparty wallets — compare transactions combined or individually\n③ Shows a reference value converted using daily closing prices",
+  zh: "📢 更新通知 (2026-07-15)\n\n① 我的钱包新增“账本”功能 — 自动整理月度/年度收支记录\n② 现可多选对方钱包 — 按合计或个别比较交易\n③ 显示基于日K线收盘价的参考换算金额",
+  id: "📢 Pemberitahuan Pembaruan (2026-07-15)\n\n① Menambahkan fitur 'Buku Besar' di Dompet Saya — mengatur riwayat masuk/keluar bulanan/tahunan secara otomatis\n② Kini bisa memilih beberapa dompet rekanan sekaligus — bandingkan transaksi secara gabungan atau individual\n③ Menampilkan nilai referensi berdasarkan harga penutupan harian",
+  ja: "📢 アップデートのお知らせ (2026-07-15)\n\n① マイウォレットに「台帳」機能を追加 — 月別・年別の入出金履歴を自動整理\n② 相手ウォレットを複数選択可能に — 合計・個別で取引を比較\n③ 日足終値を基にした参考換算額を表示",
+  es: "📢 Aviso de actualización (2026-07-15)\n\n① Se añadió la función 'Libro Mayor' a Mi Cartera — organiza automáticamente el historial de entrada/salida mensual/anual\n② Ahora puede seleccionar varias carteras de contraparte — comparar transacciones combinadas o individualmente\n③ Muestra un valor de referencia convertido según el precio de cierre diario",
+  fr: "📢 Avis de mise à jour (2026-07-15)\n\n① Ajout de la fonction « Grand Livre » à Mon Portefeuille — organise automatiquement l'historique des entrées/sorties mensuel/annuel\n② Vous pouvez désormais sélectionner plusieurs portefeuilles de contrepartie — comparer les transactions de façon combinée ou individuelle\n③ Affiche une valeur de référence convertie selon le cours de clôture journalier",
+  vi: "📢 Thông báo cập nhật (2026-07-15)\n\n① Đã thêm tính năng 'Sổ Cái' vào Ví của tôi — tự động sắp xếp lịch sử vào/ra theo tháng/năm\n② Giờ đây có thể chọn nhiều ví đối tác — so sánh giao dịch theo tổng hợp hoặc riêng lẻ\n③ Hiển thị giá trị tham khảo quy đổi theo giá đóng cửa hàng ngày",
+  pt: "📢 Aviso de atualização (2026-07-15)\n\n① Adicionada a função 'Livro-razão' em Minha Carteira — organiza automaticamente o histórico de entrada/saída mensal/anual\n② Agora você pode selecionar várias carteiras de contraparte — comparar transações de forma combinada ou individual\n③ Exibe um valor de referência convertido pelo preço de fechamento diário",
+  ms: "📢 Notis Kemas Kini (2026-07-15)\n\n① Menambah ciri 'Lejar' pada Dompet Saya — menyusun sejarah masuk/keluar bulanan/tahunan secara automatik\n② Kini boleh memilih beberapa dompet rakan niaga — bandingkan transaksi secara gabungan atau individu\n③ Memaparkan nilai rujukan yang ditukar berdasarkan harga penutupan harian",
+  tl: "📢 Abiso sa Update (2026-07-15)\n\n① Idinagdag ang feature na 'Talaan' sa My Wallet — awtomatikong inaayos ang buwanan/taunang kasaysayan ng papasok/palabas\n② Maaari nang pumili ng maraming katapat na wallet — ikumpara ang mga transaksyon nang kombinado o indibidwal\n③ Ipinapakita ang reference value batay sa closing price araw-araw",
+  hi: "📢 अपडेट सूचना (2026-07-15)\n\n① माई वॉलेट में 'बहीखाता' सुविधा जोड़ी गई — मासिक/वार्षिक आवक/जावक इतिहास को स्वचालित रूप से व्यवस्थित करता है\n② अब कई प्रतिपक्ष वॉलेट चुने जा सकते हैं — संयुक्त या व्यक्तिगत रूप से लेनदेन की तुलना करें\n③ दैनिक क्लोजिंग प्राइस के आधार पर संदर्भ मूल्य दिखाता है",
+  ar: "📢 إشعار التحديث (2026-07-15)\n\n① تمت إضافة ميزة \"السجل\" إلى محفظتي — ينظم تلقائيًا سجل الوارد/الصادر الشهري/السنوي\n② يمكنك الآن تحديد عدة محافظ مقابلة — قارن المعاملات إجمالاً أو فرديًا\n③ يعرض قيمة مرجعية محولة بناءً على سعر الإغلاق اليومي",
+  ru: "📢 Уведомление об обновлении (2026-07-15)\n\n① В Мой кошелёк добавлена функция «Гроссбух» — автоматически систематизирует историю поступлений/списаний по месяцам/годам\n② Теперь можно выбрать несколько кошельков-контрагентов — сравнивать транзакции в сумме или по отдельности\n③ Отображается справочная стоимость, пересчитанная по дневной цене закрытия",
+  bn: "📢 আপডেট বিজ্ঞপ্তি (2026-07-15)\n\n① মাই ওয়ালেটে 'খতিয়ান' বৈশিষ্ট্য যোগ করা হয়েছে — মাসিক/বার্ষিক আসা/যাওয়ার ইতিহাস স্বয়ংক্রিয়ভাবে সাজায়\n② এখন একাধিক প্রতিপক্ষ ওয়ালেট নির্বাচন করা যায় — সম্মিলিত বা পৃথকভাবে লেনদেন তুলনা করুন\n③ দৈনিক ক্লোজিং প্রাইস অনুযায়ী রেফারেন্স মূল্য দেখায়",
+  sw: "📢 Taarifa ya Sasisho (2026-07-15)\n\n① Imeongeza kipengele cha 'Kitabu cha Hesabu' katika Pochi Yangu — hupanga kiotomatiki historia ya kila mwezi/mwaka ya ndani/nje\n② Sasa unaweza kuchagua pochi kadhaa za mshirika — linganisha miamala kwa jumla au kibinafsi\n③ Huonyesha thamani ya rejeleo iliyobadilishwa kulingana na bei ya kufunga ya kila siku",
+  th: "📢 แจ้งอัปเดต (2026-07-15)\n\n① เพิ่มฟีเจอร์ 'บัญชี' ในกระเป๋าของฉัน — จัดระเบียบประวัติเข้า/ออกรายเดือน/รายปีโดยอัตโนมัติ\n② เลือกกระเป๋าคู่ค้าได้หลายรายการแล้ว — เปรียบเทียบธุรกรรมแบบรวมหรือแยกราย\n③ แสดงมูลค่าอ้างอิงที่แปลงตามราคาปิดรายวัน",
+  tr: "📢 Güncelleme Bildirimi (2026-07-15)\n\n① Cüzdanım'a 'Defter' özelliği eklendi — aylık/yıllık giriş/çıkış geçmişini otomatik olarak düzenler\n② Artık birden fazla karşı taraf cüzdanı seçilebilir — işlemleri toplu veya bireysel olarak karşılaştırın\n③ Günlük kapanış fiyatına göre dönüştürülmüş referans değeri gösterir",
+};
+
+const NOTICE_PREV = {
   version: '2026-07-12',
   ko: "📢 업데이트 안내 (2026-07-12)\n\n① 지갑 별칭이 하나로 통합되었습니다 — 내 지갑 · 관심지갑 · 거래지갑 어디서 등록해도 같은 주소는 같은 별칭으로 표시됩니다\n② 클라우드 복원 시 별칭이 다르면 최신 별칭을 유지할지 선택할 수 있습니다",
   en: "📢 Update Notice (2026-07-12)\n\n① Wallet aliases are now unified — register from My Wallet, Watch List, or Trade Wallets and the same address shows the same alias everywhere\n② When restoring from cloud backup, you can choose to keep the latest alias if it differs",
@@ -30,28 +52,6 @@ const NOTICE = {
   sw: "📢 Taarifa ya Sasisho (2026-07-12)\n\n① Majina ya utani ya pochi sasa yameunganishwa — sajili kutoka Pochi Yangu, Orodha ya Ufuatiliaji, au Pochi za Miamala, anwani ile ile itaonyesha jina la utani lile lile kila mahali\n② Wakati wa kurejesha kutoka wingu, ikiwa jina la utani ni tofauti unaweza kuchagua kuweka jipya zaidi",
   th: "📢 แจ้งอัปเดต (2026-07-12)\n\n① ชื่อเล่นกระเป๋าเงินรวมเป็นหนึ่งแล้ว — ลงทะเบียนจากกระเป๋าของฉัน รายการเฝ้าดู หรือกระเป๋าคู่ค้า ที่อยู่เดียวกันจะแสดงชื่อเล่นเดียวกันทุกที่\n② เมื่อกู้คืนจากคลาวด์ หากชื่อเล่นต่างกันสามารถเลือกใช้ชื่อเล่นล่าสุดได้",
   tr: "📢 Güncelleme Bildirimi (2026-07-12)\n\n① Cüzdan takma adları artık birleştirildi — Cüzdanım, İzleme Listesi veya İşlem Cüzdanlarından kaydedin, aynı adres her yerde aynı takma adı gösterir\n② Buluttan geri yüklerken takma ad farklıysa en güncel olanı koruma seçeneğiniz var",
-};
-
-const NOTICE_PREV = {
-  version: '2026-07-11',
-  ko: "📢 업데이트 안내 (2026-07-11)\n\n① 지갑 클라우드 백업 · 복원 기능 추가 (5슬롯)\n② 거래 지갑 별칭 기능 추가 — 거래내역에 별칭 표시 (최대 100개)\n③ 트래커 상단 탭 가로 스크롤 지원",
-  en: "📢 Update Notice (2026-07-11)\n\n① Added cloud backup/restore for wallets (5 slots)\n② Added Trade Wallet aliases — shown in transaction history (up to 100)\n③ Tracker's top tab bar now supports horizontal scrolling",
-  zh: "📢 更新通知 (2026-07-11)\n\n① 新增钱包云备份/恢复功能（5个插槽）\n② 新增交易钱包别名功能 — 交易记录中显示别名（最多100个）\n③ 追踪器顶部标签栏支持横向滑动",
-  id: "📢 Pemberitahuan Pembaruan (2026-07-11)\n\n① Ditambahkan fitur backup/pulihkan cloud untuk dompet (5 slot)\n② Ditambahkan alias Dompet Transaksi — ditampilkan di riwayat transaksi (hingga 100)\n③ Bilah tab atas Tracker kini mendukung gulir horizontal",
-  ja: "📢 アップデートのお知らせ (2026-07-11)\n\n① ウォレットのクラウドバックアップ・復元機能を追加（5スロット）\n② 取引ウォレットのエイリアス機能を追加 — 取引履歴にエイリアス表示（最大100件）\n③ トラッカー上部のタブバーが横スクロールに対応",
-  es: "📢 Aviso de actualización (2026-07-11)\n\n① Se añadió backup/restauración en la nube para carteras (5 ranuras)\n② Se añadió alias de Cartera de Transacción — se muestra en el historial de transacciones (hasta 100)\n③ La barra de pestañas superior del Rastreador ahora se puede desplazar horizontalmente",
-  fr: "📢 Avis de mise à jour (2026-07-11)\n\n① Ajout de la sauvegarde/restauration cloud pour les portefeuilles (5 emplacements)\n② Ajout des alias de Portefeuille de Transaction — affichés dans l'historique des transactions (jusqu'à 100)\n③ La barre d'onglets du Traqueur peut désormais défiler horizontalement",
-  vi: "📢 Thông báo cập nhật (2026-07-11)\n\n① Đã thêm sao lưu/khôi phục đám mây cho ví (5 khe)\n② Đã thêm biệt danh Ví Giao Dịch — hiển thị trong lịch sử giao dịch (tối đa 100)\n③ Thanh tab trên cùng của Theo dõi giờ có thể cuộn ngang",
-  pt: "📢 Aviso de atualização (2026-07-11)\n\n① Adicionado backup/restauração em nuvem para carteiras (5 slots)\n② Adicionado alias de Carteira de Transação — exibido no histórico de transações (até 100)\n③ A barra de abas superior do Rastreador agora tem rolagem horizontal",
-  ms: "📢 Notis Kemas Kini (2026-07-11)\n\n① Ditambah sandaran/pemulihan awan untuk dompet (5 slot)\n② Ditambah alias Dompet Transaksi — dipaparkan dalam sejarah transaksi (sehingga 100)\n③ Bar tab atas Penjejak kini menyokong tatal mendatar",
-  tl: "📢 Abiso sa Update (2026-07-11)\n\n① Idinagdag ang cloud backup/restore para sa wallet (5 slot)\n② Idinagdag ang alias ng Wallet ng Transaksyon — makikita sa transaction history (hanggang 100)\n③ Ang tab bar sa itaas ng Tracker ay pwede nang i-scroll pahalang",
-  hi: "📢 अपडेट सूचना (2026-07-11)\n\n① वॉलेट के लिए क्लाउड बैकअप/पुनर्स्थापन जोड़ा गया (5 स्लॉट)\n② लेनदेन वॉलेट उपनाम जोड़ा गया — लेनदेन इतिहास में उपनाम दिखता है (100 तक)\n③ ट्रैकर की ऊपरी टैब बार अब क्षैतिज स्क्रॉल करती है",
-  ar: "📢 إشعار التحديث (2026-07-11)\n\n① تمت إضافة النسخ الاحتياطي/الاستعادة السحابية للمحافظ (5 خانات)\n② تمت إضافة أسماء محافظ المعاملات المستعارة — تظهر في سجل المعاملات (حتى 100)\n③ أصبح شريط علامات التبويب العلوي في المتتبع قابلاً للتمرير أفقياً",
-  ru: "📢 Уведомление об обновлении (2026-07-11)\n\n① Добавлено облачное резервное копирование/восстановление кошельков (5 слотов)\n② Добавлены псевдонимы Торговых кошельков — отображаются в истории транзакций (до 100)\n③ Верхняя панель вкладок Трекера теперь прокручивается по горизонтали",
-  bn: "📢 আপডেট বিজ্ঞপ্তি (2026-07-11)\n\n① ওয়ালেটের জন্য ক্লাউড ব্যাকআপ/পুনরুদ্ধার যোগ করা হয়েছে (৫ স্লট)\n② লেনদেন ওয়ালেট ডাকনাম যোগ করা হয়েছে — লেনদেন তালিকায় ডাকনাম দেখা যায় (১০০ পর্যন্ত)\n③ ট্র্যাকারের উপরের ট্যাব বার এখন অনুভূমিকভাবে স্ক্রল করা যায়",
-  sw: "📢 Taarifa ya Sasisho (2026-07-11)\n\n① Imeongeza hifadhi/kurejesha wingu kwa pochi (nafasi 5)\n② Imeongeza majina ya Pochi za Miamala — yanaonyeshwa kwenye historia ya miamala (hadi 100)\n③ Upau wa vichupo vya juu vya Mfuatiliaji sasa unaweza kusogezwa kwa mlalo",
-  th: "📢 แจ้งอัปเดต (2026-07-11)\n\n① เพิ่มฟีเจอร์สำรอง/กู้คืนกระเป๋าเงินบนคลาวด์ (5 ช่อง)\n② เพิ่มชื่อเล่นกระเป๋าคู่ค้า — แสดงในรายการธุรกรรม (สูงสุด 100 รายการ)\n③ แถบแท็บด้านบนของตัวติดตามเลื่อนแนวนอนได้แล้ว",
-  tr: "📢 Güncelleme Bildirimi (2026-07-11)\n\n① Cüzdanlar için bulut yedekleme/geri yükleme eklendi (5 slot)\n② İşlem Cüzdanı takma adları eklendi — işlem geçmişinde gösterilir (100'e kadar)\n③ İzleyicinin üst sekme çubuğu artık yatay kaydırmayı destekliyor",
 };
 
 // ── 공지 팝업 ────────────────────────────────────────
