@@ -19,7 +19,7 @@ const TT = {
     'ledger.title': '지갑 장부 (월별/연별)', 'ledger.loading': '내역을 불러오는 중...', 'ledger.empty': '거래 내역이 없습니다.',
     'ledger.in': '입금', 'ledger.out': '출금', 'ledger.net': '순증감', 'ledger.year_total': '연간 합계',
     'ledger.export': '📤 CSV 내보내기', 'ledger.refresh': '↻ 새로고침',
-    'ledger.note': '⚠️ 올해 1월 1일부터의 내역을 자동으로 수집합니다. 실제 세무 신고 시엔 거래소 매수 체결내역을 취득가액의 근거로 사용하세요 — 이 장부는 지갑의 입출금 흐름 참고용입니다.',
+    'ledger.note': '⚠️ 이 장부는 처음 연 시점부터의 지갑 입출금 내역을 수집합니다. 2027년 과세 연도부터는 그 해 1월 1일까지 자동으로 소급해서 채웁니다. 실제 세무 신고 시엔 거래소 매수 체결내역을 취득가액의 근거로 사용하세요 — 이 장부는 지갑의 입출금 흐름 참고용입니다.',
     'ledger.fail': '내역을 불러오지 못했습니다.', 'ledger.counterpart_all': '상대 지갑: 전체',
     'ledger.incomplete_warn': '이 지갑은 거래량이 많아 올해 1월 1일까지 전부 자동으로 불러오지 못했습니다. 관리자에게 문의해주세요 (상한을 올려 다시 동기화해드릴 수 있습니다).',
     'report.title': '🚨 피해 신고', 'report.realname_warn': "⚠️ 본 신고는 <strong>실명제</strong>로 운영됩니다.<br>Pi 계정으로 로그인한 본인만 신고할 수 있으며,<br>허위 신고 시 법적 책임이 따를 수 있습니다.", 'report.victim_id': '피해자 Pi ID', 'report.suspect_wallet': '의심 지갑 주소',
@@ -131,7 +131,7 @@ const TT = {
     'ledger.title': 'Wallet Ledger (Monthly/Yearly)', 'ledger.loading': 'Loading history...', 'ledger.empty': 'No transactions.',
     'ledger.in': 'In', 'ledger.out': 'Out', 'ledger.net': 'Net', 'ledger.year_total': 'Year Total',
     'ledger.export': '📤 Export CSV', 'ledger.refresh': '↻ Refresh',
-    'ledger.note': '⚠️ Automatically collects history from January 1st this year onward. For actual tax filing, use your exchange trade records as the basis for acquisition cost — this ledger is for reference on wallet in/out flow only.',
+    'ledger.note': '⚠️ This ledger collects wallet in/out history starting from when you first open it. From tax year 2027 onward, it automatically backfills to January 1st of that year. For actual tax filing, use your exchange trade records as the basis for acquisition cost — this ledger is for reference on wallet in/out flow only.',
     'ledger.fail': 'Failed to load history.', 'ledger.counterpart_all': 'Counterparty: All',
     'ledger.incomplete_warn': 'This wallet has too much activity to fully sync back to January 1st this year automatically. Please contact the admin (the sync limit can be raised and re-run for you).',
     'report.title': '🚨 Report Hack', 'report.realname_warn': "⚠️ This report is operated under a <strong>real-name policy</strong>.<br>Only the logged-in Pi account holder can file a report,<br>and false reports may carry legal liability.", 'report.victim_id': 'Victim Pi ID', 'report.suspect_wallet': 'Suspect Wallet Address',
@@ -246,7 +246,7 @@ const TT = {
     "ledger.title": "钱包账本（按月/年）", "ledger.loading": "正在加载记录...", "ledger.empty": "没有交易记录。",
     "ledger.in": "收入", "ledger.out": "支出", "ledger.net": "净额", "ledger.year_total": "年度合计",
     "ledger.export": "📤 导出CSV", "ledger.refresh": "↻ 刷新",
-    "ledger.note": "⚠️ 自动收集从今年1月1日起的记录。实际报税时请以交易所的成交记录作为取得成本的依据——此账本仅供钱包收支流水参考。",
+    "ledger.note": "⚠️ 此账本从您第一次打开时开始收集钱包收支记录。从2027纳税年度起，将自动追溯补齐到当年1月1日。实际报税时请以交易所的成交记录作为取得成本的依据——此账本仅供钱包收支流水参考。",
     "ledger.fail": "加载记录失败。", "ledger.counterpart_all": "对方钱包：全部",
     "ledger.incomplete_warn": "该钱包交易量过大，未能自动同步到今年1月1日。请联系管理员（可以提高上限后为您重新同步）。",
     "report.title": "🚨 举报诈骗",
@@ -440,7 +440,7 @@ const TT = {
     "ledger.title": "Buku Besar Dompet (Bulanan/Tahunan)", "ledger.loading": "Memuat riwayat...", "ledger.empty": "Tidak ada transaksi.",
     "ledger.in": "Masuk", "ledger.out": "Keluar", "ledger.net": "Bersih", "ledger.year_total": "Total Tahunan",
     "ledger.export": "📤 Ekspor CSV", "ledger.refresh": "↻ Segarkan",
-    "ledger.note": "⚠️ Secara otomatis mengumpulkan riwayat sejak 1 Januari tahun ini. Untuk pelaporan pajak sebenarnya, gunakan catatan transaksi bursa Anda sebagai dasar biaya perolehan — buku besar ini hanya untuk referensi arus masuk/keluar dompet.",
+    "ledger.note": "⚠️ Buku besar ini mengumpulkan riwayat masuk/keluar dompet mulai dari saat Anda pertama kali membukanya. Mulai tahun pajak 2027, secara otomatis akan disinkronkan mundur hingga 1 Januari tahun tersebut. Untuk pelaporan pajak sebenarnya, gunakan catatan transaksi bursa Anda sebagai dasar biaya perolehan — buku besar ini hanya untuk referensi arus masuk/keluar dompet.",
     "ledger.fail": "Gagal memuat riwayat.", "ledger.counterpart_all": "Rekanan: Semua",
     "ledger.incomplete_warn": "Dompet ini memiliki terlalu banyak aktivitas untuk disinkronkan otomatis hingga 1 Januari tahun ini. Silakan hubungi admin (batas dapat dinaikkan dan disinkronkan ulang untuk Anda).",
     "report.title": "🚨 Laporkan Penipuan",
@@ -634,7 +634,7 @@ const TT = {
     "ledger.title": "ウォレット台帳（月別・年別）", "ledger.loading": "履歴を読み込み中...", "ledger.empty": "取引履歴がありません。",
     "ledger.in": "入金", "ledger.out": "出金", "ledger.net": "純増減", "ledger.year_total": "年間合計",
     "ledger.export": "📤 CSVエクスポート", "ledger.refresh": "↻ 更新",
-    "ledger.note": "⚠️ 今年の1月1日以降の履歴を自動的に収集します。実際の税務申告には取引所の約定履歴を取得原価の根拠として使用してください — この台帳はウォレットの入出金の流れの参考用です。",
+    "ledger.note": "⚠️ この台帳は初めて開いた時点からのウォレットの入出金履歴を収集します。2027年の課税年度からは、その年の1月1日まで自動的に遡って収集します。実際の税務申告には取引所の約定履歴を取得原価の根拠として使用してください — この台帳はウォレットの入出金の流れの参考用です。",
     "ledger.fail": "履歴の読み込みに失敗しました。", "ledger.counterpart_all": "相手ウォレット：すべて",
     "ledger.incomplete_warn": "このウォレットは取引量が多いため、今年の1月1日まで自動的に同期できませんでした。管理者にお問い合わせください（上限を引き上げて再同期できます）。",
     "report.title": "🚨 被害通報",
@@ -828,7 +828,7 @@ const TT = {
     "ledger.title": "Libro Mayor de Cartera (Mensual/Anual)", "ledger.loading": "Cargando historial...", "ledger.empty": "No hay transacciones.",
     "ledger.in": "Entrada", "ledger.out": "Salida", "ledger.net": "Neto", "ledger.year_total": "Total Anual",
     "ledger.export": "📤 Exportar CSV", "ledger.refresh": "↻ Actualizar",
-    "ledger.note": "⚠️ Recopila automáticamente el historial desde el 1 de enero de este año. Para la declaración de impuestos real, use los registros de operaciones de su exchange como base del costo de adquisición — este libro mayor es solo para referencia del flujo de entrada/salida de la cartera.",
+    "ledger.note": "⚠️ Este libro mayor recopila el historial de entrada/salida de la cartera desde el momento en que lo abre por primera vez. A partir del año fiscal 2027, se sincronizará automáticamente hacia atrás hasta el 1 de enero de ese año. Para la declaración de impuestos real, use los registros de operaciones de su exchange como base del costo de adquisición — este libro mayor es solo para referencia del flujo de entrada/salida de la cartera.",
     "ledger.fail": "Error al cargar el historial.", "ledger.counterpart_all": "Contraparte: Todas",
     "ledger.incomplete_warn": "Esta cartera tiene demasiada actividad para sincronizarse automáticamente hasta el 1 de enero de este año. Contacte al administrador (el límite se puede aumentar y resincronizar para usted).",
     "report.title": "🚨 Reportar Estafa",
@@ -1022,7 +1022,7 @@ const TT = {
     "ledger.title": "Grand Livre du Portefeuille (Mensuel/Annuel)", "ledger.loading": "Chargement de l'historique...", "ledger.empty": "Aucune transaction.",
     "ledger.in": "Entrée", "ledger.out": "Sortie", "ledger.net": "Net", "ledger.year_total": "Total Annuel",
     "ledger.export": "📤 Exporter en CSV", "ledger.refresh": "↻ Actualiser",
-    "ledger.note": "⚠️ Collecte automatiquement l'historique depuis le 1er janvier de cette année. Pour la déclaration fiscale réelle, utilisez les relevés de transactions de votre plateforme d'échange comme base du coût d'acquisition — ce registre est uniquement à titre de référence pour les flux entrants/sortants du portefeuille.",
+    "ledger.note": "⚠️ Ce registre collecte l'historique des entrées/sorties du portefeuille à partir du moment où vous l'ouvrez pour la première fois. À partir de l'année fiscale 2027, il se synchronisera automatiquement en arrière jusqu'au 1er janvier de cette année-là. Pour la déclaration fiscale réelle, utilisez les relevés de transactions de votre plateforme d'échange comme base du coût d'acquisition — ce registre est uniquement à titre de référence pour les flux entrants/sortants du portefeuille.",
     "ledger.fail": "Échec du chargement de l'historique.", "ledger.counterpart_all": "Contrepartie : Toutes",
     "ledger.incomplete_warn": "Ce portefeuille a une activité trop importante pour se synchroniser automatiquement jusqu'au 1er janvier de cette année. Veuillez contacter l'administrateur (la limite peut être augmentée et resynchronisée pour vous).",
     "report.title": "🚨 Signaler une Arnaque",
@@ -1216,7 +1216,7 @@ const TT = {
     "ledger.title": "Sổ Cái Ví (Theo Tháng/Năm)", "ledger.loading": "Đang tải lịch sử...", "ledger.empty": "Không có giao dịch.",
     "ledger.in": "Vào", "ledger.out": "Ra", "ledger.net": "Ròng", "ledger.year_total": "Tổng Năm",
     "ledger.export": "📤 Xuất CSV", "ledger.refresh": "↻ Làm mới",
-    "ledger.note": "⚠️ Tự động thu thập lịch sử từ ngày 1 tháng 1 năm nay. Khi khai thuế thực tế, hãy dùng lịch sử khớp lệnh trên sàn giao dịch làm cơ sở giá vốn — sổ cái này chỉ mang tính tham khảo cho dòng tiền vào/ra của ví.",
+    "ledger.note": "⚠️ Sổ cái này thu thập lịch sử vào/ra của ví kể từ lần đầu tiên bạn mở nó. Từ năm tính thuế 2027 trở đi, sổ cái sẽ tự động đồng bộ ngược về ngày 1 tháng 1 năm đó. Khi khai thuế thực tế, hãy dùng lịch sử khớp lệnh trên sàn giao dịch làm cơ sở giá vốn — sổ cái này chỉ mang tính tham khảo cho dòng tiền vào/ra của ví.",
     "ledger.fail": "Không tải được lịch sử.", "ledger.counterpart_all": "Đối tác: Tất cả",
     "ledger.incomplete_warn": "Ví này có quá nhiều hoạt động để tự động đồng bộ đến ngày 1 tháng 1 năm nay. Vui lòng liên hệ quản trị viên (có thể nâng giới hạn và đồng bộ lại cho bạn).",
     "report.title": "🚨 Báo cáo Lừa đảo",
@@ -1410,7 +1410,7 @@ const TT = {
     "ledger.title": "Livro-razão da Carteira (Mensal/Anual)", "ledger.loading": "Carregando histórico...", "ledger.empty": "Nenhuma transação.",
     "ledger.in": "Entrada", "ledger.out": "Saída", "ledger.net": "Líquido", "ledger.year_total": "Total Anual",
     "ledger.export": "📤 Exportar CSV", "ledger.refresh": "↻ Atualizar",
-    "ledger.note": "⚠️ Coleta automaticamente o histórico desde 1º de janeiro deste ano. Para a declaração de impostos real, use os registros de negociação da sua corretora como base do custo de aquisição — este livro-razão é apenas para referência do fluxo de entrada/saída da carteira.",
+    "ledger.note": "⚠️ Este livro-razão coleta o histórico de entrada/saída da carteira a partir do momento em que você o abre pela primeira vez. A partir do ano fiscal de 2027, ele sincronizará automaticamente retroativamente até 1º de janeiro daquele ano. Para a declaração de impostos real, use os registros de negociação da sua corretora como base do custo de aquisição — este livro-razão é apenas para referência do fluxo de entrada/saída da carteira.",
     "ledger.fail": "Falha ao carregar o histórico.", "ledger.counterpart_all": "Contraparte: Todas",
     "ledger.incomplete_warn": "Esta carteira tem atividade demais para sincronizar automaticamente até 1º de janeiro deste ano. Entre em contato com o administrador (o limite pode ser aumentado e ressincronizado para você).",
     "report.title": "🚨 Denunciar Golpe",
@@ -1604,7 +1604,7 @@ const TT = {
     "ledger.title": "Lejar Dompet (Bulanan/Tahunan)", "ledger.loading": "Memuatkan sejarah...", "ledger.empty": "Tiada transaksi.",
     "ledger.in": "Masuk", "ledger.out": "Keluar", "ledger.net": "Bersih", "ledger.year_total": "Jumlah Tahunan",
     "ledger.export": "📤 Eksport CSV", "ledger.refresh": "↻ Segar Semula",
-    "ledger.note": "⚠️ Mengumpul secara automatik sejarah dari 1 Januari tahun ini. Untuk pemfailan cukai sebenar, gunakan rekod dagangan bursa anda sebagai asas kos perolehan — lejar ini hanya untuk rujukan aliran masuk/keluar dompet.",
+    "ledger.note": "⚠️ Lejar ini mengumpul sejarah masuk/keluar dompet bermula dari masa anda membukanya buat kali pertama. Mulai tahun cukai 2027, ia akan disegerakkan secara automatik ke belakang sehingga 1 Januari tahun tersebut. Untuk pemfailan cukai sebenar, gunakan rekod dagangan bursa anda sebagai asas kos perolehan — lejar ini hanya untuk rujukan aliran masuk/keluar dompet.",
     "ledger.fail": "Gagal memuatkan sejarah.", "ledger.counterpart_all": "Rakan Niaga: Semua",
     "ledger.incomplete_warn": "Dompet ini mempunyai aktiviti yang terlalu banyak untuk disegerakkan secara automatik sehingga 1 Januari tahun ini. Sila hubungi admin (had boleh dinaikkan dan disegerakkan semula untuk anda).",
     "report.title": "🚨 Laporkan Penipuan",
@@ -1798,7 +1798,7 @@ const TT = {
     "ledger.title": "Talaan ng Wallet (Buwanan/Taunan)", "ledger.loading": "Nilo-load ang kasaysayan...", "ledger.empty": "Walang transaksyon.",
     "ledger.in": "Papasok", "ledger.out": "Palabas", "ledger.net": "Net", "ledger.year_total": "Kabuuang Taunan",
     "ledger.export": "📤 I-export ang CSV", "ledger.refresh": "↻ I-refresh",
-    "ledger.note": "⚠️ Awtomatikong kinokolekta ang kasaysayan mula Enero 1 ngayong taon. Para sa aktwal na pag-file ng buwis, gamitin ang mga talaan ng kalakalan sa iyong exchange bilang batayan ng gastos sa pagkuha — ang talaang ito ay para lamang sa sanggunian ng daloy ng papasok/palabas ng wallet.",
+    "ledger.note": "⚠️ Ang talaang ito ay nangongolekta ng kasaysayan ng papasok/palabas ng wallet simula sa unang pagbukas mo nito. Simula sa taong buwis 2027, awtomatiko itong mag-sync pabalik hanggang Enero 1 ng taong iyon. Para sa aktwal na pag-file ng buwis, gamitin ang mga talaan ng kalakalan sa iyong exchange bilang batayan ng gastos sa pagkuha — ang talaang ito ay para lamang sa sanggunian ng daloy ng papasok/palabas ng wallet.",
     "ledger.fail": "Nabigong i-load ang kasaysayan.", "ledger.counterpart_all": "Katapat: Lahat",
     "ledger.incomplete_warn": "Masyadong maraming aktibidad ang wallet na ito para awtomatikong ma-sync hanggang Enero 1 ngayong taon. Mangyaring makipag-ugnayan sa admin (maaaring itaas ang limitasyon at i-sync muli para sa iyo).",
     "report.title": "🚨 I-report ang Scam",
@@ -1992,7 +1992,7 @@ const TT = {
     "ledger.title": "वॉलेट बहीखाता (मासिक/वार्षिक)", "ledger.loading": "इतिहास लोड हो रहा है...", "ledger.empty": "कोई लेनदेन नहीं।",
     "ledger.in": "जमा", "ledger.out": "निकासी", "ledger.net": "शुद्ध", "ledger.year_total": "वार्षिक कुल",
     "ledger.export": "📤 CSV निर्यात करें", "ledger.refresh": "↻ रीफ्रेश करें",
-    "ledger.note": "⚠️ इस वर्ष 1 जनवरी से इतिहास स्वचालित रूप से एकत्र किया जाता है। वास्तविक कर फाइलिंग के लिए, अधिग्रहण लागत के आधार के रूप में अपने एक्सचेंज के व्यापार रिकॉर्ड का उपयोग करें — यह बहीखाता केवल वॉलेट के आवक/जावक प्रवाह के संदर्भ के लिए है।",
+    "ledger.note": "⚠️ यह बहीखाता आपके पहली बार खोलने के क्षण से वॉलेट के आवक/जावक इतिहास को एकत्र करता है। कर वर्ष 2027 से, यह स्वचालित रूप से उस वर्ष की 1 जनवरी तक पीछे की ओर सिंक हो जाएगा। वास्तविक कर फाइलिंग के लिए, अधिग्रहण लागत के आधार के रूप में अपने एक्सचेंज के व्यापार रिकॉर्ड का उपयोग करें — यह बहीखाता केवल वॉलेट के आवक/जावक प्रवाह के संदर्भ के लिए है।",
     "ledger.fail": "इतिहास लोड करने में विफल।", "ledger.counterpart_all": "प्रतिपक्ष: सभी",
     "ledger.incomplete_warn": "इस वॉलेट में इतनी अधिक गतिविधि है कि यह इस वर्ष 1 जनवरी तक स्वचालित रूप से सिंक नहीं हो सका। कृपया व्यवस्थापक से संपर्क करें (सीमा बढ़ाकर आपके लिए फिर से सिंक किया जा सकता है)।",
     "report.title": "🚨 धोखाधड़ी की रिपोर्ट करें",
@@ -2186,7 +2186,7 @@ const TT = {
     "ledger.title": "سجل المحفظة (شهري/سنوي)", "ledger.loading": "جارٍ تحميل السجل...", "ledger.empty": "لا توجد معاملات.",
     "ledger.in": "وارد", "ledger.out": "صادر", "ledger.net": "الصافي", "ledger.year_total": "الإجمالي السنوي",
     "ledger.export": "📤 تصدير CSV", "ledger.refresh": "↻ تحديث",
-    "ledger.note": "⚠️ يتم تجميع السجل تلقائيًا اعتبارًا من 1 يناير من هذا العام. عند تقديم الإقرار الضريبي الفعلي، استخدم سجلات صفقات منصة التداول كأساس لتكلفة الاقتناء — هذا السجل مخصص فقط كمرجع لتدفق الأموال داخل وخارج المحفظة.",
+    "ledger.note": "⚠️ يجمع هذا السجل تاريخ الوارد/الصادر للمحفظة اعتبارًا من اللحظة التي تفتحه فيها لأول مرة. اعتبارًا من السنة الضريبية 2027، ستتم المزامنة تلقائيًا للخلف حتى 1 يناير من ذلك العام. عند تقديم الإقرار الضريبي الفعلي، استخدم سجلات صفقات منصة التداول كأساس لتكلفة الاقتناء — هذا السجل مخصص فقط كمرجع لتدفق الأموال داخل وخارج المحفظة.",
     "ledger.fail": "فشل تحميل السجل.", "ledger.counterpart_all": "الطرف المقابل: الكل",
     "ledger.incomplete_warn": "هذه المحفظة بها نشاط كثير جدًا بحيث لا يمكن مزامنتها تلقائيًا حتى 1 يناير من هذا العام. يرجى التواصل مع المسؤول (يمكن رفع الحد وإعادة المزامنة لك).",
     "report.title": "🚨 الإبلاغ عن احتيال",
@@ -2380,7 +2380,7 @@ const TT = {
     "ledger.title": "Гроссбух кошелька (по месяцам/годам)", "ledger.loading": "Загрузка истории...", "ledger.empty": "Нет транзакций.",
     "ledger.in": "Поступления", "ledger.out": "Списания", "ledger.net": "Итого", "ledger.year_total": "Итого за год",
     "ledger.export": "📤 Экспорт CSV", "ledger.refresh": "↻ Обновить",
-    "ledger.note": "⚠️ Автоматически собирает историю с 1 января этого года. Для реальной налоговой отчётности используйте историю сделок вашей биржи как основу для расчёта стоимости приобретения — этот гроссбух предназначен только для справки по движению средств кошелька.",
+    "ledger.note": "⚠️ Этот гроссбух собирает историю поступлений/списаний кошелька с момента первого открытия. Начиная с налогового 2027 года, он будет автоматически синхронизироваться назад до 1 января того года. Для реальной налоговой отчётности используйте историю сделок вашей биржи как основу для расчёта стоимости приобретения — этот гроссбух предназначен только для справки по движению средств кошелька.",
     "ledger.fail": "Не удалось загрузить историю.", "ledger.counterpart_all": "Контрагент: Все",
     "ledger.incomplete_warn": "У этого кошелька слишком много активности, чтобы автоматически синхронизироваться до 1 января этого года. Пожалуйста, свяжитесь с администратором (лимит можно повысить и синхронизировать заново).",
     "report.title": "🚨 Сообщить о мошенничестве",
@@ -2574,7 +2574,7 @@ const TT = {
     "ledger.title": "ওয়ালেট খতিয়ান (মাসিক/বার্ষিক)", "ledger.loading": "ইতিহাস লোড হচ্ছে...", "ledger.empty": "কোনো লেনদেন নেই।",
     "ledger.in": "জমা", "ledger.out": "উত্তোলন", "ledger.net": "নিট", "ledger.year_total": "বার্ষিক মোট",
     "ledger.export": "📤 CSV রপ্তানি করুন", "ledger.refresh": "↻ রিফ্রেশ করুন",
-    "ledger.note": "⚠️ এই বছরের ১ জানুয়ারি থেকে ইতিহাস স্বয়ংক্রিয়ভাবে সংগ্রহ করা হয়। প্রকৃত কর ফাইলিংয়ের জন্য, অর্জন ব্যয়ের ভিত্তি হিসেবে আপনার এক্সচেঞ্জের ট্রেড রেকর্ড ব্যবহার করুন — এই খতিয়ানটি শুধুমাত্র ওয়ালেটের আসা/যাওয়ার প্রবাহের রেফারেন্সের জন্য।",
+    "ledger.note": "⚠️ এই খতিয়ানটি আপনি প্রথমবার খোলার মুহূর্ত থেকে ওয়ালেটের আসা/যাওয়ার ইতিহাস সংগ্রহ করে। ২০২৭ কর বছর থেকে, এটি স্বয়ংক্রিয়ভাবে সেই বছরের ১ জানুয়ারি পর্যন্ত পিছনে সিঙ্ক হবে। প্রকৃত কর ফাইলিংয়ের জন্য, অর্জন ব্যয়ের ভিত্তি হিসেবে আপনার এক্সচেঞ্জের ট্রেড রেকর্ড ব্যবহার করুন — এই খতিয়ানটি শুধুমাত্র ওয়ালেটের আসা/যাওয়ার প্রবাহের রেফারেন্সের জন্য।",
     "ledger.fail": "ইতিহাস লোড করতে ব্যর্থ হয়েছে।", "ledger.counterpart_all": "প্রতিপক্ষ: সব",
     "ledger.incomplete_warn": "এই ওয়ালেটে এত বেশি কার্যকলাপ রয়েছে যে এটি এই বছরের ১ জানুয়ারি পর্যন্ত স্বয়ংক্রিয়ভাবে সিঙ্ক করা যায়নি। অনুগ্রহ করে অ্যাডমিনের সাথে যোগাযোগ করুন (সীমা বাড়িয়ে আপনার জন্য পুনরায় সিঙ্ক করা যেতে পারে)।",
     "report.title": "🚨 প্রতারণা রিপোর্ট করুন",
@@ -2768,7 +2768,7 @@ const TT = {
     "ledger.title": "Kitabu cha Hesabu cha Pochi (Kila Mwezi/Mwaka)", "ledger.loading": "Inapakia historia...", "ledger.empty": "Hakuna miamala.",
     "ledger.in": "Ndani", "ledger.out": "Nje", "ledger.net": "Jumla Halisi", "ledger.year_total": "Jumla ya Mwaka",
     "ledger.export": "📤 Hamisha CSV", "ledger.refresh": "↻ Onyesha upya",
-    "ledger.note": "⚠️ Hukusanya kiotomatiki historia kuanzia Januari 1 mwaka huu. Kwa ajili ya kufungua mizigo ya kodi halisi, tumia rekodi za biashara za soko lako kama msingi wa gharama ya ununuzi — kitabu hiki cha hesabu ni kwa ajili ya marejeleo ya mtiririko wa pochi pekee.",
+    "ledger.note": "⚠️ Kitabu hiki cha hesabu hukusanya historia ya ndani/nje ya pochi kuanzia wakati unapokifungua kwa mara ya kwanza. Kuanzia mwaka wa kodi 2027, kitasawazishwa kiotomatiki nyuma hadi Januari 1 ya mwaka huo. Kwa ajili ya kufungua mizigo ya kodi halisi, tumia rekodi za biashara za soko lako kama msingi wa gharama ya ununuzi — kitabu hiki cha hesabu ni kwa ajili ya marejeleo ya mtiririko wa pochi pekee.",
     "ledger.fail": "Imeshindwa kupakia historia.", "ledger.counterpart_all": "Mshirika: Wote",
     "ledger.incomplete_warn": "Pochi hii ina shughuli nyingi mno kusawazishwa kiotomatiki hadi Januari 1 mwaka huu. Tafadhali wasiliana na msimamizi (kikomo kinaweza kuongezwa na kusawazishwa upya kwa ajili yako).",
     "report.title": "🚨 Ripoti Udanganyifu",
@@ -2962,7 +2962,7 @@ const TT = {
     "ledger.title": "บัญชีกระเป๋าเงิน (รายเดือน/รายปี)", "ledger.loading": "กำลังโหลดประวัติ...", "ledger.empty": "ไม่มีธุรกรรม",
     "ledger.in": "เข้า", "ledger.out": "ออก", "ledger.net": "สุทธิ", "ledger.year_total": "ยอดรวมรายปี",
     "ledger.export": "📤 ส่งออก CSV", "ledger.refresh": "↻ รีเฟรช",
-    "ledger.note": "⚠️ รวบรวมประวัติโดยอัตโนมัติตั้งแต่วันที่ 1 มกราคมของปีนี้ สำหรับการยื่นภาษีจริง โปรดใช้ประวัติการซื้อขายจากตลาดแลกเปลี่ยนของคุณเป็นฐานต้นทุนการได้มา — บัญชีนี้มีไว้เพื่ออ้างอิงกระแสเงินเข้า/ออกของกระเป๋าเงินเท่านั้น",
+    "ledger.note": "⚠️ บัญชีนี้รวบรวมประวัติเข้า/ออกของกระเป๋าเงินตั้งแต่ช่วงเวลาที่คุณเปิดครั้งแรก ตั้งแต่ปีภาษี 2027 เป็นต้นไป จะซิงค์ย้อนหลังโดยอัตโนมัติไปจนถึงวันที่ 1 มกราคมของปีนั้น สำหรับการยื่นภาษีจริง โปรดใช้ประวัติการซื้อขายจากตลาดแลกเปลี่ยนของคุณเป็นฐานต้นทุนการได้มา — บัญชีนี้มีไว้เพื่ออ้างอิงกระแสเงินเข้า/ออกของกระเป๋าเงินเท่านั้น",
     "ledger.fail": "โหลดประวัติไม่สำเร็จ", "ledger.counterpart_all": "คู่ค้า: ทั้งหมด",
     "ledger.incomplete_warn": "กระเป๋าเงินนี้มีกิจกรรมมากเกินไปจนไม่สามารถซิงค์อัตโนมัติย้อนไปถึงวันที่ 1 มกราคมของปีนี้ได้ กรุณาติดต่อผู้ดูแลระบบ (สามารถปรับเพิ่มขีดจำกัดและซิงค์ใหม่ให้ได้)",
     "report.title": "🚨 รายงานการหลอกลวง",
@@ -3156,7 +3156,7 @@ const TT = {
     "ledger.title": "Cüzdan Defteri (Aylık/Yıllık)", "ledger.loading": "Geçmiş yükleniyor...", "ledger.empty": "İşlem yok.",
     "ledger.in": "Gelen", "ledger.out": "Giden", "ledger.net": "Net", "ledger.year_total": "Yıllık Toplam",
     "ledger.export": "📤 CSV Dışa Aktar", "ledger.refresh": "↻ Yenile",
-    "ledger.note": "⚠️ Bu yılın 1 Ocak'ından itibaren geçmişi otomatik olarak toplar. Gerçek vergi beyanı için edinim maliyeti temeli olarak borsanızın işlem kayıtlarını kullanın — bu defter yalnızca cüzdan giriş/çıkış akışı referansı içindir.",
+    "ledger.note": "⚠️ Bu defter, ilk açtığınız andan itibaren cüzdan giriş/çıkış geçmişini toplar. 2027 vergi yılından itibaren, o yılın 1 Ocak'ına kadar otomatik olarak geriye doğru senkronize edilecektir. Gerçek vergi beyanı için edinim maliyeti temeli olarak borsanızın işlem kayıtlarını kullanın — bu defter yalnızca cüzdan giriş/çıkış akışı referansı içindir.",
     "ledger.fail": "Geçmiş yüklenemedi.", "ledger.counterpart_all": "Karşı Taraf: Tümü",
     "ledger.incomplete_warn": "Bu cüzdanda bu yılın 1 Ocak'ına kadar otomatik olarak senkronize edilemeyecek kadar çok işlem var. Lütfen yöneticiyle iletişime geçin (sınır artırılıp sizin için yeniden senkronize edilebilir).",
     "report.title": "🚨 Dolandırıcılık Bildir",
@@ -3814,12 +3814,17 @@ export function renderTrackerPage(container, username, uid) {
   }
 
   // ── 지갑 장부 (월별/연별) — 내 지갑 탭 접근 시 신규분만 DB에 누적 기록 ──
-  const LEDGER_COL      = 'wallet_ledger';
-  const LEDGER_MAX_PAGE = 200; // 1페이지 50건 * 200 = 최대 10,000건 — 사실상 거의 모든 지갑이 올해 1월 1일까지 한 번에 커버됨
+  const LEDGER_COL         = 'wallet_ledger';
+  const LEDGER_MAX_PAGE    = 200; // 1페이지 50건 * 200 = 최대 10,000건 — 과세 연도엔 사실상 거의 모든 지갑이 1월 1일까지 한 번에 커버됨
+  const LEDGER_TAX_YEAR    = 2027; // 이 해부터 "1월 1일까지 소급 채움"이 활성화됨
+
+  function isLedgerTaxYear() {
+    return new Date().getFullYear() >= LEDGER_TAX_YEAR;
+  }
 
   function ledgerYearCutoff() {
     const now = new Date();
-    return new Date(now.getFullYear(), 0, 1); // 올해 1월 1일 — 그 이전 내역은 세무 목적상 불필요
+    return new Date(now.getFullYear(), 0, 1); // (과세 연도부터) 올해 1월 1일 — 그 이전 내역은 세무 목적상 불필요
   }
 
   async function syncWalletLedger(address) {
@@ -3829,29 +3834,34 @@ export function renderTrackerPage(container, username, uid) {
     let cursorDoc;
     try { cursorDoc = await cursorRef.get(); } catch { return; }
     const lastToken = cursorDoc.exists ? cursorDoc.data().lastPagingToken : null;
-    const cutoff    = ledgerYearCutoff();
 
-    // 과거 연도 이력 소급 수집은 불필요 — 올해 1월 1일까지만 확실히 채우면 됨.
+    // 과세 연도(2027) 전엔 소급 수집 자체를 안 함 — 딱 최근 1페이지만 보고 "지금부터"로 기준점만 잡음.
+    // 과세 연도부터는 언제 처음 열든(1월이든 5월이든) 그 해 1월 1일까지 확실히 소급해서 채움.
+    const taxYear = isLedgerTaxYear();
+    const maxPages = taxYear ? LEDGER_MAX_PAGE : 1;
+    const cutoff   = taxYear ? ledgerYearCutoff() : null;
+
     const newRecords = [];
     let cursor        = null;
-    let stop          = false;   // 이전 지점을 찾았거나, 올해 1월 1일 이전에 도달
+    let stop          = false;   // 이전 지점을 찾았거나, (과세 연도라면) 연초 이전에 도달
     let ranOutOfPages = false;   // 지갑 자체에 더 이상 내역이 없음
-    for (let page = 0; page < LEDGER_MAX_PAGE && !stop; page++) {
+    for (let page = 0; page < maxPages && !stop; page++) {
       let payments, next;
       try { ({ payments, next } = await fetchPayments(address, cursor)); } catch { break; }
       if (!payments.length) { ranOutOfPages = true; break; }
       for (const p of payments) {
         if (lastToken && p.paging_token === lastToken) { stop = true; break; }
-        if (new Date(p.created_at) < cutoff) { stop = true; break; } // 올해 1월 1일 이전 — 여기서부턴 필요 없음
+        if (cutoff && new Date(p.created_at) < cutoff) { stop = true; break; } // 연초 이전 — 여기서부턴 필요 없음
         newRecords.push(p);
       }
       if (stop) break;
       if (!next) { ranOutOfPages = true; break; }
       cursor = next;
     }
-    // 10,000건(200페이지)을 다 봤는데도 이전 지점/연초에 못 닿았다면 — 거래량이 극히 많은 지갑.
-    // 자동으로는 못 채우니 관리자 문의 안내를 위해 표시해둠 (관리자가 직접 상한을 올려 재동기화 가능)
-    const incomplete = !stop && !ranOutOfPages;
+    // 과세 연도에 상한(10,000건)까지 다 봤는데도 이전 지점/연초에 못 닿았다면 — 거래량이 극히 많은 지갑.
+    // 자동으로는 못 채우니 관리자 문의 안내를 위해 표시해둠 (관리자가 직접 상한을 올려 재동기화 가능).
+    // 과세 연도 전(지금)엔 애초에 1페이지만 보는 게 정상 동작이라 이 플래그 대상이 아님.
+    const incomplete = taxYear && !stop && !ranOutOfPages;
     if (newRecords.length === 0) {
       if (incomplete) await cursorRef.set({ syncIncomplete: true }, { merge: true });
       return;
