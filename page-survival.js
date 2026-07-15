@@ -7,6 +7,7 @@ import { ISEKAI_POOL }   from './stories/isekai.js';
 import { ZOMBIE_POOL }   from './stories/zombie.js';
 import { RUINS_POOL }    from './stories/ruins.js';
 import { DERELICT_POOL } from './stories/derelict.js';
+import { ARBBOT_POOL }   from './stories/arbbot.js';
 import { quizBeginner } from './data/quiz-beginner.js';
 import { quizMid }      from './data/quiz-mid.js';
 import { quizAdvanced } from './data/quiz-advanced.js';
@@ -67,13 +68,16 @@ const STORY_POOLS = {
   zombie:   ZOMBIE_POOL,
   ruins:    RUINS_POOL,
   derelict: DERELICT_POOL,
+  arbbot:   ARBBOT_POOL,
 };
 
-// 3개 무료(구독 전 개방) + 2개는 구독해야 개방. 콘텐츠 준비된 5개 게임 전부 available:true.
+// 3개 무료(구독 전 개방) + 3개는 구독해야 개방. 콘텐츠 준비된 6개 게임 전부 available:true.
+// 삼각차익봇을 신규 무료로 넣으면서 좀비 아포칼립스를 구독 전용으로 전환 (반응 테스트).
 export const MAPS = [
   { id: 'dungeon',   emoji: '🗡️', free: true,  available: true  },
   { id: 'isekai',    emoji: '⚔️', free: true,  available: true  },
-  { id: 'zombie',    emoji: '🧟', free: true,  available: true  },
+  { id: 'arbbot',    emoji: '🤖', free: true,  available: true  },
+  { id: 'zombie',    emoji: '🧟', free: false, available: true  },
   { id: 'ruins',     emoji: '🏺', free: false, available: true  },
   { id: 'derelict',  emoji: '🛰️', free: false, available: true  },
 ];
@@ -146,6 +150,7 @@ const ST = {
     'map.dungeon.name': '던전 탐험가', 'map.dungeon.desc': '무너진 고대 던전 · 보물을 찾아라',
     'map.isekai.name': '이세계 용병', 'map.isekai.desc': '소환된 다른 세계 · 용병 생활',
     'map.zombie.name': '좀비 아포칼립스', 'map.zombie.desc': '폐허가 된 도시 · 탈출 루트를 찾아라',
+    'map.arbbot.name': '삼각차익봇 만들기', 'map.arbbot.desc': '바이브코딩으로 배우는 실전 개발 · 매번 다른 시행착오',
     'map.ruins.name': '고대 유적 탐사대', 'map.ruins.desc': '잊혀진 유적 · 함정과 유물',
     'map.derelict.name': '표류 우주선', 'map.derelict.desc': '고장난 우주선 · 탈출선까지',
     'item.title': '🎒 아이템 선택', 'item.sub': '2가지 아이템을 골라 시작하세요', 'item.start': '시작하기',
@@ -166,6 +171,7 @@ const ST = {
     'map.dungeon.name': 'Dungeon Explorer', 'map.dungeon.desc': 'A collapsed ancient dungeon · Find the treasure',
     'map.isekai.name': 'Otherworld Mercenary', 'map.isekai.desc': 'Summoned to another world · Life as a mercenary',
     'map.zombie.name': 'Zombie Apocalypse', 'map.zombie.desc': 'A ruined city · Find the escape route',
+    'map.arbbot.name': 'Building an Arb Bot', 'map.arbbot.desc': 'Learn real development through vibe-coding · Different trial and error each time',
     'map.ruins.name': 'Ancient Ruins Expedition', 'map.ruins.desc': 'Forgotten ruins · Traps and relics',
     'map.derelict.name': 'Derelict Starship', 'map.derelict.desc': 'A broken-down ship · Reach the escape pod',
     'item.title': '🎒 Choose Items', 'item.sub': 'Pick 2 items to start', 'item.start': 'Start',
@@ -186,6 +192,7 @@ const ST = {
     'map.dungeon.name': '地下城探险家', 'map.dungeon.desc': '崩塌的古代地下城 · 寻找宝藏',
     'map.isekai.name': '异世界佣兵', 'map.isekai.desc': '被召唤到异世界 · 佣兵生活',
     'map.zombie.name': '僵尸末日', 'map.zombie.desc': '废墟都市 · 寻找逃生路线',
+    'map.arbbot.name': '制作三角套利机器人', 'map.arbbot.desc': '通过vibe-coding学习实战开发 · 每次试错都不同',
     'map.ruins.name': '古代遗迹探险队', 'map.ruins.desc': '被遗忘的遗迹 · 陷阱与遗物',
     'map.derelict.name': '漂流宇宙飞船', 'map.derelict.desc': '故障飞船 · 前往逃生舱',
     'item.title': '🎒 选择道具', 'item.sub': '选择2件道具开始', 'item.start': '开始',
@@ -206,6 +213,7 @@ const ST = {
     'map.dungeon.name': 'Penjelajah Dungeon', 'map.dungeon.desc': 'Dungeon kuno yang runtuh · Temukan harta karun',
     'map.isekai.name': 'Tentara Bayaran Dunia Lain', 'map.isekai.desc': 'Terpanggil ke dunia lain · Hidup sebagai tentara bayaran',
     'map.zombie.name': 'Kiamat Zombie', 'map.zombie.desc': 'Kota yang hancur · Cari jalur pelarian',
+    'map.arbbot.name': 'Membangun Bot Arbitrase', 'map.arbbot.desc': 'Belajar pengembangan nyata lewat vibe-coding · Coba-coba yang berbeda setiap kali',
     'map.ruins.name': 'Ekspedisi Reruntuhan Kuno', 'map.ruins.desc': 'Reruntuhan terlupakan · Jebakan dan relik',
     'map.derelict.name': 'Kapal Luar Angkasa Terlantar', 'map.derelict.desc': 'Kapal rusak · Menuju kapsul pelarian',
     'item.title': '🎒 Pilih Item', 'item.sub': 'Pilih 2 item untuk mulai', 'item.start': 'Mulai',
@@ -226,6 +234,7 @@ const ST = {
     'map.dungeon.name': 'ダンジョン探検家', 'map.dungeon.desc': '崩れた古代ダンジョン・宝を探せ',
     'map.isekai.name': '異世界傭兵', 'map.isekai.desc': '異世界に召喚・傭兵生活',
     'map.zombie.name': 'ゾンビ黙示録', 'map.zombie.desc': '廃墟の都市・脱出ルートを探せ',
+    'map.arbbot.name': '三角裁定ボット制作', 'map.arbbot.desc': 'バイブコーディングで学ぶ実践開発・毎回違う試行錯誤',
     'map.ruins.name': '古代遺跡探検隊', 'map.ruins.desc': '忘れられた遺跡・罠と遺物',
     'map.derelict.name': '漂流宇宙船', 'map.derelict.desc': '故障した宇宙船・脱出ポッドへ',
     'item.title': '🎒 アイテム選択', 'item.sub': '2つのアイテムを選んでください', 'item.start': 'スタート',
@@ -246,6 +255,7 @@ const ST = {
     'map.dungeon.name': 'Explorador de Mazmorras', 'map.dungeon.desc': 'Una mazmorra antigua colapsada · Encuentra el tesoro',
     'map.isekai.name': 'Mercenario de Otro Mundo', 'map.isekai.desc': 'Invocado a otro mundo · Vida de mercenario',
     'map.zombie.name': 'Apocalipsis Zombi', 'map.zombie.desc': 'Una ciudad en ruinas · Encuentra la ruta de escape',
+    'map.arbbot.name': 'Creando un Bot de Arbitraje', 'map.arbbot.desc': 'Aprende desarrollo real con vibe-coding · Prueba y error diferente cada vez',
     'map.ruins.name': 'Expedición a Ruinas Antiguas', 'map.ruins.desc': 'Ruinas olvidadas · Trampas y reliquias',
     'map.derelict.name': 'Nave Abandonada', 'map.derelict.desc': 'Nave averiada · Llega a la cápsula de escape',
     'item.title': '🎒 Elegir Objetos', 'item.sub': 'Elige 2 objetos para comenzar', 'item.start': 'Comenzar',
@@ -266,6 +276,7 @@ const ST = {
     'map.dungeon.name': 'Explorateur de Donjon', 'map.dungeon.desc': 'Un donjon antique effondré · Trouvez le trésor',
     'map.isekai.name': 'Mercenaire d\'un Autre Monde', 'map.isekai.desc': 'Invoqué dans un autre monde · Vie de mercenaire',
     'map.zombie.name': 'Apocalypse Zombie', 'map.zombie.desc': 'Une ville en ruines · Trouvez la sortie',
+    'map.arbbot.name': 'Créer un Bot d\'Arbitrage', 'map.arbbot.desc': 'Apprenez le développement réel avec le vibe-coding · Essais et erreurs différents à chaque fois',
     'map.ruins.name': 'Expédition aux Ruines Antiques', 'map.ruins.desc': 'Ruines oubliées · Pièges et reliques',
     'map.derelict.name': 'Vaisseau Abandonné', 'map.derelict.desc': 'Vaisseau en panne · Atteindre la capsule de secours',
     'item.title': '🎒 Choisir des Objets', 'item.sub': 'Choisissez 2 objets pour commencer', 'item.start': 'Commencer',
@@ -286,6 +297,7 @@ const ST = {
     'map.dungeon.name': 'Nhà Thám Hiểm Dungeon', 'map.dungeon.desc': 'Dungeon cổ đại sụp đổ · Tìm kho báu',
     'map.isekai.name': 'Lính Đánh Thuê Dị Giới', 'map.isekai.desc': 'Bị triệu hồi đến thế giới khác · Cuộc sống lính đánh thuê',
     'map.zombie.name': 'Ngày Tận Thế Zombie', 'map.zombie.desc': 'Thành phố đổ nát · Tìm lối thoát',
+    'map.arbbot.name': 'Xây Dựng Bot Chênh Lệch Giá', 'map.arbbot.desc': 'Học phát triển thực tế qua vibe-coding · Thử và sai khác nhau mỗi lần',
     'map.ruins.name': 'Đoàn Thám Hiểm Di Tích Cổ', 'map.ruins.desc': 'Di tích bị lãng quên · Bẫy và cổ vật',
     'map.derelict.name': 'Tàu Vũ Trụ Trôi Dạt', 'map.derelict.desc': 'Tàu hỏng · Đến khoang thoát hiểm',
     'item.title': '🎒 Chọn Vật Phẩm', 'item.sub': 'Chọn 2 vật phẩm để bắt đầu', 'item.start': 'Bắt Đầu',
@@ -306,6 +318,7 @@ const ST = {
     'map.dungeon.name': 'Explorador de Masmorra', 'map.dungeon.desc': 'Uma masmorra antiga desmoronada · Encontre o tesouro',
     'map.isekai.name': 'Mercenário de Outro Mundo', 'map.isekai.desc': 'Invocado para outro mundo · Vida de mercenário',
     'map.zombie.name': 'Apocalipse Zumbi', 'map.zombie.desc': 'Uma cidade em ruínas · Encontre a rota de fuga',
+    'map.arbbot.name': 'Criando um Bot de Arbitragem', 'map.arbbot.desc': 'Aprenda desenvolvimento real com vibe-coding · Tentativa e erro diferentes a cada vez',
     'map.ruins.name': 'Expedição às Ruínas Antigas', 'map.ruins.desc': 'Ruínas esquecidas · Armadilhas e relíquias',
     'map.derelict.name': 'Nave Abandonada', 'map.derelict.desc': 'Nave quebrada · Chegue à cápsula de fuga',
     'item.title': '🎒 Escolher Itens', 'item.sub': 'Escolha 2 itens para começar', 'item.start': 'Começar',
@@ -326,6 +339,7 @@ const ST = {
     'map.dungeon.name': 'Peneroka Dungeon', 'map.dungeon.desc': 'Dungeon purba yang runtuh · Cari harta karun',
     'map.isekai.name': 'Askar Upahan Dunia Lain', 'map.isekai.desc': 'Dipanggil ke dunia lain · Kehidupan askar upahan',
     'map.zombie.name': 'Wabak Zombi', 'map.zombie.desc': 'Bandar musnah · Cari laluan melarikan diri',
+    'map.arbbot.name': 'Membina Bot Arbitraj', 'map.arbbot.desc': 'Belajar pembangunan sebenar melalui vibe-coding · Percubaan berbeza setiap kali',
     'map.ruins.name': 'Ekspedisi Runtuhan Purba', 'map.ruins.desc': 'Runtuhan dilupakan · Perangkap dan relik',
     'map.derelict.name': 'Kapal Angkasa Terbiar', 'map.derelict.desc': 'Kapal rosak · Menuju kapsul pelarian',
     'item.title': '🎒 Pilih Item', 'item.sub': 'Pilih 2 item untuk mula', 'item.start': 'Mula',
@@ -346,6 +360,7 @@ const ST = {
     'map.dungeon.name': 'Manlalakbay ng Dungeon', 'map.dungeon.desc': 'Isang gumuhong sinaunang dungeon · Hanapin ang kayamanan',
     'map.isekai.name': 'Mersenaryo ng Ibang Mundo', 'map.isekai.desc': 'Na-summon sa ibang mundo · Buhay bilang mersenaryo',
     'map.zombie.name': 'Zombie Apocalypse', 'map.zombie.desc': 'Isang wasak na lungsod · Hanapin ang ruta ng pagtakas',
+    'map.arbbot.name': 'Paggawa ng Arb Bot', 'map.arbbot.desc': 'Matuto ng tunay na development gamit ang vibe-coding · Iba-ibang pagsubok bawat laro',
     'map.ruins.name': 'Ekspedisyon sa Sinaunang Guho', 'map.ruins.desc': 'Nakalimutang guho · Bitag at relikya',
     'map.derelict.name': 'Naliligaw na Spaceship', 'map.derelict.desc': 'Sirang barko · Abutin ang escape pod',
     'item.title': '🎒 Pumili ng Mga Item', 'item.sub': 'Pumili ng 2 item para magsimula', 'item.start': 'Simulan',
@@ -366,6 +381,7 @@ const ST = {
     'map.dungeon.name': 'डंजियन एक्सप्लोरर', 'map.dungeon.desc': 'ढहा हुआ प्राचीन डंजियन · खजाना खोजें',
     'map.isekai.name': 'दूसरी दुनिया का भाड़े का सैनिक', 'map.isekai.desc': 'दूसरी दुनिया में बुलाया गया · भाड़े के सैनिक का जीवन',
     'map.zombie.name': 'जॉम्बी एपोकैलिप्स', 'map.zombie.desc': 'बर्बाद शहर · भागने का रास्ता खोजें',
+    'map.arbbot.name': 'आर्ब बॉट बनाना', 'map.arbbot.desc': 'वाइब-कोडिंग से असली डेवलपमेंट सीखें · हर बार अलग प्रयास और त्रुटि',
     'map.ruins.name': 'प्राचीन खंडहर अभियान', 'map.ruins.desc': 'भूले-बिसरे खंडहर · जाल और अवशेष',
     'map.derelict.name': 'बहता हुआ अंतरिक्ष यान', 'map.derelict.desc': 'खराब यान · एस्केप पॉड तक पहुंचें',
     'item.title': '🎒 आइटम चुनें', 'item.sub': 'शुरू करने के लिए 2 आइटम चुनें', 'item.start': 'शुरू करें',
@@ -386,6 +402,7 @@ const ST = {
     'map.dungeon.name': 'مستكشف الزنزانة', 'map.dungeon.desc': 'زنزانة قديمة منهارة · ابحث عن الكنز',
     'map.isekai.name': 'مرتزق عالم آخر', 'map.isekai.desc': 'استُدعي إلى عالم آخر · حياة مرتزق',
     'map.zombie.name': 'نهاية الزومبي', 'map.zombie.desc': 'مدينة مدمرة · ابحث عن طريق الهروب',
+    'map.arbbot.name': 'بناء بوت المراجحة', 'map.arbbot.desc': 'تعلم التطوير الحقيقي من خلال البرمجة بالحدس · محاولات وأخطاء مختلفة في كل مرة',
     'map.ruins.name': 'بعثة الأطلال القديمة', 'map.ruins.desc': 'أطلال منسية · فخاخ وآثار',
     'map.derelict.name': 'سفينة فضائية متروكة', 'map.derelict.desc': 'سفينة معطلة · الوصول إلى كبسولة الهروب',
     'item.title': '🎒 اختر الأدوات', 'item.sub': 'اختر أداتين للبدء', 'item.start': 'ابدأ',
@@ -406,6 +423,7 @@ const ST = {
     'map.dungeon.name': 'Исследователь Подземелья', 'map.dungeon.desc': 'Обрушившееся древнее подземелье · Найдите сокровище',
     'map.isekai.name': 'Наёмник Другого Мира', 'map.isekai.desc': 'Призван в другой мир · Жизнь наёмника',
     'map.zombie.name': 'Зомби-апокалипсис', 'map.zombie.desc': 'Разрушенный город · Найдите путь к спасению',
+    'map.arbbot.name': 'Создание арбитражного бота', 'map.arbbot.desc': 'Изучите реальную разработку через вайб-кодинг · Разные попытки и ошибки каждый раз',
     'map.ruins.name': 'Экспедиция к Древним Руинам', 'map.ruins.desc': 'Забытые руины · Ловушки и реликвии',
     'map.derelict.name': 'Заброшенный Звездолёт', 'map.derelict.desc': 'Сломанный корабль · Доберитесь до спасательной капсулы',
     'item.title': '🎒 Выберите предметы', 'item.sub': 'Выберите 2 предмета для начала', 'item.start': 'Начать',
@@ -426,6 +444,7 @@ const ST = {
     'map.dungeon.name': 'ডানজিয়ন এক্সপ্লোরার', 'map.dungeon.desc': 'ধসে পড়া প্রাচীন ডানজিয়ন · ধন খুঁজুন',
     'map.isekai.name': 'অন্য জগতের ভাড়াটে সৈনিক', 'map.isekai.desc': 'অন্য জগতে ডাকা হয়েছে · ভাড়াটে জীবন',
     'map.zombie.name': 'জম্বি অ্যাপোক্যালিপ্স', 'map.zombie.desc': 'ধ্বংসপ্রাপ্ত শহর · পালানোর পথ খুঁজুন',
+    'map.arbbot.name': 'আরবিট্রেজ বট তৈরি', 'map.arbbot.desc': 'ভাইব-কোডিং দিয়ে বাস্তব ডেভেলপমেন্ট শিখুন · প্রতিবার ভিন্ন প্রচেষ্টা ও ভুল',
     'map.ruins.name': 'প্রাচীন ধ্বংসাবশেষ অভিযান', 'map.ruins.desc': 'বিস্মৃত ধ্বংসাবশেষ · ফাঁদ এবং নিদর্শন',
     'map.derelict.name': 'ভাসমান মহাকাশযান', 'map.derelict.desc': 'বিকল জাহাজ · এস্কেপ পডে পৌঁছান',
     'item.title': '🎒 আইটেম বেছে নিন', 'item.sub': 'শুরু করতে ২টি আইটেম বেছে নিন', 'item.start': 'শুরু করুন',
@@ -446,6 +465,7 @@ const ST = {
     'map.dungeon.name': 'Mgunduzi wa Dungeon', 'map.dungeon.desc': 'Dungeon ya kale iliyoanguka · Tafuta hazina',
     'map.isekai.name': 'Askari wa Kukodi wa Ulimwengu Mwingine', 'map.isekai.desc': 'Aliitwa kwenda ulimwengu mwingine · Maisha ya askari wa kukodi',
     'map.zombie.name': 'Mwisho wa Zombi', 'map.zombie.desc': 'Jiji lililoharibiwa · Tafuta njia ya kutoroka',
+    'map.arbbot.name': 'Kujenga Bot ya Arbitraji', 'map.arbbot.desc': 'Jifunze uundaji halisi kupitia vibe-coding · Majaribio tofauti kila mara',
     'map.ruins.name': 'Msafara wa Magofu ya Kale', 'map.ruins.desc': 'Magofu yaliyosahaulika · Mitego na masalio',
     'map.derelict.name': 'Chombo cha Anga Kilichotelekezwa', 'map.derelict.desc': 'Chombo kilichoharibika · Fika kwenye kapsuli ya kutoroka',
     'item.title': '🎒 Chagua Vitu', 'item.sub': 'Chagua vitu 2 ili kuanza', 'item.start': 'Anza',
@@ -466,6 +486,7 @@ const ST = {
     'map.dungeon.name': 'นักผจญภัยดันเจี้ยน', 'map.dungeon.desc': 'ดันเจี้ยนโบราณที่พังทลาย · ตามหาสมบัติ',
     'map.isekai.name': 'ทหารรับจ้างต่างโลก', 'map.isekai.desc': 'ถูกเรียกไปยังโลกอื่น · ชีวิตทหารรับจ้าง',
     'map.zombie.name': 'วันสิ้นโลกซอมบี้', 'map.zombie.desc': 'เมืองที่พังยับเยิน · ตามหาเส้นทางหนี',
+    'map.arbbot.name': 'สร้างบอทเก็งกำไร', 'map.arbbot.desc': 'เรียนรู้การพัฒนาจริงผ่าน vibe-coding · ลองผิดลองถูกต่างกันทุกครั้ง',
     'map.ruins.name': 'ทีมสำรวจซากปรักหักพังโบราณ', 'map.ruins.desc': 'ซากปรักหักพังที่ถูกลืม · กับดักและโบราณวัตถุ',
     'map.derelict.name': 'ยานอวกาศล่องลอย', 'map.derelict.desc': 'ยานที่เสียหาย · ไปให้ถึงแคปซูลหนีภัย',
     'item.title': '🎒 เลือกไอเทม', 'item.sub': 'เลือก 2 ไอเทมเพื่อเริ่ม', 'item.start': 'เริ่ม',
@@ -486,6 +507,7 @@ const ST = {
     'map.dungeon.name': 'Zindan Kaşifi', 'map.dungeon.desc': 'Çökmüş antik bir zindan · Hazineyi bul',
     'map.isekai.name': 'Başka Dünyanın Paralı Askeri', 'map.isekai.desc': 'Başka bir dünyaya çağrıldı · Paralı asker hayatı',
     'map.zombie.name': 'Zombi Kıyameti', 'map.zombie.desc': 'Harap olmuş bir şehir · Kaçış rotasını bul',
+    'map.arbbot.name': 'Arbitraj Botu Oluşturma', 'map.arbbot.desc': 'Vibe-coding ile gerçek geliştirmeyi öğrenin · Her seferinde farklı deneme yanılma',
     'map.ruins.name': 'Antik Harabeler Keşif Gezisi', 'map.ruins.desc': 'Unutulmuş harabeler · Tuzaklar ve kalıntılar',
     'map.derelict.name': 'Terk Edilmiş Uzay Gemisi', 'map.derelict.desc': 'Bozuk gemi · Kaçış kapsülüne ulaş',
     'item.title': '🎒 Eşya Seç', 'item.sub': 'Başlamak için 2 eşya seçin', 'item.start': 'Başla',
