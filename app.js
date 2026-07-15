@@ -58,9 +58,7 @@ const NOTICE_PREV = {
 // ── 공지 팝업 ────────────────────────────────────────
 const _NOTICE_COL = 'notices_pidex_quiz';
 
-async function showNoticeIfNeeded() {
-  const SKIP_KEY    = 'notice_skip_until';
-  const VERSION_KEY = 'notice_skip_version';
+async function fetchAllNotices() {
   let notices = [];
   try {
     if (typeof firebase !== 'undefined' && firebase.apps.length) {
@@ -76,11 +74,25 @@ async function showNoticeIfNeeded() {
     }
   } catch {}
   if (!notices.length) notices = [NOTICE_PREV, NOTICE].filter(Boolean);
+  return notices;
+}
+
+async function showNoticeIfNeeded() {
+  const SKIP_KEY    = 'notice_skip_until';
+  const VERSION_KEY = 'notice_skip_version';
+  const notices = await fetchAllNotices();
   if (!notices.length) return;
   const latest = notices[notices.length - 1];
   const skipUntil   = parseInt(localStorage.getItem(SKIP_KEY) || '0', 10);
   const skipVersion = localStorage.getItem(VERSION_KEY) || '';
   if (skipVersion === latest.version && Date.now() < skipUntil) return;
+  _showNoticePopup(notices, notices.length - 1);
+}
+
+// 관리자가 QuizPi 로고를 클릭하면 스킵 여부와 무관하게 공지창(통계 탭 포함)을 바로 연다.
+async function openNoticePopupManually() {
+  const notices = await fetchAllNotices();
+  if (!notices.length) return;
   _showNoticePopup(notices, notices.length - 1);
 }
 
@@ -645,6 +657,11 @@ async function init() {
 
   const helpBtn = document.getElementById('btn-help');
   if (helpBtn) helpBtn.addEventListener('click', () => renderHelpModal());
+
+  // 관리자 모드에서만: 좌측 상단 "QuizPi π" 클릭 시 공지창(관리자 통계 탭 포함) 오픈
+  document.getElementById('header-title')?.addEventListener('click', () => {
+    if (currentUsername === ADMIN_USERNAME) openNoticePopupManually();
+  });
 
   const utilsOverlayBtn = document.getElementById('btn-intro-overlay');
   if (utilsOverlayBtn) utilsOverlayBtn.addEventListener('click', () => {
