@@ -236,7 +236,7 @@ async function loadAndRenderAdminMessages(el) {
 const ADMIN_USERNAME    = 'cam1998pi';
 const STATS_HISTORY_COL = 'admin_stats_history';
 const QUIZ_MODES_LIST   = ['miner', 'pioneer', 'validator'];
-const SURVIVAL_MAPS_LIST = ['jungle', 'desert', 'mountain', 'underwater', 'space'];
+const SURVIVAL_MAPS_LIST = ['dungeon', 'isekai', 'zombie', 'ruins', 'derelict'];
 
 async function safeGet(db, col) {
   try { return await db.collection(col).get(); } catch { return null; }

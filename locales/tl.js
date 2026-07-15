@@ -20,7 +20,7 @@
   'hub.open':       'Buksan sa Pi Browser →',
   'hub.pidex.desc': 'All-in-one utility ng Pi DEX — arbitrage, LP calculator at swap simulator.',
   'hub.hack.desc':     'Pi wallet hack tracker & community reporting tool.',
-  'hub.survival.desc': 'Text-based survival adventure sa 11 wilderness scenario.',
+  'hub.survival.desc': 'Isang RPG adventure na batay sa pagpili ng teksto na iba-iba tuwing laruin.',
   'hub.coming_soon':   'Malapit na',
   'btn.start':      'Magsimula',
 

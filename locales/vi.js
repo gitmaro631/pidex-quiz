@@ -20,7 +20,7 @@
   'hub.open':       'Mở trong Pi Browser →',
   'hub.pidex.desc': 'Tiện ích toàn diện Pi DEX — arbitrage, LP calculator & swap.',
   'hub.hack.desc':     'Theo dõi hack ví Pi & công cụ báo cáo cộng đồng.',
-  'hub.survival.desc': 'Game sinh tồn văn bản với 11 kịch bản hoang dã.',
+  'hub.survival.desc': 'Cuộc phiêu lưu RPG lựa chọn văn bản diễn ra khác nhau mỗi lần chơi.',
   'hub.coming_soon':   'Sắp ra mắt',
   'btn.start':      'Bắt đầu',
 

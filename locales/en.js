@@ -34,7 +34,7 @@
   'hub.open':       'Open in Pi Browser →',
   'hub.pidex.desc': 'Pi DEX all-in-one utility — arbitrage, LP calculator & swap simulator.',
   'hub.hack.desc':     'Pi wallet hack tracking & community reporting tool.',
-  'hub.survival.desc': 'Text-based survival adventure across 11 wilderness scenarios.',
+  'hub.survival.desc': 'A text-choice RPG adventure that unfolds differently every time you play.',
   'hub.coming_soon':   'Coming soon',
   'btn.start':      'Get Started',
 

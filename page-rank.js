@@ -178,7 +178,7 @@ export async function renderRankPage(container) {
           <div class="leaderboard-row ${r.username === username ? 'leaderboard-me' : ''}">
             <span class="lb-rank">${i + 1}</span>
             <span class="lb-user">${r.username}</span>
-            <span class="lb-score">${r.days}일${r.pi_earned ? ` · ⬡${r.pi_earned}π` : ''}</span>
+            <span class="lb-score">${r.days}단계${r.pi_earned ? ` · ⬡${r.pi_earned}π` : ''}</span>
           </div>`).join('');
       }
     } catch {

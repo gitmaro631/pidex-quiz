@@ -20,7 +20,7 @@
   'hub.open':       'Abrir en Pi Browser →',
   'hub.pidex.desc': 'Utilidad todo en uno de Pi DEX — arbitraje, LP y swap.',
   'hub.hack.desc':     'Rastreador de hackeos de wallets Pi & reportes comunitarios.',
-  'hub.survival.desc': 'Aventura de supervivencia en texto con 11 escenarios al aire libre.',
+  'hub.survival.desc': 'Una aventura RPG de elecciones de texto que se desarrolla de forma diferente cada vez que juegas.',
   'hub.coming_soon':   'Próximamente',
   'btn.start':      'Comenzar',
 

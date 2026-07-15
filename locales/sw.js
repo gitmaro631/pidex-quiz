@@ -20,7 +20,7 @@
   'hub.open':       'Fungua katika Pi Browser →',
   'hub.pidex.desc': 'Zana kamili ya Pi DEX — arbitrage, LP calculator na swap.',
   'hub.hack.desc':     'Kifaa cha kufuatilia hack za pochi za Pi & ripoti za jamii.',
-  'hub.survival.desc': 'Mchezo wa kuishi wa maandishi katika hali 11 za msituni.',
+  'hub.survival.desc': 'Safari ya RPG ya uchaguzi wa maandishi inayojitokeza tofauti kila unapocheza.',
   'hub.coming_soon':   'Inakuja hivi karibuni',
   'btn.start':      'Anza',
 

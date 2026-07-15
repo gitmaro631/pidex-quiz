@@ -20,7 +20,7 @@
   'hub.open':       'Buka di Pi Browser →',
   'hub.pidex.desc': 'Utilitas lengkap Pi DEX — arbitrase, kalkulator LP & simulator swap.',
   'hub.hack.desc':     'Pelacak hack dompet Pi & alat laporan komunitas.',
-  'hub.survival.desc': 'Petualangan bertahan hidup berbasis teks di 11 skenario alam liar.',
+  'hub.survival.desc': 'Petualangan RPG berbasis pilihan teks yang berjalan berbeda setiap kali dimainkan.',
   'hub.coming_soon':   'Segera hadir',
   'btn.start':      'Mulai',
 
