@@ -643,10 +643,21 @@ export function renderSurvivalPage(container, username) {
   }
 
   function loadStage(stageIdx) {
-    const variants = state.game.stages[stageIdx];
-    if (!variants || !variants.length) return;
+    const variants = state.game?.stages?.[stageIdx];
+    if (!variants || !variants.length) {
+      const box = container.querySelector('#sv-choices-box');
+      if (box) box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ Stage ${stageIdx} data missing (game=${!!state.game}, stages=${state.game?.stages?.length}). Please screenshot this and report it.</p>`;
+      return;
+    }
     state.stageIdx = stageIdx;
-    const variant  = pickVariant(variants);
+    let variant;
+    try {
+      variant = pickVariant(variants);
+    } catch (e) {
+      const box = container.querySelector('#sv-choices-box');
+      if (box) box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ pickVariant error: ${e.message}. Please screenshot this and report it.</p>`;
+      return;
+    }
     state.currentVariant = variant;
     applyEffect(variant.effect);
     updateStats();
@@ -697,8 +708,12 @@ export function renderSurvivalPage(container, username) {
 
     box.querySelectorAll('.sv-choice-btn:not(.disabled)').forEach(btn => {
       btn.addEventListener('click', () => {
-        box.querySelectorAll('.sv-choice-btn').forEach(b => b.disabled = true);
-        makeChoice(choices[parseInt(btn.dataset.idx)]);
+        try {
+          box.querySelectorAll('.sv-choice-btn').forEach(b => b.disabled = true);
+          makeChoice(choices[parseInt(btn.dataset.idx)]);
+        } catch (e) {
+          box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ Choice error: ${e.message}. Please screenshot this and report it.</p>`;
+        }
       });
     });
   }
@@ -707,7 +722,14 @@ export function renderSurvivalPage(container, username) {
     if (choice.pi) { state.piEarned += choice.pi; updateStats(); }
     applyEffect(choice.effect);
     updateStats();
-    setTimeout(() => loadStage(state.stageIdx + 1), 250);
+    const nextIdx = state.stageIdx + 1;
+    setTimeout(() => {
+      try { loadStage(nextIdx); }
+      catch (e) {
+        const box = container.querySelector('#sv-choices-box');
+        if (box) box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ loadStage error: ${e.message}. Please screenshot this and report it.</p>`;
+      }
+    }, 250);
   }
 
   function showEnd(isSuccess, endType, endText) {
