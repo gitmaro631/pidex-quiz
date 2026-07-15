@@ -2,7 +2,11 @@ import { getLang, detectCountry, countryToFlag } from './util-i18n.js';
 import { isSubscribed, setSubscription } from './util-storage.js';
 import { createSubscriptionPayment, syncSubscription } from './pi-sdk.js';
 import { submitSurvivalScore, fetchSurvivalLeaderboard } from './firebase.js';
-import { DUNGEON_POOL } from './stories/dungeon.js';
+import { DUNGEON_POOL }   from './stories/dungeon.js';
+import { ISEKAI_POOL }   from './stories/isekai.js';
+import { ZOMBIE_POOL }   from './stories/zombie.js';
+import { RUINS_POOL }    from './stories/ruins.js';
+import { DERELICT_POOL } from './stories/derelict.js';
 import { quizBeginner } from './data/quiz-beginner.js';
 import { quizMid }      from './data/quiz-mid.js';
 import { quizAdvanced } from './data/quiz-advanced.js';
@@ -58,16 +62,20 @@ function sl(obj) {
 
 // 콘텐츠 풀 — 새 게임을 추가할 때 여기에 등록
 const STORY_POOLS = {
-  dungeon: DUNGEON_POOL,
+  dungeon:  DUNGEON_POOL,
+  isekai:   ISEKAI_POOL,
+  zombie:   ZOMBIE_POOL,
+  ruins:    RUINS_POOL,
+  derelict: DERELICT_POOL,
 };
 
-// 3개 무료(구독 전 개방) + 2개는 구독해야 개방. 콘텐츠 준비된 게임만 available:true.
+// 3개 무료(구독 전 개방) + 2개는 구독해야 개방. 콘텐츠 준비된 5개 게임 전부 available:true.
 export const MAPS = [
   { id: 'dungeon',   emoji: '🗡️', free: true,  available: true  },
-  { id: 'isekai',    emoji: '⚔️', free: true,  available: false },
-  { id: 'zombie',    emoji: '🧟', free: true,  available: false },
-  { id: 'ruins',     emoji: '🏺', free: false, available: false },
-  { id: 'derelict',  emoji: '🛰️', free: false, available: false },
+  { id: 'isekai',    emoji: '⚔️', free: true,  available: true  },
+  { id: 'zombie',    emoji: '🧟', free: true,  available: true  },
+  { id: 'ruins',     emoji: '🏺', free: false, available: true  },
+  { id: 'derelict',  emoji: '🛰️', free: false, available: true  },
 ];
 
 const END_META = {
