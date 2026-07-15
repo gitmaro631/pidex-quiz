@@ -688,7 +688,7 @@ export function renderSurvivalPage(container, username) {
     const variants = state.game?.stages?.[stageIdx];
     if (!variants || !variants.length) {
       const box = container.querySelector('#sv-choices-box');
-      if (box) box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ Stage ${stageIdx} data missing (game=${!!state.game}, stages=${state.game?.stages?.length}). Please screenshot this and report it.</p>`;
+      if (box) box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ 오류가 발생했습니다. 관리자에게 문의해주세요. (Stage ${stageIdx} data missing — game=${!!state.game}, stages=${state.game?.stages?.length})</p>`;
       return;
     }
     state.stageIdx = stageIdx;
@@ -697,7 +697,7 @@ export function renderSurvivalPage(container, username) {
       variant = pickVariant(variants);
     } catch (e) {
       const box = container.querySelector('#sv-choices-box');
-      if (box) box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ pickVariant error: ${e.message}. Please screenshot this and report it.</p>`;
+      if (box) box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ 오류가 발생했습니다. 관리자에게 문의해주세요. (pickVariant: ${e.message})</p>`;
       return;
     }
     state.currentVariant = variant;
@@ -780,7 +780,7 @@ export function renderSurvivalPage(container, username) {
           box.innerHTML = `<p style="padding:8px 12px;color:${correct ? '#22c55e' : '#f0b429'};">${correct ? '✅' : '😅'} ${esc(q.explanation || '')}</p>`;
           setTimeout(onDone, 1600);
         } catch (e) {
-          box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ Quiz error: ${e.message}. Please screenshot this and report it.</p>`;
+          box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ 오류가 발생했습니다. 관리자에게 문의해주세요. (Quiz: ${e.message})</p>`;
         }
       });
     });
@@ -807,7 +807,7 @@ export function renderSurvivalPage(container, username) {
           box.querySelectorAll('.sv-choice-btn').forEach(b => b.disabled = true);
           makeChoice(choices[parseInt(btn.dataset.idx)]);
         } catch (e) {
-          box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ Choice error: ${e.message}. Please screenshot this and report it.</p>`;
+          box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ 오류가 발생했습니다. 관리자에게 문의해주세요. (Choice: ${e.message})</p>`;
         }
       });
     });
@@ -822,7 +822,7 @@ export function renderSurvivalPage(container, username) {
       try { loadStage(nextIdx); }
       catch (e) {
         const box = container.querySelector('#sv-choices-box');
-        if (box) box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ loadStage error: ${e.message}. Please screenshot this and report it.</p>`;
+        if (box) box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ 오류가 발생했습니다. 관리자에게 문의해주세요. (loadStage: ${e.message})</p>`;
       }
     }, 250);
   }
