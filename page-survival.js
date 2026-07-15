@@ -3,6 +3,46 @@ import { isSubscribed, setSubscription } from './util-storage.js';
 import { createSubscriptionPayment, syncSubscription } from './pi-sdk.js';
 import { submitSurvivalScore, fetchSurvivalLeaderboard } from './firebase.js';
 import { DUNGEON_POOL } from './stories/dungeon.js';
+import { quizBeginner } from './data/quiz-beginner.js';
+import { quizMid }      from './data/quiz-mid.js';
+import { quizAdvanced } from './data/quiz-advanced.js';
+
+function esc(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+// 퀴즈 문제 은행 재사용 (기존 크립토/DEX 상식 문제 — 한국어만 제공)
+const ALL_QUIZ = [...quizBeginner, ...quizMid, ...quizAdvanced];
+
+// 퀴즈를 내는 파이 코어팀 캐릭터 — 실존 인물을 가볍고 우호적인 카메오로만 등장시킴
+const QUIZ_HOSTS = [
+  {
+    name: { ko: '니콜라스', en: 'Nicolas', id: 'Nicolas' },
+    correct: {
+      ko: '오, 정확해요! 계속 그렇게 가봐요.',
+      en: 'Oh, exactly right! Keep going like that.',
+      id: 'Oh, tepat sekali! Terus seperti itu.',
+    },
+    wrong: {
+      ko: '어이쿠... 그건 좀 아쉬운데요? 다음엔 더 잘할 거예요.',
+      en: 'Oops... that one stung a bit. You\'ll get the next one.',
+      id: 'Aduh... itu agak meleset. Kamu pasti dapat yang berikutnya.',
+    },
+  },
+  {
+    name: { ko: '첸디아오', en: 'Chengdiao', id: 'Chengdiao' },
+    correct: {
+      ko: '좋아요, 정확히 맞췄네요!',
+      en: 'Nice, you got it exactly right!',
+      id: 'Bagus, kamu benar sekali!',
+    },
+    wrong: {
+      ko: '음... 아깝네요! 그래도 탐험은 계속되니까요.',
+      en: 'Hmm... so close! But the adventure continues.',
+      id: 'Hmm... hampir! Tapi petualangan tetap berlanjut.',
+    },
+  },
+];
 
 // 게임 진행 텍스트(장면·선택지)는 한국어/영어/인도네시아어만 제공 — 그 외 언어는 영어로 대체.
 const STORY_LANGS = ['ko', 'en', 'id'];
@@ -610,6 +650,8 @@ export function renderSurvivalPage(container, username) {
     state.items    = [...items];
     state.stageIdx = 0;
     state.piEarned = 0;
+    state.quizUsesLeft = 2; // 생명이 위험할 때 회복 기회로 주는 퀴즈 — 플레이당 최대 2회
+    state.quizHostIdx  = 0;
 
     container.innerHTML = `
       <div class="sv-game-wrap">
@@ -660,8 +702,22 @@ export function renderSurvivalPage(container, username) {
     }
     state.currentVariant = variant;
     applyEffect(variant.effect);
+    // 시간 경과에 따른 기본 소모 — 안전한 선택만 골라도 자원이 계속 줄어들게 해서
+    // 난이도를 확보하고 랭킹(도달 스테이지)이 실제로 변별력을 갖게 함
+    if (!variant.isEnd) applyEffect({ health: -3, hunger: -8 });
     updateStats();
 
+    // 생명이 많이 깎였을 때(위험 상태) 퀴즈로 회복 기회를 줌 — 플레이당 최대 2회
+    const HEALTH_QUIZ_THRESHOLD = 30;
+    if (!variant.isEnd && state.health > 0 && state.health <= HEALTH_QUIZ_THRESHOLD && state.quizUsesLeft > 0) {
+      state.quizUsesLeft--;
+      showHealthQuiz(() => proceedAfterEffect(variant, stageIdx));
+      return;
+    }
+    proceedAfterEffect(variant, stageIdx);
+  }
+
+  function proceedAfterEffect(variant, stageIdx) {
     if (!variant.isEnd && (state.health <= 0 || state.hunger <= 0)) {
       const type = state.health <= 0 ? 'injury' : 'hunger';
       showEnd(false, type, type === 'injury' ? ts('end.death.injury') : ts('end.death.hunger'));
@@ -689,6 +745,45 @@ export function renderSurvivalPage(container, username) {
       return;
     }
     renderChoices(variant.choices || []);
+  }
+
+  function showHealthQuiz(onDone) {
+    const host = QUIZ_HOSTS[state.quizHostIdx % QUIZ_HOSTS.length];
+    state.quizHostIdx++;
+    const q = ALL_QUIZ[Math.floor(Math.random() * ALL_QUIZ.length)];
+    const lang = storyLang();
+    const titleEl = container.querySelector('#sv-scene-title');
+    const textEl  = container.querySelector('#sv-scene-text');
+    const box     = container.querySelector('#sv-choices-box');
+    if (titleEl) titleEl.textContent = `🧠 ${host.name[lang] || host.name.en}`;
+    if (textEl) {
+      textEl.style.whiteSpace = 'pre-line';
+      textEl.style.opacity = '1';
+      textEl.textContent = q.q;
+    }
+    if (!box) return;
+    box.innerHTML = q.choices.map((c, i) => `
+      <button class="sv-choice-btn" data-qi="${i}">
+        <span class="sv-choice-text">${esc(c)}</span>
+      </button>`).join('');
+
+    box.querySelectorAll('[data-qi]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try {
+          box.querySelectorAll('[data-qi]').forEach(b => b.disabled = true);
+          const correct = parseInt(btn.dataset.qi, 10) === q.answer;
+          const line = (correct ? host.correct[lang] : host.wrong[lang]) || (correct ? host.correct.en : host.wrong.en);
+          if (correct) { applyEffect({ health: 30 }); state.piEarned += 5; }
+          else { applyEffect({ hunger: -5 }); }
+          updateStats();
+          if (textEl) textEl.textContent = line;
+          box.innerHTML = `<p style="padding:8px 12px;color:${correct ? '#22c55e' : '#f0b429'};">${correct ? '✅' : '😅'} ${esc(q.explanation || '')}</p>`;
+          setTimeout(onDone, 1600);
+        } catch (e) {
+          box.innerHTML = `<p style="color:#f87171;padding:12px;">⚠️ Quiz error: ${e.message}. Please screenshot this and report it.</p>`;
+        }
+      });
+    });
   }
 
   function renderChoices(choices) {
