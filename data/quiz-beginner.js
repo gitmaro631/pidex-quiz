@@ -554,7 +554,7 @@ export const quizBeginner = [
 
   // ── Pi2Day 2026 ──────────────────────────────────────
   {
-    id: 'B030',
+    id: 'B049',
     q: 'Pi2Day 2026에서 발표된 3가지 신기능은 무엇인가요?',
     choices: [
       'Pi Wallet, Pi Chat, Pi Browser',
@@ -568,7 +568,7 @@ export const quizBeginner = [
   },
 
   {
-    id: 'B031',
+    id: 'B050',
     q: 'Pi2Day는 매년 몇 월 며칠인가요?',
     choices: [
       '3월 14일',
@@ -582,7 +582,7 @@ export const quizBeginner = [
   },
 
   {
-    id: 'B032',
+    id: 'B051',
     q: 'Pi Sign-In은 어떤 서비스와 유사한 방식인가요?',
     choices: [
       'Pi 지갑 자동 연동',
@@ -596,7 +596,7 @@ export const quizBeginner = [
   },
 
   {
-    id: 'B033',
+    id: 'B052',
     q: 'SoloHost는 어느 플랫폼에서 실행되나요?',
     choices: [
       'Pi Browser',
@@ -610,7 +610,7 @@ export const quizBeginner = [
   },
 
   {
-    id: 'B034',
+    id: 'B053',
     q: '2026년 5월 기준 활성 Pi 노드 수는 약 몇 개인가요?',
     choices: [
       '약 4만 2천 개',
@@ -624,7 +624,7 @@ export const quizBeginner = [
   },
 
   {
-    id: 'B035',
+    id: 'B054',
     q: 'PiVerify가 외부 플랫폼에 제공하는 핵심 서비스는?',
     choices: [
       'Pi 결제 처리',
@@ -638,7 +638,7 @@ export const quizBeginner = [
   },
 
   {
-    id: 'B036',
+    id: 'B055',
     q: 'Pi2Day 2026 Ecosystem Quest를 완료하면 받는 보상은?',
     choices: [
       'Pi 코인 지급',
@@ -652,7 +652,7 @@ export const quizBeginner = [
   },
 
   {
-    id: 'B037',
+    id: 'B056',
     q: 'Pi 메인넷의 평균 블록 생성 시간은?',
     choices: [
       '약 1초',
@@ -666,7 +666,7 @@ export const quizBeginner = [
   },
 
   {
-    id: 'B038',
+    id: 'B057',
     q: 'Pi Launchpad의 주요 역할은?',
     choices: [
       'Pi 채굴 속도를 높이는 부스터',
@@ -680,7 +680,7 @@ export const quizBeginner = [
   },
 
   {
-    id: 'B039',
+    id: 'B058',
     q: 'Pi Sign-In이 Pi Browser 외부에서도 동작한다는 것의 의미는?',
     choices: [
       'Pi 없이도 채굴이 가능하다',
@@ -764,6 +764,62 @@ export const quizBeginner = [
     answer: 2,
     explanation: '마켓메이킹은 횡보장에서 잘 먹힙니다. 가격이 조금 오르면 위의 매도 주문이 체결되고, 다시 내리면 아래의 매수 주문이 체결되는 게 반복되면서 스프레드 수익이 꾸준히 쌓이거든요. 가격이 한 방향으로만 달리는 추세장에서는 재고 리스크가 커집니다.',
     source: 'korean_ep29',
+  },
+
+  {
+    id: 'B045',
+    q: 'AMM 유동성 공급에서 거래량이 많은 좋은 풀을 고를 때 확인하면 좋은 지표는?',
+    choices: [
+      'LP(유동성 공급자) 수와 최근 거래 횟수',
+      '풀 이름의 알파벳 순서',
+      '토큰 발행자의 SNS 팔로워 수',
+      '풀이 생성된 요일',
+    ],
+    answer: 0,
+    explanation: 'LP 수가 많고 최근 거래 횟수가 많은 풀은 그만큼 많은 사람이 믿고 활발히 거래한다는 뜻이에요. 거래량이 적으면 수수료 수익도 적게 쌓여서 비영구적 손실을 따라잡기 어려워요.',
+    source: 'mm_lab_02',
+  },
+
+  {
+    id: 'B046',
+    q: '퀴즈파이 앱의 3가지 게임 모드 중 "생명(라이프)"이라는 개념 자체가 없는 모드는?',
+    choices: [
+      'Miner',
+      'Pioneer',
+      'Validator',
+      'Explorer',
+    ],
+    answer: 2,
+    explanation: 'Validator(검증자) 모드는 생명 개념이 없어서 단 한 문제라도 틀리는 순간 바로 게임이 종료돼요. 실수 없이 얼마나 오래 버티는지 겨루는, 셋 중 가장 어려운 모드예요.',
+    source: 'quizpi_intro',
+  },
+
+  {
+    id: 'B047',
+    q: '퀴즈파이 트래커 탭의 "관심 지갑"은 최대 몇 개까지 등록할 수 있나요?',
+    choices: [
+      '5개',
+      '10개',
+      '30개',
+      '100개',
+    ],
+    answer: 1,
+    explanation: '관심 지갑은 최대 10개까지 등록할 수 있어요. 내 지갑(최대 30개)이나 거래 지갑(최대 100개)과 등록 한도가 다르니 헷갈리지 마세요.',
+    source: 'tracker_guide',
+  },
+
+  {
+    id: 'B048',
+    q: '퀴즈파이 트래커에서 해킹 피해를 신고할 때 반드시 입력해야 하는 정보가 아닌 것은?',
+    choices: [
+      '내 Pi ID',
+      '해킹범 추정 지갑 주소',
+      '탈취 수량',
+      '트랜잭션 해시',
+    ],
+    answer: 3,
+    explanation: '필수 정보는 내 Pi ID, 해킹범 추정 지갑 주소, 탈취 수량, 피해 날짜 이렇게 네 가지예요. 트랜잭션 해시는 같이 적으면 더 좋지만 없어도 신고할 수 있어요.',
+    source: 'tracker_guide',
   },
 
 ];
