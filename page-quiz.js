@@ -410,7 +410,7 @@ function handleAnswer(container, q, selectedIndex, pts) {
   card.insertAdjacentHTML('beforeend', `
     <div class="quiz-result ${correct ? 'result-correct' : 'result-wrong'}">
       <div class="result-icon">${correct ? '✅' : '❌'}</div>
-      <div class="result-msg">${correct ? `${t('quiz.correct')} +${earned}${t('quiz.score_unit')}` : `${t('quiz.wrong')} — ❤️ ${'❤️'.repeat(livesLeft)}`}</div>
+      <div class="result-msg">${correct ? `${t('quiz.correct')} +${earned}${t('quiz.score_unit')}` : `${t('quiz.wrong')} — ${'❤️'.repeat(livesLeft)}`}</div>
       ${newStreak >= 3 && correct ? `<div class="streak-msg">${t('quiz.streak_msg').replace('{n}', newStreak)}</div>` : ''}
       ${bonusMsg}
       <div class="result-explanation">${quizExplain(q)}</div>
