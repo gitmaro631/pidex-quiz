@@ -1,4 +1,5 @@
 import { t, getLang } from './util-i18n.js';
+import { computeFifoLots, computeMovingAvgLots } from './tax-lots.js';
 
 const HORIZON      = 'https://api.mainnet.minepi.com';
 const REPORTS_COL  = 'hack_reports';
@@ -23,6 +24,29 @@ const TT = {
     'ledger.fail': '내역을 불러오지 못했습니다.', 'ledger.counterpart_all': '상대 지갑 (선택 안 하면 전체 표시)',
     'ledger.mode_combined': '합계', 'ledger.mode_individual': '개별',
     'ledger.incomplete_warn': '이 지갑은 거래량이 많아 올해 1월 1일까지 전부 자동으로 불러오지 못했습니다. 관리자에게 문의해주세요 (상한을 올려 다시 동기화해드릴 수 있습니다).',
+    'tab.tax': '세금계산',
+    'tax.title': '세금계산 (FIFO / 이동평균법)', 'tax.select_wallet': '내 지갑 선택', 'tax.select_asset': '자산 선택',
+    'tax.loading': '거래 내역을 불러오는 중...', 'tax.syncing': '⏳ 스왑 내역 동기화 중...',
+    'tax.method.fifo': '선입선출법 (FIFO)', 'tax.method.moving_avg': '이동평균법',
+    'tax.method.hint': '거래소(가상자산사업자)를 경유한 거래는 법적으로 이동평균법, 개인지갑·비수탁 DEX는 선입선출법이 적용됩니다.',
+    'tax.method.unset': '미태그', 'tax.method.fifo_short': 'FIFO', 'tax.method.avg_short': '이동평균',
+    'tax.untagged_warn': '아래 상대 지갑에 계산 방식 태그가 필요합니다. 태그 전까지는 계산할 수 없습니다.',
+    'tax.tag_now': '태그하기', 'tax.tag_dialog.title': '거래 방식 지정',
+    'tax.fifo_section': '📗 FIFO (선입선출법)', 'tax.avg_section': '📘 이동평균법',
+    'tax.disposal.date': '일시', 'tax.disposal.qty': '수량', 'tax.disposal.proceeds': '처분가액',
+    'tax.disposal.cost': '취득원가', 'tax.disposal.gain': '손익',
+    'tax.remaining_lots': '잔여 보유 수량', 'tax.remaining_cost': '평균 취득단가',
+    'tax.no_price': '⚠️ 가격 미확인 {n}건 — 계산에서 제외됨',
+    'tax.manual_price.edit': '단가 수동 입력', 'tax.manual_price.auto': '자동 조회가',
+    'tax.export': '📤 CSV 내보내기',
+    'tax.note': '⚠️ 이 계산은 참고용입니다. 실제 세무 신고 전엔 반드시 세무사와 확인하세요.',
+    'tax.report.title': '세무서 제출용 보고서', 'tax.report.select_wallets': '포함할 상대 지갑 선택',
+    'tax.report.self_swap': 'DEX 자체 스왑 (선입선출)', 'tax.report.date_from': '시작일', 'tax.report.date_to': '종료일',
+    'tax.report.generate': '보고서 생성',
+    'tax.report.mixed_method_warn': '⚠️ 선택한 지갑들의 계산 방식이 서로 다릅니다. 같은 방식(FIFO 또는 이동평균법)의 지갑만 함께 선택해주세요.',
+    'tax.report.no_selection': '지갑을 하나 이상 선택하세요.',
+    'tax.report.method_label': '적용 방식', 'tax.report.period_label': '기간', 'tax.report.wallets_label': '포함된 상대 지갑',
+    'tax.report.total_gain': '총 손익', 'tax.report.export': '📤 보고서 CSV 내보내기',
     'report.title': '🚨 피해 신고', 'report.realname_warn': "⚠️ 본 신고는 <strong>실명제</strong>로 운영됩니다.<br>Pi 계정으로 로그인한 본인만 신고할 수 있으며,<br>허위 신고 시 법적 책임이 따를 수 있습니다.", 'report.victim_id': '피해자 Pi ID', 'report.suspect_wallet': '의심 지갑 주소',
     'report.amount': '피해 금액 (Pi)', 'report.date': '피해 날짜', 'report.txhash': '트랜잭션 해시 (선택)',
     'report.desc': '상황 설명 (선택)', 'report.btn': '신고 제출', 'report.btn.loading': '제출 중...',
@@ -136,6 +160,29 @@ const TT = {
     'ledger.fail': 'Failed to load history.', 'ledger.counterpart_all': 'Counterparty (shows all if none selected)',
     'ledger.mode_combined': 'Combined', 'ledger.mode_individual': 'Individual',
     'ledger.incomplete_warn': 'This wallet has too much activity to fully sync back to January 1st this year automatically. Please contact the admin (the sync limit can be raised and re-run for you).',
+    'tab.tax': 'Tax Calc',
+    'tax.title': 'Tax Calculation (FIFO / Moving Average)', 'tax.select_wallet': 'Select My Wallet', 'tax.select_asset': 'Select Asset',
+    'tax.loading': 'Loading transaction history...', 'tax.syncing': '⏳ Syncing swap history...',
+    'tax.method.fifo': 'FIFO', 'tax.method.moving_avg': 'Moving Average',
+    'tax.method.hint': 'By law, transactions routed through a licensed exchange use the moving-average method; personal wallets and non-custodial DEX use FIFO.',
+    'tax.method.unset': 'Untagged', 'tax.method.fifo_short': 'FIFO', 'tax.method.avg_short': 'Moving Avg',
+    'tax.untagged_warn': 'The counterparty wallets below need a costing method tag. Calculation is blocked until tagged.',
+    'tax.tag_now': 'Tag now', 'tax.tag_dialog.title': 'Set Costing Method',
+    'tax.fifo_section': '📗 FIFO', 'tax.avg_section': '📘 Moving Average',
+    'tax.disposal.date': 'Date', 'tax.disposal.qty': 'Qty', 'tax.disposal.proceeds': 'Proceeds',
+    'tax.disposal.cost': 'Cost Basis', 'tax.disposal.gain': 'Gain/Loss',
+    'tax.remaining_lots': 'Remaining Qty', 'tax.remaining_cost': 'Avg Unit Cost',
+    'tax.no_price': '⚠️ {n} entries with no price — excluded from calculation',
+    'tax.manual_price.edit': 'Set manual price', 'tax.manual_price.auto': 'Auto price',
+    'tax.export': '📤 Export CSV',
+    'tax.note': '⚠️ This calculation is for reference only. Confirm with a tax professional before actual filing.',
+    'tax.report.title': 'Report for Tax Filing', 'tax.report.select_wallets': 'Select counterparty wallets to include',
+    'tax.report.self_swap': 'Self DEX swap (FIFO)', 'tax.report.date_from': 'From', 'tax.report.date_to': 'To',
+    'tax.report.generate': 'Generate Report',
+    'tax.report.mixed_method_warn': '⚠️ The selected wallets use different costing methods. Select wallets that all use the same method (FIFO or Moving Average).',
+    'tax.report.no_selection': 'Select at least one wallet.',
+    'tax.report.method_label': 'Method Used', 'tax.report.period_label': 'Period', 'tax.report.wallets_label': 'Included Counterparty Wallets',
+    'tax.report.total_gain': 'Total Gain/Loss', 'tax.report.export': '📤 Export Report CSV',
     'report.title': '🚨 Report Hack', 'report.realname_warn': "⚠️ This report is operated under a <strong>real-name policy</strong>.<br>Only the logged-in Pi account holder can file a report,<br>and false reports may carry legal liability.", 'report.victim_id': 'Victim Pi ID', 'report.suspect_wallet': 'Suspect Wallet Address',
     'report.amount': 'Amount Lost (Pi)', 'report.date': 'Date of Incident', 'report.txhash': 'Transaction Hash (optional)',
     'report.desc': 'Description (optional)', 'report.btn': 'Submit Report', 'report.btn.loading': 'Submitting...',
@@ -252,6 +299,29 @@ const TT = {
     "ledger.fail": "加载记录失败。", "ledger.counterpart_all": "对方钱包（不选则显示全部）",
     "ledger.mode_combined": "合计", "ledger.mode_individual": "个别",
     "ledger.incomplete_warn": "该钱包交易量过大，未能自动同步到今年1月1日。请联系管理员（可以提高上限后为您重新同步）。",
+    "tab.tax": "税务计算",
+    "tax.title": "税务计算（先进先出法 / 移动平均法）", "tax.select_wallet": "选择我的钱包", "tax.select_asset": "选择资产",
+    "tax.loading": "正在加载交易记录...", "tax.syncing": "⏳ 正在同步兑换记录...",
+    "tax.method.fifo": "先进先出法 (FIFO)", "tax.method.moving_avg": "移动平均法",
+    "tax.method.hint": "根据法律，通过交易所（虚拟资产业者）进行的交易适用移动平均法，个人钱包和非托管DEX适用先进先出法。",
+    "tax.method.unset": "未标记", "tax.method.fifo_short": "先进先出", "tax.method.avg_short": "移动平均",
+    "tax.untagged_warn": "以下对方钱包需要标记计算方式。标记前无法进行计算。",
+    "tax.tag_now": "立即标记", "tax.tag_dialog.title": "设置计算方式",
+    "tax.fifo_section": "📗 先进先出法 (FIFO)", "tax.avg_section": "📘 移动平均法",
+    "tax.disposal.date": "日期", "tax.disposal.qty": "数量", "tax.disposal.proceeds": "处置金额",
+    "tax.disposal.cost": "取得原价", "tax.disposal.gain": "损益",
+    "tax.remaining_lots": "剩余持有数量", "tax.remaining_cost": "平均取得单价",
+    "tax.no_price": "⚠️ 有 {n} 笔价格未确认 — 已从计算中排除",
+    "tax.manual_price.edit": "手动输入单价", "tax.manual_price.auto": "自动查询价",
+    "tax.export": "📤 导出CSV",
+    "tax.note": "⚠️ 此计算仅供参考。正式报税前请务必与税务师确认。",
+    "tax.report.title": "报税用报告", "tax.report.select_wallets": "选择要包含的对方钱包",
+    "tax.report.self_swap": "DEX自我兑换（先进先出法）", "tax.report.date_from": "起始日期", "tax.report.date_to": "结束日期",
+    "tax.report.generate": "生成报告",
+    "tax.report.mixed_method_warn": "⚠️ 所选钱包的计算方式不一致。请只选择使用相同方式（FIFO或移动平均法）的钱包。",
+    "tax.report.no_selection": "请至少选择一个钱包。",
+    "tax.report.method_label": "适用方式", "tax.report.period_label": "期间", "tax.report.wallets_label": "包含的对方钱包",
+    "tax.report.total_gain": "总损益", "tax.report.export": "📤 导出报告CSV",
     "report.title": "🚨 举报诈骗",
     'report.realname_warn': "⚠️ 本举报采用<strong>实名制</strong>运营。<br>只有登录的Pi账户本人才能举报，<br>虚假举报可能承担法律责任。",
     "report.victim_id": "受害者 Pi ID",
@@ -447,6 +517,29 @@ const TT = {
     "ledger.fail": "Gagal memuat riwayat.", "ledger.counterpart_all": "Rekanan (tampilkan semua jika tidak dipilih)",
     "ledger.mode_combined": "Gabungan", "ledger.mode_individual": "Individual",
     "ledger.incomplete_warn": "Dompet ini memiliki terlalu banyak aktivitas untuk disinkronkan otomatis hingga 1 Januari tahun ini. Silakan hubungi admin (batas dapat dinaikkan dan disinkronkan ulang untuk Anda).",
+    "tab.tax": "Kalkulasi Pajak",
+    "tax.title": "Kalkulasi Pajak (FIFO / Rata-rata Bergerak)", "tax.select_wallet": "Pilih Dompet Saya", "tax.select_asset": "Pilih Aset",
+    "tax.loading": "Memuat riwayat transaksi...", "tax.syncing": "⏳ Menyinkronkan riwayat swap...",
+    "tax.method.fifo": "FIFO (Masuk Pertama Keluar Pertama)", "tax.method.moving_avg": "Rata-rata Bergerak",
+    "tax.method.hint": "Menurut hukum, transaksi melalui bursa (penyedia jasa aset kripto berizin) menggunakan metode rata-rata bergerak; dompet pribadi dan DEX non-kustodian menggunakan FIFO.",
+    "tax.method.unset": "Belum ditandai", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "Rata-rata",
+    "tax.untagged_warn": "Dompet rekanan berikut memerlukan tanda metode perhitungan. Perhitungan tidak dapat dilakukan sebelum ditandai.",
+    "tax.tag_now": "Tandai sekarang", "tax.tag_dialog.title": "Tetapkan Metode Perhitungan",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 Rata-rata Bergerak",
+    "tax.disposal.date": "Tanggal", "tax.disposal.qty": "Jumlah", "tax.disposal.proceeds": "Hasil Penjualan",
+    "tax.disposal.cost": "Harga Perolehan", "tax.disposal.gain": "Untung/Rugi",
+    "tax.remaining_lots": "Sisa Jumlah", "tax.remaining_cost": "Harga Rata-rata",
+    "tax.no_price": "⚠️ {n} entri tanpa harga — dikecualikan dari perhitungan",
+    "tax.manual_price.edit": "Atur harga manual", "tax.manual_price.auto": "Harga otomatis",
+    "tax.export": "📤 Ekspor CSV",
+    "tax.note": "⚠️ Perhitungan ini hanya untuk referensi. Konfirmasi dengan konsultan pajak sebelum pelaporan sebenarnya.",
+    "tax.report.title": "Laporan untuk Pelaporan Pajak", "tax.report.select_wallets": "Pilih dompet rekanan yang disertakan",
+    "tax.report.self_swap": "Swap DEX sendiri (FIFO)", "tax.report.date_from": "Dari", "tax.report.date_to": "Sampai",
+    "tax.report.generate": "Buat Laporan",
+    "tax.report.mixed_method_warn": "⚠️ Dompet yang dipilih menggunakan metode perhitungan yang berbeda. Pilih dompet yang semuanya menggunakan metode yang sama (FIFO atau Rata-rata Bergerak).",
+    "tax.report.no_selection": "Pilih setidaknya satu dompet.",
+    "tax.report.method_label": "Metode yang Digunakan", "tax.report.period_label": "Periode", "tax.report.wallets_label": "Dompet Rekanan yang Disertakan",
+    "tax.report.total_gain": "Total Untung/Rugi", "tax.report.export": "📤 Ekspor CSV Laporan",
     "report.title": "🚨 Laporkan Penipuan",
     'report.realname_warn': "⚠️ Laporan ini dioperasikan dengan <strong>kebijakan nama asli</strong>.<br>Hanya pemegang akun Pi yang login yang dapat melaporkan,<br>dan laporan palsu dapat berakibat hukum.",
     "report.victim_id": "Pi ID Korban",
@@ -642,6 +735,29 @@ const TT = {
     "ledger.fail": "履歴の読み込みに失敗しました。", "ledger.counterpart_all": "相手ウォレット（未選択なら全て表示）",
     "ledger.mode_combined": "合計", "ledger.mode_individual": "個別",
     "ledger.incomplete_warn": "このウォレットは取引量が多いため、今年の1月1日まで自動的に同期できませんでした。管理者にお問い合わせください（上限を引き上げて再同期できます）。",
+    "tab.tax": "税金計算",
+    "tax.title": "税金計算（FIFO / 移動平均法）", "tax.select_wallet": "マイウォレットを選択", "tax.select_asset": "資産を選択",
+    "tax.loading": "取引履歴を読み込み中...", "tax.syncing": "⏳ スワップ履歴を同期中...",
+    "tax.method.fifo": "先入先出法 (FIFO)", "tax.method.moving_avg": "移動平均法",
+    "tax.method.hint": "法律上、取引所（暗号資産事業者）経由の取引には移動平均法、個人ウォレット・非管理型DEXには先入先出法が適用されます。",
+    "tax.method.unset": "未タグ", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "移動平均",
+    "tax.untagged_warn": "以下の相手ウォレットに計算方式のタグが必要です。タグ付けするまで計算できません。",
+    "tax.tag_now": "タグ付けする", "tax.tag_dialog.title": "計算方式を設定",
+    "tax.fifo_section": "📗 先入先出法 (FIFO)", "tax.avg_section": "📘 移動平均法",
+    "tax.disposal.date": "日時", "tax.disposal.qty": "数量", "tax.disposal.proceeds": "処分価額",
+    "tax.disposal.cost": "取得原価", "tax.disposal.gain": "損益",
+    "tax.remaining_lots": "残り保有数量", "tax.remaining_cost": "平均取得単価",
+    "tax.no_price": "⚠️ 価格未確認 {n} 件 — 計算から除外",
+    "tax.manual_price.edit": "単価を手動入力", "tax.manual_price.auto": "自動取得価格",
+    "tax.export": "📤 CSVエクスポート",
+    "tax.note": "⚠️ この計算は参考用です。実際の申告前に必ず税理士にご確認ください。",
+    "tax.report.title": "税務署提出用レポート", "tax.report.select_wallets": "含める相手ウォレットを選択",
+    "tax.report.self_swap": "DEX自己スワップ（先入先出法）", "tax.report.date_from": "開始日", "tax.report.date_to": "終了日",
+    "tax.report.generate": "レポートを生成",
+    "tax.report.mixed_method_warn": "⚠️ 選択したウォレットの計算方式が異なります。同じ方式（FIFOまたは移動平均法）のウォレットのみ選択してください。",
+    "tax.report.no_selection": "ウォレットを1つ以上選択してください。",
+    "tax.report.method_label": "適用方式", "tax.report.period_label": "期間", "tax.report.wallets_label": "含まれる相手ウォレット",
+    "tax.report.total_gain": "合計損益", "tax.report.export": "📤 レポートCSVをエクスポート",
     "report.title": "🚨 被害通報",
     'report.realname_warn': "⚠️ 本報告は<strong>実名制</strong>で運営されています。<br>ログインしたご本人のPiアカウントのみ報告できます。<br>虚偽の報告には法的責任が伴う場合があります。",
     "report.victim_id": "被害者 Pi ID",
@@ -837,6 +953,29 @@ const TT = {
     "ledger.fail": "Error al cargar el historial.", "ledger.counterpart_all": "Contraparte (muestra todas si no se selecciona ninguna)",
     "ledger.mode_combined": "Combinado", "ledger.mode_individual": "Individual",
     "ledger.incomplete_warn": "Esta cartera tiene demasiada actividad para sincronizarse automáticamente hasta el 1 de enero de este año. Contacte al administrador (el límite se puede aumentar y resincronizar para usted).",
+    "tab.tax": "Cálculo de Impuestos",
+    "tax.title": "Cálculo de Impuestos (FIFO / Promedio Móvil)", "tax.select_wallet": "Seleccionar Mi Cartera", "tax.select_asset": "Seleccionar Activo",
+    "tax.loading": "Cargando historial de transacciones...", "tax.syncing": "⏳ Sincronizando historial de intercambios...",
+    "tax.method.fifo": "FIFO (Primero en Entrar, Primero en Salir)", "tax.method.moving_avg": "Promedio Móvil",
+    "tax.method.hint": "Por ley, las transacciones a través de un exchange (proveedor de activos virtuales autorizado) usan el método de promedio móvil; las carteras personales y DEX no custodiados usan FIFO.",
+    "tax.method.unset": "Sin etiquetar", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "Promedio Móvil",
+    "tax.untagged_warn": "Las siguientes carteras de contraparte necesitan una etiqueta de método de cálculo. El cálculo está bloqueado hasta etiquetarlas.",
+    "tax.tag_now": "Etiquetar ahora", "tax.tag_dialog.title": "Establecer Método de Cálculo",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 Promedio Móvil",
+    "tax.disposal.date": "Fecha", "tax.disposal.qty": "Cantidad", "tax.disposal.proceeds": "Ingresos",
+    "tax.disposal.cost": "Costo de Adquisición", "tax.disposal.gain": "Ganancia/Pérdida",
+    "tax.remaining_lots": "Cantidad Restante", "tax.remaining_cost": "Costo Unitario Promedio",
+    "tax.no_price": "⚠️ {n} entradas sin precio — excluidas del cálculo",
+    "tax.manual_price.edit": "Establecer precio manual", "tax.manual_price.auto": "Precio automático",
+    "tax.export": "📤 Exportar CSV",
+    "tax.note": "⚠️ Este cálculo es solo de referencia. Confirme con un asesor fiscal antes de presentar la declaración real.",
+    "tax.report.title": "Informe para Declaración de Impuestos", "tax.report.select_wallets": "Seleccionar carteras de contraparte a incluir",
+    "tax.report.self_swap": "Intercambio propio en DEX (FIFO)", "tax.report.date_from": "Desde", "tax.report.date_to": "Hasta",
+    "tax.report.generate": "Generar Informe",
+    "tax.report.mixed_method_warn": "⚠️ Las carteras seleccionadas usan métodos de cálculo diferentes. Seleccione carteras que usen el mismo método (FIFO o Promedio Móvil).",
+    "tax.report.no_selection": "Seleccione al menos una cartera.",
+    "tax.report.method_label": "Método Aplicado", "tax.report.period_label": "Período", "tax.report.wallets_label": "Carteras de Contraparte Incluidas",
+    "tax.report.total_gain": "Ganancia/Pérdida Total", "tax.report.export": "📤 Exportar CSV del Informe",
     "report.title": "🚨 Reportar Estafa",
     'report.realname_warn': "⚠️ Este reporte se gestiona bajo una <strong>política de nombre real</strong>.<br>Solo el titular de la cuenta Pi con sesión iniciada puede reportar,<br>y los reportes falsos pueden acarrear responsabilidad legal.",
     "report.victim_id": "ID Pi de la Víctima",
@@ -1032,6 +1171,29 @@ const TT = {
     "ledger.fail": "Échec du chargement de l'historique.", "ledger.counterpart_all": "Contrepartie (affiche toutes si aucune sélection)",
     "ledger.mode_combined": "Combiné", "ledger.mode_individual": "Individuel",
     "ledger.incomplete_warn": "Ce portefeuille a une activité trop importante pour se synchroniser automatiquement jusqu'au 1er janvier de cette année. Veuillez contacter l'administrateur (la limite peut être augmentée et resynchronisée pour vous).",
+    "tab.tax": "Calcul Fiscal",
+    "tax.title": "Calcul Fiscal (FIFO / Moyenne Mobile)", "tax.select_wallet": "Sélectionner Mon Portefeuille", "tax.select_asset": "Sélectionner un Actif",
+    "tax.loading": "Chargement de l'historique des transactions...", "tax.syncing": "⏳ Synchronisation de l'historique des échanges...",
+    "tax.method.fifo": "FIFO (Premier Entré, Premier Sorti)", "tax.method.moving_avg": "Moyenne Mobile",
+    "tax.method.hint": "Selon la loi, les transactions via une bourse (prestataire d'actifs virtuels agréé) utilisent la méthode de la moyenne mobile ; les portefeuilles personnels et les DEX non dépositaires utilisent le FIFO.",
+    "tax.method.unset": "Non étiqueté", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "Moyenne Mobile",
+    "tax.untagged_warn": "Les portefeuilles de contrepartie ci-dessous nécessitent une étiquette de méthode de calcul. Le calcul est bloqué tant qu'ils ne sont pas étiquetés.",
+    "tax.tag_now": "Étiqueter maintenant", "tax.tag_dialog.title": "Définir la Méthode de Calcul",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 Moyenne Mobile",
+    "tax.disposal.date": "Date", "tax.disposal.qty": "Qté", "tax.disposal.proceeds": "Produit de Cession",
+    "tax.disposal.cost": "Coût d'Acquisition", "tax.disposal.gain": "Gain/Perte",
+    "tax.remaining_lots": "Quantité Restante", "tax.remaining_cost": "Coût Unitaire Moyen",
+    "tax.no_price": "⚠️ {n} entrées sans prix — exclues du calcul",
+    "tax.manual_price.edit": "Définir un prix manuel", "tax.manual_price.auto": "Prix automatique",
+    "tax.export": "📤 Exporter en CSV",
+    "tax.note": "⚠️ Ce calcul est fourni à titre indicatif uniquement. Consultez un fiscaliste avant toute déclaration réelle.",
+    "tax.report.title": "Rapport pour Déclaration Fiscale", "tax.report.select_wallets": "Sélectionner les portefeuilles de contrepartie à inclure",
+    "tax.report.self_swap": "Échange DEX personnel (FIFO)", "tax.report.date_from": "Du", "tax.report.date_to": "Au",
+    "tax.report.generate": "Générer le Rapport",
+    "tax.report.mixed_method_warn": "⚠️ Les portefeuilles sélectionnés utilisent des méthodes de calcul différentes. Sélectionnez des portefeuilles utilisant tous la même méthode (FIFO ou Moyenne Mobile).",
+    "tax.report.no_selection": "Sélectionnez au moins un portefeuille.",
+    "tax.report.method_label": "Méthode Appliquée", "tax.report.period_label": "Période", "tax.report.wallets_label": "Portefeuilles de Contrepartie Inclus",
+    "tax.report.total_gain": "Gain/Perte Total", "tax.report.export": "📤 Exporter le CSV du Rapport",
     "report.title": "🚨 Signaler une Arnaque",
     'report.realname_warn': "⚠️ Ce signalement est géré selon une <strong>politique du vrai nom</strong>.<br>Seul le titulaire du compte Pi connecté peut signaler,<br>et les faux signalements peuvent engager une responsabilité légale.",
     "report.victim_id": "ID Pi de la Victime",
@@ -1227,6 +1389,29 @@ const TT = {
     "ledger.fail": "Không tải được lịch sử.", "ledger.counterpart_all": "Đối tác (hiển thị tất cả nếu không chọn)",
     "ledger.mode_combined": "Tổng hợp", "ledger.mode_individual": "Riêng lẻ",
     "ledger.incomplete_warn": "Ví này có quá nhiều hoạt động để tự động đồng bộ đến ngày 1 tháng 1 năm nay. Vui lòng liên hệ quản trị viên (có thể nâng giới hạn và đồng bộ lại cho bạn).",
+    "tab.tax": "Tính Thuế",
+    "tax.title": "Tính Thuế (FIFO / Bình Quân Gia Quyền)", "tax.select_wallet": "Chọn Ví Của Tôi", "tax.select_asset": "Chọn Tài Sản",
+    "tax.loading": "Đang tải lịch sử giao dịch...", "tax.syncing": "⏳ Đang đồng bộ lịch sử hoán đổi...",
+    "tax.method.fifo": "FIFO (Nhập Trước Xuất Trước)", "tax.method.moving_avg": "Bình Quân Gia Quyền",
+    "tax.method.hint": "Theo luật, giao dịch qua sàn (nhà cung cấp tài sản ảo được cấp phép) áp dụng phương pháp bình quân gia quyền; ví cá nhân và DEX phi lưu ký áp dụng FIFO.",
+    "tax.method.unset": "Chưa gắn nhãn", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "Bình Quân",
+    "tax.untagged_warn": "Các ví đối tác dưới đây cần được gắn nhãn phương pháp tính. Không thể tính toán cho đến khi được gắn nhãn.",
+    "tax.tag_now": "Gắn nhãn ngay", "tax.tag_dialog.title": "Đặt Phương Pháp Tính",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 Bình Quân Gia Quyền",
+    "tax.disposal.date": "Ngày", "tax.disposal.qty": "SL", "tax.disposal.proceeds": "Số Tiền Thu Được",
+    "tax.disposal.cost": "Giá Vốn", "tax.disposal.gain": "Lãi/Lỗ",
+    "tax.remaining_lots": "Số Lượng Còn Lại", "tax.remaining_cost": "Đơn Giá Bình Quân",
+    "tax.no_price": "⚠️ {n} mục không có giá — bị loại khỏi tính toán",
+    "tax.manual_price.edit": "Đặt giá thủ công", "tax.manual_price.auto": "Giá tự động",
+    "tax.export": "📤 Xuất CSV",
+    "tax.note": "⚠️ Kết quả tính toán này chỉ mang tính tham khảo. Hãy xác nhận với chuyên gia thuế trước khi khai báo thực tế.",
+    "tax.report.title": "Báo Cáo Nộp Thuế", "tax.report.select_wallets": "Chọn ví đối tác cần bao gồm",
+    "tax.report.self_swap": "Hoán đổi tự thân trên DEX (FIFO)", "tax.report.date_from": "Từ ngày", "tax.report.date_to": "Đến ngày",
+    "tax.report.generate": "Tạo Báo Cáo",
+    "tax.report.mixed_method_warn": "⚠️ Các ví đã chọn sử dụng phương pháp tính khác nhau. Vui lòng chỉ chọn các ví cùng sử dụng một phương pháp (FIFO hoặc Bình Quân Gia Quyền).",
+    "tax.report.no_selection": "Vui lòng chọn ít nhất một ví.",
+    "tax.report.method_label": "Phương Pháp Áp Dụng", "tax.report.period_label": "Kỳ", "tax.report.wallets_label": "Ví Đối Tác Được Bao Gồm",
+    "tax.report.total_gain": "Tổng Lãi/Lỗ", "tax.report.export": "📤 Xuất CSV Báo Cáo",
     "report.title": "🚨 Báo cáo Lừa đảo",
     'report.realname_warn': "⚠️ Báo cáo này được vận hành theo <strong>chính sách tên thật</strong>.<br>Chỉ chủ tài khoản Pi đã đăng nhập mới có thể báo cáo,<br>và báo cáo sai có thể chịu trách nhiệm pháp lý.",
     "report.victim_id": "ID Pi của Nạn nhân",
@@ -1422,6 +1607,29 @@ const TT = {
     "ledger.fail": "Falha ao carregar o histórico.", "ledger.counterpart_all": "Contraparte (mostra todas se nenhuma selecionada)",
     "ledger.mode_combined": "Combinado", "ledger.mode_individual": "Individual",
     "ledger.incomplete_warn": "Esta carteira tem atividade demais para sincronizar automaticamente até 1º de janeiro deste ano. Entre em contato com o administrador (o limite pode ser aumentado e ressincronizado para você).",
+    "tab.tax": "Cálculo de Impostos",
+    "tax.title": "Cálculo de Impostos (FIFO / Média Móvel)", "tax.select_wallet": "Selecionar Minha Carteira", "tax.select_asset": "Selecionar Ativo",
+    "tax.loading": "Carregando histórico de transações...", "tax.syncing": "⏳ Sincronizando histórico de trocas...",
+    "tax.method.fifo": "FIFO (Primeiro a Entrar, Primeiro a Sair)", "tax.method.moving_avg": "Média Móvel",
+    "tax.method.hint": "Por lei, transações via uma exchange (provedor de ativos virtuais licenciado) usam o método de média móvel; carteiras pessoais e DEX não custodiados usam FIFO.",
+    "tax.method.unset": "Sem etiqueta", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "Média Móvel",
+    "tax.untagged_warn": "As carteiras de contraparte abaixo precisam de uma etiqueta de método de cálculo. O cálculo fica bloqueado até serem etiquetadas.",
+    "tax.tag_now": "Etiquetar agora", "tax.tag_dialog.title": "Definir Método de Cálculo",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 Média Móvel",
+    "tax.disposal.date": "Data", "tax.disposal.qty": "Qtd", "tax.disposal.proceeds": "Valor da Venda",
+    "tax.disposal.cost": "Custo de Aquisição", "tax.disposal.gain": "Ganho/Perda",
+    "tax.remaining_lots": "Quantidade Restante", "tax.remaining_cost": "Custo Unitário Médio",
+    "tax.no_price": "⚠️ {n} entradas sem preço — excluídas do cálculo",
+    "tax.manual_price.edit": "Definir preço manual", "tax.manual_price.auto": "Preço automático",
+    "tax.export": "📤 Exportar CSV",
+    "tax.note": "⚠️ Este cálculo é apenas para referência. Confirme com um contador antes da declaração real.",
+    "tax.report.title": "Relatório para Declaração de Impostos", "tax.report.select_wallets": "Selecionar carteiras de contraparte a incluir",
+    "tax.report.self_swap": "Troca própria na DEX (FIFO)", "tax.report.date_from": "De", "tax.report.date_to": "Até",
+    "tax.report.generate": "Gerar Relatório",
+    "tax.report.mixed_method_warn": "⚠️ As carteiras selecionadas usam métodos de cálculo diferentes. Selecione carteiras que usem o mesmo método (FIFO ou Média Móvel).",
+    "tax.report.no_selection": "Selecione pelo menos uma carteira.",
+    "tax.report.method_label": "Método Aplicado", "tax.report.period_label": "Período", "tax.report.wallets_label": "Carteiras de Contraparte Incluídas",
+    "tax.report.total_gain": "Ganho/Perda Total", "tax.report.export": "📤 Exportar CSV do Relatório",
     "report.title": "🚨 Denunciar Golpe",
     'report.realname_warn': "⚠️ Esta denúncia é operada sob uma <strong>política de nome real</strong>.<br>Somente o titular da conta Pi conectado pode denunciar,<br>e denúncias falsas podem gerar responsabilidade legal.",
     "report.victim_id": "ID Pi da Vítima",
@@ -1617,6 +1825,29 @@ const TT = {
     "ledger.fail": "Gagal memuatkan sejarah.", "ledger.counterpart_all": "Rakan Niaga (papar semua jika tiada dipilih)",
     "ledger.mode_combined": "Gabungan", "ledger.mode_individual": "Individu",
     "ledger.incomplete_warn": "Dompet ini mempunyai aktiviti yang terlalu banyak untuk disegerakkan secara automatik sehingga 1 Januari tahun ini. Sila hubungi admin (had boleh dinaikkan dan disegerakkan semula untuk anda).",
+    "tab.tax": "Pengiraan Cukai",
+    "tax.title": "Pengiraan Cukai (FIFO / Purata Bergerak)", "tax.select_wallet": "Pilih Dompet Saya", "tax.select_asset": "Pilih Aset",
+    "tax.loading": "Memuatkan sejarah transaksi...", "tax.syncing": "⏳ Menyegerakkan sejarah pertukaran...",
+    "tax.method.fifo": "FIFO (Masuk Dahulu Keluar Dahulu)", "tax.method.moving_avg": "Purata Bergerak",
+    "tax.method.hint": "Menurut undang-undang, transaksi melalui pertukaran (pembekal aset maya berlesen) menggunakan kaedah purata bergerak; dompet peribadi dan DEX bukan kustodian menggunakan FIFO.",
+    "tax.method.unset": "Tidak ditag", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "Purata",
+    "tax.untagged_warn": "Dompet rakan niaga di bawah memerlukan tag kaedah pengiraan. Pengiraan disekat sehingga ditag.",
+    "tax.tag_now": "Tag sekarang", "tax.tag_dialog.title": "Tetapkan Kaedah Pengiraan",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 Purata Bergerak",
+    "tax.disposal.date": "Tarikh", "tax.disposal.qty": "Kuantiti", "tax.disposal.proceeds": "Hasil Pelupusan",
+    "tax.disposal.cost": "Kos Perolehan", "tax.disposal.gain": "Untung/Rugi",
+    "tax.remaining_lots": "Baki Kuantiti", "tax.remaining_cost": "Kos Unit Purata",
+    "tax.no_price": "⚠️ {n} entri tanpa harga — dikecualikan daripada pengiraan",
+    "tax.manual_price.edit": "Tetapkan harga manual", "tax.manual_price.auto": "Harga automatik",
+    "tax.export": "📤 Eksport CSV",
+    "tax.note": "⚠️ Pengiraan ini hanya untuk rujukan. Sahkan dengan perunding cukai sebelum pemfailan sebenar.",
+    "tax.report.title": "Laporan untuk Pemfailan Cukai", "tax.report.select_wallets": "Pilih dompet rakan niaga untuk disertakan",
+    "tax.report.self_swap": "Pertukaran DEX sendiri (FIFO)", "tax.report.date_from": "Dari", "tax.report.date_to": "Hingga",
+    "tax.report.generate": "Jana Laporan",
+    "tax.report.mixed_method_warn": "⚠️ Dompet yang dipilih menggunakan kaedah pengiraan yang berbeza. Sila pilih dompet yang menggunakan kaedah yang sama sahaja (FIFO atau Purata Bergerak).",
+    "tax.report.no_selection": "Pilih sekurang-kurangnya satu dompet.",
+    "tax.report.method_label": "Kaedah Digunakan", "tax.report.period_label": "Tempoh", "tax.report.wallets_label": "Dompet Rakan Niaga Disertakan",
+    "tax.report.total_gain": "Jumlah Untung/Rugi", "tax.report.export": "📤 Eksport CSV Laporan",
     "report.title": "🚨 Laporkan Penipuan",
     'report.realname_warn': "⚠️ Laporan ini dikendalikan di bawah <strong>dasar nama sebenar</strong>.<br>Hanya pemegang akaun Pi yang log masuk boleh melaporkan,<br>dan laporan palsu boleh membawa liabiliti undang-undang.",
     "report.victim_id": "ID Pi Mangsa",
@@ -1812,6 +2043,29 @@ const TT = {
     "ledger.fail": "Nabigong i-load ang kasaysayan.", "ledger.counterpart_all": "Katapat (ipapakita lahat kung walang napili)",
     "ledger.mode_combined": "Kombinado", "ledger.mode_individual": "Indibidwal",
     "ledger.incomplete_warn": "Masyadong maraming aktibidad ang wallet na ito para awtomatikong ma-sync hanggang Enero 1 ngayong taon. Mangyaring makipag-ugnayan sa admin (maaaring itaas ang limitasyon at i-sync muli para sa iyo).",
+    "tab.tax": "Kalkulasyon ng Buwis",
+    "tax.title": "Kalkulasyon ng Buwis (FIFO / Moving Average)", "tax.select_wallet": "Piliin ang Aking Wallet", "tax.select_asset": "Piliin ang Asset",
+    "tax.loading": "Naglo-load ng history ng transaksyon...", "tax.syncing": "⏳ Sinisync ang history ng swap...",
+    "tax.method.fifo": "FIFO (Unang Pumasok, Unang Lalabas)", "tax.method.moving_avg": "Moving Average",
+    "tax.method.hint": "Ayon sa batas, ang mga transaksyon sa pamamagitan ng exchange (lisensyadong provider ng virtual asset) ay gumagamit ng moving-average method; ang personal wallet at non-custodial DEX ay gumagamit ng FIFO.",
+    "tax.method.unset": "Hindi pa naka-tag", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "Moving Avg",
+    "tax.untagged_warn": "Kailangan ng tag ng costing method ang mga counterparty wallet sa ibaba. Naka-block ang kalkulasyon hangga't hindi na-tag.",
+    "tax.tag_now": "I-tag ngayon", "tax.tag_dialog.title": "Itakda ang Costing Method",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 Moving Average",
+    "tax.disposal.date": "Petsa", "tax.disposal.qty": "Dami", "tax.disposal.proceeds": "Kinita",
+    "tax.disposal.cost": "Gastos sa Pagkuha", "tax.disposal.gain": "Kita/Lugi",
+    "tax.remaining_lots": "Natitirang Dami", "tax.remaining_cost": "Average na Unit Cost",
+    "tax.no_price": "⚠️ {n} entry na walang presyo — hindi kasama sa kalkulasyon",
+    "tax.manual_price.edit": "Itakda ang manual na presyo", "tax.manual_price.auto": "Awtomatikong presyo",
+    "tax.export": "📤 I-export ang CSV",
+    "tax.note": "⚠️ Ang kalkulasyong ito ay para sa reference lamang. Kumpirmahin sa isang tax professional bago mag-file nang aktwal.",
+    "tax.report.title": "Ulat para sa Pag-file ng Buwis", "tax.report.select_wallets": "Piliin ang counterparty wallet na isasama",
+    "tax.report.self_swap": "Sariling DEX swap (FIFO)", "tax.report.date_from": "Mula", "tax.report.date_to": "Hanggang",
+    "tax.report.generate": "Gumawa ng Ulat",
+    "tax.report.mixed_method_warn": "⚠️ Magkaiba ang costing method ng mga napiling wallet. Pumili ng mga wallet na iisa lang ang paraan (FIFO o Moving Average).",
+    "tax.report.no_selection": "Pumili ng kahit isang wallet.",
+    "tax.report.method_label": "Ginamit na Method", "tax.report.period_label": "Panahon", "tax.report.wallets_label": "Kasamang Counterparty Wallet",
+    "tax.report.total_gain": "Kabuuang Kita/Lugi", "tax.report.export": "📤 I-export ang CSV ng Ulat",
     "report.title": "🚨 I-report ang Scam",
     'report.realname_warn': "⚠️ Ang ulat na ito ay pinapatakbo sa ilalim ng <strong>patakaran ng tunay na pangalan</strong>.<br>Tanging ang may-ari ng Pi account na naka-login ang maaaring mag-ulat,<br>at ang mga huwad na ulat ay maaaring magdulot ng legal na pananagutan.",
     "report.victim_id": "Pi ID ng Biktima",
@@ -2007,6 +2261,29 @@ const TT = {
     "ledger.fail": "इतिहास लोड करने में विफल।", "ledger.counterpart_all": "प्रतिपक्ष (कुछ न चुनने पर सभी दिखेगा)",
     "ledger.mode_combined": "संयुक्त", "ledger.mode_individual": "व्यक्तिगत",
     "ledger.incomplete_warn": "इस वॉलेट में इतनी अधिक गतिविधि है कि यह इस वर्ष 1 जनवरी तक स्वचालित रूप से सिंक नहीं हो सका। कृपया व्यवस्थापक से संपर्क करें (सीमा बढ़ाकर आपके लिए फिर से सिंक किया जा सकता है)।",
+    "tab.tax": "कर गणना",
+    "tax.title": "कर गणना (FIFO / मूविंग एवरेज)", "tax.select_wallet": "मेरा वॉलेट चुनें", "tax.select_asset": "एसेट चुनें",
+    "tax.loading": "लेनदेन इतिहास लोड हो रहा है...", "tax.syncing": "⏳ स्वैप इतिहास सिंक हो रहा है...",
+    "tax.method.fifo": "FIFO (पहले आओ पहले जाओ)", "tax.method.moving_avg": "मूविंग एवरेज",
+    "tax.method.hint": "कानून के अनुसार, एक्सचेंज (लाइसेंस प्राप्त वर्चुअल एसेट प्रदाता) के माध्यम से किए गए लेनदेन पर मूविंग एवरेज विधि लागू होती है; व्यक्तिगत वॉलेट और गैर-कस्टोडियल DEX पर FIFO लागू होता है।",
+    "tax.method.unset": "टैग नहीं किया गया", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "मूविंग एवरेज",
+    "tax.untagged_warn": "नीचे दिए गए प्रतिपक्ष वॉलेट को गणना विधि टैग की आवश्यकता है। टैग किए जाने तक गणना अवरुद्ध है।",
+    "tax.tag_now": "अभी टैग करें", "tax.tag_dialog.title": "गणना विधि सेट करें",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 मूविंग एवरेज",
+    "tax.disposal.date": "तारीख", "tax.disposal.qty": "मात्रा", "tax.disposal.proceeds": "बिक्री राशि",
+    "tax.disposal.cost": "अधिग्रहण लागत", "tax.disposal.gain": "लाभ/हानि",
+    "tax.remaining_lots": "शेष मात्रा", "tax.remaining_cost": "औसत इकाई लागत",
+    "tax.no_price": "⚠️ {n} एंट्री बिना कीमत के — गणना से बाहर रखा गया",
+    "tax.manual_price.edit": "मैन्युअल कीमत सेट करें", "tax.manual_price.auto": "स्वचालित कीमत",
+    "tax.export": "📤 CSV निर्यात करें",
+    "tax.note": "⚠️ यह गणना केवल संदर्भ के लिए है। वास्तविक फाइलिंग से पहले कर सलाहकार से अवश्य पुष्टि करें।",
+    "tax.report.title": "कर फाइलिंग के लिए रिपोर्ट", "tax.report.select_wallets": "शामिल करने के लिए प्रतिपक्ष वॉलेट चुनें",
+    "tax.report.self_swap": "DEX स्व-स्वैप (FIFO)", "tax.report.date_from": "से", "tax.report.date_to": "तक",
+    "tax.report.generate": "रिपोर्ट बनाएं",
+    "tax.report.mixed_method_warn": "⚠️ चयनित वॉलेट अलग-अलग गणना विधियों का उपयोग करते हैं। कृपया केवल समान विधि (FIFO या मूविंग एवरेज) वाले वॉलेट चुनें।",
+    "tax.report.no_selection": "कम से कम एक वॉलेट चुनें।",
+    "tax.report.method_label": "लागू विधि", "tax.report.period_label": "अवधि", "tax.report.wallets_label": "शामिल प्रतिपक्ष वॉलेट",
+    "tax.report.total_gain": "कुल लाभ/हानि", "tax.report.export": "📤 रिपोर्ट CSV निर्यात करें",
     "report.title": "🚨 धोखाधड़ी की रिपोर्ट करें",
     'report.realname_warn': "⚠️ यह रिपोर्ट <strong>वास्तविक-नाम नीति</strong> के तहत संचालित होती है।<br>केवल लॉग इन किया गया Pi खाता धारक ही रिपोर्ट कर सकता है,<br>और झूठी रिपोर्ट पर कानूनी जिम्मेदारी हो सकती है।",
     "report.victim_id": "पीड़ित का Pi ID",
@@ -2202,6 +2479,29 @@ const TT = {
     "ledger.fail": "فشل تحميل السجل.", "ledger.counterpart_all": "الطرف المقابل (يعرض الكل إذا لم يتم التحديد)",
     "ledger.mode_combined": "مجمّع", "ledger.mode_individual": "فردي",
     "ledger.incomplete_warn": "هذه المحفظة بها نشاط كثير جدًا بحيث لا يمكن مزامنتها تلقائيًا حتى 1 يناير من هذا العام. يرجى التواصل مع المسؤول (يمكن رفع الحد وإعادة المزامنة لك).",
+    "tab.tax": "حساب الضرائب",
+    "tax.title": "حساب الضرائب (FIFO / المتوسط المتحرك)", "tax.select_wallet": "اختر محفظتي", "tax.select_asset": "اختر الأصل",
+    "tax.loading": "جارٍ تحميل سجل المعاملات...", "tax.syncing": "⏳ جارٍ مزامنة سجل التبديل...",
+    "tax.method.fifo": "FIFO (الوارد أولاً يصرف أولاً)", "tax.method.moving_avg": "المتوسط المتحرك",
+    "tax.method.hint": "بموجب القانون، تُطبَّق طريقة المتوسط المتحرك على المعاملات عبر منصة تداول (مزود أصول افتراضية مرخص)، بينما تُطبَّق طريقة FIFO على المحافظ الشخصية و DEX غير الحاضنة.",
+    "tax.method.unset": "غير موسوم", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "متوسط متحرك",
+    "tax.untagged_warn": "تحتاج المحافظ المقابلة أدناه إلى وسم بطريقة الحساب. الحساب محظور حتى يتم وسمها.",
+    "tax.tag_now": "وسم الآن", "tax.tag_dialog.title": "تعيين طريقة الحساب",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 المتوسط المتحرك",
+    "tax.disposal.date": "التاريخ", "tax.disposal.qty": "الكمية", "tax.disposal.proceeds": "عائدات البيع",
+    "tax.disposal.cost": "تكلفة الاستحواذ", "tax.disposal.gain": "الربح/الخسارة",
+    "tax.remaining_lots": "الكمية المتبقية", "tax.remaining_cost": "متوسط تكلفة الوحدة",
+    "tax.no_price": "⚠️ {n} إدخالات بدون سعر — مستبعدة من الحساب",
+    "tax.manual_price.edit": "تعيين سعر يدوي", "tax.manual_price.auto": "السعر التلقائي",
+    "tax.export": "📤 تصدير CSV",
+    "tax.note": "⚠️ هذا الحساب لأغراض مرجعية فقط. يرجى التأكيد مع محاسب ضرائب قبل التقديم الفعلي.",
+    "tax.report.title": "تقرير لتقديم الإقرار الضريبي", "tax.report.select_wallets": "اختر المحافظ المقابلة المراد تضمينها",
+    "tax.report.self_swap": "تبديل ذاتي على DEX (FIFO)", "tax.report.date_from": "من", "tax.report.date_to": "إلى",
+    "tax.report.generate": "إنشاء التقرير",
+    "tax.report.mixed_method_warn": "⚠️ المحافظ المحددة تستخدم طرق حساب مختلفة. يرجى تحديد محافظ تستخدم جميعها نفس الطريقة (FIFO أو المتوسط المتحرك).",
+    "tax.report.no_selection": "اختر محفظة واحدة على الأقل.",
+    "tax.report.method_label": "الطريقة المطبقة", "tax.report.period_label": "الفترة", "tax.report.wallets_label": "المحافظ المقابلة المضمنة",
+    "tax.report.total_gain": "إجمالي الربح/الخسارة", "tax.report.export": "📤 تصدير CSV للتقرير",
     "report.title": "🚨 الإبلاغ عن احتيال",
     'report.realname_warn': "⚠️ تُدار هذه الشكوى وفق <strong>سياسة الاسم الحقيقي</strong>.<br>يمكن فقط لصاحب حساب Pi المسجّل الدخول تقديم الشكوى،<br>وقد تترتب مسؤولية قانونية على الشكاوى الكاذبة.",
     "report.victim_id": "معرف Pi للضحية",
@@ -2397,6 +2697,29 @@ const TT = {
     "ledger.fail": "Не удалось загрузить историю.", "ledger.counterpart_all": "Контрагент (показывает всех, если ничего не выбрано)",
     "ledger.mode_combined": "Итого", "ledger.mode_individual": "Отдельно",
     "ledger.incomplete_warn": "У этого кошелька слишком много активности, чтобы автоматически синхронизироваться до 1 января этого года. Пожалуйста, свяжитесь с администратором (лимит можно повысить и синхронизировать заново).",
+    "tab.tax": "Расчёт налогов",
+    "tax.title": "Расчёт налогов (FIFO / Скользящее среднее)", "tax.select_wallet": "Выбрать мой кошелёк", "tax.select_asset": "Выбрать актив",
+    "tax.loading": "Загрузка истории транзакций...", "tax.syncing": "⏳ Синхронизация истории обменов...",
+    "tax.method.fifo": "FIFO (первым пришёл — первым ушёл)", "tax.method.moving_avg": "Скользящее среднее",
+    "tax.method.hint": "По закону, транзакции через биржу (лицензированного поставщика виртуальных активов) используют метод скользящего среднего; личные кошельки и некастодиальные DEX используют FIFO.",
+    "tax.method.unset": "Без метки", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "Скольз. среднее",
+    "tax.untagged_warn": "Кошелькам-контрагентам ниже требуется метка метода расчёта. Расчёт заблокирован до присвоения метки.",
+    "tax.tag_now": "Присвоить метку", "tax.tag_dialog.title": "Задать метод расчёта",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 Скользящее среднее",
+    "tax.disposal.date": "Дата", "tax.disposal.qty": "Кол-во", "tax.disposal.proceeds": "Выручка",
+    "tax.disposal.cost": "Себестоимость", "tax.disposal.gain": "Прибыль/убыток",
+    "tax.remaining_lots": "Остаток количества", "tax.remaining_cost": "Средняя цена за единицу",
+    "tax.no_price": "⚠️ {n} записей без цены — исключены из расчёта",
+    "tax.manual_price.edit": "Задать цену вручную", "tax.manual_price.auto": "Автоматическая цена",
+    "tax.export": "📤 Экспорт CSV",
+    "tax.note": "⚠️ Этот расчёт носит справочный характер. Перед фактической подачей декларации обязательно проконсультируйтесь с налоговым специалистом.",
+    "tax.report.title": "Отчёт для подачи в налоговую", "tax.report.select_wallets": "Выбрать кошельки-контрагенты для включения",
+    "tax.report.self_swap": "Собственный своп в DEX (FIFO)", "tax.report.date_from": "С", "tax.report.date_to": "По",
+    "tax.report.generate": "Сформировать отчёт",
+    "tax.report.mixed_method_warn": "⚠️ Выбранные кошельки используют разные методы расчёта. Выберите кошельки, использующие один и тот же метод (FIFO или скользящее среднее).",
+    "tax.report.no_selection": "Выберите хотя бы один кошелёк.",
+    "tax.report.method_label": "Применённый метод", "tax.report.period_label": "Период", "tax.report.wallets_label": "Включённые кошельки-контрагенты",
+    "tax.report.total_gain": "Итоговая прибыль/убыток", "tax.report.export": "📤 Экспорт CSV отчёта",
     "report.title": "🚨 Сообщить о мошенничестве",
     'report.realname_warn': "⚠️ Эта жалоба обрабатывается согласно <strong>политике настоящих имён</strong>.<br>Подать жалобу может только владелец вошедшего в систему аккаунта Pi,<br>а ложные жалобы могут повлечь юридическую ответственность.",
     "report.victim_id": "Pi ID жертвы",
@@ -2592,6 +2915,29 @@ const TT = {
     "ledger.fail": "ইতিহাস লোড করতে ব্যর্থ হয়েছে।", "ledger.counterpart_all": "প্রতিপক্ষ (কিছু নির্বাচন না করলে সব দেখাবে)",
     "ledger.mode_combined": "সম্মিলিত", "ledger.mode_individual": "পৃথক",
     "ledger.incomplete_warn": "এই ওয়ালেটে এত বেশি কার্যকলাপ রয়েছে যে এটি এই বছরের ১ জানুয়ারি পর্যন্ত স্বয়ংক্রিয়ভাবে সিঙ্ক করা যায়নি। অনুগ্রহ করে অ্যাডমিনের সাথে যোগাযোগ করুন (সীমা বাড়িয়ে আপনার জন্য পুনরায় সিঙ্ক করা যেতে পারে)।",
+    "tab.tax": "কর গণনা",
+    "tax.title": "কর গণনা (FIFO / মুভিং এভারেজ)", "tax.select_wallet": "আমার ওয়ালেট নির্বাচন করুন", "tax.select_asset": "সম্পদ নির্বাচন করুন",
+    "tax.loading": "লেনদেনের ইতিহাস লোড হচ্ছে...", "tax.syncing": "⏳ সোয়াপ ইতিহাস সিঙ্ক হচ্ছে...",
+    "tax.method.fifo": "FIFO (প্রথমে আসা প্রথমে যাওয়া)", "tax.method.moving_avg": "মুভিং এভারেজ",
+    "tax.method.hint": "আইন অনুযায়ী, এক্সচেঞ্জের (লাইসেন্সপ্রাপ্ত ভার্চুয়াল অ্যাসেট প্রদানকারী) মাধ্যমে লেনদেনে মুভিং এভারেজ পদ্ধতি প্রযোজ্য; ব্যক্তিগত ওয়ালেট এবং নন-কাস্টোডিয়াল DEX-এ FIFO প্রযোজ্য।",
+    "tax.method.unset": "ট্যাগ করা হয়নি", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "মুভিং এভারেজ",
+    "tax.untagged_warn": "নিচের প্রতিপক্ষ ওয়ালেটগুলোতে গণনা পদ্ধতির ট্যাগ প্রয়োজন। ট্যাগ না করা পর্যন্ত গণনা করা যাবে না।",
+    "tax.tag_now": "এখনই ট্যাগ করুন", "tax.tag_dialog.title": "গণনা পদ্ধতি নির্ধারণ করুন",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 মুভিং এভারেজ",
+    "tax.disposal.date": "তারিখ", "tax.disposal.qty": "পরিমাণ", "tax.disposal.proceeds": "বিক্রয় মূল্য",
+    "tax.disposal.cost": "অধিগ্রহণ খরচ", "tax.disposal.gain": "লাভ/ক্ষতি",
+    "tax.remaining_lots": "অবশিষ্ট পরিমাণ", "tax.remaining_cost": "গড় ইউনিট খরচ",
+    "tax.no_price": "⚠️ {n}টি এন্ট্রিতে দাম নেই — গণনা থেকে বাদ দেওয়া হয়েছে",
+    "tax.manual_price.edit": "ম্যানুয়াল দাম নির্ধারণ করুন", "tax.manual_price.auto": "স্বয়ংক্রিয় দাম",
+    "tax.export": "📤 CSV এক্সপোর্ট করুন",
+    "tax.note": "⚠️ এই গণনা শুধুমাত্র রেফারেন্সের জন্য। প্রকৃত ফাইলিংয়ের আগে অবশ্যই ট্যাক্স পেশাদারের সাথে নিশ্চিত করুন।",
+    "tax.report.title": "কর ফাইলিংয়ের জন্য প্রতিবেদন", "tax.report.select_wallets": "অন্তর্ভুক্ত করার জন্য প্রতিপক্ষ ওয়ালেট নির্বাচন করুন",
+    "tax.report.self_swap": "DEX স্ব-সোয়াপ (FIFO)", "tax.report.date_from": "থেকে", "tax.report.date_to": "পর্যন্ত",
+    "tax.report.generate": "প্রতিবেদন তৈরি করুন",
+    "tax.report.mixed_method_warn": "⚠️ নির্বাচিত ওয়ালেটগুলো ভিন্ন ভিন্ন গণনা পদ্ধতি ব্যবহার করে। শুধুমাত্র একই পদ্ধতির (FIFO বা মুভিং এভারেজ) ওয়ালেট নির্বাচন করুন।",
+    "tax.report.no_selection": "অন্তত একটি ওয়ালেট নির্বাচন করুন।",
+    "tax.report.method_label": "প্রয়োগকৃত পদ্ধতি", "tax.report.period_label": "সময়কাল", "tax.report.wallets_label": "অন্তর্ভুক্ত প্রতিপক্ষ ওয়ালেট",
+    "tax.report.total_gain": "মোট লাভ/ক্ষতি", "tax.report.export": "📤 প্রতিবেদন CSV এক্সপোর্ট করুন",
     "report.title": "🚨 প্রতারণা রিপোর্ট করুন",
     'report.realname_warn': "⚠️ এই রিপোর্ট <strong>প্রকৃত-নাম নীতি</strong>র অধীনে পরিচালিত হয়।<br>শুধুমাত্র লগইন করা Pi অ্যাকাউন্টধারীই রিপোর্ট করতে পারবেন,<br>এবং মিথ্যা রিপোর্টে আইনি দায় হতে পারে।",
     "report.victim_id": "ভুক্তভোগীর Pi ID",
@@ -2787,6 +3133,29 @@ const TT = {
     "ledger.fail": "Imeshindwa kupakia historia.", "ledger.counterpart_all": "Mshirika (huonyesha wote ikiwa hakuna aliyechaguliwa)",
     "ledger.mode_combined": "Jumla", "ledger.mode_individual": "Kibinafsi",
     "ledger.incomplete_warn": "Pochi hii ina shughuli nyingi mno kusawazishwa kiotomatiki hadi Januari 1 mwaka huu. Tafadhali wasiliana na msimamizi (kikomo kinaweza kuongezwa na kusawazishwa upya kwa ajili yako).",
+    "tab.tax": "Hesabu ya Kodi",
+    "tax.title": "Hesabu ya Kodi (FIFO / Wastani Unaosonga)", "tax.select_wallet": "Chagua Pochi Yangu", "tax.select_asset": "Chagua Mali",
+    "tax.loading": "Inapakia historia ya miamala...", "tax.syncing": "⏳ Inasawazisha historia ya kubadilishana...",
+    "tax.method.fifo": "FIFO (Iliyoingia Kwanza Yatoka Kwanza)", "tax.method.moving_avg": "Wastani Unaosonga",
+    "tax.method.hint": "Kisheria, miamala kupitia soko la kubadilishana (mtoa huduma wa mali za kidijitali aliyeidhinishwa) hutumia mbinu ya wastani unaosonga; pochi za kibinafsi na DEX zisizo za kuhifadhi hutumia FIFO.",
+    "tax.method.unset": "Haijawekwa lebo", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "Wastani",
+    "tax.untagged_warn": "Pochi za mshirika hapa chini zinahitaji lebo ya mbinu ya uhesabuji. Uhesabuji umezuiwa hadi ziwekwe lebo.",
+    "tax.tag_now": "Weka lebo sasa", "tax.tag_dialog.title": "Weka Mbinu ya Uhesabuji",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 Wastani Unaosonga",
+    "tax.disposal.date": "Tarehe", "tax.disposal.qty": "Kiasi", "tax.disposal.proceeds": "Mapato ya Mauzo",
+    "tax.disposal.cost": "Gharama ya Ununuzi", "tax.disposal.gain": "Faida/Hasara",
+    "tax.remaining_lots": "Kiasi Kilichobaki", "tax.remaining_cost": "Gharama Wastani kwa Kipimo",
+    "tax.no_price": "⚠️ Maingizo {n} bila bei — yametengwa kutoka kwenye hesabu",
+    "tax.manual_price.edit": "Weka bei kwa mkono", "tax.manual_price.auto": "Bei ya kiotomatiki",
+    "tax.export": "📤 Hamisha CSV",
+    "tax.note": "⚠️ Hesabu hii ni kwa ajili ya rejeleo tu. Thibitisha na mtaalamu wa kodi kabla ya kuwasilisha rasmi.",
+    "tax.report.title": "Ripoti kwa Ajili ya Kuwasilisha Kodi", "tax.report.select_wallets": "Chagua pochi za mshirika za kujumuisha",
+    "tax.report.self_swap": "Kubadilishana kwa DEX binafsi (FIFO)", "tax.report.date_from": "Kutoka", "tax.report.date_to": "Hadi",
+    "tax.report.generate": "Tengeneza Ripoti",
+    "tax.report.mixed_method_warn": "⚠️ Pochi zilizochaguliwa zinatumia mbinu tofauti za uhesabuji. Tafadhali chagua pochi zinazotumia mbinu moja tu (FIFO au Wastani Unaosonga).",
+    "tax.report.no_selection": "Chagua angalau pochi moja.",
+    "tax.report.method_label": "Mbinu Iliyotumika", "tax.report.period_label": "Kipindi", "tax.report.wallets_label": "Pochi za Mshirika Zilizojumuishwa",
+    "tax.report.total_gain": "Jumla ya Faida/Hasara", "tax.report.export": "📤 Hamisha CSV ya Ripoti",
     "report.title": "🚨 Ripoti Udanganyifu",
     'report.realname_warn': "⚠️ Ripoti hii inaendeshwa chini ya <strong>sera ya jina halisi</strong>.<br>Ni mmiliki wa akaunti ya Pi aliyeingia pekee anayeweza kuripoti,<br>na ripoti za uongo zinaweza kusababisha dhima ya kisheria.",
     "report.victim_id": "Pi ID ya Mwathirika",
@@ -2982,6 +3351,29 @@ const TT = {
     "ledger.fail": "โหลดประวัติไม่สำเร็จ", "ledger.counterpart_all": "คู่ค้า (แสดงทั้งหมดหากไม่ได้เลือก)",
     "ledger.mode_combined": "รวม", "ledger.mode_individual": "แยกราย",
     "ledger.incomplete_warn": "กระเป๋าเงินนี้มีกิจกรรมมากเกินไปจนไม่สามารถซิงค์อัตโนมัติย้อนไปถึงวันที่ 1 มกราคมของปีนี้ได้ กรุณาติดต่อผู้ดูแลระบบ (สามารถปรับเพิ่มขีดจำกัดและซิงค์ใหม่ให้ได้)",
+    "tab.tax": "คำนวณภาษี",
+    "tax.title": "คำนวณภาษี (FIFO / ถัวเฉลี่ยเคลื่อนที่)", "tax.select_wallet": "เลือกกระเป๋าของฉัน", "tax.select_asset": "เลือกสินทรัพย์",
+    "tax.loading": "กำลังโหลดประวัติธุรกรรม...", "tax.syncing": "⏳ กำลังซิงค์ประวัติการสวอป...",
+    "tax.method.fifo": "FIFO (เข้าก่อนออกก่อน)", "tax.method.moving_avg": "ถัวเฉลี่ยเคลื่อนที่",
+    "tax.method.hint": "ตามกฎหมาย ธุรกรรมผ่านตลาดแลกเปลี่ยน (ผู้ให้บริการสินทรัพย์ดิจิทัลที่ได้รับอนุญาต) ใช้วิธีถัวเฉลี่ยเคลื่อนที่ ส่วนกระเป๋าส่วนตัวและ DEX แบบไม่ดูแลทรัพย์สินใช้วิธี FIFO",
+    "tax.method.unset": "ยังไม่ได้แท็ก", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "ถัวเฉลี่ย",
+    "tax.untagged_warn": "กระเป๋าคู่ค้าด้านล่างต้องการแท็กวิธีคำนวณ ไม่สามารถคำนวณได้จนกว่าจะแท็ก",
+    "tax.tag_now": "แท็กตอนนี้", "tax.tag_dialog.title": "กำหนดวิธีคำนวณ",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 ถัวเฉลี่ยเคลื่อนที่",
+    "tax.disposal.date": "วันที่", "tax.disposal.qty": "จำนวน", "tax.disposal.proceeds": "มูลค่าที่ได้รับ",
+    "tax.disposal.cost": "ต้นทุนที่ได้มา", "tax.disposal.gain": "กำไร/ขาดทุน",
+    "tax.remaining_lots": "จำนวนคงเหลือ", "tax.remaining_cost": "ต้นทุนเฉลี่ยต่อหน่วย",
+    "tax.no_price": "⚠️ {n} รายการไม่มีราคา — ไม่รวมในการคำนวณ",
+    "tax.manual_price.edit": "กำหนดราคาด้วยตนเอง", "tax.manual_price.auto": "ราคาที่ดึงอัตโนมัติ",
+    "tax.export": "📤 ส่งออก CSV",
+    "tax.note": "⚠️ การคำนวณนี้ใช้เพื่ออ้างอิงเท่านั้น กรุณายืนยันกับผู้เชี่ยวชาญด้านภาษีก่อนยื่นแบบจริง",
+    "tax.report.title": "รายงานสำหรับยื่นภาษี", "tax.report.select_wallets": "เลือกกระเป๋าคู่ค้าที่จะรวม",
+    "tax.report.self_swap": "การสวอปด้วยตนเองใน DEX (FIFO)", "tax.report.date_from": "จาก", "tax.report.date_to": "ถึง",
+    "tax.report.generate": "สร้างรายงาน",
+    "tax.report.mixed_method_warn": "⚠️ กระเป๋าที่เลือกใช้วิธีคำนวณต่างกัน กรุณาเลือกเฉพาะกระเป๋าที่ใช้วิธีเดียวกัน (FIFO หรือถัวเฉลี่ยเคลื่อนที่)",
+    "tax.report.no_selection": "กรุณาเลือกกระเป๋าอย่างน้อยหนึ่งใบ",
+    "tax.report.method_label": "วิธีที่ใช้", "tax.report.period_label": "ช่วงเวลา", "tax.report.wallets_label": "กระเป๋าคู่ค้าที่รวมอยู่",
+    "tax.report.total_gain": "กำไร/ขาดทุนรวม", "tax.report.export": "📤 ส่งออก CSV รายงาน",
     "report.title": "🚨 รายงานการหลอกลวง",
     'report.realname_warn': "⚠️ รายงานนี้ดำเนินการภายใต้<strong>นโยบายใช้ชื่อจริง</strong><br>เฉพาะเจ้าของบัญชี Pi ที่เข้าสู่ระบบเท่านั้นที่สามารถรายงานได้<br>และการรายงานเท็จอาจมีความรับผิดทางกฎหมาย",
     "report.victim_id": "Pi ID ของผู้เสียหาย",
@@ -3177,6 +3569,29 @@ const TT = {
     "ledger.fail": "Geçmiş yüklenemedi.", "ledger.counterpart_all": "Karşı Taraf (hiçbiri seçilmezse tümü gösterilir)",
     "ledger.mode_combined": "Toplam", "ledger.mode_individual": "Bireysel",
     "ledger.incomplete_warn": "Bu cüzdanda bu yılın 1 Ocak'ına kadar otomatik olarak senkronize edilemeyecek kadar çok işlem var. Lütfen yöneticiyle iletişime geçin (sınır artırılıp sizin için yeniden senkronize edilebilir).",
+    "tab.tax": "Vergi Hesaplama",
+    "tax.title": "Vergi Hesaplama (FIFO / Hareketli Ortalama)", "tax.select_wallet": "Cüzdanımı Seç", "tax.select_asset": "Varlık Seç",
+    "tax.loading": "İşlem geçmişi yükleniyor...", "tax.syncing": "⏳ Takas geçmişi senkronize ediliyor...",
+    "tax.method.fifo": "FIFO (İlk Giren İlk Çıkar)", "tax.method.moving_avg": "Hareketli Ortalama",
+    "tax.method.hint": "Kanuna göre, bir borsa (lisanslı sanal varlık sağlayıcısı) üzerinden yapılan işlemlerde hareketli ortalama yöntemi, kişisel cüzdanlarda ve saklama hizmeti sunmayan DEX'lerde FIFO yöntemi uygulanır.",
+    "tax.method.unset": "Etiketlenmedi", "tax.method.fifo_short": "FIFO", "tax.method.avg_short": "Hareketli Ort.",
+    "tax.untagged_warn": "Aşağıdaki karşı taraf cüzdanları için maliyet yöntemi etiketi gerekiyor. Etiketlenene kadar hesaplama engellenir.",
+    "tax.tag_now": "Şimdi etiketle", "tax.tag_dialog.title": "Maliyet Yöntemini Belirle",
+    "tax.fifo_section": "📗 FIFO", "tax.avg_section": "📘 Hareketli Ortalama",
+    "tax.disposal.date": "Tarih", "tax.disposal.qty": "Miktar", "tax.disposal.proceeds": "Satış Geliri",
+    "tax.disposal.cost": "Edinim Maliyeti", "tax.disposal.gain": "Kâr/Zarar",
+    "tax.remaining_lots": "Kalan Miktar", "tax.remaining_cost": "Ortalama Birim Maliyet",
+    "tax.no_price": "⚠️ Fiyatı olmayan {n} kayıt — hesaplamadan hariç tutuldu",
+    "tax.manual_price.edit": "Manuel fiyat belirle", "tax.manual_price.auto": "Otomatik fiyat",
+    "tax.export": "📤 CSV Dışa Aktar",
+    "tax.note": "⚠️ Bu hesaplama yalnızca referans amaçlıdır. Gerçek beyan öncesinde mutlaka bir vergi uzmanına danışın.",
+    "tax.report.title": "Vergi Beyanı için Rapor", "tax.report.select_wallets": "Dahil edilecek karşı taraf cüzdanlarını seçin",
+    "tax.report.self_swap": "Kendi DEX takası (FIFO)", "tax.report.date_from": "Başlangıç", "tax.report.date_to": "Bitiş",
+    "tax.report.generate": "Rapor Oluştur",
+    "tax.report.mixed_method_warn": "⚠️ Seçilen cüzdanlar farklı hesaplama yöntemleri kullanıyor. Lütfen yalnızca aynı yöntemi (FIFO veya Hareketli Ortalama) kullanan cüzdanları seçin.",
+    "tax.report.no_selection": "En az bir cüzdan seçin.",
+    "tax.report.method_label": "Uygulanan Yöntem", "tax.report.period_label": "Dönem", "tax.report.wallets_label": "Dahil Edilen Karşı Taraf Cüzdanları",
+    "tax.report.total_gain": "Toplam Kâr/Zarar", "tax.report.export": "📤 Rapor CSV'sini Dışa Aktar",
     "report.title": "🚨 Dolandırıcılık Bildir",
     'report.realname_warn': "⚠️ Bu bildirim <strong>gerçek isim politikası</strong> kapsamında yürütülür.<br>Yalnızca oturum açmış Pi hesabı sahibi bildirimde bulunabilir,<br>ve yanlış bildirimler yasal sorumluluk doğurabilir.",
     "report.victim_id": "Mağdurun Pi ID'si",
@@ -3414,6 +3829,7 @@ export function renderTrackerPage(container, username, uid) {
     if (tabName === 'mywallet') renderMyWalletTab();
     if (tabName === 'ledger')   renderLedgerTab();
     if (tabName === 'trade')    renderTradeTab();
+    if (tabName === 'tax')      renderTaxTab();
   }
 
   function jumpToSearch(wallet) {
@@ -3434,6 +3850,7 @@ export function renderTrackerPage(container, username, uid) {
           <button class="trk-tab" data-tab="watch">${tt('tab.watch')}</button>
           <button class="trk-tab" data-tab="ledger">${tt('tab.ledger')}</button>
           <button class="trk-tab" data-tab="trade">${tt('tab.trade')}</button>
+          <button class="trk-tab" data-tab="tax">${tt('tab.tax')}</button>
         </div>
       </div>
 
@@ -3533,6 +3950,13 @@ export function renderTrackerPage(container, username, uid) {
       <div class="trk-tab-content" id="trk-tab-trade">
         <div class="trk-section">
           <div id="trk-trade-content"></div>
+        </div>
+      </div>
+
+      <!-- 세금계산 탭 -->
+      <div class="trk-tab-content" id="trk-tab-tax">
+        <div class="trk-section">
+          <div id="trk-tax-content"></div>
         </div>
       </div>
     </div>
@@ -3831,6 +4255,41 @@ export function renderTrackerPage(container, username, uid) {
     return { payments: records, next };
   }
 
+  // ── 세금계산 탭용 — payment 뿐 아니라 path_payment(스왑)도 포함해서 가져옴 ──
+  // fetchPayments는 기존 "장부" 탭이 쓰므로 건드리지 않고 별도 함수로 분리
+  const SWAP_OP_TYPES = ['path_payment_strict_send', 'path_payment_strict_receive'];
+
+  async function fetchPaymentsWide(wallet, cursor = null) {
+    let url = `${HORIZON}/accounts/${wallet}/payments?order=desc&limit=50&include_failed=false`;
+    if (cursor) url += '&cursor=' + cursor;
+    const res = await fetch(url);
+    if (!res.ok) {
+      if (res.status === 404) throw new Error(tt('search.err.not_found'));
+      throw new Error(`API error (${res.status})`);
+    }
+    const data = await res.json();
+    const records = (data._embedded?.records || [])
+      .filter(r => r.type === 'payment' || SWAP_OP_TYPES.includes(r.type));
+    const next = data._links?.next?.href?.match(/cursor=([^&]+)/)?.[1] || null;
+    return { payments: records, next };
+  }
+
+  // Horizon /trades — DEX/AMM 체결 기록. 스왑의 정확한 체결 시점 단가를 온체인에서 직접 얻기 위해 사용
+  // (지금은 별도 엔트리로 저장하지 않고, 가격 조회(fetchNearestOkxPrice류)에서 온디맨드로만 참조 — v1 범위)
+  async function fetchTrades(wallet, cursor = null) {
+    let url = `${HORIZON}/accounts/${wallet}/trades?order=desc&limit=50`;
+    if (cursor) url += '&cursor=' + cursor;
+    const res = await fetch(url);
+    if (!res.ok) {
+      if (res.status === 404) throw new Error(tt('search.err.not_found'));
+      throw new Error(`API error (${res.status})`);
+    }
+    const data = await res.json();
+    const records = data._embedded?.records || [];
+    const next = data._links?.next?.href?.match(/cursor=([^&]+)/)?.[1] || null;
+    return { trades: records, next };
+  }
+
   // ── 지갑 장부 (월별/연별) — 내 지갑 탭 접근 시 신규분만 DB에 누적 기록 ──
   const LEDGER_COL         = 'wallet_ledger';
   const LEDGER_MAX_PAGE    = 200; // 1페이지 50건 * 200 = 최대 10,000건 — 과세 연도엔 사실상 거의 모든 지갑이 1월 1일까지 한 번에 커버됨
@@ -3914,6 +4373,14 @@ export function renderTrackerPage(container, username, uid) {
     return snap.docs.map(d => d.data());
   }
 
+  // 세금계산 탭용 — 문서 id 포함(수동 단가 편집/가격 캐싱에 필요)
+  async function fetchTaxLedgerEntries(address) {
+    const db2 = getDb();
+    if (!db2) return [];
+    const snap = await db2.collection(LEDGER_COL).doc(address).collection('entries').get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
   async function fetchLedgerSyncIncomplete(address) {
     const db2 = getDb();
     if (!db2) return false;
@@ -3921,6 +4388,107 @@ export function renderTrackerPage(container, username, uid) {
       const doc = await db2.collection(LEDGER_COL).doc(address).get();
       return doc.exists && doc.data().syncIncomplete === true;
     } catch { return false; }
+  }
+
+  // ── 세금계산용 확장 동기화 — payment + path_payment(스왑)까지 포함, 별도 커서로 관리 ──
+  // "세금계산" 탭을 열 때만 호출됨(장부 탭 진입만으로는 안 돎 — 안 쓰는 유저에게 불필요한 Horizon 호출 방지)
+  function normalizeWideRecord(p) {
+    const isSwap = SWAP_OP_TYPES.includes(p.type);
+    const base = {
+      created_at:   p.created_at,
+      from:         p.from ?? null,
+      to:           p.to ?? null,
+      paging_token: p.paging_token,
+      op_type:      p.type,
+    };
+    if (!isSwap) {
+      return {
+        ...base,
+        amount: p.amount ?? null,
+        asset:  p.asset_type === 'native' ? 'π' : (p.asset_code ?? p.asset_type ?? '?'),
+      };
+    }
+    return {
+      ...base,
+      send_asset:  p.source_asset_type === 'native' ? 'π' : (p.source_asset_code ?? p.source_asset_type ?? '?'),
+      send_amount: p.source_amount ?? null,
+      dest_asset:  p.asset_type === 'native' ? 'π' : (p.asset_code ?? p.asset_type ?? '?'),
+      dest_amount: p.amount ?? null,
+    };
+  }
+
+  async function syncTaxLedger(address) {
+    const db2 = getDb();
+    if (!db2) return;
+    const cursorRef = db2.collection(LEDGER_COL).doc(address);
+    let cursorDoc;
+    try { cursorDoc = await cursorRef.get(); } catch { return; }
+    const taxSync = cursorDoc.exists ? (cursorDoc.data().taxSync || {}) : {};
+    const lastToken = taxSync.lastPagingTokenWide || null;
+
+    const taxYear = isLedgerTaxYear();
+    const maxPages = taxYear ? LEDGER_MAX_PAGE : 1;
+    const cutoff   = taxYear ? ledgerYearCutoff() : null;
+
+    const newRecords = [];
+    let cursor        = null;
+    let stop          = false;
+    let ranOutOfPages = false;
+    for (let page = 0; page < maxPages && !stop; page++) {
+      let payments, next;
+      try { ({ payments, next } = await fetchPaymentsWide(address, cursor)); } catch { break; }
+      if (!payments.length) { ranOutOfPages = true; break; }
+      for (const p of payments) {
+        if (lastToken && p.paging_token === lastToken) { stop = true; break; }
+        if (cutoff && new Date(p.created_at) < cutoff) { stop = true; break; }
+        newRecords.push(p);
+      }
+      if (stop) break;
+      if (!next) { ranOutOfPages = true; break; }
+      cursor = next;
+    }
+    const incomplete = taxYear && !stop && !ranOutOfPages;
+
+    if (newRecords.length > 0) {
+      const entriesCol = cursorRef.collection('entries');
+      for (let i = 0; i < newRecords.length; i += 450) {
+        const batch = db2.batch();
+        newRecords.slice(i, i + 450).forEach(p => {
+          // {merge:true} — fetchPayments가 이미 써둔 같은 id의 단순 payment 문서엔 op_type만 얹어지고,
+          // manual_price 등 사용자가 직접 입력한 필드는 이 쓰기 페이로드에 없으므로 절대 덮어써지지 않음
+          batch.set(entriesCol.doc(p.id), normalizeWideRecord(p), { merge: true });
+        });
+        await batch.commit();
+      }
+    }
+
+    await cursorRef.set({
+      taxSync: {
+        lastPagingTokenWide: newRecords.length ? newRecords[0].paging_token : lastToken,
+        lastSyncedAt:         firebase.firestore.FieldValue.serverTimestamp(),
+        syncIncomplete:       incomplete,
+      },
+    }, { merge: true });
+  }
+
+  async function fetchTaxSyncIncomplete(address) {
+    const db2 = getDb();
+    if (!db2) return false;
+    try {
+      const doc = await db2.collection(LEDGER_COL).doc(address).get();
+      return doc.exists && doc.data().taxSync?.syncIncomplete === true;
+    } catch { return false; }
+  }
+
+  // 수동 단가 — 이 필드는 syncTaxLedger의 배치 쓰기 페이로드에 절대 포함되지 않으므로 자동 동기화가 덮어쓸 수 없음
+  async function setManualPrice(address, entryId, price) {
+    const db2 = getDb();
+    if (!db2 || !piUser) return;
+    await db2.collection(LEDGER_COL).doc(address).collection('entries').doc(entryId).set({
+      manual_price:    price,
+      manual_price_at: firebase.firestore.FieldValue.serverTimestamp(),
+      manual_price_by: piUser,
+    }, { merge: true });
   }
 
   // ── 자산 일봉 종가 (OKX 공개 시세, 인증 불필요) — 세무 참고용 원화/달러 환산에 사용 ──
@@ -3982,6 +4550,59 @@ export function renderTrackerPage(container, username, uid) {
       const doc = await db2.collection(PRICE_COL).doc(asset).get();
       return doc.exists ? (doc.data().closes || {}) : {};
     } catch { return {}; }
+  }
+
+  // ── 세금계산용 — 거래 시점에 가장 가까운 가격 (분봉 → 시봉 → 일봉 순으로 폴백) ──
+  // 단순 이체(스왑 아님) 엔트리의 auto_price 채우는 데 씀. 스왑 엔트리는 온체인 자체 비율이 더 정확해 우선 사용(§ 정규화 로직에서 처리).
+  async function fetchOkxCandleNear(instId, bar, timestampMs) {
+    const url = `https://www.okx.com/api/v5/market/history-candles?instId=${instId}&bar=${bar}&after=${timestampMs}&limit=2`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`OKX API error (${res.status})`);
+    const json = await res.json();
+    if (json.code !== '0') throw new Error(json.msg || 'OKX API error');
+    const candles = json.data;
+    if (!candles || !candles.length) return null;
+    let best = candles[0];
+    let bestDiff = Math.abs(parseInt(best[0], 10) - timestampMs);
+    for (const c of candles) {
+      const diff = Math.abs(parseInt(c[0], 10) - timestampMs);
+      if (diff < bestDiff) { best = c; bestDiff = diff; }
+    }
+    return best; // [ts, open, high, low, close, ...]
+  }
+
+  // 세션 중에만 유효한 인메모리 캐시 — 같은 엔트리의 가격을 세금계산 탭에서 반복 조회하지 않도록
+  const _nearestPriceCache = new Map();
+
+  async function fetchNearestOkxPrice(asset, timestampMs) {
+    const symbol = ASSET_OKX_SYMBOL[asset];
+    if (!symbol) return null;
+    const cacheKey = `${asset}|${timestampMs}`;
+    if (_nearestPriceCache.has(cacheKey)) return _nearestPriceCache.get(cacheKey);
+
+    for (const bar of ['1m', '1H']) {
+      try {
+        const candle = await fetchOkxCandleNear(symbol, bar, timestampMs);
+        if (candle) {
+          const result = { price: parseFloat(candle[4]), src: bar };
+          _nearestPriceCache.set(cacheKey, result);
+          return result;
+        }
+      } catch { /* 다음 단계로 폴백 */ }
+    }
+    // 분봉/시봉을 못 구하면 기존 일봉 종가로 폴백 — 나중에 auto_price_src==='daily'인 엔트리만 골라
+    // 유료 API 등으로 일괄 재조회해 분봉으로 업그레이드할 수 있도록 출처를 남겨둠
+    try {
+      const closes = await fetchAssetDailyCloses(asset);
+      const dayClose = closes[dateKeyUTC(timestampMs)];
+      if (dayClose != null) {
+        const result = { price: dayClose, src: 'daily' };
+        _nearestPriceCache.set(cacheKey, result);
+        return result;
+      }
+    } catch { /* no-op */ }
+    _nearestPriceCache.set(cacheKey, null);
+    return null;
   }
 
   function buildLedgerRows(entries, address, priceMaps = {}) {
@@ -4219,6 +4840,400 @@ export function renderTrackerPage(container, username, uid) {
     } catch (e) {
       detailEl.innerHTML = `<div class="trk-card"><p style="color:#f87171;font-size:13px;">${tt('ledger.fail')}: ${e.message}</p></div>`;
     }
+  }
+
+  // ── 세금계산 탭 (FIFO / 이동평균법) ──────────────────────
+  // 스왑 엔트리(op_type이 path_payment_*)의 두 다리 중 OKX 매핑된 쪽 시세를 기준으로,
+  // 다른 쪽(취득 자산)의 단가는 "그 순간 내가 지불한 가치 = 지금 받은 것의 취득원가"로 역산한다.
+  // 이렇게 하면 Pi DEX 안에서만 도는(OKX 미상장) 토큰도 상대편이 π/GRAM이기만 하면 가격을 구할 수 있다.
+  async function resolveSwapUnitPrices(e) {
+    if (e.manual_price != null) return { sendPrice: null, destPrice: e.manual_price };
+    const ts = new Date(e.created_at).getTime();
+    if (ASSET_OKX_SYMBOL[e.send_asset]) {
+      const r = await fetchNearestOkxPrice(e.send_asset, ts);
+      if (r) {
+        const sendPrice = r.price;
+        const destPrice = (parseFloat(e.send_amount) * sendPrice) / parseFloat(e.dest_amount);
+        return { sendPrice, destPrice };
+      }
+    }
+    if (ASSET_OKX_SYMBOL[e.dest_asset]) {
+      const r = await fetchNearestOkxPrice(e.dest_asset, ts);
+      if (r) {
+        const destPrice = r.price;
+        const sendPrice = (parseFloat(e.dest_amount) * destPrice) / parseFloat(e.send_amount);
+        return { sendPrice, destPrice };
+      }
+    }
+    return { sendPrice: null, destPrice: null };
+  }
+
+  function taxRowsToCsv(method, result, asset, address) {
+    const header = 'wallet,method,asset,date,qty,proceeds,cost_basis,gain\n';
+    const lines = result.disposals.map(d =>
+      `${address},${method},${asset},${new Date(d.ts).toISOString()},${d.qty},${d.proceeds.toFixed(6)},${d.costBasis.toFixed(6)},${d.gain.toFixed(6)}`);
+    return header + lines.join('\n');
+  }
+
+  function showManualPriceDialog(address, entry, onSaved) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal-box" style="max-width:280px;">
+        <div class="modal-header"><span>${tt('tax.manual_price.edit')}</span></div>
+        <div style="padding:16px;">
+          <input type="number" step="any" id="trk-mp-input" class="form-input" value="${entry.manual_price ?? entry.auto_price ?? ''}" />
+          <p id="trk-mp-err" style="font-size:12px;color:#f87171;min-height:16px;margin-top:4px;"></p>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn-outline" id="trk-mp-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
+            <button class="btn-primary" id="trk-mp-save" style="flex:1;">${tt('ctx.save')}</button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#trk-mp-cancel').onclick = () => overlay.remove();
+    overlay.querySelector('#trk-mp-input').select();
+    overlay.querySelector('#trk-mp-save').onclick = async () => {
+      const val    = parseFloat(overlay.querySelector('#trk-mp-input').value);
+      const errEl  = overlay.querySelector('#trk-mp-err');
+      const saveBtn = overlay.querySelector('#trk-mp-save');
+      if (!isFinite(val)) { errEl.textContent = tt('tax.manual_price.edit'); return; }
+      saveBtn.disabled = true;
+      try {
+        await setManualPrice(address, entry.id, val);
+        overlay.remove();
+        onSaved();
+      } catch {
+        errEl.textContent = tt('ledger.fail');
+        saveBtn.disabled = false;
+      }
+    };
+  }
+
+  async function renderTaxTab() {
+    const container2 = container.querySelector('#trk-tax-content');
+    container2.innerHTML = `<p style="color:#888;padding:12px 0;">⏳ ${tt('tax.loading')}</p>`;
+
+    if (!piUser) {
+      container2.innerHTML = `
+        <div class="trk-card" style="text-align:center;padding:24px 16px;">
+          <p style="color:#f87171;">${tt('ctx.pidex.no_login')}</p>
+        </div>`;
+      return;
+    }
+
+    const wallets = await fetchHackWalletsServer();
+    if (!wallets || !wallets.length) {
+      container2.innerHTML = `
+        <div class="trk-card" style="text-align:center;padding:28px 16px;">
+          <p style="color:#888;">${tt('mywallet.no_wallets')}</p>
+        </div>`;
+      return;
+    }
+
+    const active = wallets.find(w => w.id === getHackActiveId()) ?? wallets[0];
+    let tradeList = await fetchTradeWalletsServer() || [];
+
+    container2.innerHTML = `
+      <div class="trk-card">
+        <h3 style="margin:0 0 8px;font-size:16px;">${tt('tax.title')}</h3>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+          ${wallets.map(w => `<button class="trk-watch-chip${w.id === active.id ? ' active' : ''}" data-tax-wid="${w.id}">${esc(aliasFor(w.address) || w.alias)}</button>`).join('')}
+        </div>
+        <div id="trk-tax-asset-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;"></div>
+        <p style="font-size:11px;color:#888;margin:8px 0 0;">${tt('tax.note')}</p>
+      </div>
+      <div id="trk-tax-detail"></div>`;
+
+    container2.querySelectorAll('[data-tax-wid]').forEach(btn => {
+      btn.addEventListener('click', () => { setHackActiveId(btn.dataset.taxWid); renderTaxTab(); });
+    });
+
+    const detailEl     = container2.querySelector('#trk-tax-detail');
+    const assetChipsEl = container2.querySelector('#trk-tax-asset-chips');
+    detailEl.innerHTML = `<p style="color:#888;padding:12px 0;">${tt('tax.syncing')}</p>`;
+
+    let entries;
+    try {
+      await syncTaxLedger(active.address);
+      entries = await fetchTaxLedgerEntries(active.address);
+    } catch (e) {
+      detailEl.innerHTML = `<div class="trk-card"><p style="color:#f87171;font-size:13px;">${tt('ledger.fail')}: ${e.message}</p></div>`;
+      return;
+    }
+
+    const assetSet = new Set();
+    entries.forEach(e => {
+      if (e.asset) assetSet.add(e.asset);
+      if (e.send_asset) assetSet.add(e.send_asset);
+      if (e.dest_asset) assetSet.add(e.dest_asset);
+    });
+    const assets = [...assetSet];
+
+    if (!assets.length) {
+      detailEl.innerHTML = `<div class="trk-card"><p style="color:#888;">${tt('ledger.empty')}</p></div>`;
+      return;
+    }
+
+    assets.forEach((a, i) => {
+      const chip = document.createElement('button');
+      chip.className = 'trk-watch-chip' + (i === 0 ? ' active' : '');
+      chip.dataset.taxAsset = a;
+      chip.textContent = a;
+      assetChipsEl.appendChild(chip);
+    });
+
+    const renderForAsset = async (asset) => {
+      detailEl.innerHTML = `<p style="color:#888;padding:12px 0;">⏳ ${tt('tax.loading')}</p>`;
+
+      const relevant = entries.filter(e => e.asset === asset || e.send_asset === asset || e.dest_asset === asset);
+
+      // 상대 지갑별 방식 태그 확인 — 온체인 자기 자신과의 스왑(DEX 자체 거래)은 법상 비수탁 채널이 명백하므로
+      // 태그 없이도 FIFO로 자동 분류(태그를 요구할 대상 "상대방"이 존재하지 않는 경우)
+      const taggedMap = new Map(tradeList.map(w => [w.address, w.costingMethod || null]));
+      const untagged = new Set();
+      relevant.forEach(e => {
+        const cp = counterpartOf(e, active.address);
+        if (!cp || cp === active.address) return; // 자기 자신과의 스왑 — 태그 불필요(FIFO 자동)
+        if (!taggedMap.get(cp)) untagged.add(cp);
+      });
+
+      if (untagged.size) {
+        detailEl.innerHTML = `
+          <div class="trk-card">
+            <p style="color:#f0b429;font-size:13px;margin:0 0 12px;">⚠️ ${tt('tax.untagged_warn')}</p>
+            ${[...untagged].map(addr => `
+              <div class="trk-watch-row">
+                <div><span class="trk-watch-alias">${esc(counterpartLabel(addr))}</span></div>
+                <button class="trk-btn-outline trk-btn-sm" data-untagged-addr="${esc(addr)}" style="width:auto;padding:0 12px;">${tt('tax.tag_now')}</button>
+              </div>`).join('')}
+          </div>`;
+        detailEl.querySelectorAll('[data-untagged-addr]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const addr = btn.dataset.untaggedAddr;
+            let entry = tradeList.find(w => w.address === addr);
+            const openDialog = () => showCostingMethodDialog(entry, tradeList, () => renderTaxTab());
+            if (entry) { openDialog(); return; }
+            (async () => {
+              entry = { id: genTradeId(), address: addr, alias: counterpartLabel(addr) };
+              tradeList = [...tradeList, entry];
+              await saveTradeWalletsServer(tradeList);
+              openDialog();
+            })();
+          });
+        });
+        return;
+      }
+
+      // 가격이 없는 단순이체 엔트리는 온디맨드로 조회해 채워둠(한 번 채워지면 Firestore에 저장되어 다음부턴 재사용)
+      const db2 = getDb();
+      const entriesCol = db2 ? db2.collection(LEDGER_COL).doc(active.address).collection('entries') : null;
+      for (const e of relevant) {
+        if (SWAP_OP_TYPES.includes(e.op_type)) continue; // 스왑은 아래서 leg별로 처리
+        if (e.auto_price != null || e.manual_price != null) continue;
+        if (!ASSET_OKX_SYMBOL[e.asset]) continue;
+        const result = await fetchNearestOkxPrice(e.asset, new Date(e.created_at).getTime());
+        if (result) {
+          e.auto_price = result.price;
+          e.auto_price_src = result.src;
+          if (entriesCol) await entriesCol.doc(e.id).set({ auto_price: result.price, auto_price_src: result.src }, { merge: true });
+        }
+      }
+
+      // 정규화 — 단순이체는 1행, 스왑은 이 자산에 해당하는 다리 1행만
+      const rowsByMethod = { fifo: [], moving_avg: [] };
+      let noPriceCount = 0;
+
+      const allCpsSet = new Set();
+      let hasSelfSwap = false;
+
+      for (const e of relevant) {
+        const cp = counterpartOf(e, active.address);
+        const method = (!cp || cp === active.address) ? 'fifo' : (taggedMap.get(cp) || 'fifo');
+        const cpKey = (!cp || cp === active.address) ? '__self__' : cp;
+        if (cpKey === '__self__') hasSelfSwap = true; else allCpsSet.add(cpKey);
+
+        if (SWAP_OP_TYPES.includes(e.op_type)) {
+          const { sendPrice, destPrice } = await resolveSwapUnitPrices(e);
+          if (e.send_asset === asset) {
+            const qty = parseFloat(e.send_amount);
+            if (qty > 0) {
+              if (sendPrice == null) { noPriceCount++; continue; }
+              rowsByMethod[method].push({ ts: new Date(e.created_at).getTime(), direction: 'out', qty, unitPrice: sendPrice, __cp: cpKey });
+            }
+          }
+          if (e.dest_asset === asset) {
+            const qty = parseFloat(e.dest_amount);
+            if (qty > 0) {
+              if (destPrice == null) { noPriceCount++; continue; }
+              rowsByMethod[method].push({ ts: new Date(e.created_at).getTime(), direction: 'in', qty, unitPrice: destPrice, __cp: cpKey });
+            }
+          }
+          continue;
+        }
+
+        if (e.asset !== asset || e.amount == null) continue;
+        const price = e.manual_price ?? e.auto_price ?? null;
+        if (price == null) { noPriceCount++; continue; }
+        rowsByMethod[method].push({
+          ts: new Date(e.created_at).getTime(),
+          direction: e.to === active.address ? 'in' : 'out',
+          qty: parseFloat(e.amount),
+          unitPrice: price,
+          __cp: cpKey,
+        });
+      }
+
+      const allCps = [...allCpsSet];
+      const fifoResult = computeFifoLots(rowsByMethod.fifo);
+      const avgResult  = computeMovingAvgLots(rowsByMethod.moving_avg);
+
+      const netColor = (g) => g > 0 ? '#4ade80' : g < 0 ? '#f87171' : '#888';
+      const disposalTable = (result) => result.disposals.length === 0
+        ? `<p style="color:#888;font-size:12px;">-</p>`
+        : `<table style="width:100%;font-size:12px;border-collapse:collapse;">
+            <thead><tr style="color:#888;text-align:left;">
+              <th style="padding:4px 0;">${tt('tax.disposal.date')}</th><th>${tt('tax.disposal.qty')}</th>
+              <th>${tt('tax.disposal.proceeds')}</th><th>${tt('tax.disposal.cost')}</th><th>${tt('tax.disposal.gain')}</th>
+            </tr></thead>
+            <tbody>${result.disposals.map(d => `
+              <tr>
+                <td style="padding:3px 0;">${new Date(d.ts).toLocaleDateString()}</td>
+                <td>${d.qty.toFixed(4)}</td>
+                <td>${d.proceeds.toFixed(4)}</td>
+                <td>${d.costBasis.toFixed(4)}</td>
+                <td style="color:${netColor(d.gain)};">${d.gain.toFixed(4)}</td>
+              </tr>`).join('')}
+            </tbody></table>`;
+
+      const remainingFifoHtml = fifoResult.remainingLots.length
+        ? fifoResult.remainingLots.map(l => `${l.qty.toFixed(4)} @ ${l.unitCost.toFixed(4)}`).join(', ')
+        : '-';
+      const remainingAvgHtml = avgResult.remainingLots.qty > 0
+        ? `${avgResult.remainingLots.qty.toFixed(4)} @ ${avgResult.remainingLots.avgCost.toFixed(4)}`
+        : '-';
+
+      const rawEntriesHtml = relevant.length === 0 ? '' : `
+        <div class="trk-card" style="margin-bottom:12px;">
+          <div class="trk-section-label">${tt('tax.manual_price.auto')} / ${tt('tax.manual_price.edit')}</div>
+          <table style="width:100%;font-size:12px;border-collapse:collapse;">
+            <tbody>${relevant.map(e => {
+              const isSwap = SWAP_OP_TYPES.includes(e.op_type);
+              const dir    = isSwap ? (e.send_asset === asset ? `→ ${esc(e.dest_asset)}` : `← ${esc(e.send_asset)}`) : (e.to === active.address ? tt('ledger.in') : tt('ledger.out'));
+              const qty    = isSwap ? (e.send_asset === asset ? e.send_amount : e.dest_amount) : e.amount;
+              const price  = e.manual_price ?? e.auto_price ?? null;
+              const src    = e.manual_price != null ? '✏️' : (e.auto_price_src || '-');
+              return `<tr>
+                <td style="padding:3px 4px 3px 0;">${new Date(e.created_at).toLocaleDateString()}</td>
+                <td style="padding:3px 4px;">${dir}</td>
+                <td style="padding:3px 4px;">${qty != null ? parseFloat(qty).toFixed(4) : '-'}</td>
+                <td style="padding:3px 4px;">${price != null ? price : '-'} <span style="color:#888;">(${src})</span></td>
+                <td style="padding:3px 0;text-align:right;"><button class="trk-tax-mp-edit" data-entry-id="${e.id}" style="background:none;border:none;cursor:pointer;">✏️</button></td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>`;
+
+      detailEl.innerHTML = `
+        ${noPriceCount ? `<p style="color:#f0b429;font-size:12px;margin:0 0 8px;">${tt2('tax.no_price', { n: noPriceCount })}</p>` : ''}
+        ${rawEntriesHtml}
+        <div class="trk-card">
+          <div class="trk-section-label">${tt('tax.fifo_section')}</div>
+          <p style="font-size:12px;color:#888;margin:4px 0;">${tt('tax.remaining_lots')}: ${remainingFifoHtml}</p>
+          ${disposalTable(fifoResult)}
+        </div>
+        <div class="trk-card" style="margin-top:12px;">
+          <div class="trk-section-label">${tt('tax.avg_section')}</div>
+          <p style="font-size:12px;color:#888;margin:4px 0;">${tt('tax.remaining_lots')}: ${remainingAvgHtml}</p>
+          ${disposalTable(avgResult)}
+        </div>
+        <button class="trk-btn-outline trk-btn-sm" id="trk-tax-export-asset" style="width:auto;padding:0 12px;margin-top:12px;">${tt('tax.export')}</button>
+
+        <div class="trk-card" style="margin-top:12px;">
+          <div class="trk-section-label">${tt('tax.report.title')}</div>
+          <p style="font-size:11px;color:#888;margin:4px 0 8px;">${tt('tax.report.select_wallets')}</p>
+          <div id="trk-tax-report-wallets" style="display:flex;flex-direction:column;gap:6px;">
+            ${allCps.map(addr => `
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                <input type="checkbox" class="trk-tax-report-cp" value="${esc(addr)}" data-method="${taggedMap.get(addr) || ''}" />
+                <span>${esc(counterpartLabel(addr))} <span style="color:#888;">(${taggedMap.get(addr) === 'fifo' ? tt('tax.method.fifo_short') : taggedMap.get(addr) === 'moving_avg' ? tt('tax.method.avg_short') : tt('tax.method.unset')})</span></span>
+              </label>`).join('')}
+            ${hasSelfSwap ? `
+              <label style="display:flex;align-items:center;gap:8px;font-size:12px;">
+                <input type="checkbox" class="trk-tax-report-cp" value="__self__" data-method="fifo" />
+                <span>${tt('tax.report.self_swap')}</span>
+              </label>` : ''}
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <input type="date" id="trk-tax-report-from" class="trk-input" style="flex:1;" />
+            <input type="date" id="trk-tax-report-to" class="trk-input" style="flex:1;" />
+          </div>
+          <p id="trk-tax-report-err" style="font-size:12px;color:#f87171;min-height:16px;margin-top:6px;"></p>
+          <button class="trk-btn-submit" id="trk-tax-report-gen" style="width:100%;margin-top:6px;">${tt('tax.report.generate')}</button>
+          <div id="trk-tax-report-result" style="margin-top:12px;"></div>
+        </div>`;
+
+      detailEl.querySelector('#trk-tax-export-asset').addEventListener('click', () => {
+        const csv = taxRowsToCsv('fifo', fifoResult, asset, active.address) + '\n' + taxRowsToCsv('moving_avg', avgResult, asset, active.address);
+        downloadCsv(`tax_${(aliasFor(active.address) || active.alias)}_${asset}_${new Date().toISOString().slice(0,10)}.csv`, csv);
+      });
+
+      detailEl.querySelectorAll('.trk-tax-mp-edit').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const entry = relevant.find(e => e.id === btn.dataset.entryId);
+          if (entry) showManualPriceDialog(active.address, entry, () => renderForAsset(asset));
+        });
+      });
+
+      detailEl.querySelector('#trk-tax-report-gen').addEventListener('click', () => {
+        const errEl = detailEl.querySelector('#trk-tax-report-err');
+        const resultEl = detailEl.querySelector('#trk-tax-report-result');
+        errEl.textContent = '';
+        resultEl.innerHTML = '';
+
+        const checked = [...detailEl.querySelectorAll('.trk-tax-report-cp:checked')];
+        if (!checked.length) { errEl.textContent = tt('tax.report.no_selection'); return; }
+
+        const methods = new Set(checked.map(c => c.dataset.method || 'fifo'));
+        if (methods.size > 1) { errEl.textContent = tt('tax.report.mixed_method_warn'); return; }
+        const method = [...methods][0];
+
+        const selectedVals = new Set(checked.map(c => c.value));
+        const fromVal = detailEl.querySelector('#trk-tax-report-from').value;
+        const toVal   = detailEl.querySelector('#trk-tax-report-to').value;
+        const fromTs  = fromVal ? new Date(fromVal).getTime() : -Infinity;
+        const toTs    = toVal ? new Date(toVal + 'T23:59:59').getTime() : Infinity;
+
+        const scopedRows = rowsByMethod[method].filter(r => r.ts >= fromTs && r.ts <= toTs && r.__cp && selectedVals.has(r.__cp));
+        const scopedResult = method === 'fifo' ? computeFifoLots(scopedRows) : computeMovingAvgLots(scopedRows);
+        const totalGain = scopedResult.disposals.reduce((s, d) => s + d.gain, 0);
+
+        resultEl.innerHTML = `
+          <div class="trk-card">
+            <p style="font-size:12px;color:#888;margin:0 0 4px;">${tt('tax.report.method_label')}: ${method === 'fifo' ? tt('tax.method.fifo') : tt('tax.method.moving_avg')}</p>
+            <p style="font-size:12px;color:#888;margin:0 0 4px;">${tt('tax.report.period_label')}: ${fromVal || '-'} ~ ${toVal || '-'}</p>
+            <p style="font-size:12px;color:#888;margin:0 0 8px;">${tt('tax.report.wallets_label')}: ${checked.map(c => c.value === '__self__' ? tt('tax.report.self_swap') : counterpartLabel(c.value)).join(', ')}</p>
+            ${disposalTable(scopedResult)}
+            <p style="font-size:13px;margin-top:8px;"><strong>${tt('tax.report.total_gain')}: <span style="color:${netColor(totalGain)};">${totalGain.toFixed(4)}</span></strong></p>
+            <button class="trk-btn-outline trk-btn-sm" id="trk-tax-report-export" style="width:auto;padding:0 12px;margin-top:8px;">${tt('tax.report.export')}</button>
+          </div>`;
+
+        resultEl.querySelector('#trk-tax-report-export').addEventListener('click', () => {
+          const csv = taxRowsToCsv(method, scopedResult, asset, active.address);
+          downloadCsv(`tax_report_${(aliasFor(active.address) || active.alias)}_${asset}_${new Date().toISOString().slice(0,10)}.csv`, csv);
+        });
+      });
+    };
+
+    assetChipsEl.querySelectorAll('[data-tax-asset]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        assetChipsEl.querySelectorAll('[data-tax-asset]').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        renderForAsset(chip.dataset.taxAsset);
+      });
+    });
+
+    renderForAsset(assets[0]);
   }
 
   function renderResult(wallet, reports, payments) {
@@ -5075,7 +6090,8 @@ export function renderTrackerPage(container, username, uid) {
                     <span class="trk-watch-alias">${esc(aliasFor(w.address) || w.alias)}</span>
                     <span class="trk-watch-addr trk-copy-addr" data-copy-addr="${esc(w.address)}">${esc(w.address.slice(0,4))}···${esc(w.address.slice(-3))}</span>
                   </div>
-                  <div style="display:flex;gap:4px;">
+                  <div style="display:flex;gap:4px;align-items:center;">
+                    <button class="trk-trade-method-btn" data-tid="${w.id}" style="font-size:11px;padding:2px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:${w.costingMethod ? 'rgba(108,92,231,0.2)' : 'transparent'};color:${w.costingMethod ? 'var(--primary,#6c5ce7)' : '#888'};">${w.costingMethod === 'fifo' ? tt('tax.method.fifo_short') : w.costingMethod === 'moving_avg' ? tt('tax.method.avg_short') : tt('tax.method.unset')}</button>
                     <button class="trk-trade-edit-btn" data-tid="${w.id}">✏️</button>
                     <button class="trk-trade-del-btn" data-tid="${w.id}">✕</button>
                   </div>
@@ -5088,6 +6104,13 @@ export function renderTrackerPage(container, username, uid) {
       btn.addEventListener('click', () => {
         const w = list.find(x => x.id === btn.dataset.tid);
         if (w) showTradeAliasDialog(w, list, () => renderTradeTab());
+      });
+    });
+
+    container2.querySelectorAll('.trk-trade-method-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const w = list.find(x => x.id === btn.dataset.tid);
+        if (w) showCostingMethodDialog(w, list, () => renderTradeTab());
       });
     });
 
@@ -5140,6 +6163,54 @@ export function renderTrackerPage(container, username, uid) {
       saveBtn.disabled = true;
       try {
         const updated = currentList.map(w => w.id === entry.id ? { ...w, alias } : w);
+        await saveTradeWalletsServer(updated);
+        overlay.remove();
+        onSaved();
+      } catch {
+        errEl.textContent = tt('watch.cloud.fail');
+        saveBtn.disabled = false;
+      }
+    };
+  }
+
+  // 상대 지갑에 세금계산 방식(FIFO/이동평균) 태그 — showTradeAliasDialog와 같은 모달 골격, 입력 대신 방식 선택
+  function showCostingMethodDialog(entry, currentList, onSaved) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    const methods = [
+      { id: 'fifo',       label: tt('tax.method.fifo') },
+      { id: 'moving_avg', label: tt('tax.method.moving_avg') },
+    ];
+    overlay.innerHTML = `
+      <div class="modal-box" style="max-width:320px;">
+        <div class="modal-header"><span>${tt('tax.tag_dialog.title')}</span></div>
+        <div style="padding:16px;">
+          <p style="font-size:12px;color:#888;margin:0 0 12px;">${esc(aliasFor(entry.address) || entry.alias)}</p>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${methods.map(m => `
+              <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;cursor:pointer;">
+                <input type="radio" name="trk-cm-method" value="${m.id}" ${entry.costingMethod === m.id ? 'checked' : ''} />
+                <span>${m.label}</span>
+              </label>`).join('')}
+          </div>
+          <p style="font-size:11px;color:#888;margin-top:10px;">${tt('tax.method.hint')}</p>
+          <p id="trk-cm-err" style="font-size:12px;color:#f87171;min-height:16px;margin-top:4px;"></p>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn-outline" id="trk-cm-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
+            <button class="btn-primary" id="trk-cm-save" style="flex:1;">${tt('ctx.save')}</button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#trk-cm-cancel').onclick = () => overlay.remove();
+    overlay.querySelector('#trk-cm-save').onclick = async () => {
+      const selected = overlay.querySelector('input[name="trk-cm-method"]:checked')?.value;
+      const errEl    = overlay.querySelector('#trk-cm-err');
+      const saveBtn  = overlay.querySelector('#trk-cm-save');
+      if (!selected) { errEl.textContent = tt('tax.method.hint'); return; }
+      saveBtn.disabled = true;
+      try {
+        const updated = currentList.map(w => w.id === entry.id ? { ...w, costingMethod: selected } : w);
         await saveTradeWalletsServer(updated);
         overlay.remove();
         onSaved();
