@@ -4481,14 +4481,32 @@ export function renderTrackerPage(container, username, uid) {
   }
 
   // 수동 단가 — 이 필드는 syncTaxLedger의 배치 쓰기 페이로드에 절대 포함되지 않으므로 자동 동기화가 덮어쓸 수 없음
+  // 수동 단가는 지갑 주소 기준 공유 문서(wallet_ledger)가 아니라 로그인한 아이디별로 완전히 분리 저장한다.
+  // wallet_ledger/{address}는 누구나 그 주소를 "내 지갑"에 등록하면 접근할 수 있는 전역 캐시라서,
+  // 거기 직접 쓰면 제3자가 남의 지갑에 임의 단가를 심어 진짜 소유자의 세금계산 결과를 오염시킬 수 있었음.
+  const MANUAL_PRICE_COL = 'manual_prices';
+  function manualPriceDocId(address, entryId) { return `${address}_${entryId}`; }
+
+  async function fetchManualPrices(userId, address) {
+    const db2 = getDb();
+    if (!db2 || !userId) return {};
+    try {
+      const snap = await db2.collection(MANUAL_PRICE_COL).doc(userId).collection('entries')
+        .where('address', '==', address).get();
+      const map = {};
+      snap.docs.forEach(d => { map[d.data().entryId] = d.data().price; });
+      return map;
+    } catch { return {}; }
+  }
+
   async function setManualPrice(address, entryId, price) {
     const db2 = getDb();
     if (!db2 || !piUser) return;
-    await db2.collection(LEDGER_COL).doc(address).collection('entries').doc(entryId).set({
-      manual_price:    price,
-      manual_price_at: firebase.firestore.FieldValue.serverTimestamp(),
-      manual_price_by: piUser,
-    }, { merge: true });
+    await db2.collection(MANUAL_PRICE_COL).doc(piUser).collection('entries')
+      .doc(manualPriceDocId(address, entryId)).set({
+        address, entryId, price,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
   }
 
   // ── 자산 일봉 종가 (OKX 공개 시세, 인증 불필요) — 세무 참고용 원화/달러 환산에 사용 ──
@@ -4901,6 +4919,7 @@ export function renderTrackerPage(container, username, uid) {
       saveBtn.disabled = true;
       try {
         await setManualPrice(address, entry.id, val);
+        entry.manual_price = val; // 같은 참조를 relevant/entries가 공유하므로 리렌더 없이도 즉시 반영됨
         overlay.remove();
         onSaved();
       } catch {
@@ -4957,6 +4976,8 @@ export function renderTrackerPage(container, username, uid) {
     try {
       await syncTaxLedger(active.address);
       entries = await fetchTaxLedgerEntries(active.address);
+      const manualPrices = await fetchManualPrices(piUser, active.address);
+      entries.forEach(e => { if (manualPrices[e.id] != null) e.manual_price = manualPrices[e.id]; });
     } catch (e) {
       detailEl.innerHTML = `<div class="trk-card"><p style="color:#f87171;font-size:13px;">${tt('ledger.fail')}: ${e.message}</p></div>`;
       return;
