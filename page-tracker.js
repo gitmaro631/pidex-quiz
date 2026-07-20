@@ -5103,9 +5103,10 @@ export function renderTrackerPage(container, username, uid) {
             const openDialog = () => showCostingMethodDialog(entry, tradeList, () => renderForAsset(asset));
             if (entry) { openDialog(); return; }
             (async () => {
-              entry = { id: genTradeId(), address: addr, alias: counterpartLabel(addr) };
+              entry = { id: genTradeId(), address: addr };
               tradeList = [...tradeList, entry];
               await saveTradeWalletsServer(tradeList);
+              await setAddressAlias(addr, counterpartLabel(addr));
               openDialog();
             })();
           });
@@ -5358,7 +5359,6 @@ export function renderTrackerPage(container, username, uid) {
       wallets: list,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
-    await syncAddressAliasesFromList(list);
   }
 
   async function renderMyWalletTab() {
@@ -5648,7 +5648,6 @@ export function renderTrackerPage(container, username, uid) {
       watchList: list,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
-    await syncAddressAliasesFromList(list);
   }
 
   async function renderWatchTab() {
@@ -5769,8 +5768,7 @@ export function renderTrackerPage(container, username, uid) {
       if (!alias) return;
       saveBtn.disabled = true;
       try {
-        const updated = currentList.map(w => w.id === watch.id ? { ...w, alias } : w);
-        await saveWatchListServer(updated);
+        await setAddressAlias(watch.address, alias);
         overlay.remove();
         onSaved();
       } catch {
@@ -5810,8 +5808,9 @@ export function renderTrackerPage(container, username, uid) {
 
       const doSave = async () => {
         try {
-          const updated = [...currentList, { id: genWatchId(), address: addr, alias }];
+          const updated = [...currentList, { id: genWatchId(), address: addr }];
           await saveWatchListServer(updated);
+          await setAddressAlias(addr, alias);
           overlay.remove();
           onSaved();
         } catch { err.textContent = tt('watch.cloud.fail'); saveBtn.disabled = false; }
@@ -5900,36 +5899,61 @@ export function renderTrackerPage(container, username, uid) {
   }
 
   // ── 공용 주소 별칭 사전 (주소당 별칭 하나 — pidex_address_aliases, 두 앱 공유) ──
+  // v2: 4개 원본 목록(내지갑/관심지갑/지갑별칭 등)은 이제 alias를 저장하지 않는다.
+  // 이 함수는 과거에 각 목록에 남아있던 alias를 문서 수정시각(updatedAt) 기준 오래된 것→최신 순으로
+  // 병합해 통합 보관소에 반영하고, 원본 4개 문서에서 alias 필드를 제거하는 1회성 정리 작업이다.
+  // (개별 지갑 단위 수정시각은 원래 없어서, 문서 전체의 updatedAt을 최선의 근사치로 사용한다.)
   async function migrateAddressAliasesIfNeeded() {
     if (!piUser || !db) return;
     const ref = db.collection('pidex_address_aliases').doc(piUser);
     const snap = await ref.get();
-    if (snap.exists && snap.data().migratedAt) {
+    if (snap.exists && snap.data().migratedV2At) {
       addressAliases = snap.data().aliases || {};
       return;
     }
     const merged = { ...(snap.exists ? (snap.data().aliases || {}) : {}) };
     try {
-      const [hackDoc, pidexDoc, watchDoc, tradeDoc] = await Promise.all([
-        db.collection('hack_pending_wallets').doc(piUser).get(),
-        db.collection('pidex_wallets').doc(piUser).get(),
-        db.collection('pidex_watch_list').doc(piUser).get(),
-        db.collection('pidex_trade_wallets').doc(piUser).get(),
+      const refs = {
+        trade: db.collection('pidex_trade_wallets').doc(piUser),
+        watch: db.collection('pidex_watch_list').doc(piUser),
+        pidex: db.collection('pidex_wallets').doc(piUser),
+        hack:  db.collection('hack_pending_wallets').doc(piUser),
+      };
+      const [tradeDoc, watchDoc, pidexDoc, hackDoc] = await Promise.all([
+        refs.trade.get(), refs.watch.get(), refs.pidex.get(), refs.hack.get(),
       ]);
-      const tradeList = tradeDoc.exists ? (tradeDoc.data().mainnet || []) : [];
-      const watchList = watchDoc.exists ? (watchDoc.data().watchList || []) : [];
-      const pidexList = pidexDoc.exists ? (pidexDoc.data().wallets || []) : [];
-      const hackList  = hackDoc.exists  ? (hackDoc.data().wallets || [])  : [];
-      // 우선순위(낮음→높음): 지갑별칭 < 관심지갑 < 파이덱스앱 내 지갑 < 퀴즈파이 내 지갑
-      for (const w of tradeList) if (w.address && w.alias) merged[w.address] = w.alias;
-      for (const w of watchList) if (w.address && w.alias) merged[w.address] = w.alias;
-      for (const w of pidexList) if (w.address && w.alias) merged[w.address] = w.alias;
-      for (const w of hackList)  if (w.address && w.alias) merged[w.address] = w.alias;
+      const docs = {
+        trade: { doc: tradeDoc, list: tradeDoc.exists ? (tradeDoc.data().mainnet || []) : [] },
+        watch: { doc: watchDoc, list: watchDoc.exists ? (watchDoc.data().watchList || []) : [] },
+        pidex: { doc: pidexDoc, list: pidexDoc.exists ? (pidexDoc.data().wallets || []) : [] },
+        hack:  { doc: hackDoc,  list: hackDoc.exists  ? (hackDoc.data().wallets || [])  : [] },
+      };
+      // 문서의 updatedAt(없으면 0 = 가장 오래된 것으로 취급) 기준 오름차순 정렬 후, 늦게 수정된 목록이 나중에 덮어씀
+      const order = Object.entries(docs).sort((a, b) => {
+        const ta = a[1].doc.exists ? (a[1].doc.data().updatedAt?.toMillis?.() ?? 0) : 0;
+        const tb = b[1].doc.exists ? (b[1].doc.data().updatedAt?.toMillis?.() ?? 0) : 0;
+        return ta - tb;
+      });
+      for (const [, { list }] of order) {
+        for (const w of list) if (w.address && w.alias) merged[w.address] = w.alias;
+      }
+
+      // 원본 4개 문서에서 alias 필드 제거 (통합 보관소만 진짜 저장소로 남김)
+      const strip = (list) => list.map(w => {
+        const { alias, ...rest } = w;
+        return rest;
+      });
+      const writes = [];
+      if (tradeDoc.exists) writes.push(refs.trade.set({ mainnet: strip(docs.trade.list) }, { merge: true }));
+      if (watchDoc.exists) writes.push(refs.watch.set({ watchList: strip(docs.watch.list) }, { merge: true }));
+      if (pidexDoc.exists) writes.push(refs.pidex.set({ wallets: strip(docs.pidex.list) }, { merge: true }));
+      if (hackDoc.exists)  writes.push(refs.hack.set({ wallets: strip(docs.hack.list) }, { merge: true }));
+      await Promise.all(writes);
     } catch { /* 마이그레이션 실패해도 이번 세션은 계속 진행 */ }
 
     addressAliases = merged;
     try {
-      await ref.set({ aliases: merged, migratedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+      await ref.set({ aliases: merged, migratedV2At: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
     } catch { /* 저장 실패해도 이번 세션 메모리상 별칭은 사용 가능 */ }
   }
 
@@ -5942,20 +5966,6 @@ export function renderTrackerPage(container, username, uid) {
       }, { merge: true });
       addressAliases = { ...addressAliases, [address]: alias };
     } catch { /* 실패해도 각 목록 자체의 alias로 계속 표시되므로 무시 */ }
-  }
-
-  async function syncAddressAliasesFromList(list) {
-    if (!piUser || !db || !list?.length) return;
-    const patch = {};
-    for (const w of list) if (w.address && w.alias) patch[w.address] = w.alias;
-    if (!Object.keys(patch).length) return;
-    try {
-      await db.collection('pidex_address_aliases').doc(piUser).set({
-        aliases: patch,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
-      addressAliases = { ...addressAliases, ...patch };
-    } catch { /* 실패해도 무시 — 다음 저장 때 다시 시도됨 */ }
   }
 
   // ── 거래 지갑 탭 (상대방 주소 별칭 등록, 서버가 원본 — pidex_trade_wallets) ──
@@ -5975,7 +5985,6 @@ export function renderTrackerPage(container, username, uid) {
       mainnet: list,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
-    await syncAddressAliasesFromList(list);
   }
 
   async function renderTradeTab() {
@@ -6000,8 +6009,6 @@ export function renderTrackerPage(container, username, uid) {
       container2.querySelector('#trk-trade-retry')?.addEventListener('click', renderTradeTab);
       return;
     }
-
-    syncAddressAliasesFromList(list);
 
     container2.innerHTML = `
       <div class="trk-card">
@@ -6094,8 +6101,7 @@ export function renderTrackerPage(container, username, uid) {
       if (!alias) return;
       saveBtn.disabled = true;
       try {
-        const updated = currentList.map(w => w.id === entry.id ? { ...w, alias } : w);
-        await saveTradeWalletsServer(updated);
+        await setAddressAlias(entry.address, alias);
         overlay.remove();
         onSaved();
       } catch {
@@ -6181,8 +6187,9 @@ export function renderTrackerPage(container, username, uid) {
       if (currentList.length >= TRADE_MAX) { err.textContent = tt2('trade.add.err_full', { n: TRADE_MAX }); return; }
       saveBtn.disabled = true;
       try {
-        const updated = [...currentList, { id: genTradeId(), address: addr, alias }];
+        const updated = [...currentList, { id: genTradeId(), address: addr }];
         await saveTradeWalletsServer(updated);
+        await setAddressAlias(addr, alias);
         overlay.remove();
         onSaved();
       } catch { err.textContent = tt('watch.cloud.fail'); saveBtn.disabled = false; }
@@ -6272,8 +6279,9 @@ export function renderTrackerPage(container, username, uid) {
       if (list === null) { showToast(tt('mywallet.load.fail')); return; }
       if (list.some(w => w.address === addr)) { showToast(tt('ctx.watch.exists')); return; }
       if (list.length >= TRADE_MAX) { showToast(tt2('trade.add.err_full', { n: TRADE_MAX })); return; }
-      const updated = [...list, { id: genTradeId(), address: addr, alias }];
+      const updated = [...list, { id: genTradeId(), address: addr }];
       await saveTradeWalletsServer(updated);
+      await setAddressAlias(addr, alias);
       showToast(`🏷️ ${alias} ${tt('ctx.watch.added')}`);
     } catch { showToast(tt('watch.cloud.fail')); }
   }
@@ -6293,8 +6301,9 @@ export function renderTrackerPage(container, username, uid) {
         if (list === null) { showToast(tt('watch.load.fail')); return; }
         if (list.some(w => w.address === addr)) { showToast(tt('ctx.watch.exists')); return; }
         if (list.length >= WATCH_MAX) { showToast(tt('ctx.watch.full')); return; }
-        const updated = [...list, { id: genWatchId(), address: addr, alias }];
+        const updated = [...list, { id: genWatchId(), address: addr }];
         await saveWatchListServer(updated);
+        await setAddressAlias(addr, alias);
         showToast(`👁 ${alias} ${tt('ctx.watch.added')}`);
       } catch { showToast(tt('watch.cloud.fail')); }
     };
@@ -6317,7 +6326,7 @@ export function renderTrackerPage(container, username, uid) {
     const wallets = doc.exists ? (doc.data().wallets || []) : [];
     if (wallets.some(w => w.address === address)) return 'duplicate';
     if (wallets.length >= PIDEX_WALLET_MAX) return 'full';
-    wallets.push({ id: `p${Date.now()}`, address, alias });
+    wallets.push({ id: `p${Date.now()}`, address });
     await docRef.set({ wallets, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
     await setAddressAlias(address, alias);
     return 'added';
@@ -6378,6 +6387,17 @@ export function renderTrackerPage(container, username, uid) {
 
   function openBackupModal(category, currentWallets, maxCount, onApplied) {
     if (!piUser) { showToast(tt('ctx.pidex.no_login')); return; }
+    // 백업 슬롯은 예전 형식(alias 포함)일 수 있음 — 복원 시 alias는 통합 보관소로 보내고
+    // 목록 자체엔 심지 않는다(단일 저장소 원칙 유지)
+    const originalOnApplied = onApplied;
+    onApplied = async (list) => {
+      const stripped = list.map(w => {
+        const { alias, ...rest } = w;
+        if (w.address && alias) setAddressAlias(w.address, alias).catch(() => {});
+        return rest;
+      });
+      return originalOnApplied(stripped);
+    };
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
@@ -6586,9 +6606,10 @@ export function renderTrackerPage(container, username, uid) {
 
       const doSave = async () => {
         try {
-          const wallet  = { id: genHackWalletId(), address: addr, alias };
+          const wallet  = { id: genHackWalletId(), address: addr };
           const updated = [...currentWallets, wallet];
           await saveHackWalletsServer(updated);
+          await setAddressAlias(addr, alias);
           setHackActiveId(wallet.id);
           overlay.remove();
           onSaved();
@@ -6629,8 +6650,7 @@ export function renderTrackerPage(container, username, uid) {
       if (!alias) return;
       saveBtn.disabled = true;
       try {
-        const updated = allWallets.map(w => w.id === wallet.id ? { ...w, alias } : w);
-        await saveHackWalletsServer(updated);
+        await setAddressAlias(wallet.address, alias);
         overlay.remove();
         onSaved();
       } catch { showToast(tt('mywallet.cloud.fail')); saveBtn.disabled = false; }
