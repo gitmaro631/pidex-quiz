@@ -5968,7 +5968,7 @@ export function renderTrackerPage(container, username, uid) {
     } catch { /* 실패해도 각 목록 자체의 alias로 계속 표시되므로 무시 */ }
   }
 
-  // ── 거래 지갑 탭 (상대방 주소 별칭 등록, 서버가 원본 — pidex_trade_wallets) ──
+  // ── 지갑별칭 탭 (상대방 주소 별칭 등록, 서버가 원본 — pidex_trade_wallets) ──
   async function fetchTradeWalletsServer() {
     const key = piUser;
     if (!key || !db) return null;
