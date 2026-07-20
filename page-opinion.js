@@ -1,6 +1,6 @@
 import { t } from './util-i18n.js';
 import { initFirebase, submitOpinion, fetchOpinions, toggleOpinionLike, updateOpinion, deleteOpinion } from './firebase.js';
-import { currentAccessToken } from './pi-sdk.js';
+import { currentAccessToken, currentUser } from './pi-sdk.js';
 
 const ADMIN_USERNAME = 'cam1998pi';
 import { setupPullToRefresh } from './util-ptr.js';
@@ -10,7 +10,7 @@ const MAX_CHARS = 150;
 export async function renderOpinionPage(container) {
   setupPullToRefresh(container, () => renderOpinionPage(container));
 
-  const username = document.getElementById('header-username')?.textContent?.trim() || null;
+  const username = currentUser?.username || null;
 
   container.innerHTML = `
     <div class="opinion-page">
