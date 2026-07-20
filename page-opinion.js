@@ -1,5 +1,6 @@
 import { t } from './util-i18n.js';
-import { initFirebase, submitOpinion, fetchOpinions, toggleOpinionLike, updateOpinion, deleteOpinion, setOpinionAdminHidden } from './firebase.js';
+import { initFirebase, submitOpinion, fetchOpinions, toggleOpinionLike, updateOpinion, deleteOpinion } from './firebase.js';
+import { currentAccessToken } from './pi-sdk.js';
 
 const ADMIN_USERNAME = 'cam1998pi';
 import { setupPullToRefresh } from './util-ptr.js';
@@ -163,7 +164,12 @@ function bindOpinionEvents(listEl, username) {
       const hide = btn.dataset.hidden !== 'true';
       btn.disabled = true;
       try {
-        await setOpinionAdminHidden(btn.dataset.id, hide);
+        const res = await fetch('/api/opinion-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken: currentAccessToken, docId: btn.dataset.id, hide }),
+        });
+        if (!res.ok) throw new Error('opinion-admin failed');
         await loadOpinions(listEl, username);
       } catch {
         btn.disabled = false;
