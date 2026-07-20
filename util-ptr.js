@@ -6,13 +6,16 @@ export function setupPullToRefresh(container, onRefresh) {
   const scrollEl = document.querySelector('.page-container');
   if (!scrollEl) return;
 
-  let indicator = container.querySelector('.ptr-indicator');
+  let indicator = scrollEl.querySelector('.ptr-indicator');
   if (!indicator) {
-    document.querySelectorAll('.ptr-indicator').forEach(el => el.remove());
     indicator = document.createElement('div');
     indicator.className = 'ptr-indicator';
     indicator.innerHTML = `<span class="ptr-arrow">↓</span><span class="ptr-text">${t('ptr_pull')}</span>`;
-    container.prepend(indicator);
+    scrollEl.prepend(indicator);
+  } else {
+    indicator.style.height = '0';
+    indicator.style.opacity = '0';
+    indicator.innerHTML = `<span class="ptr-arrow">↓</span><span class="ptr-text">${t('ptr_pull')}</span>`;
   }
 
   if (scrollEl._ptrAttached) return;
