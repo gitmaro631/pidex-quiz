@@ -8,6 +8,8 @@ import { setupPullToRefresh } from './util-ptr.js';
 
 const VIEW_COOLDOWN_MS = 60 * 60 * 1000;
 
+function esc(str) { return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
 export async function renderRankPage(container) {
   setupPullToRefresh(container, () => renderRankPage(container));
   const mode      = getMode();
@@ -90,7 +92,7 @@ export async function renderRankPage(container) {
             <div class="rank-card-score">${score}${unit}</div>
             ${livesDisplay}
             <div class="rank-card-stats">${statsText}</div>
-            <div class="rank-card-user">Pioneer: ${username}</div>
+            <div class="rank-card-user">Pioneer: ${esc(username)}</div>
           </div>
 
           <div class="rank-progress">
@@ -147,7 +149,7 @@ export async function renderRankPage(container) {
           return `
           <div class="leaderboard-row ${r.username === username ? 'leaderboard-me' : ''}">
             <span class="lb-rank">${i + 1}</span>
-            <span class="lb-user">${flag ? `${flag} ` : ''}${r.username}</span>
+            <span class="lb-user">${flag ? `${flag} ` : ''}${esc(r.username)}</span>
             <span class="lb-score">${r.score}${unit}</span>
           </div>
         `}).join('');
@@ -177,7 +179,7 @@ export async function renderRankPage(container) {
         listEl.innerHTML = rows.map((r, i) => `
           <div class="leaderboard-row ${r.username === username ? 'leaderboard-me' : ''}">
             <span class="lb-rank">${i + 1}</span>
-            <span class="lb-user">${r.username}</span>
+            <span class="lb-user">${esc(r.username)}</span>
             <span class="lb-score">${r.days}단계${r.pi_earned ? ` · ⬡${r.pi_earned}π` : ''}</span>
           </div>`).join('');
       }

@@ -1,5 +1,6 @@
 import { t, getLang } from './util-i18n.js';
 import { computeFifoLots, computeMovingAvgLots } from './tax-lots.js';
+import { currentAccessToken } from './pi-sdk.js';
 
 const HORIZON      = 'https://api.mainnet.minepi.com';
 const REPORTS_COL  = 'hack_reports';
@@ -6369,7 +6370,7 @@ export function renderTrackerPage(container, username, uid) {
     const res = await fetch('/api/backup/get', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ category, username: piUser, slot }),
+      body: JSON.stringify({ accessToken: currentAccessToken, category, username: piUser, slot }),
     });
     if (!res.ok) throw new Error('backup get failed');
     return res.json();
@@ -6379,7 +6380,7 @@ export function renderTrackerPage(container, username, uid) {
     const res = await fetch('/api/backup/put', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ category, username: piUser, slot, wallets }),
+      body: JSON.stringify({ accessToken: currentAccessToken, category, username: piUser, slot, wallets }),
     });
     if (!res.ok) throw new Error('backup put failed');
     return res.json();

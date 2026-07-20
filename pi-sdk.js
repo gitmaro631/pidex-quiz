@@ -1,4 +1,5 @@
 export let currentUser = null;
+export let currentAccessToken = null;
 
 async function serverApprove(paymentId) {
   const res = await fetch('/api/payments/approve', {
@@ -33,7 +34,7 @@ export async function syncSubscription(username) {
         await fetch('/api/subscription/restore', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, expiry: localExpiry }),
+          body: JSON.stringify({ accessToken: currentAccessToken, expiry: localExpiry }),
         });
         const confirm = await fetch(`/api/subscription/status?username=${encodeURIComponent(username)}`).then(r => r.json());
         if (confirm.active && confirm.expiry) {
@@ -68,6 +69,7 @@ export async function authenticate() {
     Pi.authenticate(['username', 'payments'], onIncompletePaymentFound)
       .then(auth => {
         currentUser = auth.user;
+        currentAccessToken = auth.accessToken ?? null;
         const username = currentUser?.username;
         if (username) syncSubscription(username);
         resolve(auth);

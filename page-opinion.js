@@ -186,13 +186,13 @@ function renderOpinionItem(op, username) {
   return `
     <div class="opinion-item${isHidden ? ' opinion-item-hidden' : ''}">
       <div class="opinion-meta">
-        <span class="opinion-author">@${op.author}</span>
+        <span class="opinion-author">@${escapeHtml(op.author)}</span>
         <span class="opinion-time">${timeStr}</span>
       </div>
       ${bodyHtml}
       <div class="opinion-actions">
         <button class="opinion-like-btn${isLiked ? ' liked' : ''}"
-          data-id="${op.id}" data-liked="${isLiked}" data-author="${op.author}"
+          data-id="${op.id}" data-liked="${isLiked}" data-author="${escapeHtml(op.author)}"
           ${isOwn || !username || isHidden ? 'disabled' : ''}>
           👍 ${op.likes ?? 0}
         </button>
