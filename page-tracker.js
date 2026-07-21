@@ -5079,7 +5079,7 @@ export function renderTrackerPage(container, username, uid) {
           ...taggedAddrs.map(addr => `
             <label style="display:flex;align-items:center;gap:8px;font-size:12px;">
               <input type="checkbox" class="trk-tax-report-cp" value="${esc(addr)}" checked />
-              <span>${esc(counterpartLabel(addr))}</span>
+              <span>${esc(counterpartLabel(addr))} <span style="color:#888;font-size:11px;">(${selectedMethod === 'fifo' ? tt('tax.method.fifo_short') : tt('tax.method.avg_short')})</span></span>
             </label>`),
           ...(selectedMethod === 'fifo' && hasSelfSwap ? [`
             <label style="display:flex;align-items:center;gap:8px;font-size:12px;">
