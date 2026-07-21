@@ -4585,10 +4585,21 @@ export function renderTrackerPage(container, username, uid) {
     return header + lines.join('\n');
   }
 
-  function downloadCsv(filename, text) {
+  async function downloadCsv(filename, text) {
     const blob = new Blob(['﻿' + text], { type: 'text/csv;charset=utf-8;' });
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
+
+    // 모바일 웹뷰(Pi Browser 등)는 <a download> 방식이 조용히 무반응인 경우가 많아,
+    // 지원되면 공유하기(Web Share API)로 먼저 시도 — 파일 앱/메시지 등으로 저장 가능
+    const file = new File([blob], filename, { type: 'text/csv' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: filename });
+        return;
+      } catch { return; } // 공유 취소 등 — 아래 폴백으로 넘어가지 않음
+    }
+
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
     a.href = url; a.download = filename;
     document.body.appendChild(a); a.click(); a.remove();
     URL.revokeObjectURL(url);
@@ -5012,22 +5023,27 @@ export function renderTrackerPage(container, username, uid) {
       const disposalTable = (result) => {
         if (result.disposals.length === 0) return `<p style="color:#888;font-size:12px;">-</p>`;
         const hasKrw = result.disposals.some(d => d.gainKrw != null);
-        return `<table style="width:100%;font-size:12px;border-collapse:collapse;">
+        return `<div style="overflow-x:auto;">
+          <table style="width:100%;font-size:12px;border-collapse:collapse;min-width:${hasKrw ? '480px' : '360px'};">
             <thead><tr style="color:#888;text-align:left;">
-              <th style="padding:4px 0;">${tt('tax.disposal.date')}</th><th>${tt('tax.disposal.qty')}</th>
-              <th>${tt('tax.disposal.proceeds')}</th><th>${tt('tax.disposal.cost')}</th><th>${tt('tax.disposal.gain')}</th>
-              ${hasKrw ? `<th>${tt('tax.disposal.gain_krw')}</th>` : ''}
+              <th style="padding:4px 10px 4px 0;white-space:nowrap;">${tt('tax.disposal.date')}</th>
+              <th style="padding:4px 10px;white-space:nowrap;">${tt('tax.disposal.qty')}</th>
+              <th style="padding:4px 10px;white-space:nowrap;">${tt('tax.disposal.proceeds')}</th>
+              <th style="padding:4px 10px;white-space:nowrap;">${tt('tax.disposal.cost')}</th>
+              <th style="padding:4px 10px;white-space:nowrap;">${tt('tax.disposal.gain')}</th>
+              ${hasKrw ? `<th style="padding:4px 0 4px 10px;white-space:nowrap;">${tt('tax.disposal.gain_krw')}</th>` : ''}
             </tr></thead>
             <tbody>${result.disposals.map(d => `
               <tr>
-                <td style="padding:3px 0;">${new Date(d.ts).toLocaleDateString()}</td>
-                <td>${d.qty.toFixed(4)}</td>
-                <td>${d.proceeds.toFixed(4)}</td>
-                <td>${d.costBasis.toFixed(4)}</td>
-                <td style="color:${netColor(d.gain)};">${d.gain.toFixed(4)}</td>
-                ${hasKrw ? `<td style="color:${d.gainKrw != null ? netColor(d.gainKrw) : '#888'};">${d.gainKrw != null ? Math.round(d.gainKrw).toLocaleString() : '-'}</td>` : ''}
+                <td style="padding:3px 10px 3px 0;white-space:nowrap;">${new Date(d.ts).toLocaleDateString()}</td>
+                <td style="padding:3px 10px;white-space:nowrap;">${d.qty.toFixed(4)}</td>
+                <td style="padding:3px 10px;white-space:nowrap;">${d.proceeds.toFixed(4)}</td>
+                <td style="padding:3px 10px;white-space:nowrap;">${d.costBasis.toFixed(4)}</td>
+                <td style="padding:3px 10px;white-space:nowrap;color:${netColor(d.gain)};">${d.gain.toFixed(4)}</td>
+                ${hasKrw ? `<td style="padding:3px 0 3px 10px;white-space:nowrap;color:${d.gainKrw != null ? netColor(d.gainKrw) : '#888'};">${d.gainKrw != null ? Math.round(d.gainKrw).toLocaleString() : '-'}</td>` : ''}
               </tr>`).join('')}
-            </tbody></table>`;
+            </tbody></table>
+          </div>`;
       };
 
       const rawEntriesHtml = relevant.length === 0 ? '' : `
