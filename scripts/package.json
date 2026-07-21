@@ -2,8 +2,10 @@
   "name": "pidex-quiz-admin-scripts",
   "private": true,
   "type": "commonjs",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "dependencies": {
-    "firebase-admin": "^12.0.0",
-    "better-sqlite3": "^11.0.0"
+    "firebase-admin": "^12.0.0"
   }
 }

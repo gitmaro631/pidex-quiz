@@ -7,14 +7,13 @@
 // 최신분만 이어받는 "일일 업데이트"가 되고, 처음 실행하면(DB가 비어있으니) 자연스럽게 상장일까지 전체 백필된다.
 // --full을 주면 이미 저장된 구간을 만나도 멈추지 않고 끝까지(상장일까지) 계속 진행한다 — 결측 구간 점검용.
 //
-// 실행 전 준비:
-//   cd scripts && npm install
+// node:sqlite(Node 22.5+ 내장)만 쓰므로 npm install 없이 바로 실행 가능.
 // 실행:
 //   node scripts/download-candles.js --pair PI-USDT
 //   node scripts/download-candles.js --pair GRAM-USDT --full
 
 const path = require('path');
-const Database = require('better-sqlite3');
+const { DatabaseSync } = require('node:sqlite'); // Node 22+ 내장 — 별도 설치/컴파일 필요 없음
 
 const DB_PATH          = path.join(__dirname, 'candles.db');
 const BAR               = '1m';
@@ -33,7 +32,7 @@ function parseArgs(argv) {
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 function openDb() {
-  const db = new Database(DB_PATH);
+  const db = new DatabaseSync(DB_PATH);
   db.exec(`
     CREATE TABLE IF NOT EXISTS candles (
       pair   TEXT    NOT NULL,
@@ -68,16 +67,23 @@ async function main() {
     INSERT OR IGNORE INTO candles (pair, ts, open, high, low, close, volume)
     VALUES (@pair, @ts, @open, @high, @low, @close, @volume)
   `);
-  const insertMany = db.transaction((items) => {
-    for (const c of items) {
-      insert.run({
-        pair: args.pair,
-        ts: parseInt(c[0], 10),
-        open: parseFloat(c[1]), high: parseFloat(c[2]), low: parseFloat(c[3]), close: parseFloat(c[4]),
-        volume: parseFloat(c[5]),
-      });
+  function insertMany(items) {
+    db.exec('BEGIN');
+    try {
+      for (const c of items) {
+        insert.run({
+          pair: args.pair,
+          ts: parseInt(c[0], 10),
+          open: parseFloat(c[1]), high: parseFloat(c[2]), low: parseFloat(c[3]), close: parseFloat(c[4]),
+          volume: parseFloat(c[5]),
+        });
+      }
+      db.exec('COMMIT');
+    } catch (e) {
+      db.exec('ROLLBACK');
+      throw e;
     }
-  });
+  }
 
   let after;
   let totalNew = 0;
