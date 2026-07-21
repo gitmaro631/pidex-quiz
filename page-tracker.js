@@ -3910,6 +3910,7 @@ export function renderTrackerPage(container, username, uid) {
       <button id="trk-amenu-watch"></button>
       <button id="trk-amenu-pidex"></button>
       <button id="trk-amenu-trade"></button>
+      <button id="trk-amenu-tag" class="hidden"></button>
       <button id="trk-amenu-copy"></button>
     </div>
   `;
@@ -5256,7 +5257,7 @@ export function renderTrackerPage(container, username, uid) {
     card.innerHTML = `
       <div class="trk-tx-top"><span class="trk-tx-date">${formatDate(p.created_at)}</span><span class="trk-tx-amount ${isOut ? 'out' : 'in'}">${isOut ? '-' : '+'}${amtStr} Pi</span></div>
       <div class="trk-tx-dir">${dirLabel}</div>
-      <div class="trk-tx-addr${counterpart ? ' trk-copy-addr' : ''}" ${counterpart ? `data-copy-addr="${esc(counterpart)}"` : ''}>${esc(counterpartLabel) || '-'}</div>
+      <div class="trk-tx-addr${counterpart ? ' trk-copy-addr trk-tag-ok' : ''}" ${counterpart ? `data-copy-addr="${esc(counterpart)}"` : ''}>${esc(counterpartLabel) || '-'}</div>
       ${isMatched ? `<div class="trk-match-badge">⚠️ ${tt2('tx.match', { n: matchedRpts.length })}</div><div style="font-size:12px;color:#f87171;">${tt('tx.victims')}: ${matchedRpts.map(r => esc(r.victimId)).join(', ')}</div>` : ''}
       <div style="font-size:10px;color:#555;margin-top:4px;">${p.transaction_hash || p.id}</div>`;
     list.appendChild(card);
@@ -5617,7 +5618,7 @@ export function renderTrackerPage(container, username, uid) {
     const arrow = isIn ? '↙' : '↗';
     const myChip  = `<span style="background:rgba(255,255,255,0.10);padding:5px 9px;border-radius:4px;color:#7dd3fc;font-weight:600;">${esc(aliasFor(wallet.address) || wallet.alias)}</span>`;
     const othChip = other
-      ? `<span class="trk-copy-addr" data-copy-addr="${esc(other)}" style="background:rgba(255,255,255,0.06);padding:5px 9px;border-radius:4px;color:#999;font-family:monospace;cursor:pointer;">${esc(short)}</span>`
+      ? `<span class="trk-copy-addr trk-tag-ok" data-copy-addr="${esc(other)}" style="background:rgba(255,255,255,0.06);padding:5px 9px;border-radius:4px;color:#999;font-family:monospace;cursor:pointer;">${esc(short)}</span>`
       : `<span style="background:rgba(255,255,255,0.06);padding:5px 9px;border-radius:4px;color:#999;font-family:monospace;">?</span>`;
     const fromChip = isIn ? othChip : myChip;
     const toChip   = isIn ? myChip  : othChip;
@@ -5892,9 +5893,9 @@ export function renderTrackerPage(container, username, uid) {
       <div class="trk-tx-card ${isInternal ? 'matched' : ''}">
         <div class="trk-tx-top"><span class="trk-tx-date">${esc(p._watchAlias)} · ${date}</span><span class="trk-tx-amount out">${amount} Pi</span></div>
         <div style="font-size:14px;color:#aaa;margin-top:6px;display:flex;align-items:center;">
-          <span class="trk-copy-addr" data-copy-addr="${esc(p.from)}" style="padding:5px 3px;">${esc(fromLabel)}</span>
+          <span class="trk-copy-addr trk-tag-ok" data-copy-addr="${esc(p.from)}" style="padding:5px 3px;">${esc(fromLabel)}</span>
           <span style="color:#555;margin:0 4px;">──→</span>
-          <span class="trk-copy-addr" data-copy-addr="${esc(p.to)}" style="padding:5px 3px;">${esc(toLabel)}</span>
+          <span class="trk-copy-addr trk-tag-ok" data-copy-addr="${esc(p.to)}" style="padding:5px 3px;">${esc(toLabel)}</span>
         </div>
       </div>`;
   }
@@ -6149,8 +6150,8 @@ export function renderTrackerPage(container, username, uid) {
       if (!selected) { errEl.textContent = tt('tax.method.hint'); return; }
       saveBtn.disabled = true;
       try {
-        const updated = currentList.map(w => w.id === entry.id ? { ...w, costingMethod: selected } : w);
-        await saveTradeWalletsServer(updated);
+        const res = await upsertTradeWallet(entry.address, { costingMethod: selected });
+        if (!res.ok) { errEl.textContent = tt('watch.cloud.fail'); saveBtn.disabled = false; return; }
         overlay.remove();
         onSaved();
       } catch {
@@ -6198,7 +6199,7 @@ export function renderTrackerPage(container, username, uid) {
   }
 
   // ── 주소 컨텍스트 메뉴 ───────────────────────────────
-  let menuAddr = '', menuDismissing = false;
+  let menuAddr = '', menuDismissing = false, menuTagEligible = false;
 
   function bindCopyAddr() {
     const menu = container.querySelector('#trk-addr-menu');
@@ -6211,6 +6212,7 @@ export function renderTrackerPage(container, username, uid) {
       if (!addr) return;
       e.stopPropagation();
       menuAddr = addr;
+      menuTagEligible = el.classList.contains('trk-tag-ok');
       updateAddrMenu().catch(() => {});
       const rect = el.getBoundingClientRect();
       const menuW = 240;
@@ -6238,6 +6240,9 @@ export function renderTrackerPage(container, username, uid) {
       tradeBtn.disabled = true;
       container.querySelector('#trk-amenu-pidex').textContent = `📥 ${tt('ctx.register.both')}`;
       container.querySelector('#trk-amenu-copy').textContent  = `📋 ${tt('toast.copied')}`;
+      const tagBtn = container.querySelector('#trk-amenu-tag');
+      tagBtn.classList.toggle('hidden', !menuTagEligible);
+      tagBtn.textContent = `🏷️ ${tt('tax.tag_dialog.title')}`;
 
       const [watch, trade] = await Promise.all([fetchWatchListServer(), fetchTradeWalletsServer()]);
       if (menuAddr !== askedAddr) return; // 메뉴가 다른 주소로 다시 열린 경우 무시
@@ -6260,6 +6265,7 @@ export function renderTrackerPage(container, username, uid) {
 
     container.querySelector('#trk-amenu-watch').addEventListener('click', () => { const addr = menuAddr; hideAddrMenu(); addToWatchList(addr); });
     container.querySelector('#trk-amenu-trade').addEventListener('click', () => { const addr = menuAddr; hideAddrMenu(); addToTradeWalletsQuick(addr); });
+    container.querySelector('#trk-amenu-tag').addEventListener('click', () => { const addr = menuAddr; hideAddrMenu(); showAddressTagDialog(addr); });
     container.querySelector('#trk-amenu-pidex').addEventListener('click', () => {
       const addr = menuAddr;
       hideAddrMenu();
@@ -6285,6 +6291,85 @@ export function renderTrackerPage(container, username, uid) {
       await setAddressAlias(addr, alias);
       showToast(`🏷️ ${alias} ${tt('ctx.watch.added')}`);
     } catch { showToast(tt('watch.cloud.fail')); }
+  }
+
+  // 지갑별칭 목록에 없으면 추가, 있으면 costingMethod만 갱신 (거래내역에서 바로 태그할 때 사용)
+  async function upsertTradeWallet(addr, { alias, costingMethod } = {}) {
+    const list = await fetchTradeWalletsServer();
+    if (list === null) return { ok: false, reason: 'load_fail' };
+    const existing = list.find(w => w.address === addr);
+    let updated;
+    if (existing) {
+      updated = list.map(w => w.id === existing.id ? { ...w, ...(costingMethod !== undefined ? { costingMethod } : {}) } : w);
+    } else {
+      if (list.length >= TRADE_MAX) return { ok: false, reason: 'full' };
+      updated = [...list, { id: genTradeId(), address: addr, ...(costingMethod !== undefined ? { costingMethod } : {}) }];
+    }
+    await saveTradeWalletsServer(updated);
+    if (alias) await setAddressAlias(addr, alias);
+    return { ok: true };
+  }
+
+  // 별칭이 없으면 먼저 입력받고, 상대주소에 세금계산 방식(FIFO/이동평균)을 태그 — 거래내역 어디서든 진입 가능
+  async function showAddressTagDialog(addr) {
+    const existingAlias = aliasFor(addr);
+    const list = await fetchTradeWalletsServer();
+    const existing = list?.find(w => w.address === addr);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    const methods = [
+      { id: 'fifo',       label: tt('tax.method.fifo') },
+      { id: 'moving_avg', label: tt('tax.method.moving_avg') },
+    ];
+    overlay.innerHTML = `
+      <div class="modal-box" style="max-width:320px;">
+        <div class="modal-header"><span>${tt('tax.tag_dialog.title')}</span></div>
+        <div style="padding:16px;">
+          ${existingAlias
+            ? `<p style="font-size:12px;color:#888;margin:0 0 12px;">${esc(existingAlias)}</p>`
+            : `<input type="text" id="trk-tag-alias-input" class="form-input" value="${esc(`${addr.slice(0,6)}···${addr.slice(-4)}`)}" style="margin-bottom:12px;" />`}
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${methods.map(m => `
+              <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;cursor:pointer;">
+                <input type="radio" name="trk-tag-method" value="${m.id}" ${existing?.costingMethod === m.id ? 'checked' : ''} />
+                <span>${m.label}</span>
+              </label>`).join('')}
+          </div>
+          <p style="font-size:11px;color:#888;margin-top:10px;">${tt('tax.method.hint')}</p>
+          <p id="trk-tag-err" style="font-size:12px;color:#f87171;min-height:16px;margin-top:4px;"></p>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn-outline" id="trk-tag-cancel" style="flex:1;">${tt('ctx.cancel')}</button>
+            <button class="btn-primary" id="trk-tag-save" style="flex:1;">${tt('ctx.save')}</button>
+          </div>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('#trk-tag-cancel').onclick = () => overlay.remove();
+    overlay.querySelector('#trk-tag-alias-input')?.select();
+    overlay.querySelector('#trk-tag-save').onclick = async () => {
+      const selected   = overlay.querySelector('input[name="trk-tag-method"]:checked')?.value;
+      const aliasInput = overlay.querySelector('#trk-tag-alias-input');
+      const alias      = aliasInput ? aliasInput.value.trim() : null;
+      const errEl      = overlay.querySelector('#trk-tag-err');
+      const saveBtn    = overlay.querySelector('#trk-tag-save');
+      if (aliasInput && !alias) { errEl.textContent = tt('watch.cloud.fail'); return; }
+      if (!selected) { errEl.textContent = tt('tax.method.hint'); return; }
+      saveBtn.disabled = true;
+      try {
+        const res = await upsertTradeWallet(addr, { alias, costingMethod: selected });
+        if (!res.ok) {
+          errEl.textContent = res.reason === 'full' ? tt2('trade.add.err_full', { n: TRADE_MAX }) : tt('watch.cloud.fail');
+          saveBtn.disabled = false;
+          return;
+        }
+        overlay.remove();
+        showToast(`🏷️ ${alias || existingAlias} ${tt('ctx.watch.added')}`);
+      } catch {
+        errEl.textContent = tt('watch.cloud.fail');
+        saveBtn.disabled = false;
+      }
+    };
   }
 
   function hideAddrMenu() {
