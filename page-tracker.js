@@ -5023,7 +5023,7 @@ export function renderTrackerPage(container, username, uid) {
       const disposalTable = (result) => {
         if (result.disposals.length === 0) return `<p style="color:#888;font-size:12px;">-</p>`;
         const hasKrw = result.disposals.some(d => d.gainKrw != null);
-        return `<div style="overflow-x:auto;">
+        return `<div class="trk-scroll-x">
           <table style="width:100%;font-size:12px;border-collapse:collapse;min-width:${hasKrw ? '480px' : '360px'};">
             <thead><tr style="color:#888;text-align:left;">
               <th style="padding:4px 10px 4px 0;white-space:nowrap;">${tt('tax.disposal.date')}</th>

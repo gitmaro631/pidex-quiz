@@ -1053,6 +1053,22 @@ html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Sego
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 12px; padding: 14px;
 }
+/* 가로 스크롤 되는 표 위에 오른쪽 끝 화살표+페이드로 "옆으로 더 있음"을 직관적으로 표시 */
+.trk-scroll-x {
+  position: relative;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.trk-scroll-x::after {
+  content: '›';
+  position: absolute; top: 0; right: 0; bottom: 0;
+  width: 26px;
+  display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 2px;
+  font-size: 18px; font-weight: 700; color: var(--muted);
+  background: linear-gradient(to right, transparent, var(--surface2) 60%);
+  pointer-events: none;
+}
 .trk-empty   { color: var(--muted); font-size: 13px; padding: 16px 0; text-align: center; }
 .trk-loading { color: var(--muted); font-size: 13px; padding: 10px 0; text-align: center; }
 .trk-error   { color: var(--wrong); font-size: 13px; padding: 8px 0; }
