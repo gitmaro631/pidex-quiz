@@ -41,7 +41,7 @@ const TT = {
     'tax.report.title': '세무서 제출용 보고서', 'tax.report.select_wallets': '포함할 상대 지갑 선택',
     'tax.report.self_swap': 'DEX 자체 스왑 (선입선출)', 'tax.report.date_from': '시작일', 'tax.report.date_to': '종료일',
     'tax.report.generate': '보고서 생성',
-    'tax.report.no_selection': '지갑을 하나 이상 선택하세요.',
+    'tax.report.no_selection': '지갑을 하나 이상 선택하세요.', 'tax.report.listing_date': '상장일', 'tax.report.today': '오늘',
     'tax.report.method_label': '적용 방식', 'tax.report.period_label': '기간', 'tax.report.wallets_label': '포함된 상대 지갑',
     'tax.report.total_gain': '총 손익', 'tax.report.export': '📤 보고서 CSV 내보내기',
     'report.title': '🚨 피해 신고', 'report.realname_warn': "⚠️ 본 신고는 <strong>실명제</strong>로 운영됩니다.<br>Pi 계정으로 로그인한 본인만 신고할 수 있으며,<br>허위 신고 시 법적 책임이 따를 수 있습니다.", 'report.victim_id': '피해자 Pi ID', 'report.suspect_wallet': '의심 지갑 주소',
@@ -173,7 +173,7 @@ const TT = {
     'tax.report.title': 'Report for Tax Filing', 'tax.report.select_wallets': 'Select counterparty wallets to include',
     'tax.report.self_swap': 'Self DEX swap (FIFO)', 'tax.report.date_from': 'From', 'tax.report.date_to': 'To',
     'tax.report.generate': 'Generate Report',
-    'tax.report.no_selection': 'Select at least one wallet.',
+    'tax.report.no_selection': 'Select at least one wallet.', 'tax.report.listing_date': 'Listing Date', 'tax.report.today': 'Today',
     'tax.report.method_label': 'Method Used', 'tax.report.period_label': 'Period', 'tax.report.wallets_label': 'Included Counterparty Wallets',
     'tax.report.total_gain': 'Total Gain/Loss', 'tax.report.export': '📤 Export Report CSV',
     'report.title': '🚨 Report Hack', 'report.realname_warn': "⚠️ This report is operated under a <strong>real-name policy</strong>.<br>Only the logged-in Pi account holder can file a report,<br>and false reports may carry legal liability.", 'report.victim_id': 'Victim Pi ID', 'report.suspect_wallet': 'Suspect Wallet Address',
@@ -308,7 +308,7 @@ const TT = {
     "tax.report.title": "报税用报告", "tax.report.select_wallets": "选择要包含的对方钱包",
     "tax.report.self_swap": "DEX自我兑换（先进先出法）", "tax.report.date_from": "起始日期", "tax.report.date_to": "结束日期",
     "tax.report.generate": "生成报告",
-    "tax.report.no_selection": "请至少选择一个钱包。",
+    "tax.report.no_selection": "请至少选择一个钱包。", "tax.report.listing_date": "上市日", "tax.report.today": "今天",
     "tax.report.method_label": "适用方式", "tax.report.period_label": "期间", "tax.report.wallets_label": "包含的对方钱包",
     "tax.report.total_gain": "总损益", "tax.report.export": "📤 导出报告CSV",
     "report.title": "🚨 举报诈骗",
@@ -522,7 +522,7 @@ const TT = {
     "tax.report.title": "Laporan untuk Pelaporan Pajak", "tax.report.select_wallets": "Pilih dompet rekanan yang disertakan",
     "tax.report.self_swap": "Swap DEX sendiri (FIFO)", "tax.report.date_from": "Dari", "tax.report.date_to": "Sampai",
     "tax.report.generate": "Buat Laporan",
-    "tax.report.no_selection": "Pilih setidaknya satu dompet.",
+    "tax.report.no_selection": "Pilih setidaknya satu dompet.", "tax.report.listing_date": "Tanggal Listing", "tax.report.today": "Hari Ini",
     "tax.report.method_label": "Metode yang Digunakan", "tax.report.period_label": "Periode", "tax.report.wallets_label": "Dompet Rekanan yang Disertakan",
     "tax.report.total_gain": "Total Untung/Rugi", "tax.report.export": "📤 Ekspor CSV Laporan",
     "report.title": "🚨 Laporkan Penipuan",
@@ -736,7 +736,7 @@ const TT = {
     "tax.report.title": "税務署提出用レポート", "tax.report.select_wallets": "含める相手ウォレットを選択",
     "tax.report.self_swap": "DEX自己スワップ（先入先出法）", "tax.report.date_from": "開始日", "tax.report.date_to": "終了日",
     "tax.report.generate": "レポートを生成",
-    "tax.report.no_selection": "ウォレットを1つ以上選択してください。",
+    "tax.report.no_selection": "ウォレットを1つ以上選択してください。", "tax.report.listing_date": "上場日", "tax.report.today": "今日",
     "tax.report.method_label": "適用方式", "tax.report.period_label": "期間", "tax.report.wallets_label": "含まれる相手ウォレット",
     "tax.report.total_gain": "合計損益", "tax.report.export": "📤 レポートCSVをエクスポート",
     "report.title": "🚨 被害通報",
@@ -950,7 +950,7 @@ const TT = {
     "tax.report.title": "Informe para Declaración de Impuestos", "tax.report.select_wallets": "Seleccionar carteras de contraparte a incluir",
     "tax.report.self_swap": "Intercambio propio en DEX (FIFO)", "tax.report.date_from": "Desde", "tax.report.date_to": "Hasta",
     "tax.report.generate": "Generar Informe",
-    "tax.report.no_selection": "Seleccione al menos una cartera.",
+    "tax.report.no_selection": "Seleccione al menos una cartera.", "tax.report.listing_date": "Fecha de Cotización", "tax.report.today": "Hoy",
     "tax.report.method_label": "Método Aplicado", "tax.report.period_label": "Período", "tax.report.wallets_label": "Carteras de Contraparte Incluidas",
     "tax.report.total_gain": "Ganancia/Pérdida Total", "tax.report.export": "📤 Exportar CSV del Informe",
     "report.title": "🚨 Reportar Estafa",
@@ -1164,7 +1164,7 @@ const TT = {
     "tax.report.title": "Rapport pour Déclaration Fiscale", "tax.report.select_wallets": "Sélectionner les portefeuilles de contrepartie à inclure",
     "tax.report.self_swap": "Échange DEX personnel (FIFO)", "tax.report.date_from": "Du", "tax.report.date_to": "Au",
     "tax.report.generate": "Générer le Rapport",
-    "tax.report.no_selection": "Sélectionnez au moins un portefeuille.",
+    "tax.report.no_selection": "Sélectionnez au moins un portefeuille.", "tax.report.listing_date": "Date de Cotation", "tax.report.today": "Aujourd'hui",
     "tax.report.method_label": "Méthode Appliquée", "tax.report.period_label": "Période", "tax.report.wallets_label": "Portefeuilles de Contrepartie Inclus",
     "tax.report.total_gain": "Gain/Perte Total", "tax.report.export": "📤 Exporter le CSV du Rapport",
     "report.title": "🚨 Signaler une Arnaque",
@@ -1378,7 +1378,7 @@ const TT = {
     "tax.report.title": "Báo Cáo Nộp Thuế", "tax.report.select_wallets": "Chọn ví đối tác cần bao gồm",
     "tax.report.self_swap": "Hoán đổi tự thân trên DEX (FIFO)", "tax.report.date_from": "Từ ngày", "tax.report.date_to": "Đến ngày",
     "tax.report.generate": "Tạo Báo Cáo",
-    "tax.report.no_selection": "Vui lòng chọn ít nhất một ví.",
+    "tax.report.no_selection": "Vui lòng chọn ít nhất một ví.", "tax.report.listing_date": "Ngày Niêm Yết", "tax.report.today": "Hôm Nay",
     "tax.report.method_label": "Phương Pháp Áp Dụng", "tax.report.period_label": "Kỳ", "tax.report.wallets_label": "Ví Đối Tác Được Bao Gồm",
     "tax.report.total_gain": "Tổng Lãi/Lỗ", "tax.report.export": "📤 Xuất CSV Báo Cáo",
     "report.title": "🚨 Báo cáo Lừa đảo",
@@ -1592,7 +1592,7 @@ const TT = {
     "tax.report.title": "Relatório para Declaração de Impostos", "tax.report.select_wallets": "Selecionar carteiras de contraparte a incluir",
     "tax.report.self_swap": "Troca própria na DEX (FIFO)", "tax.report.date_from": "De", "tax.report.date_to": "Até",
     "tax.report.generate": "Gerar Relatório",
-    "tax.report.no_selection": "Selecione pelo menos uma carteira.",
+    "tax.report.no_selection": "Selecione pelo menos uma carteira.", "tax.report.listing_date": "Data de Listagem", "tax.report.today": "Hoje",
     "tax.report.method_label": "Método Aplicado", "tax.report.period_label": "Período", "tax.report.wallets_label": "Carteiras de Contraparte Incluídas",
     "tax.report.total_gain": "Ganho/Perda Total", "tax.report.export": "📤 Exportar CSV do Relatório",
     "report.title": "🚨 Denunciar Golpe",
@@ -1806,7 +1806,7 @@ const TT = {
     "tax.report.title": "Laporan untuk Pemfailan Cukai", "tax.report.select_wallets": "Pilih dompet rakan niaga untuk disertakan",
     "tax.report.self_swap": "Pertukaran DEX sendiri (FIFO)", "tax.report.date_from": "Dari", "tax.report.date_to": "Hingga",
     "tax.report.generate": "Jana Laporan",
-    "tax.report.no_selection": "Pilih sekurang-kurangnya satu dompet.",
+    "tax.report.no_selection": "Pilih sekurang-kurangnya satu dompet.", "tax.report.listing_date": "Tarikh Penyenaraian", "tax.report.today": "Hari Ini",
     "tax.report.method_label": "Kaedah Digunakan", "tax.report.period_label": "Tempoh", "tax.report.wallets_label": "Dompet Rakan Niaga Disertakan",
     "tax.report.total_gain": "Jumlah Untung/Rugi", "tax.report.export": "📤 Eksport CSV Laporan",
     "report.title": "🚨 Laporkan Penipuan",
@@ -2020,7 +2020,7 @@ const TT = {
     "tax.report.title": "Ulat para sa Pag-file ng Buwis", "tax.report.select_wallets": "Piliin ang counterparty wallet na isasama",
     "tax.report.self_swap": "Sariling DEX swap (FIFO)", "tax.report.date_from": "Mula", "tax.report.date_to": "Hanggang",
     "tax.report.generate": "Gumawa ng Ulat",
-    "tax.report.no_selection": "Pumili ng kahit isang wallet.",
+    "tax.report.no_selection": "Pumili ng kahit isang wallet.", "tax.report.listing_date": "Petsa ng Listing", "tax.report.today": "Ngayon",
     "tax.report.method_label": "Ginamit na Method", "tax.report.period_label": "Panahon", "tax.report.wallets_label": "Kasamang Counterparty Wallet",
     "tax.report.total_gain": "Kabuuang Kita/Lugi", "tax.report.export": "📤 I-export ang CSV ng Ulat",
     "report.title": "🚨 I-report ang Scam",
@@ -2234,7 +2234,7 @@ const TT = {
     "tax.report.title": "कर फाइलिंग के लिए रिपोर्ट", "tax.report.select_wallets": "शामिल करने के लिए प्रतिपक्ष वॉलेट चुनें",
     "tax.report.self_swap": "DEX स्व-स्वैप (FIFO)", "tax.report.date_from": "से", "tax.report.date_to": "तक",
     "tax.report.generate": "रिपोर्ट बनाएं",
-    "tax.report.no_selection": "कम से कम एक वॉलेट चुनें।",
+    "tax.report.no_selection": "कम से कम एक वॉलेट चुनें।", "tax.report.listing_date": "लिस्टिंग तिथि", "tax.report.today": "आज",
     "tax.report.method_label": "लागू विधि", "tax.report.period_label": "अवधि", "tax.report.wallets_label": "शामिल प्रतिपक्ष वॉलेट",
     "tax.report.total_gain": "कुल लाभ/हानि", "tax.report.export": "📤 रिपोर्ट CSV निर्यात करें",
     "report.title": "🚨 धोखाधड़ी की रिपोर्ट करें",
@@ -2448,7 +2448,7 @@ const TT = {
     "tax.report.title": "تقرير لتقديم الإقرار الضريبي", "tax.report.select_wallets": "اختر المحافظ المقابلة المراد تضمينها",
     "tax.report.self_swap": "تبديل ذاتي على DEX (FIFO)", "tax.report.date_from": "من", "tax.report.date_to": "إلى",
     "tax.report.generate": "إنشاء التقرير",
-    "tax.report.no_selection": "اختر محفظة واحدة على الأقل.",
+    "tax.report.no_selection": "اختر محفظة واحدة على الأقل.", "tax.report.listing_date": "تاريخ الإدراج", "tax.report.today": "اليوم",
     "tax.report.method_label": "الطريقة المطبقة", "tax.report.period_label": "الفترة", "tax.report.wallets_label": "المحافظ المقابلة المضمنة",
     "tax.report.total_gain": "إجمالي الربح/الخسارة", "tax.report.export": "📤 تصدير CSV للتقرير",
     "report.title": "🚨 الإبلاغ عن احتيال",
@@ -2662,7 +2662,7 @@ const TT = {
     "tax.report.title": "Отчёт для подачи в налоговую", "tax.report.select_wallets": "Выбрать кошельки-контрагенты для включения",
     "tax.report.self_swap": "Собственный своп в DEX (FIFO)", "tax.report.date_from": "С", "tax.report.date_to": "По",
     "tax.report.generate": "Сформировать отчёт",
-    "tax.report.no_selection": "Выберите хотя бы один кошелёк.",
+    "tax.report.no_selection": "Выберите хотя бы один кошелёк.", "tax.report.listing_date": "Дата листинга", "tax.report.today": "Сегодня",
     "tax.report.method_label": "Применённый метод", "tax.report.period_label": "Период", "tax.report.wallets_label": "Включённые кошельки-контрагенты",
     "tax.report.total_gain": "Итоговая прибыль/убыток", "tax.report.export": "📤 Экспорт CSV отчёта",
     "report.title": "🚨 Сообщить о мошенничестве",
@@ -2876,7 +2876,7 @@ const TT = {
     "tax.report.title": "কর ফাইলিংয়ের জন্য প্রতিবেদন", "tax.report.select_wallets": "অন্তর্ভুক্ত করার জন্য প্রতিপক্ষ ওয়ালেট নির্বাচন করুন",
     "tax.report.self_swap": "DEX স্ব-সোয়াপ (FIFO)", "tax.report.date_from": "থেকে", "tax.report.date_to": "পর্যন্ত",
     "tax.report.generate": "প্রতিবেদন তৈরি করুন",
-    "tax.report.no_selection": "অন্তত একটি ওয়ালেট নির্বাচন করুন।",
+    "tax.report.no_selection": "অন্তত একটি ওয়ালেট নির্বাচন করুন।", "tax.report.listing_date": "তালিকাভুক্তির তারিখ", "tax.report.today": "আজ",
     "tax.report.method_label": "প্রয়োগকৃত পদ্ধতি", "tax.report.period_label": "সময়কাল", "tax.report.wallets_label": "অন্তর্ভুক্ত প্রতিপক্ষ ওয়ালেট",
     "tax.report.total_gain": "মোট লাভ/ক্ষতি", "tax.report.export": "📤 প্রতিবেদন CSV এক্সপোর্ট করুন",
     "report.title": "🚨 প্রতারণা রিপোর্ট করুন",
@@ -3090,7 +3090,7 @@ const TT = {
     "tax.report.title": "Ripoti kwa Ajili ya Kuwasilisha Kodi", "tax.report.select_wallets": "Chagua pochi za mshirika za kujumuisha",
     "tax.report.self_swap": "Kubadilishana kwa DEX binafsi (FIFO)", "tax.report.date_from": "Kutoka", "tax.report.date_to": "Hadi",
     "tax.report.generate": "Tengeneza Ripoti",
-    "tax.report.no_selection": "Chagua angalau pochi moja.",
+    "tax.report.no_selection": "Chagua angalau pochi moja.", "tax.report.listing_date": "Tarehe ya Kuorodheshwa", "tax.report.today": "Leo",
     "tax.report.method_label": "Mbinu Iliyotumika", "tax.report.period_label": "Kipindi", "tax.report.wallets_label": "Pochi za Mshirika Zilizojumuishwa",
     "tax.report.total_gain": "Jumla ya Faida/Hasara", "tax.report.export": "📤 Hamisha CSV ya Ripoti",
     "report.title": "🚨 Ripoti Udanganyifu",
@@ -3304,7 +3304,7 @@ const TT = {
     "tax.report.title": "รายงานสำหรับยื่นภาษี", "tax.report.select_wallets": "เลือกกระเป๋าคู่ค้าที่จะรวม",
     "tax.report.self_swap": "การสวอปด้วยตนเองใน DEX (FIFO)", "tax.report.date_from": "จาก", "tax.report.date_to": "ถึง",
     "tax.report.generate": "สร้างรายงาน",
-    "tax.report.no_selection": "กรุณาเลือกกระเป๋าอย่างน้อยหนึ่งใบ",
+    "tax.report.no_selection": "กรุณาเลือกกระเป๋าอย่างน้อยหนึ่งใบ", "tax.report.listing_date": "วันที่จดทะเบียน", "tax.report.today": "วันนี้",
     "tax.report.method_label": "วิธีที่ใช้", "tax.report.period_label": "ช่วงเวลา", "tax.report.wallets_label": "กระเป๋าคู่ค้าที่รวมอยู่",
     "tax.report.total_gain": "กำไร/ขาดทุนรวม", "tax.report.export": "📤 ส่งออก CSV รายงาน",
     "report.title": "🚨 รายงานการหลอกลวง",
@@ -3518,7 +3518,7 @@ const TT = {
     "tax.report.title": "Vergi Beyanı için Rapor", "tax.report.select_wallets": "Dahil edilecek karşı taraf cüzdanlarını seçin",
     "tax.report.self_swap": "Kendi DEX takası (FIFO)", "tax.report.date_from": "Başlangıç", "tax.report.date_to": "Bitiş",
     "tax.report.generate": "Rapor Oluştur",
-    "tax.report.no_selection": "En az bir cüzdan seçin.",
+    "tax.report.no_selection": "En az bir cüzdan seçin.", "tax.report.listing_date": "Listeleme Tarihi", "tax.report.today": "Bugün",
     "tax.report.method_label": "Uygulanan Yöntem", "tax.report.period_label": "Dönem", "tax.report.wallets_label": "Dahil Edilen Karşı Taraf Cüzdanları",
     "tax.report.total_gain": "Toplam Kâr/Zarar", "tax.report.export": "📤 Rapor CSV'sini Dışa Aktar",
     "report.title": "🚨 Dolandırıcılık Bildir",
@@ -5069,9 +5069,11 @@ export function renderTrackerPage(container, username, uid) {
             <input type="checkbox" id="trk-tax-report-krw" />
             <span>원화(KRW)로도 환산해서 보기 — 국제 기준환율(ECB) 적용, 참고용</span>
           </label>` : ''}
-          <div style="display:flex;gap:8px;margin-top:10px;">
+          <div style="display:flex;gap:4px;margin-top:10px;align-items:center;">
             <input type="date" id="trk-tax-report-from" class="trk-input" style="flex:1;" />
+            <button type="button" id="trk-tax-from-listing" class="trk-btn-outline trk-btn-sm" style="width:auto;padding:0 8px;white-space:nowrap;">${tt('tax.report.listing_date')}</button>
             <input type="date" id="trk-tax-report-to" class="trk-input" style="flex:1;" />
+            <button type="button" id="trk-tax-to-today" class="trk-btn-outline trk-btn-sm" style="width:auto;padding:0 8px;white-space:nowrap;">${tt('tax.report.today')}</button>
           </div>
           <p id="trk-tax-report-err" style="font-size:12px;color:#f87171;min-height:16px;margin-top:6px;"></p>
           <button class="trk-btn-submit" id="trk-tax-report-gen" style="width:100%;margin-top:6px;">${tt('tax.report.generate')}</button>
@@ -5083,6 +5085,14 @@ export function renderTrackerPage(container, username, uid) {
           const entry = relevant.find(e => e.id === btn.dataset.entryId);
           if (entry) showManualPriceDialog(active.address, entry, () => renderForAsset(asset));
         });
+      });
+
+      const PI_LISTING_DATE = '2025-02-20'; // OKX 상장일
+      detailEl.querySelector('#trk-tax-from-listing').addEventListener('click', () => {
+        detailEl.querySelector('#trk-tax-report-from').value = PI_LISTING_DATE;
+      });
+      detailEl.querySelector('#trk-tax-to-today').addEventListener('click', () => {
+        detailEl.querySelector('#trk-tax-report-to').value = new Date().toISOString().slice(0, 10);
       });
 
       let selectedMethod = 'fifo';
