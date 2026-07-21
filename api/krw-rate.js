@@ -1,5 +1,9 @@
 import { firestoreGetDoc, firestoreSetDoc } from './_firestore.js';
 
+// 한국수출입은행 API가 해외(미국 등) IP의 요청을 막는 것으로 보여, 이 함수만 서울 리전에서 실행되도록 고정
+// (다른 API 함수들에는 영향 없음 — 이 파일에서만 적용되는 설정)
+export const config = { regions: ['icn1'] };
+
 const CACHE_COL = 'krw_rates';
 
 function toYmd(dateStr) {
