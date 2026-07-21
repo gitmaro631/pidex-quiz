@@ -5067,7 +5067,7 @@ export function renderTrackerPage(container, username, uid) {
           ${getLang() === 'ko' ? `
           <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-top:10px;">
             <input type="checkbox" id="trk-tax-report-krw" />
-            <span>원화(KRW)로도 환산해서 보기 — 매매기준율 기준, 참고용</span>
+            <span>원화(KRW)로도 환산해서 보기 — 국제 기준환율(ECB) 적용, 참고용</span>
           </label>` : ''}
           <div style="display:flex;gap:8px;margin-top:10px;">
             <input type="date" id="trk-tax-report-from" class="trk-input" style="flex:1;" />

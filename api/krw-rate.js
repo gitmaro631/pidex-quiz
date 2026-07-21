@@ -1,42 +1,17 @@
 import { firestoreGetDoc, firestoreSetDoc } from './_firestore.js';
 
-// 한국수출입은행 API가 해외(미국 등) IP의 요청을 막는 것으로 보여, 이 함수만 서울 리전에서 실행되도록 고정
-// (다른 API 함수들에는 영향 없음 — 이 파일에서만 적용되는 설정)
-export const config = { regions: ['icn1'] };
-
+// 한국수출입은행 API는 클라우드/데이터센터 IP를 차단하는 것으로 확인되어(리전을 서울로 바꿔도 동일),
+// ECB(유럽중앙은행) 기반의 공개 환율 API(Frankfurter)로 대체 — 별도 키 필요 없고 어디서든 접근 가능.
+// 주말/공휴일에 요청해도 직전 영업일 환율을 자동으로 반환해줌.
 const CACHE_COL = 'krw_rates';
 
-function toYmd(dateStr) {
-  return dateStr.replace(/-/g, '');
-}
-
-function prevDateStr(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00Z');
-  d.setUTCDate(d.getUTCDate() - 1);
-  return d.toISOString().slice(0, 10);
-}
-
-async function fetchEximRate(dateStr) {
-  const key = process.env.EXIM_API_KEY;
-  if (!key) throw new Error('EXIM_API_KEY not configured');
-  const url = `https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=${key}&searchdate=${toYmd(dateStr)}&data=AP01`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Exim API error (${res.status})`);
+async function fetchRate(dateStr) {
+  const res = await fetch(`https://api.frankfurter.app/${dateStr}?from=USD&to=KRW`);
+  if (!res.ok) return null;
   const json = await res.json();
-  const usd = Array.isArray(json) ? json.find(r => r.cur_unit === 'USD') : null;
-  if (!usd || !usd.deal_bas_r) return null;
-  return parseFloat(usd.deal_bas_r.replace(/,/g, ''));
-}
-
-// 주말/공휴일이면 환율 고시가 없으므로, 최대 7일 전까지 거슬러 올라가며 가장 최근 영업일 환율을 찾는다
-async function resolveRateForDate(date) {
-  let d = date, rate = null, tries = 0;
-  while (rate == null && tries < 7) {
-    rate = await fetchEximRate(d);
-    if (rate == null) d = prevDateStr(d);
-    tries++;
-  }
-  return rate == null ? null : { rate, sourceDate: d };
+  const rate = json?.rates?.KRW;
+  if (rate == null) return null;
+  return { rate, sourceDate: json.date };
 }
 
 async function getRate(date) {
@@ -44,7 +19,7 @@ async function getRate(date) {
   const cached = await firestoreGetDoc(cachePath);
   if (cached && cached.rate != null) return cached.rate;
 
-  const resolved = await resolveRateForDate(date);
+  const resolved = await fetchRate(date);
   if (!resolved) return null;
   firestoreSetDoc(cachePath, { rate: resolved.rate, sourceDate: resolved.sourceDate, cachedAt: Date.now() }).catch(() => {});
   return resolved.rate;
