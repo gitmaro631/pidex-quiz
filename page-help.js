@@ -335,7 +335,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: '🔍 트래커',
+        title: '🔍 지갑',
         items: [
           '지갑 주소로 다른 사람의 Pi 거래 내역을 조회하고 의심스러운 거래를 확인할 수 있습니다.',
           '사기 피해를 입었다면 본인 계정으로 가해자 지갑을 신고할 수 있습니다. (실명제 운영, 허위 신고 시 법적 책임)',
@@ -428,7 +428,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 Tracker",
+        title: "🔍 Wallet",
         items: [
           "Look up anyone's Pi transaction history by wallet address and check for suspicious transactions.",
           "If you were scammed, you can report the offender's wallet under your own verified account. (Real-name policy — false reports may carry legal liability)",
@@ -521,7 +521,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 Pelacak",
+        title: "🔍 Dompet",
         items: [
           "Lihat riwayat transaksi Pi orang lain dengan alamat dompet dan periksa transaksi yang mencurigakan.",
           "Jika Anda menjadi korban penipuan, Anda dapat melaporkan dompet pelaku dengan akun terverifikasi Anda sendiri. (Kebijakan nama asli — laporan palsu dapat berakibat hukum)",
@@ -614,7 +614,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 Trình theo dõi",
+        title: "🔍 Ví",
         items: [
           "Tra cứu lịch sử giao dịch Pi của người khác bằng địa chỉ ví và kiểm tra các giao dịch đáng ngờ.",
           "Nếu bạn bị lừa đảo, bạn có thể báo cáo ví của kẻ lừa đảo bằng tài khoản đã xác thực của mình. (Chính sách tên thật — báo cáo sai có thể chịu trách nhiệm pháp lý)",
@@ -707,7 +707,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 追踪器",
+        title: "🔍 钱包",
         items: [
           "通过钱包地址查询他人的Pi交易记录并检查可疑交易。",
           "如果您遭受诈骗，可以用本人已验证账户举报加害者钱包。（实名制运营，虚假举报可能承担法律责任）",
@@ -800,7 +800,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 トラッカー",
+        title: "🔍 ウォレット",
         items: [
           "ウォレットアドレスで他人のPi取引履歴を照会し、不審な取引を確認できます。",
           "詐欺被害に遭った場合、本人確認済みアカウントで加害者のウォレットを通報できます。（実名制運営、虚偽通報には法的責任が伴う場合があります）",
@@ -893,7 +893,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 Tracker",
+        title: "🔍 Wallet",
         items: [
           "Tingnan ang Pi transaction history ng iba gamit ang wallet address at suriin ang mga kahina-hinalang transaksyon.",
           "Kung na-scam ka, maaari mong i-report ang wallet ng nanloko gamit ang verified account mo. (Real-name policy — may legal na pananagutan ang maling report)",
@@ -986,7 +986,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 ट्रैकर",
+        title: "🔍 वॉलेट",
         items: [
           "वॉलेट पते से किसी और के Pi लेनदेन इतिहास की जांच करें और संदिग्ध लेनदेन देखें।",
           "अगर आप धोखाधड़ी के शिकार हुए हैं, तो अपने सत्यापित खाते से अपराधी के वॉलेट की रिपोर्ट कर सकते हैं। (वास्तविक-नाम नीति — झूठी रिपोर्ट पर कानूनी जिम्मेदारी हो सकती है)",
@@ -1079,7 +1079,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 ট্র্যাকার",
+        title: "🔍 ওয়ালেট",
         items: [
           "ওয়ালেট ঠিকানা দিয়ে অন্য কারো Pi লেনদেনের ইতিহাস দেখুন এবং সন্দেহজনক লেনদেন যাচাই করুন।",
           "প্রতারণার শিকার হলে, আপনার যাচাইকৃত অ্যাকাউন্ট দিয়ে প্রতারকের ওয়ালেট রিপোর্ট করতে পারেন। (প্রকৃত নাম নীতি — মিথ্যা রিপোর্টে আইনি দায় হতে পারে)",
@@ -1172,7 +1172,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 Tracker",
+        title: "🔍 กระเป๋าเงิน",
         items: [
           "ตรวจสอบประวัติการทำธุรกรรม Pi ของผู้อื่นด้วยที่อยู่กระเป๋าเงิน และตรวจสอบธุรกรรมที่น่าสงสัย",
           "หากคุณถูกหลอกลวง คุณสามารถรายงานกระเป๋าเงินของผู้กระทำผิดด้วยบัญชีที่ยืนยันตัวตนแล้วของคุณ (นโยบายใช้ชื่อจริง — การรายงานเท็จอาจมีความรับผิดทางกฎหมาย)",
@@ -1265,7 +1265,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 Tracker",
+        title: "🔍 Dompet",
         items: [
           "Lihat sejarah transaksi Pi orang lain menggunakan alamat dompet dan semak transaksi yang mencurigakan.",
           "Jika anda menjadi mangsa penipuan, anda boleh melaporkan dompet pesalah menggunakan akaun disahkan anda sendiri. (Dasar nama sebenar — laporan palsu boleh membawa liabiliti undang-undang)",
@@ -1358,7 +1358,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 Rastreador",
+        title: "🔍 Cartera",
         items: [
           "Consulta el historial de transacciones de Pi de otras personas mediante la dirección de la cartera y revisa transacciones sospechosas.",
           "Si fuiste víctima de una estafa, puedes reportar la cartera del infractor con tu cuenta verificada. (Política de nombre real — los informes falsos pueden acarrear responsabilidad legal)",
@@ -1451,7 +1451,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 Rastreador",
+        title: "🔍 Carteira",
         items: [
           "Consulte o histórico de transações Pi de outras pessoas pelo endereço da carteira e verifique transações suspeitas.",
           "Se você foi vítima de golpe, pode denunciar a carteira do golpista com sua conta verificada. (Política de nome real — denúncias falsas podem gerar responsabilidade legal)",
@@ -1544,7 +1544,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 Traqueur",
+        title: "🔍 Portefeuille",
         items: [
           "Consultez l'historique des transactions Pi d'une autre personne via son adresse de portefeuille et vérifiez les transactions suspectes.",
           "Si vous avez été victime d'une arnaque, vous pouvez signaler le portefeuille du fraudeur avec votre compte vérifié. (Politique du vrai nom — les faux signalements peuvent engager une responsabilité légale)",
@@ -1637,7 +1637,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 Трекер",
+        title: "🔍 Кошелёк",
         items: [
           "Просматривайте историю Pi-транзакций других пользователей по адресу кошелька и проверяйте подозрительные транзакции.",
           "Если вас обманули, вы можете сообщить о кошельке мошенника со своего проверенного аккаунта. (Политика настоящих имён — ложные жалобы могут повлечь юридическую ответственность)",
@@ -1730,7 +1730,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 İzleyici",
+        title: "🔍 Cüzdan",
         items: [
           "Cüzdan adresiyle başkalarının Pi işlem geçmişini görüntüleyin ve şüpheli işlemleri kontrol edin.",
           "Dolandırıcılığa uğradıysanız, doğrulanmış hesabınızla faili bildirebilirsiniz. (Gerçek isim politikası — yanlış bildirimler yasal sorumluluk doğurabilir)",
@@ -1823,7 +1823,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 المتتبع",
+        title: "🔍 المحفظة",
         items: [
           "اطّلع على سجل معاملات Pi الخاصة بشخص آخر عبر عنوان المحفظة وتحقق من المعاملات المشبوهة.",
           "إذا تعرضت للاحتيال، يمكنك الإبلاغ عن محفظة الجاني باستخدام حسابك الموثّق. (سياسة الاسم الحقيقي — قد تترتب مسؤولية قانونية على البلاغات الكاذبة)",
@@ -1916,7 +1916,7 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🔍 Kifuatiliaji",
+        title: "🔍 Pochi",
         items: [
           "Angalia historia ya miamala ya Pi ya mtu mwingine kwa anwani ya pochi na kagua miamala ya kutiliwa shaka.",
           "Ikiwa umedanganywa, unaweza kuripoti pochi ya mhalifu ukitumia akaunti yako iliyothibitishwa. (Sera ya jina halisi — ripoti za uongo zinaweza kusababisha dhima ya kisheria)",

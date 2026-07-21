@@ -7,7 +7,7 @@
   'nav.stats':      '커뮤니티 통계',
   'nav.opinion':    '의견',
   'nav.survival':   '생존',
-  'nav.tracker':    '트래커',
+  'nav.tracker':    '지갑',
   'nav.more':       '더보기',
 
   'opinion.placeholder':    '앱에 대한 의견을 남겨주세요 (150자 이내)',
