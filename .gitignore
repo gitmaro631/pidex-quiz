@@ -1,3 +1,4 @@
 scripts/serviceAccountKey.json
 scripts/.env
+scripts/candles.db
 node_modules/
