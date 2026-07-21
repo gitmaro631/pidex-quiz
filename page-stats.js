@@ -1,10 +1,20 @@
-import { initFirebase, fetchSurveyStats } from './firebase.js';
 import { addLives, getLastStatsViewTime, setLastStatsViewTime, getMode } from './util-storage.js';
 import { updateHeaderLives } from './app.js';
 import { t } from './util-i18n.js';
 import { setupPullToRefresh } from './util-ptr.js';
 
 const STATS_LIFE_COOLDOWN_MS = 60 * 60 * 1000;
+
+async function fetchSurveyStats(force) {
+  try {
+    const res = await fetch(`/api/survey-stats${force ? '?force=1' : ''}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.stats ?? null;
+  } catch {
+    return null;
+  }
+}
 
 // 국가코드 → 국기+국가명
 const COUNTRY_INFO = {
@@ -54,8 +64,8 @@ const COUNTRY_INFO = {
   VE:'🇻🇪 Venezuela', VN:'🇻🇳 Vietnam', YE:'🇾🇪 Yemen', ZM:'🇿🇲 Zambia', ZW:'🇿🇼 Zimbabwe',
 };
 
-export async function renderStatsPage(container) {
-  setupPullToRefresh(container, () => renderStatsPage(container));
+export async function renderStatsPage(container, { force = false } = {}) {
+  setupPullToRefresh(container, () => renderStatsPage(container, { force: true }));
   container.innerHTML = `<div class="stats-loading">${t('stats.loading')}</div>`;
 
   const mode = getMode();
@@ -69,8 +79,7 @@ export async function renderStatsPage(container) {
     }
   }
 
-  initFirebase();
-  const stats = await fetchSurveyStats();
+  const stats = await fetchSurveyStats(force);
 
   if (!stats || stats.total === 0) {
     container.innerHTML = `
