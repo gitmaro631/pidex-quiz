@@ -34,7 +34,7 @@ const TT = {
     'tax.untagged_hint': '아직 태그되지 않은 상대 지갑이에요. 태그하면 계산 대상에 포함할 수 있어요.',
     'tax.tag_now': '태그하기', 'tax.tag_dialog.title': '거래 방식 지정',
     'tax.disposal.date': '일시', 'tax.disposal.qty': '수량', 'tax.disposal.proceeds': '처분가액',
-    'tax.disposal.cost': '취득원가', 'tax.disposal.gain': '손익',
+    'tax.disposal.cost': '취득원가', 'tax.disposal.gain': '손익', 'tax.disposal.gain_krw': '원화 손익',
     'tax.no_price': '⚠️ 가격 미확인 {n}건 — 계산에서 제외됨',
     'tax.manual_price.edit': '단가 수동 입력', 'tax.manual_price.auto': '자동 조회가',
     'tax.note': '⚠️ 이 계산은 참고용입니다. 실제 세무 신고 전엔 반드시 세무사와 확인하세요.',
@@ -4817,9 +4817,15 @@ export function renderTrackerPage(container, username, uid) {
   }
 
   function taxRowsToCsv(method, result, asset, address) {
-    const header = 'wallet,method,asset,date,qty,proceeds,cost_basis,gain\n';
-    const lines = result.disposals.map(d =>
-      `${address},${method},${asset},${new Date(d.ts).toISOString()},${d.qty},${d.proceeds.toFixed(6)},${d.costBasis.toFixed(6)},${d.gain.toFixed(6)}`);
+    const hasKrw = result.disposals.some(d => d.gainKrw != null);
+    const header = hasKrw
+      ? 'wallet,method,asset,date,qty,proceeds,cost_basis,gain,proceeds_krw,cost_basis_krw,gain_krw\n'
+      : 'wallet,method,asset,date,qty,proceeds,cost_basis,gain\n';
+    const lines = result.disposals.map(d => {
+      const base = `${address},${method},${asset},${new Date(d.ts).toISOString()},${d.qty},${d.proceeds.toFixed(6)},${d.costBasis.toFixed(6)},${d.gain.toFixed(6)}`;
+      if (!hasKrw) return base;
+      return `${base},${d.proceedsKrw != null ? d.proceedsKrw.toFixed(2) : ''},${d.costBasisKrw != null ? d.costBasisKrw.toFixed(2) : ''},${d.gainKrw != null ? d.gainKrw.toFixed(2) : ''}`;
+    });
     return header + lines.join('\n');
   }
 
@@ -5003,12 +5009,14 @@ export function renderTrackerPage(container, username, uid) {
 
       const allCps = [...cpMethod.keys()];
       const netColor = (g) => g > 0 ? '#4ade80' : g < 0 ? '#f87171' : '#888';
-      const disposalTable = (result) => result.disposals.length === 0
-        ? `<p style="color:#888;font-size:12px;">-</p>`
-        : `<table style="width:100%;font-size:12px;border-collapse:collapse;">
+      const disposalTable = (result) => {
+        if (result.disposals.length === 0) return `<p style="color:#888;font-size:12px;">-</p>`;
+        const hasKrw = result.disposals.some(d => d.gainKrw != null);
+        return `<table style="width:100%;font-size:12px;border-collapse:collapse;">
             <thead><tr style="color:#888;text-align:left;">
               <th style="padding:4px 0;">${tt('tax.disposal.date')}</th><th>${tt('tax.disposal.qty')}</th>
               <th>${tt('tax.disposal.proceeds')}</th><th>${tt('tax.disposal.cost')}</th><th>${tt('tax.disposal.gain')}</th>
+              ${hasKrw ? `<th>${tt('tax.disposal.gain_krw')}</th>` : ''}
             </tr></thead>
             <tbody>${result.disposals.map(d => `
               <tr>
@@ -5017,8 +5025,10 @@ export function renderTrackerPage(container, username, uid) {
                 <td>${d.proceeds.toFixed(4)}</td>
                 <td>${d.costBasis.toFixed(4)}</td>
                 <td style="color:${netColor(d.gain)};">${d.gain.toFixed(4)}</td>
+                ${hasKrw ? `<td style="color:${d.gainKrw != null ? netColor(d.gainKrw) : '#888'};">${d.gainKrw != null ? Math.round(d.gainKrw).toLocaleString() : '-'}</td>` : ''}
               </tr>`).join('')}
             </tbody></table>`;
+      };
 
       const rawEntriesHtml = relevant.length === 0 ? '' : `
         <div class="trk-card" style="margin-bottom:12px;">
@@ -5054,6 +5064,11 @@ export function renderTrackerPage(container, username, uid) {
           <p style="font-size:11px;color:#888;margin:4px 0;">${tt('tax.report.select_wallets')}</p>
           <div id="trk-tax-report-wallets" style="display:flex;flex-direction:column;gap:6px;"></div>
           <div id="trk-tax-untagged-hint"></div>
+          ${getLang() === 'ko' ? `
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;margin-top:10px;">
+            <input type="checkbox" id="trk-tax-report-krw" />
+            <span>원화(KRW)로도 환산해서 보기 — 매매기준율 기준, 참고용</span>
+          </label>` : ''}
           <div style="display:flex;gap:8px;margin-top:10px;">
             <input type="date" id="trk-tax-report-from" class="trk-input" style="flex:1;" />
             <input type="date" id="trk-tax-report-to" class="trk-input" style="flex:1;" />
@@ -5124,9 +5139,10 @@ export function renderTrackerPage(container, username, uid) {
         });
       });
 
-      detailEl.querySelector('#trk-tax-report-gen').addEventListener('click', () => {
+      detailEl.querySelector('#trk-tax-report-gen').addEventListener('click', async () => {
         const errEl = detailEl.querySelector('#trk-tax-report-err');
         const resultEl = detailEl.querySelector('#trk-tax-report-result');
+        const genBtn = detailEl.querySelector('#trk-tax-report-gen');
         errEl.textContent = '';
         resultEl.innerHTML = '';
 
@@ -5139,9 +5155,28 @@ export function renderTrackerPage(container, username, uid) {
         const fromTs  = fromVal ? new Date(fromVal).getTime() : -Infinity;
         const toTs    = toVal ? new Date(toVal + 'T23:59:59').getTime() : Infinity;
 
-        const scopedRows = rows.filter(r => r.ts >= fromTs && r.ts <= toTs && r.__cp && selectedVals.has(r.__cp));
+        let scopedRows = rows.filter(r => r.ts >= fromTs && r.ts <= toTs && r.__cp && selectedVals.has(r.__cp));
+
+        const wantKrw = detailEl.querySelector('#trk-tax-report-krw')?.checked;
+        if (wantKrw && scopedRows.length) {
+          genBtn.disabled = true;
+          try {
+            const uniqueDates = [...new Set(scopedRows.map(r => dateKeyUTC(r.ts)))];
+            const res = await fetch(`/api/krw-rate?dates=${uniqueDates.join(',')}`);
+            const data = await res.json();
+            const rateMap = data.rates || {};
+            scopedRows = scopedRows.map(r => {
+              const rate = rateMap[dateKeyUTC(r.ts)];
+              return rate != null ? { ...r, unitPriceKrw: r.unitPrice * rate } : r;
+            });
+          } catch { /* 실패해도 USDT 기준으로는 계속 진행 */ }
+          genBtn.disabled = false;
+        }
+
         const scopedResult = selectedMethod === 'fifo' ? computeFifoLots(scopedRows) : computeMovingAvgLots(scopedRows);
         const totalGain = scopedResult.disposals.reduce((s, d) => s + d.gain, 0);
+        const krwDisposals = scopedResult.disposals.filter(d => d.gainKrw != null);
+        const totalGainKrw = krwDisposals.length ? krwDisposals.reduce((s, d) => s + d.gainKrw, 0) : null;
 
         resultEl.innerHTML = `
           <div class="trk-card">
@@ -5150,6 +5185,7 @@ export function renderTrackerPage(container, username, uid) {
             <p style="font-size:12px;color:#888;margin:0 0 8px;">${tt('tax.report.wallets_label')}: ${checked.map(c => c.value === '__self__' ? tt('tax.report.self_swap') : counterpartLabel(c.value)).join(', ')}</p>
             ${disposalTable(scopedResult)}
             <p style="font-size:13px;margin-top:8px;"><strong>${tt('tax.report.total_gain')}: <span style="color:${netColor(totalGain)};">${totalGain.toFixed(4)}</span></strong></p>
+            ${totalGainKrw != null ? `<p style="font-size:13px;margin-top:2px;"><strong>${tt('tax.disposal.gain_krw')}: <span style="color:${netColor(totalGainKrw)};">${Math.round(totalGainKrw).toLocaleString()}원</span></strong>${krwDisposals.length < scopedResult.disposals.length ? ' <span style="font-size:11px;color:#f0b429;">(일부 환율 조회 실패 — 참고용)</span>' : ''}</p>` : (wantKrw ? `<p style="font-size:11px;color:#f0b429;margin-top:4px;">원화 환산에 실패했습니다 — USDT 기준 값만 표시됩니다.</p>` : '')}
             <button class="trk-btn-outline trk-btn-sm" id="trk-tax-report-export" style="width:auto;padding:0 12px;margin-top:8px;">${tt('tax.report.export')}</button>
           </div>`;
 
