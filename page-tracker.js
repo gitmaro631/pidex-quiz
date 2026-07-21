@@ -17,7 +17,7 @@ function getDb() {
 // ── tracker 로컬 번역 (18개 언어) ──────
 const TT = {
   ko: {
-    'tab.report': '신고하기', 'tab.search': '지갑 조회', 'tab.mywallet': '내 지갑', 'tab.watch': '관심 지갑', 'tab.ledger': '장부',
+    'tab.report': '신고하기', 'tab.search': '지갑 조회', 'tab.mywallet': '내 지갑', 'tab.watch': '관심 지갑', 'tab.ledger': '입출금내역',
     'ledger.title': '지갑 장부 (월별/연별)', 'ledger.loading': '내역을 불러오는 중...', 'ledger.empty': '거래 내역이 없습니다.',
     'ledger.in': '입금', 'ledger.out': '출금', 'ledger.net': '순증감', 'ledger.year_total': '연간 합계',
     'ledger.export': '📤 CSV 내보내기', 'ledger.refresh': '↻ 새로고침',
@@ -149,7 +149,7 @@ const TT = {
     'toast.copied': '복사됨',
   },
   en: {
-    'tab.report': 'Report', 'tab.search': 'Wallet Search', 'tab.mywallet': 'My Wallet', 'tab.watch': 'Watch List', 'tab.ledger': 'Ledger',
+    'tab.report': 'Report', 'tab.search': 'Wallet Search', 'tab.mywallet': 'My Wallet', 'tab.watch': 'Watch List', 'tab.ledger': 'Deposits/Withdrawals',
     'ledger.title': 'Wallet Ledger (Monthly/Yearly)', 'ledger.loading': 'Loading history...', 'ledger.empty': 'No transactions.',
     'ledger.in': 'In', 'ledger.out': 'Out', 'ledger.net': 'Net', 'ledger.year_total': 'Year Total',
     'ledger.export': '📤 Export CSV', 'ledger.refresh': '↻ Refresh',
@@ -284,7 +284,7 @@ const TT = {
     "tab.report": "举报",
     "tab.search": "钱包查询",
     "tab.mywallet": "我的钱包",
-    "tab.watch": "关注钱包", "tab.ledger": "账本",
+    "tab.watch": "关注钱包", "tab.ledger": "存取记录",
     "ledger.title": "钱包账本（按月/年）", "ledger.loading": "正在加载记录...", "ledger.empty": "没有交易记录。",
     "ledger.in": "收入", "ledger.out": "支出", "ledger.net": "净额", "ledger.year_total": "年度合计",
     "ledger.export": "📤 导出CSV", "ledger.refresh": "↻ 刷新",
@@ -498,7 +498,7 @@ const TT = {
     "tab.report": "Laporkan",
     "tab.search": "Cari Dompet",
     "tab.mywallet": "Dompet Saya",
-    "tab.watch": "Daftar Pantau", "tab.ledger": "Buku Besar",
+    "tab.watch": "Daftar Pantau", "tab.ledger": "Riwayat Setor/Tarik",
     "ledger.title": "Buku Besar Dompet (Bulanan/Tahunan)", "ledger.loading": "Memuat riwayat...", "ledger.empty": "Tidak ada transaksi.",
     "ledger.in": "Masuk", "ledger.out": "Keluar", "ledger.net": "Bersih", "ledger.year_total": "Total Tahunan",
     "ledger.export": "📤 Ekspor CSV", "ledger.refresh": "↻ Segarkan",
@@ -712,7 +712,7 @@ const TT = {
     "tab.report": "通報",
     "tab.search": "ウォレット照会",
     "tab.mywallet": "マイウォレット",
-    "tab.watch": "ウォッチリスト", "tab.ledger": "台帳",
+    "tab.watch": "ウォッチリスト", "tab.ledger": "入出金履歴",
     "ledger.title": "ウォレット台帳（月別・年別）", "ledger.loading": "履歴を読み込み中...", "ledger.empty": "取引履歴がありません。",
     "ledger.in": "入金", "ledger.out": "出金", "ledger.net": "純増減", "ledger.year_total": "年間合計",
     "ledger.export": "📤 CSVエクスポート", "ledger.refresh": "↻ 更新",
@@ -926,7 +926,7 @@ const TT = {
     "tab.report": "Reportar",
     "tab.search": "Buscar Cartera",
     "tab.mywallet": "Mi Cartera",
-    "tab.watch": "Lista de Seguimiento", "tab.ledger": "Libro Mayor",
+    "tab.watch": "Lista de Seguimiento", "tab.ledger": "Depósitos/Retiros",
     "ledger.title": "Libro Mayor de Cartera (Mensual/Anual)", "ledger.loading": "Cargando historial...", "ledger.empty": "No hay transacciones.",
     "ledger.in": "Entrada", "ledger.out": "Salida", "ledger.net": "Neto", "ledger.year_total": "Total Anual",
     "ledger.export": "📤 Exportar CSV", "ledger.refresh": "↻ Actualizar",
@@ -1140,7 +1140,7 @@ const TT = {
     "tab.report": "Signaler",
     "tab.search": "Rechercher Portefeuille",
     "tab.mywallet": "Mon Portefeuille",
-    "tab.watch": "Liste de Surveillance", "tab.ledger": "Grand Livre",
+    "tab.watch": "Liste de Surveillance", "tab.ledger": "Dépôts/Retraits",
     "ledger.title": "Grand Livre du Portefeuille (Mensuel/Annuel)", "ledger.loading": "Chargement de l'historique...", "ledger.empty": "Aucune transaction.",
     "ledger.in": "Entrée", "ledger.out": "Sortie", "ledger.net": "Net", "ledger.year_total": "Total Annuel",
     "ledger.export": "📤 Exporter en CSV", "ledger.refresh": "↻ Actualiser",
@@ -1354,7 +1354,7 @@ const TT = {
     "tab.report": "Báo cáo",
     "tab.search": "Tra cứu Ví",
     "tab.mywallet": "Ví của tôi",
-    "tab.watch": "Danh sách theo dõi", "tab.ledger": "Sổ Cái",
+    "tab.watch": "Danh sách theo dõi", "tab.ledger": "Lịch Sử Nạp/Rút",
     "ledger.title": "Sổ Cái Ví (Theo Tháng/Năm)", "ledger.loading": "Đang tải lịch sử...", "ledger.empty": "Không có giao dịch.",
     "ledger.in": "Vào", "ledger.out": "Ra", "ledger.net": "Ròng", "ledger.year_total": "Tổng Năm",
     "ledger.export": "📤 Xuất CSV", "ledger.refresh": "↻ Làm mới",
@@ -1568,7 +1568,7 @@ const TT = {
     "tab.report": "Denunciar",
     "tab.search": "Buscar Carteira",
     "tab.mywallet": "Minha Carteira",
-    "tab.watch": "Lista de Observação", "tab.ledger": "Livro-razão",
+    "tab.watch": "Lista de Observação", "tab.ledger": "Depósitos/Saques",
     "ledger.title": "Livro-razão da Carteira (Mensal/Anual)", "ledger.loading": "Carregando histórico...", "ledger.empty": "Nenhuma transação.",
     "ledger.in": "Entrada", "ledger.out": "Saída", "ledger.net": "Líquido", "ledger.year_total": "Total Anual",
     "ledger.export": "📤 Exportar CSV", "ledger.refresh": "↻ Atualizar",
@@ -1782,7 +1782,7 @@ const TT = {
     "tab.report": "Laporkan",
     "tab.search": "Cari Dompet",
     "tab.mywallet": "Dompet Saya",
-    "tab.watch": "Senarai Pantauan", "tab.ledger": "Lejar",
+    "tab.watch": "Senarai Pantauan", "tab.ledger": "Sejarah Deposit/Pengeluaran",
     "ledger.title": "Lejar Dompet (Bulanan/Tahunan)", "ledger.loading": "Memuatkan sejarah...", "ledger.empty": "Tiada transaksi.",
     "ledger.in": "Masuk", "ledger.out": "Keluar", "ledger.net": "Bersih", "ledger.year_total": "Jumlah Tahunan",
     "ledger.export": "📤 Eksport CSV", "ledger.refresh": "↻ Segar Semula",
@@ -1996,7 +1996,7 @@ const TT = {
     "tab.report": "I-report",
     "tab.search": "Hanapin ang Wallet",
     "tab.mywallet": "Aking Wallet",
-    "tab.watch": "Watchlist", "tab.ledger": "Talaan",
+    "tab.watch": "Watchlist", "tab.ledger": "Deposito/Withdrawal",
     "ledger.title": "Talaan ng Wallet (Buwanan/Taunan)", "ledger.loading": "Nilo-load ang kasaysayan...", "ledger.empty": "Walang transaksyon.",
     "ledger.in": "Papasok", "ledger.out": "Palabas", "ledger.net": "Net", "ledger.year_total": "Kabuuang Taunan",
     "ledger.export": "📤 I-export ang CSV", "ledger.refresh": "↻ I-refresh",
@@ -2210,7 +2210,7 @@ const TT = {
     "tab.report": "रिपोर्ट करें",
     "tab.search": "वॉलेट खोजें",
     "tab.mywallet": "मेरा वॉलेट",
-    "tab.watch": "वॉचलिस्ट", "tab.ledger": "बहीखाता",
+    "tab.watch": "वॉचलिस्ट", "tab.ledger": "जमा/निकासी इतिहास",
     "ledger.title": "वॉलेट बहीखाता (मासिक/वार्षिक)", "ledger.loading": "इतिहास लोड हो रहा है...", "ledger.empty": "कोई लेनदेन नहीं।",
     "ledger.in": "जमा", "ledger.out": "निकासी", "ledger.net": "शुद्ध", "ledger.year_total": "वार्षिक कुल",
     "ledger.export": "📤 CSV निर्यात करें", "ledger.refresh": "↻ रीफ्रेश करें",
@@ -2424,7 +2424,7 @@ const TT = {
     "tab.report": "الإبلاغ",
     "tab.search": "البحث عن محفظة",
     "tab.mywallet": "محفظتي",
-    "tab.watch": "قائمة المراقبة", "tab.ledger": "السجل",
+    "tab.watch": "قائمة المراقبة", "tab.ledger": "سجل الإيداع/السحب",
     "ledger.title": "سجل المحفظة (شهري/سنوي)", "ledger.loading": "جارٍ تحميل السجل...", "ledger.empty": "لا توجد معاملات.",
     "ledger.in": "وارد", "ledger.out": "صادر", "ledger.net": "الصافي", "ledger.year_total": "الإجمالي السنوي",
     "ledger.export": "📤 تصدير CSV", "ledger.refresh": "↻ تحديث",
@@ -2638,7 +2638,7 @@ const TT = {
     "tab.report": "Сообщить",
     "tab.search": "Поиск кошелька",
     "tab.mywallet": "Мой кошелёк",
-    "tab.watch": "Список наблюдения", "tab.ledger": "Гроссбух",
+    "tab.watch": "Список наблюдения", "tab.ledger": "История пополнений/выводов",
     "ledger.title": "Гроссбух кошелька (по месяцам/годам)", "ledger.loading": "Загрузка истории...", "ledger.empty": "Нет транзакций.",
     "ledger.in": "Поступления", "ledger.out": "Списания", "ledger.net": "Итого", "ledger.year_total": "Итого за год",
     "ledger.export": "📤 Экспорт CSV", "ledger.refresh": "↻ Обновить",
@@ -2852,7 +2852,7 @@ const TT = {
     "tab.report": "রিপোর্ট করুন",
     "tab.search": "ওয়ালেট খুঁজুন",
     "tab.mywallet": "আমার ওয়ালেট",
-    "tab.watch": "ওয়াচলিস্ট", "tab.ledger": "খতিয়ান",
+    "tab.watch": "ওয়াচলিস্ট", "tab.ledger": "জমা/উত্তোলনের ইতিহাস",
     "ledger.title": "ওয়ালেট খতিয়ান (মাসিক/বার্ষিক)", "ledger.loading": "ইতিহাস লোড হচ্ছে...", "ledger.empty": "কোনো লেনদেন নেই।",
     "ledger.in": "জমা", "ledger.out": "উত্তোলন", "ledger.net": "নিট", "ledger.year_total": "বার্ষিক মোট",
     "ledger.export": "📤 CSV রপ্তানি করুন", "ledger.refresh": "↻ রিফ্রেশ করুন",
@@ -3066,7 +3066,7 @@ const TT = {
     "tab.report": "Ripoti",
     "tab.search": "Tafuta Pochi",
     "tab.mywallet": "Pochi Yangu",
-    "tab.watch": "Orodha ya Ufuatiliaji", "tab.ledger": "Kitabu cha Hesabu",
+    "tab.watch": "Orodha ya Ufuatiliaji", "tab.ledger": "Historia ya Kuweka/Kutoa",
     "ledger.title": "Kitabu cha Hesabu cha Pochi (Kila Mwezi/Mwaka)", "ledger.loading": "Inapakia historia...", "ledger.empty": "Hakuna miamala.",
     "ledger.in": "Ndani", "ledger.out": "Nje", "ledger.net": "Jumla Halisi", "ledger.year_total": "Jumla ya Mwaka",
     "ledger.export": "📤 Hamisha CSV", "ledger.refresh": "↻ Onyesha upya",
@@ -3280,7 +3280,7 @@ const TT = {
     "tab.report": "รายงาน",
     "tab.search": "ค้นหากระเป๋าเงิน",
     "tab.mywallet": "กระเป๋าของฉัน",
-    "tab.watch": "รายการเฝ้าดู", "tab.ledger": "บัญชี",
+    "tab.watch": "รายการเฝ้าดู", "tab.ledger": "ประวัติฝาก/ถอน",
     "ledger.title": "บัญชีกระเป๋าเงิน (รายเดือน/รายปี)", "ledger.loading": "กำลังโหลดประวัติ...", "ledger.empty": "ไม่มีธุรกรรม",
     "ledger.in": "เข้า", "ledger.out": "ออก", "ledger.net": "สุทธิ", "ledger.year_total": "ยอดรวมรายปี",
     "ledger.export": "📤 ส่งออก CSV", "ledger.refresh": "↻ รีเฟรช",
@@ -3494,7 +3494,7 @@ const TT = {
     "tab.report": "Bildir",
     "tab.search": "Cüzdan Ara",
     "tab.mywallet": "Cüzdanım",
-    "tab.watch": "İzleme Listesi", "tab.ledger": "Defter",
+    "tab.watch": "İzleme Listesi", "tab.ledger": "Yatırma/Çekme Geçmişi",
     "ledger.title": "Cüzdan Defteri (Aylık/Yıllık)", "ledger.loading": "Geçmiş yükleniyor...", "ledger.empty": "İşlem yok.",
     "ledger.in": "Gelen", "ledger.out": "Giden", "ledger.net": "Net", "ledger.year_total": "Yıllık Toplam",
     "ledger.export": "📤 CSV Dışa Aktar", "ledger.refresh": "↻ Yenile",
@@ -3775,10 +3775,10 @@ export function renderTrackerPage(container, username, uid) {
         <div class="trk-tabs">
           <button class="trk-tab active" data-tab="list">${tt('tab.report')}</button>
           <button class="trk-tab" data-tab="search">${tt('tab.search')}</button>
-          <button class="trk-tab" data-tab="mywallet">${tt('tab.mywallet')}</button>
           <button class="trk-tab" data-tab="watch">${tt('tab.watch')}</button>
-          <button class="trk-tab" data-tab="ledger">${tt('tab.ledger')}</button>
           <button class="trk-tab" data-tab="trade">${tt('tab.trade')}</button>
+          <button class="trk-tab" data-tab="mywallet">${tt('tab.mywallet')}</button>
+          <button class="trk-tab" data-tab="ledger">${tt('tab.ledger')}</button>
           <button class="trk-tab" data-tab="tax">${tt('tab.tax')}</button>
         </div>
       </div>
