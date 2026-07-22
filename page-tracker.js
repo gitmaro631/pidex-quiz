@@ -5454,9 +5454,18 @@ export function renderTrackerPage(container, username, uid) {
         <div class="trk-card" style="text-align:center;padding:28px 16px;">
           <p style="color:#888;margin-bottom:4px;">${tt('mywallet.no_wallets')}</p>
           <p style="font-size:11px;color:#888;margin-bottom:16px;">${tt2('mywallet.max_hint', { n: HACK_WALLET_MAX })}</p>
-          <button class="trk-btn-search" id="trk-hwt-add-first" style="width:auto;padding:0 24px;">+ ${tt('mywallet.add')}</button>
+          <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+            <button class="trk-btn-search" id="trk-hwt-add-first" style="width:auto;padding:0 24px;">+ ${tt('mywallet.add')}</button>
+            <button class="trk-btn-outline" id="trk-hwt-backup-first" style="width:auto;padding:0 20px;">☁️ ${tt('backup.title')}</button>
+          </div>
         </div>`;
       container2.querySelector('#trk-hwt-add-first').addEventListener('click', () => showHackWalletAddDialog(wallets, renderMyWalletTab));
+      container2.querySelector('#trk-hwt-backup-first').addEventListener('click', () => {
+        openBackupModal('mainnet', wallets, HACK_WALLET_MAX, async (newList) => {
+          await saveHackWalletsServer(newList);
+          renderMyWalletTab();
+        });
+      });
       return;
     }
 
