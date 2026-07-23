@@ -15,11 +15,13 @@ let character = null;
 let activeSlot = null;
 let activeTab = 'adventure';
 
-async function apiPostRaw(path, body) {
-  const res = await fetch(`/api/rpg/${path}`, {
+// RPG API는 서버리스 함수 개수 제한(Vercel Hobby 12개) 때문에 api/rpg.js 하나로 통합돼있음 -
+// action 필드로 내부 라우팅됨(api/_rpg/*.js, api/rpg.js 참고)
+async function apiPostRaw(action, body) {
+  const res = await fetch('/api/rpg', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ accessToken: currentAccessToken, ...body }),
+    body: JSON.stringify({ accessToken: currentAccessToken, action, ...body }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || 'request_failed');
@@ -27,8 +29,16 @@ async function apiPostRaw(path, body) {
 }
 
 // 현재 선택된 캐릭터 슬롯을 자동으로 실어보내는 헬퍼 - 캐릭터 선택 전(activeSlot null)에는 쓰지 않음
-async function apiPost(path, body) {
-  return apiPostRaw(path, { slot: activeSlot, ...body });
+async function apiPost(action, body) {
+  return apiPostRaw(action, { slot: activeSlot, ...body });
+}
+
+async function apiGet(action, params = {}) {
+  const qs = new URLSearchParams({ action, ...params }).toString();
+  const res = await fetch(`/api/rpg?${qs}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'request_failed');
+  return data;
 }
 
 const ERROR_MESSAGES = {
@@ -463,8 +473,7 @@ async function loadStorageBox(content, container, kind) {
 async function loadBoard(content) {
   const listEl = content.querySelector('.rpg-board-list');
   try {
-    const res = await fetch(`/api/rpg/board-browse?townId=${encodeURIComponent(character.currentTown)}`);
-    const data = await res.json();
+    const data = await apiGet('board-browse', { townId: character.currentTown });
     const posts = data.posts || [];
     listEl.innerHTML = posts.length
       ? posts.map((p) => `<p class="rpg-hint">📌 ${p.username}: ${p.message}</p>`).join('')
@@ -477,8 +486,7 @@ async function loadBoard(content) {
 async function loadMarketListings(content, container) {
   const listEl = content.querySelector('.rpg-market-list');
   try {
-    const res = await fetch('/api/rpg/market-browse');
-    const data = await res.json();
+    const data = await apiGet('market-browse');
     const listings = data.listings || [];
     if (!listings.length) {
       listEl.innerHTML = `<p class="rpg-hint">등록된 거래가 없습니다.</p>`;

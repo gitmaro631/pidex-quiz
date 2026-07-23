@@ -172,7 +172,7 @@ export async function renderRankPage(container) {
     const listEl = container.querySelector('#rpg-leaderboard-list');
     listEl.innerHTML = `<div class="leaderboard-loading">${t('lb.loading')}</div>`;
     try {
-      const res = await fetch('/api/rpg/gold-leaderboard');
+      const res = await fetch('/api/rpg?action=gold-leaderboard');
       const data = await res.json();
       const rows = data.leaderboard || [];
       if (!rows.length) {
