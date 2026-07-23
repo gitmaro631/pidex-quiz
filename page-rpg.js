@@ -24,7 +24,7 @@ async function apiPostRaw(action, body) {
     body: JSON.stringify({ accessToken: currentAccessToken, action, ...body }),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'request_failed');
+  if (!res.ok) throw new Error(data.error || `request_failed (HTTP ${res.status})`);
   return data;
 }
 
@@ -37,7 +37,7 @@ async function apiGet(action, params = {}) {
   const qs = new URLSearchParams({ action, ...params }).toString();
   const res = await fetch(`/api/rpg?${qs}`);
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'request_failed');
+  if (!res.ok) throw new Error(data.error || `request_failed (HTTP ${res.status})`);
   return data;
 }
 
@@ -83,7 +83,8 @@ const ERROR_MESSAGES = {
 };
 
 function friendlyError(err) {
-  return ERROR_MESSAGES[err.message] || '오류가 발생했습니다. 다시 시도해주세요.';
+  // TODO(임시 디버깅): 매핑 안 된 에러는 원문을 그대로 보여줌 - 원인 파악되면 지우기
+  return ERROR_MESSAGES[err.message] || `오류: ${err.message}`;
 }
 
 async function loadCharacter() {
