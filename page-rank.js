@@ -1,6 +1,6 @@
 import { getScore, getRank, getNextRank, getStats, getHighScore, getLives, getMode, MODES, addLives, getLastLeaderboardViewTime, setLastLeaderboardViewTime, syncHighScore, syncStats } from './util-storage.js';
 import { shareResult } from './util-share.js';
-import { fetchLeaderboard, fetchSurvivalLeaderboard, fetchMyLeaderboardEntry, initFirebase, migrateLeaderboard } from './firebase.js';
+import { fetchLeaderboard, fetchMyLeaderboardEntry, initFirebase, migrateLeaderboard } from './firebase.js';
 import { countryToFlag } from './util-i18n.js';
 import { t } from './util-i18n.js';
 import { updateHeaderLives } from './app.js';
@@ -76,10 +76,10 @@ export async function renderRankPage(container) {
       <div class="leaderboard-section">
         <h3 class="leaderboard-title">${t('rank.leaderboard')}</h3>
 
-        <!-- 상단: 퀴즈 / 생존 -->
+        <!-- 상단: 퀴즈 / 모험 -->
         <div class="lb-type-tabs">
           <button class="lb-type-tab active" data-type="quiz">🧩 퀴즈</button>
-          <button class="lb-type-tab" data-type="survival">🌿 생존</button>
+          <button class="lb-type-tab" data-type="rpg">⚔️ 모험</button>
         </div>
 
         <!-- 퀴즈 섹션 -->
@@ -112,10 +112,9 @@ export async function renderRankPage(container) {
           <div id="leaderboard-list" class="leaderboard-loading">${t('lb.loading')}</div>
         </div>
 
-        <!-- 생존 섹션 -->
-        <div id="lb-survival-section" class="hidden">
-          <div class="lb-mode-tabs" id="sv-map-tabs">${t('lb.loading')}</div>
-          <div id="sv-leaderboard-list" class="leaderboard-loading">${t('lb.loading')}</div>
+        <!-- 모험(골드) 섹션 -->
+        <div id="lb-rpg-section" class="hidden">
+          <div id="rpg-leaderboard-list" class="leaderboard-loading">${t('lb.loading')}</div>
         </div>
       </div>
 
@@ -167,12 +166,15 @@ export async function renderRankPage(container) {
     });
   });
 
-  // 생존 리더보드
-  async function loadSurvivalLeaderboard(map) {
-    const listEl = container.querySelector('#sv-leaderboard-list');
+  // 모험(RPG) 골드 랭킹 - 서버가 rpg_characters를 집계해서 반환(공개 데이터, 인증 불필요)
+  let rpgLoaded = false;
+  async function loadRpgLeaderboard() {
+    const listEl = container.querySelector('#rpg-leaderboard-list');
     listEl.innerHTML = `<div class="leaderboard-loading">${t('lb.loading')}</div>`;
     try {
-      const rows = await fetchSurvivalLeaderboard(map, 50);
+      const res = await fetch('/api/rpg/gold-leaderboard');
+      const data = await res.json();
+      const rows = data.leaderboard || [];
       if (!rows.length) {
         listEl.innerHTML = `<div class="leaderboard-empty">${t('lb.empty')}</div>`;
       } else {
@@ -180,49 +182,24 @@ export async function renderRankPage(container) {
           <div class="leaderboard-row ${r.username === username ? 'leaderboard-me' : ''}">
             <span class="lb-rank">${i + 1}</span>
             <span class="lb-user">${esc(r.username)}</span>
-            <span class="lb-score">${r.days}단계${r.pi_earned ? ` · ⬡${r.pi_earned}π` : ''}</span>
+            <span class="lb-score">Lv.${r.level}${r.slot ? ` (슬롯${r.slot})` : ''} · ${r.gold}골드</span>
           </div>`).join('');
       }
+      rpgLoaded = true;
     } catch {
       listEl.innerHTML = `<div class="leaderboard-empty">${t('lb.fail')}</div>`;
     }
   }
 
-  // 생존 맵 탭: 게임 쪽 맵 목록(page-survival.js)에서 '오픈된' 맵만 동적으로 가져옴
-  // (예전에는 5개만 하드코딩되어 있어 맵이 추가/오픈되어도 탭이 자동으로 늘어나지 않는 문제가 있었음.
-  //  아직 잠긴 맵은 탭 자체를 노출하지 않고, available: true로 바뀌는 순간 자동으로 탭이 생김)
-  const svTabsEl = container.querySelector('#sv-map-tabs');
-  import('./page-survival.js').then(({ MAPS, ts: survivalT }) => {
-    const openMaps = MAPS.filter(m => m.available);
-    svTabsEl.innerHTML = openMaps.map((m, i) => `
-      <button class="lb-sv-tab ${i === 0 ? 'active' : ''}" data-map="${m.id}">${m.emoji} ${survivalT('map.' + m.id + '.name')}</button>
-    `).join('');
-
-    svTabsEl.querySelectorAll('.lb-sv-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        svTabsEl.querySelectorAll('.lb-sv-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        loadSurvivalLeaderboard(tab.dataset.map);
-      });
-    });
-
-    if (!container.querySelector('#lb-survival-section').classList.contains('hidden') && openMaps[0]) {
-      loadSurvivalLeaderboard(openMaps[0].id);
-    }
-  });
-
-  // 퀴즈/생존 상단 탭
+  // 퀴즈/모험 상단 탭
   container.querySelectorAll('.lb-type-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       container.querySelectorAll('.lb-type-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       const isQuiz = tab.dataset.type === 'quiz';
       container.querySelector('#lb-quiz-section').classList.toggle('hidden', !isQuiz);
-      container.querySelector('#lb-survival-section').classList.toggle('hidden', isQuiz);
-      if (!isQuiz) {
-        const activeMap = svTabsEl.querySelector('.lb-sv-tab.active')?.dataset.map;
-        if (activeMap) loadSurvivalLeaderboard(activeMap);
-      }
+      container.querySelector('#lb-rpg-section').classList.toggle('hidden', isQuiz);
+      if (!isQuiz && !rpgLoaded) loadRpgLeaderboard();
     });
   });
 

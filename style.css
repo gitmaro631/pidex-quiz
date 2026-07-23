@@ -1272,3 +1272,92 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
   80%  { opacity: 1; }
   100% { opacity: 0; }
 }
+
+/* RPG */
+.rpg-page { padding: 12px; }
+.rpg-loading, .rpg-hint { color: var(--muted); font-size: 13px; padding: 8px 0; }
+
+.rpg-statusbar {
+  display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; font-weight: 600;
+  background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px;
+}
+
+.rpg-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.rpg-tab {
+  flex: 1; background: rgba(255,255,255,0.06); border: none; color: var(--muted);
+  font-size: 13px; font-weight: 600; padding: 8px 0; border-radius: 8px; cursor: pointer;
+}
+.rpg-tab.active { background: #6366f1; color: #fff; }
+
+.rpg-zone-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.rpg-zone-btn {
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 14px; color: #fff; text-align: left; cursor: pointer;
+}
+.rpg-zone-name { font-weight: 600; font-size: 14px; }
+.rpg-zone-tier { font-size: 12px; color: var(--muted); }
+
+.rpg-combat-log { background: rgba(0,0,0,0.25); border-radius: 10px; padding: 12px; font-size: 13px; }
+.rpg-log-lines p { margin: 2px 0; }
+.rpg-log-summary { margin-top: 8px; font-weight: 600; color: #fbbf24; }
+
+.rpg-shop-list, .rpg-market-list, .rpg-inventory-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.rpg-shop-row, .rpg-inv-row {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;
+  background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 10px; font-size: 13px;
+}
+.rpg-inv-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+.rpg-buy-btn, .rpg-inv-use, .rpg-inv-equip, .rpg-inv-sell, .rpg-inv-list,
+.rpg-stance-btn, .rpg-stat-btn, .rpg-unequip-btn {
+  background: #6366f1; color: #fff; border: none; border-radius: 6px;
+  padding: 5px 10px; font-size: 12px; cursor: pointer;
+}
+
+.rpg-class-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.rpg-class-card, .rpg-subclass-card, .rpg-slot-btn {
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; text-align: left; color: #fff; cursor: pointer;
+}
+.rpg-subclass-select { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border); }
+
+.rpg-npc-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.rpg-npc-card {
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 14px;
+}
+.rpg-quest-claim-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.rpg-board-list { margin-bottom: 8px; max-height: 200px; overflow-y: auto; }
+.rpg-board-form { display: flex; gap: 6px; margin-bottom: 14px; }
+.rpg-board-input {
+  flex: 1; background: rgba(255,255,255,0.08); border: 1px solid var(--border); border-radius: 6px;
+  padding: 6px 8px; color: #fff; font-size: 13px;
+}
+
+.rpg-lore-unlock {
+  background: rgba(99,102,241,0.15); border: 1px solid #6366f1; border-radius: 8px;
+  padding: 10px 12px; font-size: 13px; margin-bottom: 10px; line-height: 1.5;
+}
+.rpg-journal { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border); }
+.rpg-journal-entry {
+  background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 12px; margin-bottom: 6px;
+}
+.rpg-journal-locked { opacity: 0.4; }
+.rpg-class-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.rpg-class-skills { font-size: 12px; color: var(--muted); }
+
+.rpg-stat-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
+
+.rpg-potion-rules { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border); }
+.rpg-potion-rule-row {
+  display: flex; flex-direction: column; gap: 4px; font-size: 12px;
+  background: rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px;
+}
+.rpg-potion-rule-row input[type="number"] {
+  background: rgba(255,255,255,0.1); border: 1px solid var(--border); border-radius: 4px;
+  color: #fff; padding: 2px 4px; text-align: center;
+}
+.rpg-potion-save-btn {
+  background: #6366f1; color: #fff; border: none; border-radius: 6px;
+  padding: 6px 14px; font-size: 12px; cursor: pointer; margin-top: 4px;
+}

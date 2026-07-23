@@ -326,15 +326,6 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: '🌿 생존 게임',
-        items: [
-          '11개의 재난 시나리오 맵 중 하나를 선택하고, 아이템 2개를 골라 생존을 시작하세요.',
-          '이야기의 갈림길마다 선택을 내려 정해진 일수까지 살아남으면 성공입니다.',
-          '무료 맵(정글·사막·산)은 누구나, 유료 맵(심해·우주)은 구독자만 플레이할 수 있습니다. (아직 잠긴 맵은 "출시 예정"으로 표시)',
-          '성공으로 끝난 기록만 랭킹보드에 등록됩니다.',
-        ],
-      },
-      {
         title: '🔍 지갑',
         items: [
           '지갑 주소로 다른 사람의 Pi 거래 내역을 조회하고 의심스러운 거래를 확인할 수 있습니다.',
@@ -416,15 +407,6 @@ const HELP_CONTENT = {
           'Change language on the app intro screen.',
           'Survey questions and UI adapt to your chosen language.',
           'Quiz questions are also shown in your selected language.',
-        ],
-      },
-      {
-        title: "🌿 Survival Game",
-        items: [
-          "Choose one of 11 disaster scenario maps and pick 2 items to start your survival.",
-          "Make choices at each story fork — survive the required number of days to succeed.",
-          "Free maps (Jungle, Desert, Mountain) are open to everyone; paid maps (Deep Sea, Space) require a subscription. (Locked maps show \"Coming Soon\")",
-          "Only successful runs are registered to the leaderboard.",
         ],
       },
       {
@@ -512,15 +494,6 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🌿 Permainan Survival",
-        items: [
-          "Pilih salah satu dari 11 peta skenario bencana, dan pilih 2 item untuk memulai survival.",
-          "Buat pilihan di setiap persimpangan cerita — bertahan hidup hingga jumlah hari yang ditentukan untuk berhasil.",
-          "Peta gratis (Hutan, Gurun, Gunung) terbuka untuk semua orang; peta berbayar (Laut Dalam, Luar Angkasa) memerlukan langganan. (Peta yang masih terkunci ditandai \"Segera Hadir\")",
-          "Hanya rekor yang berhasil yang didaftarkan ke papan peringkat.",
-        ],
-      },
-      {
         title: "🔍 Dompet",
         items: [
           "Lihat riwayat transaksi Pi orang lain dengan alamat dompet dan periksa transaksi yang mencurigakan.",
@@ -602,15 +575,6 @@ const HELP_CONTENT = {
           'Thay đổi ngôn ngữ trên màn hình giới thiệu ứng dụng.',
           'Câu hỏi khảo sát và giao diện thích ứng theo ngôn ngữ bạn chọn.',
           'Câu hỏi quiz cũng được hiển thị bằng ngôn ngữ bạn đã chọn.',
-        ],
-      },
-      {
-        title: "🌿 Trò chơi Sinh tồn",
-        items: [
-          "Chọn một trong 11 bản đồ kịch bản thảm họa và chọn 2 vật phẩm để bắt đầu sinh tồn.",
-          "Đưa ra lựa chọn ở mỗi ngã rẽ câu chuyện — sống sót đến số ngày quy định để thành công.",
-          "Bản đồ miễn phí (Rừng, Sa mạc, Núi) mở cho mọi người; bản đồ trả phí (Biển sâu, Vũ trụ) yêu cầu gói đăng ký. (Bản đồ chưa mở khóa hiển thị \"Sắp ra mắt\")",
-          "Chỉ những lượt chơi thành công mới được đăng ký lên bảng xếp hạng.",
         ],
       },
       {
@@ -698,15 +662,6 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🌿 生存游戏",
-        items: [
-          "从11个灾难情景地图中选择一个，选择2件道具开始生存。",
-          "在故事的每个分岔点做出选择，坚持到规定天数即为成功。",
-          "免费地图（丛林、沙漠、山）任何人都可以玩；付费地图（深海、太空）需要订阅。（尚未解锁的地图显示\"即将推出\"）",
-          "只有成功的记录才会登记到排行榜。",
-        ],
-      },
-      {
         title: "🔍 钱包",
         items: [
           "通过钱包地址查询他人的Pi交易记录并检查可疑交易。",
@@ -788,15 +743,6 @@ const HELP_CONTENT = {
           'アプリのイントロ画面で言語を変更できます。',
           'アンケートとUIは選択した言語に対応します。',
           'クイズ問題も選択した言語で表示されます。',
-        ],
-      },
-      {
-        title: "🌿 サバイバルゲーム",
-        items: [
-          "11種類の災害シナリオマップから1つを選び、アイテムを2つ選んでサバイバルを開始しましょう。",
-          "物語の分岐ごとに選択を行い、定められた日数まで生き延びれば成功です。",
-          "無料マップ（ジャングル・砂漠・山）は誰でも、有料マップ（深海・宇宙）は購読者のみプレイできます。（未解放のマップは「近日公開」と表示）",
-          "成功で終わった記録のみランキングボードに登録されます。",
         ],
       },
       {
@@ -884,15 +830,6 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🌿 Survival Game",
-        items: [
-          "Pumili ng isa sa 11 disaster scenario maps, at pumili ng 2 item para simulan ang survival.",
-          "Gumawa ng mga desisyon sa bawat sangang-daan ng kwento — mabuhay hanggang sa itinakdang bilang ng araw para magtagumpay.",
-          "Bukas sa lahat ang libreng mapa (Jungle, Desert, Mountain); kailangan ng subscription ang paid maps (Underwater, Space). (Ang mga naka-lock na mapa ay may markang \"Coming Soon\")",
-          "Mga matagumpay na laro lang ang naitatala sa leaderboard.",
-        ],
-      },
-      {
         title: "🔍 Wallet",
         items: [
           "Tingnan ang Pi transaction history ng iba gamit ang wallet address at suriin ang mga kahina-hinalang transaksyon.",
@@ -974,15 +911,6 @@ const HELP_CONTENT = {
           'ऐप इंट्रो स्क्रीन पर भाषा बदलें।',
           'सर्वेक्षण प्रश्न और UI आपकी चुनी हुई भाषा के अनुसार अनुकूलित होते हैं।',
           'क्विज़ प्रश्न भी आपकी चुनी हुई भाषा में दिखाए जाते हैं।',
-        ],
-      },
-      {
-        title: "🌿 सर्वाइवल गेम",
-        items: [
-          "11 आपदा परिदृश्य मानचित्रों में से एक चुनें, और सर्वाइवल शुरू करने के लिए 2 आइटम चुनें।",
-          "कहानी के हर मोड़ पर निर्णय लें — निर्धारित दिनों तक जीवित रहने पर सफलता मिलती है।",
-          "मुफ्त मानचित्र (जंगल, रेगिस्तान, पर्वत) सभी के लिए हैं; भुगतान वाले मानचित्र (गहरा समुद्र, अंतरिक्ष) के लिए सदस्यता आवश्यक है। (अभी लॉक मानचित्रों पर \"जल्द आ रहा है\" दिखता है)",
-          "केवल सफल रिकॉर्ड ही रैंकिंगबोर्ड पर दर्ज होते हैं।",
         ],
       },
       {
@@ -1070,15 +998,6 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🌿 সার্ভাইভাল গেম",
-        items: [
-          "১১টি দুর্যোগ পরিস্থিতি ম্যাপের মধ্যে একটি বেছে নিন এবং সার্ভাইভাল শুরু করতে ২টি আইটেম বেছে নিন।",
-          "গল্পের প্রতিটি বাঁকে সিদ্ধান্ত নিন — নির্ধারিত দিন পর্যন্ত টিকে থাকলে সাফল্য।",
-          "বিনামূল্যের ম্যাপ (জঙ্গল, মরুভূমি, পর্বত) সবার জন্য; পেইড ম্যাপ (গভীর সমুদ্র, মহাকাশ) সাবস্ক্রাইবারদের জন্য। (এখনও আনলক না হওয়া ম্যাপে \"শীঘ্রই আসছে\" দেখাবে)",
-          "শুধুমাত্র সফল রেকর্ডই র‍্যাংকিং বোর্ডে নথিভুক্ত হয়।",
-        ],
-      },
-      {
         title: "🔍 ওয়ালেট",
         items: [
           "ওয়ালেট ঠিকানা দিয়ে অন্য কারো Pi লেনদেনের ইতিহাস দেখুন এবং সন্দেহজনক লেনদেন যাচাই করুন।",
@@ -1160,15 +1079,6 @@ const HELP_CONTENT = {
           'เปลี่ยนภาษาได้ที่หน้าจอแนะนำแอป',
           'คำถามแบบสำรวจและ UI ปรับตามภาษาที่เลือก',
           'คำถามแบบทดสอบก็แสดงในภาษาที่คุณเลือกด้วยเช่นกัน',
-        ],
-      },
-      {
-        title: "🌿 เกมเอาชีวิตรอด",
-        items: [
-          "เลือกแผนที่สถานการณ์ภัยพิบัติหนึ่งใน 11 แบบ และเลือกไอเทม 2 ชิ้นเพื่อเริ่มเอาชีวิตรอด",
-          "ตัดสินใจในทุกจุดแยกของเรื่องราว — รอดชีวิตจนถึงจำนวนวันที่กำหนดเพื่อความสำเร็จ",
-          "แผนที่ฟรี (ป่า ทะเลทราย ภูเขา) เล่นได้ทุกคน แผนที่เสียเงิน (ใต้ทะเลลึก อวกาศ) ต้องสมัครสมาชิก (แผนที่ที่ยังไม่ปลดล็อกจะแสดง \"เร็วๆ นี้\")",
-          "มีเพียงการเล่นที่สำเร็จเท่านั้นที่จะถูกบันทึกลงในลีดเดอร์บอร์ด",
         ],
       },
       {
@@ -1256,15 +1166,6 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🌿 Permainan Survival",
-        items: [
-          "Pilih salah satu daripada 11 peta senario bencana, dan pilih 2 item untuk memulakan survival.",
-          "Buat pilihan pada setiap persimpangan cerita — terus hidup sehingga bilangan hari yang ditetapkan untuk berjaya.",
-          "Peta percuma (Hutan, Gurun, Gunung) terbuka untuk semua; peta berbayar (Laut Dalam, Angkasa) memerlukan langganan. (Peta yang masih dikunci dipaparkan \"Akan Datang\")",
-          "Hanya rekod yang berjaya direkodkan ke papan pendahulu.",
-        ],
-      },
-      {
         title: "🔍 Dompet",
         items: [
           "Lihat sejarah transaksi Pi orang lain menggunakan alamat dompet dan semak transaksi yang mencurigakan.",
@@ -1346,15 +1247,6 @@ const HELP_CONTENT = {
           'Cambia el idioma en la pantalla de introducción de la app.',
           'Las preguntas de encuesta y la UI se adaptan al idioma elegido.',
           'Las preguntas del cuestionario también se muestran en el idioma que elegiste.',
-        ],
-      },
-      {
-        title: "🌿 Juego de Supervivencia",
-        items: [
-          "Elige uno de los 11 mapas de escenarios de desastre y selecciona 2 objetos para iniciar la supervivencia.",
-          "Toma decisiones en cada bifurcación de la historia — sobrevive el número de días requerido para tener éxito.",
-          "Los mapas gratuitos (Selva, Desierto, Montaña) están abiertos a todos; los mapas de pago (Mar Profundo, Espacio) requieren suscripción. (Los mapas aún bloqueados muestran \"Próximamente\")",
-          "Solo las partidas exitosas se registran en el marcador.",
         ],
       },
       {
@@ -1442,15 +1334,6 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🌿 Jogo de Sobrevivência",
-        items: [
-          "Escolha um dos 11 mapas de cenários de desastre e selecione 2 itens para iniciar a sobrevivência.",
-          "Tome decisões em cada bifurcação da história — sobreviva pelo número de dias exigido para ter sucesso.",
-          "Mapas gratuitos (Selva, Deserto, Montanha) estão abertos a todos; mapas pagos (Mar Profundo, Espaço) exigem assinatura. (Mapas ainda bloqueados mostram \"Em Breve\")",
-          "Somente partidas bem-sucedidas são registradas no placar.",
-        ],
-      },
-      {
         title: "🔍 Carteira",
         items: [
           "Consulte o histórico de transações Pi de outras pessoas pelo endereço da carteira e verifique transações suspeitas.",
@@ -1532,15 +1415,6 @@ const HELP_CONTENT = {
           'Changez de langue sur l\'écran d\'introduction de l\'application.',
           'Les questions de sondage et l\'interface s\'adaptent à la langue choisie.',
           'Les questions du quiz s\'affichent aussi dans la langue choisie.',
-        ],
-      },
-      {
-        title: "🌿 Jeu de Survie",
-        items: [
-          "Choisissez l'une des 11 cartes de scénarios de catastrophe et sélectionnez 2 objets pour commencer la survie.",
-          "Faites des choix à chaque embranchement de l'histoire — survivez le nombre de jours requis pour réussir.",
-          "Les cartes gratuites (Jungle, Désert, Montagne) sont ouvertes à tous ; les cartes payantes (Mer Profonde, Espace) nécessitent un abonnement. (Les cartes encore verrouillées affichent \"Bientôt disponible\")",
-          "Seules les parties réussies sont enregistrées dans le classement.",
         ],
       },
       {
@@ -1628,15 +1502,6 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🌿 Игра на выживание",
-        items: [
-          "Выберите одну из 11 карт сценариев катастроф и выберите 2 предмета, чтобы начать выживание.",
-          "Принимайте решения на каждой развилке истории — выживите нужное количество дней, чтобы добиться успеха.",
-          "Бесплатные карты (Джунгли, Пустыня, Гора) доступны всем; платные карты (Глубины моря, Космос) требуют подписки. (Заблокированные карты отмечены как «Скоро»)",
-          "В таблицу лидеров записываются только успешные прохождения.",
-        ],
-      },
-      {
         title: "🔍 Кошелёк",
         items: [
           "Просматривайте историю Pi-транзакций других пользователей по адресу кошелька и проверяйте подозрительные транзакции.",
@@ -1718,15 +1583,6 @@ const HELP_CONTENT = {
           'Uygulama giriş ekranından dil değiştirebilirsiniz.',
           'Anket soruları ve arayüz seçilen dile göre uyarlanır.',
           'Test soruları da seçtiğiniz dilde gösterilir.',
-        ],
-      },
-      {
-        title: "🌿 Hayatta Kalma Oyunu",
-        items: [
-          "11 felaket senaryosu haritasından birini seçin ve hayatta kalmaya başlamak için 2 eşya seçin.",
-          "Hikayenin her dönüm noktasında seçim yapın — başarılı olmak için belirlenen gün sayısı kadar hayatta kalın.",
-          "Ücretsiz haritalar (Orman, Çöl, Dağ) herkese açıktır; ücretli haritalar (Derin Deniz, Uzay) abonelik gerektirir. (Henüz kilitli haritalar \"Yakında\" olarak gösterilir)",
-          "Yalnızca başarılı oyunlar liderlik tablosuna kaydedilir.",
         ],
       },
       {
@@ -1814,15 +1670,6 @@ const HELP_CONTENT = {
         ],
       },
       {
-        title: "🌿 لعبة البقاء",
-        items: [
-          "اختر واحدة من 11 خريطة سيناريو كوارث، واختر عنصرين لبدء البقاء.",
-          "اتخذ قرارات عند كل مفترق في القصة — انجُ للعدد المطلوب من الأيام لتحقق النجاح.",
-          "الخرائط المجانية (الغابة، الصحراء، الجبل) متاحة للجميع؛ الخرائط المدفوعة (أعماق البحر، الفضاء) تتطلب اشتراكاً. (الخرائط المقفلة تظهر بعلامة \"قريباً\")",
-          "يتم تسجيل السجلات الناجحة فقط في لوحة المتصدرين.",
-        ],
-      },
-      {
         title: "🔍 المحفظة",
         items: [
           "اطّلع على سجل معاملات Pi الخاصة بشخص آخر عبر عنوان المحفظة وتحقق من المعاملات المشبوهة.",
@@ -1904,15 +1751,6 @@ const HELP_CONTENT = {
           'Badilisha lugha kwenye skrini ya utangulizi wa programu.',
           'Maswali ya tafiti na kiolesura vinajirekebisha kulingana na lugha uliyochagua.',
           'Maswali ya maswali pia yanaonyeshwa kwa lugha uliyochagua.',
-        ],
-      },
-      {
-        title: "🌿 Mchezo wa Kuishi",
-        items: [
-          "Chagua ramani moja kati ya ramani 11 za matukio ya maafa, na chagua vitu 2 kuanza kuishi.",
-          "Fanya maamuzi kwenye kila njia panda ya hadithi — ishi hadi idadi ya siku iliyowekwa ili kufaulu.",
-          "Ramani za bure (Msitu, Jangwa, Mlima) ziko wazi kwa kila mtu; ramani za kulipia (Bahari Kuu, Anga) zinahitaji usajili. (Ramani ambazo bado hazijafunguliwa zinaonyesha \"Zinakuja Hivi Karibuni\")",
-          "Ni rekodi zilizofanikiwa tu zinazosajiliwa kwenye orodha ya viongozi.",
         ],
       },
       {

@@ -6,7 +6,7 @@
   'nav.rank':       'Ubao wa Nafasi',
   'nav.stats':      'Takwimu za Jamii',
   'nav.opinion':  'Opinion',
-  'nav.survival': 'Maisha',
+  'nav.rpg': 'Safari',
   'nav.tracker':  'Pochi',
   'nav.more':     'Zaidi',
   'btn.next':       'Ifuatayo →',
@@ -20,7 +20,6 @@
   'hub.open':       'Fungua katika Pi Browser →',
   'hub.pidex.desc': 'Zana kamili ya Pi DEX — arbitrage, LP calculator na swap.',
   'hub.hack.desc':     'Kifaa cha kufuatilia hack za pochi za Pi & ripoti za jamii.',
-  'hub.survival.desc': 'Safari ya RPG ya uchaguzi wa maandishi inayojitokeza tofauti kila unapocheza.',
   'hub.coming_soon':   'Inakuja hivi karibuni',
   'btn.start':      'Anza',
 

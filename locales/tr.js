@@ -6,7 +6,7 @@
   'nav.rank':       'Skor Tablosu',
   'nav.stats':      'Topluluk İstatistikleri',
   'nav.opinion':  'Opinion',
-  'nav.survival': 'Hayatta Kal',
+  'nav.rpg': 'Macera',
   'nav.tracker':  'Cüzdan',
   'nav.more':     'Daha',
   'btn.next':       'Sonraki →',
@@ -20,7 +20,6 @@
   'hub.open':       "Pi Browser'da Aç →",
   'hub.pidex.desc': 'Pi DEX hepsi bir arada — arbitraj, LP hesaplayıcı ve swap.',
   'hub.hack.desc':     'Pi cüzdan hack takipçisi & topluluk raporlama aracı.',
-  'hub.survival.desc': 'Her oynadığınızda farklı şekilde gelişen, metin seçimli bir RPG macerası.',
   'hub.coming_soon':   'Yakında',
   'btn.start':      'Başla',
 

@@ -248,7 +248,6 @@ async function loadAndRenderAdminMessages(el) {
 const ADMIN_USERNAME    = 'cam1998pi';
 const STATS_HISTORY_COL = 'admin_stats_history';
 const QUIZ_MODES_LIST   = ['miner', 'pioneer', 'validator'];
-const SURVIVAL_MAPS_LIST = ['dungeon', 'isekai', 'arbbot', 'zombie', 'ruins', 'derelict'];
 
 async function safeGet(db, col) {
   try { return await db.collection(col).get(); } catch { return null; }
@@ -262,7 +261,7 @@ function userIdsOf(snap) {
 }
 
 async function computeAdminStats(db) {
-  const [hackSnap, pidexSnap, watchSnap, tradeSnap, reportSnap, opinionSnap, surveySnap, ...rest] = await Promise.all([
+  const [hackSnap, pidexSnap, watchSnap, tradeSnap, reportSnap, opinionSnap, surveySnap, ...leaderboardSnaps] = await Promise.all([
     safeGet(db, 'hack_pending_wallets'),
     safeGet(db, 'pidex_wallets'),
     safeGet(db, 'pidex_watch_list'),
@@ -271,16 +270,11 @@ async function computeAdminStats(db) {
     safeGet(db, 'quiz_opinions'),
     safeGet(db, 'surveys'),
     ...QUIZ_MODES_LIST.map(m => safeGet(db, `leaderboard_${m}`)),
-    ...SURVIVAL_MAPS_LIST.map(m => safeGet(db, `survival_${m}`)),
   ]);
-  const leaderboardSnaps = rest.slice(0, QUIZ_MODES_LIST.length);
-  const survivalSnaps    = rest.slice(QUIZ_MODES_LIST.length);
 
   const walletUsers = new Set([...userIdsOf(hackSnap), ...userIdsOf(pidexSnap)]);
   const quizUsers = new Set();
   leaderboardSnaps.forEach(snap => userIdsOf(snap).forEach(id => quizUsers.add(id)));
-  const survivalUsers = new Set();
-  survivalSnaps.forEach(snap => userIdsOf(snap).forEach(id => survivalUsers.add(id)));
 
   return {
     walletUsers: walletUsers.size,
@@ -292,7 +286,6 @@ async function computeAdminStats(db) {
     reportCount: reportSnap ? reportSnap.size : 0,
     opinionCount: opinionSnap ? opinionSnap.size : 0,
     quizUsers: quizUsers.size,
-    survivalUsers: survivalUsers.size,
     surveyUsers: surveySnap ? surveySnap.size : 0,
   };
 }
@@ -364,7 +357,6 @@ async function loadAndRenderAdminStats(el) {
       ${row('해킹 신고 건수', current.reportCount, prev?.reportCount)}
       ${row('의견 게시글 수', current.opinionCount, prev?.opinionCount)}
       ${row('퀴즈 참여 유저 수', current.quizUsers, prev?.quizUsers)}
-      ${row('생존게임 참여 유저 수', current.survivalUsers, prev?.survivalUsers)}
       ${row('설문조사 참여 유저 수', current.surveyUsers, prev?.surveyUsers)}
       ${row('구독자 수 (퀴즈파이 앱)', subscriberCount ?? '?', null)}
     `;
@@ -386,10 +378,6 @@ const MORE_PAGES = new Set(['rank', 'stats', 'survey']);
 
 const PAGE_RENDERERS = {
   quiz:     (el) => renderQuizPage(el),
-  survival: async (el) => {
-    const { renderSurvivalPage } = await import('./page-survival.js');
-    renderSurvivalPage(el, currentUsername);
-  },
   tracker: async (el) => {
     const { renderTrackerPage } = await import('./page-tracker.js');
     renderTrackerPage(el, currentUsername, currentUid);
@@ -398,6 +386,10 @@ const PAGE_RENDERERS = {
   rank:     (el) => renderRankPage(el),
   stats:    (el) => renderStatsPage(el),
   opinion:  (el) => renderOpinionPage(el),
+  rpg: async (el) => {
+    const { renderRpgPage } = await import('./page-rpg.js');
+    renderRpgPage(el, currentUsername);
+  },
 };
 
 function switchPage(pageKey) {
@@ -465,7 +457,7 @@ export function updateHeaderLives() {
 
 function applyNavLabels() {
   const quizEl     = document.getElementById('nav-label-quiz');
-  const survivalEl = document.getElementById('nav-label-survival');
+  const rpgEl      = document.getElementById('nav-label-rpg');
   const trackerEl  = document.getElementById('nav-label-tracker');
   const surveyEl   = document.getElementById('nav-label-survey');
   const moreEl     = document.getElementById('nav-label-more');
@@ -473,7 +465,7 @@ function applyNavLabels() {
   const statsEl    = document.getElementById('more-label-stats');
   const opinionEl  = document.getElementById('more-label-opinion');
   if (quizEl)     quizEl.textContent     = t('nav.quiz');
-  if (survivalEl) survivalEl.textContent = t('nav.survival');
+  if (rpgEl)      rpgEl.textContent      = t('nav.rpg');
   if (trackerEl)  trackerEl.textContent  = t('nav.tracker');
   if (surveyEl)   surveyEl.textContent   = t('nav.survey');
   if (moreEl)     moreEl.textContent     = t('nav.more');
@@ -560,8 +552,8 @@ function buildLangPicker() {
       opt.classList.add('active');
       updateBtn();
       applyNavLabels();
-      // survival/tracker는 언어 변경 시 다시 렌더
-      if (activePage === 'survival' || activePage === 'tracker') {
+      // tracker는 언어 변경 시 다시 렌더
+      if (activePage === 'tracker') {
         renderedPages.delete(activePage);
         switchPage(activePage);
       } else {
@@ -633,7 +625,7 @@ async function init() {
   initLoginScreen();
   try { await initPiSDK(); } catch (e) { console.warn('Pi SDK init:', e); }
 
-  // 네비 탭 (quiz/survival/tracker/opinion)
+  // 네비 탭 (quiz/rpg/tracker/survey)
   document.querySelectorAll('.nav-tab[data-page]').forEach(btn => {
     btn.addEventListener('click', () => rerenderPage(btn.dataset.page));
   });

@@ -6,7 +6,7 @@
   'nav.rank':       'Leaderboard',
   'nav.stats':      'Istatistika ng Komunidad',
   'nav.opinion':  'Opinion',
-  'nav.survival': 'Survival',
+  'nav.rpg': 'Pakikipagsapalaran',
   'nav.tracker':  'Wallet',
   'nav.more':     'Higit pa',
   'btn.next':       'Susunod →',
@@ -20,7 +20,6 @@
   'hub.open':       'Buksan sa Pi Browser →',
   'hub.pidex.desc': 'All-in-one utility ng Pi DEX — arbitrage, LP calculator at swap simulator.',
   'hub.hack.desc':     'Pi wallet hack tracker & community reporting tool.',
-  'hub.survival.desc': 'Isang RPG adventure na batay sa pagpili ng teksto na iba-iba tuwing laruin.',
   'hub.coming_soon':   'Malapit na',
   'btn.start':      'Magsimula',
 

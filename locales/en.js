@@ -6,7 +6,7 @@
   'nav.rank':       'Leaderboard',
   'nav.stats':      'Community Stats',
   'nav.opinion':    'Opinion',
-  'nav.survival':   'Survival',
+  'nav.rpg':   'Adventure',
   'nav.tracker':    'Wallet',
   'nav.more':       'More',
 
@@ -34,7 +34,6 @@
   'hub.open':       'Open in Pi Browser →',
   'hub.pidex.desc': 'Pi DEX all-in-one utility — arbitrage, LP calculator & swap simulator.',
   'hub.hack.desc':     'Pi wallet hack tracking & community reporting tool.',
-  'hub.survival.desc': 'A text-choice RPG adventure that unfolds differently every time you play.',
   'hub.coming_soon':   'Coming soon',
   'btn.start':      'Get Started',
 

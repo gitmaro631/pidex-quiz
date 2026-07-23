@@ -6,7 +6,7 @@
   'nav.rank':       '랭킹보드',
   'nav.stats':      '커뮤니티 통계',
   'nav.opinion':    '의견',
-  'nav.survival':   '생존',
+  'nav.rpg':   '모험',
   'nav.tracker':    '지갑',
   'nav.more':       '더보기',
 
@@ -34,7 +34,6 @@
   'hub.open':       'Pi Browser로 열기 →',
   'hub.pidex.desc': 'Pi DEX 유동성·차익·스왑 유틸 모음.',
   'hub.hack.desc':     'Pi 지갑 해킹 피해 추적 & 커뮤니티 신고.',
-  'hub.survival.desc': '매번 다른 전개로 펼쳐지는 텍스트 선택 RPG 어드벤처.',
   'hub.coming_soon':   '출시 예정',
   'btn.start':      '시작하기',
 

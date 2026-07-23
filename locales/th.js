@@ -6,7 +6,7 @@
   'nav.rank':       'กระดานอันดับ',
   'nav.stats':      'สถิติชุมชน',
   'nav.opinion':  'Opinion',
-  'nav.survival': 'เอาชีวิตรอด',
+  'nav.rpg': 'การผจญภัย',
   'nav.tracker':  'กระเป๋าเงิน',
   'nav.more':     'เพิ่มเติม',
   'btn.next':       'ถัดไป →',
@@ -20,7 +20,6 @@
   'hub.open':       'เปิดใน Pi Browser →',
   'hub.pidex.desc': 'ยูทิลิตี้ครบวงจร Pi DEX — อาร์บิทราจ, LP Calculator & Swap',
   'hub.hack.desc':     'เครื่องมือติดตามการแฮ็กกระเป๋า Pi & รายงานชุมชน',
-  'hub.survival.desc': 'การผจญภัย RPG แบบเลือกข้อความที่ดำเนินเรื่องแตกต่างกันทุกครั้งที่เล่น',
   'hub.coming_soon':   'เร็วๆ นี้',
   'btn.start':      'เริ่มต้น',
 

@@ -6,7 +6,7 @@
   'nav.rank':       'Bảng xếp hạng',
   'nav.stats':      'Thống kê cộng đồng',
   'nav.opinion':  'Opinion',
-  'nav.survival': 'Sinh tồn',
+  'nav.rpg': 'Phiêu lưu',
   'nav.tracker':  'Ví',
   'nav.more':     'Thêm',
   'btn.next':       'Tiếp theo →',
@@ -20,7 +20,6 @@
   'hub.open':       'Mở trong Pi Browser →',
   'hub.pidex.desc': 'Tiện ích toàn diện Pi DEX — arbitrage, LP calculator & swap.',
   'hub.hack.desc':     'Theo dõi hack ví Pi & công cụ báo cáo cộng đồng.',
-  'hub.survival.desc': 'Cuộc phiêu lưu RPG lựa chọn văn bản diễn ra khác nhau mỗi lần chơi.',
   'hub.coming_soon':   'Sắp ra mắt',
   'btn.start':      'Bắt đầu',
 

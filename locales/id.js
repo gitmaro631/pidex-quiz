@@ -6,7 +6,7 @@
   'nav.rank':       'Papan Peringkat',
   'nav.stats':      'Statistik Komunitas',
   'nav.opinion':  'Opinion',
-  'nav.survival': 'Bertahan',
+  'nav.rpg': 'Petualangan',
   'nav.tracker':  'Dompet',
   'nav.more':     'Lebih',
   'btn.next':       'Berikutnya →',
@@ -20,7 +20,6 @@
   'hub.open':       'Buka di Pi Browser →',
   'hub.pidex.desc': 'Utilitas lengkap Pi DEX — arbitrase, kalkulator LP & simulator swap.',
   'hub.hack.desc':     'Pelacak hack dompet Pi & alat laporan komunitas.',
-  'hub.survival.desc': 'Petualangan RPG berbasis pilihan teks yang berjalan berbeda setiap kali dimainkan.',
   'hub.coming_soon':   'Segera hadir',
   'btn.start':      'Mulai',
 

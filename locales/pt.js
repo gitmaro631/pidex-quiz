@@ -6,7 +6,7 @@
   'nav.rank':       'Quadro de Classificação',
   'nav.stats':      'Estatísticas da Comunidade',
   'nav.opinion':  'Opinion',
-  'nav.survival': 'Sobrevivência',
+  'nav.rpg': 'Aventura',
   'nav.tracker':  'Carteira',
   'nav.more':     'Mais',
   'btn.next':       'Próximo →',
@@ -20,7 +20,6 @@
   'hub.open':       'Abrir no Pi Browser →',
   'hub.pidex.desc': 'Utilidade completa Pi DEX — arbitragem, LP e swap.',
   'hub.hack.desc':     'Rastreador de hacks de carteira Pi & ferramenta de denúncias.',
-  'hub.survival.desc': 'Uma aventura RPG de escolhas em texto que se desenrola de forma diferente a cada jogada.',
   'hub.coming_soon':   'Em breve',
   'btn.start':      'Começar',
 

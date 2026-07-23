@@ -6,7 +6,7 @@
   'nav.rank':       'ランキングボード',
   'nav.stats':      'コミュニティ統計',
   'nav.opinion':  'Opinion',
-  'nav.survival': 'サバイバル',
+  'nav.rpg': '冒険',
   'nav.tracker':  'ウォレット',
   'nav.more':     'もっと',
   'btn.next':       '次へ →',
@@ -20,7 +20,6 @@
   'hub.open':       'Pi Browserで開く →',
   'hub.pidex.desc': 'Pi DEX オールインワン — アービトラージ・LP計算・スワップ。',
   'hub.hack.desc':     'Pi ウォレット不正追跡 & コミュニティ通報ツール。',
-  'hub.survival.desc': 'プレイするたびに展開が変わるテキスト選択型RPGアドベンチャー。',
   'hub.coming_soon':   '近日公開',
   'btn.start':      'はじめる',
 

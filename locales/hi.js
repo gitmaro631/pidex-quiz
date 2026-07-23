@@ -6,7 +6,7 @@
   'nav.rank':       'लीडरबोर्ड',
   'nav.stats':      'समुदाय आँकड़े',
   'nav.opinion':  'Opinion',
-  'nav.survival': 'सर्वाइवल',
+  'nav.rpg': 'एडवेंचर',
   'nav.tracker':  'वॉलेट',
   'nav.more':     'अधिक',
   'btn.next':       'अगला →',
@@ -20,7 +20,6 @@
   'hub.open':       'Pi Browser में खोलें →',
   'hub.pidex.desc': 'Pi DEX ऑल-इन-वन — आर्बिट्राज, LP कैलकुलेटर व स्वैप।',
   'hub.hack.desc':     'Pi वॉलेट हैक ट्रैकर & कम्युनिटी रिपोर्ट टूल।',
-  'hub.survival.desc': 'एक टेक्स्ट-चॉइस RPG एडवेंचर जो हर बार खेलने पर अलग तरीके से सामने आता है।',
   'hub.coming_soon':   'जल्द आ रहा है',
   'btn.start':      'शुरू करें',
 

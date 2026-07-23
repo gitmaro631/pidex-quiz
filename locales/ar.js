@@ -6,7 +6,7 @@
   'nav.rank':       'لوحة الترتيب',
   'nav.stats':      'إحصاءات المجتمع',
   'nav.opinion':  'Opinion',
-  'nav.survival': 'البقاء',
+  'nav.rpg': 'مغامرة',
   'nav.tracker':  'المحفظة',
   'nav.more':     'المزيد',
   'btn.next':       '→ التالي',
@@ -20,7 +20,6 @@
   'hub.open':       'افتح في Pi Browser →',
   'hub.pidex.desc': 'أداة Pi DEX الشاملة — المراجحة وحاسبة LP ومحاكي التبادل.',
   'hub.hack.desc':     'أداة تتبع اختراق محافظ Pi & الإبلاغ المجتمعي.',
-  'hub.survival.desc': 'مغامرة تقمص أدوار قائمة على الاختيارات النصية تتكشف بشكل مختلف في كل مرة تلعب فيها.',
   'hub.coming_soon':   'قريباً',
   'btn.start':      'ابدأ',
 

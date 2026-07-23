@@ -6,7 +6,7 @@
   'nav.rank':       '排行榜',
   'nav.stats':      '社区统计',
   'nav.opinion':  'Opinion',
-  'nav.survival': '生存',
+  'nav.rpg': '冒险',
   'nav.tracker':  '钱包',
   'nav.more':     '更多',
   'btn.next':       '下一题 →',
@@ -20,7 +20,6 @@
   'hub.open':       '在 Pi Browser 中打开 →',
   'hub.pidex.desc': 'Pi DEX 一体化工具 — 套利、LP 计算器和兑换模拟器。',
   'hub.hack.desc':     'Pi 钱包黑客追踪与社区举报工具。',
-  'hub.survival.desc': '每次游玩都会呈现不同展开的文字选择RPG冒险。',
   'hub.coming_soon':   '即将推出',
   'btn.start':      '开始',
 
