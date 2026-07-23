@@ -244,6 +244,9 @@ function renderMain(container) {
       <div class="rpg-tabs">
         <button class="rpg-tab" data-tab="adventure">모험</button>
         <button class="rpg-tab" data-tab="town">마을</button>
+        <button class="rpg-tab" data-tab="shop">상점</button>
+        <button class="rpg-tab" data-tab="market">마켓</button>
+        <button class="rpg-tab" data-tab="storage">창고</button>
         <button class="rpg-tab" data-tab="inventory">인벤토리</button>
         <button class="rpg-tab" data-tab="character">캐릭터</button>
       </div>
@@ -267,6 +270,9 @@ function renderMain(container) {
   const content = container.querySelector('.rpg-tab-content');
   if (activeTab === 'adventure') renderAdventureTab(content, container);
   else if (activeTab === 'town') renderTownTab(content, container);
+  else if (activeTab === 'shop') renderShopTab(content, container);
+  else if (activeTab === 'market') renderMarketTab(content, container);
+  else if (activeTab === 'storage') renderStorageTab(content, container);
   else if (activeTab === 'inventory') renderInventoryTab(content, container);
   else if (activeTab === 'character') renderCharacterTab(content, container);
 }
@@ -333,9 +339,8 @@ function questRowHtml(questId) {
   `;
 }
 
-// ── 마을 탭(상점 + 마켓 + 이송상자/저장상자) ─────────
+// ── 마을 탭(NPC + 게시판) ────────────────────────────
 function renderTownTab(content, container) {
-  const shopItems = Object.values(ITEMS).filter((i) => i.shopPrice && i.type !== 'randombox');
   const townName = (TOWNS[character.currentTown] || {}).name || character.currentTown;
   const townNpcs = Object.values(NPCS).filter((n) => n.townId === character.currentTown);
   content.innerHTML = `
@@ -356,29 +361,6 @@ function renderTownTab(content, container) {
       <input type="text" class="rpg-board-input" maxlength="150" placeholder="게시판에 글 남기기 (150자 이내)" style="width:70%">
       <button class="rpg-board-post-btn">등록</button>
     </div>
-    <h4>상점</h4>
-    <div class="rpg-shop-list">
-      ${shopItems.map((i) => `
-        <div class="rpg-shop-row">
-          <span>${i.name}${itemStatsLabel(i)} (${i.shopPrice}골드)</span>
-          <button class="rpg-buy-btn" data-item="${i.id}">구매</button>
-        </div>
-      `).join('')}
-    </div>
-    <h4>뽑기 (랜덤박스)</h4>
-    <div class="rpg-shop-row">
-      <span>${ITEMS.random_box.name} — 속성무기·방어구·장신구 중 하나 획득 (${ITEMS.random_box.shopPrice}골드)</span>
-      <button class="rpg-randombox-btn">뽑기</button>
-    </div>
-    <h4>유저 마켓</h4>
-    <div class="rpg-market-list"><div class="rpg-loading">불러오는 중...</div></div>
-    <div class="rpg-market-list-form">
-      <p class="rpg-hint">인벤토리 탭에서 아이템의 "마켓등록" 버튼으로 판매를 등록하세요.</p>
-    </div>
-    <h4>이송상자 (계정 공유 - 내 다른 캐릭터와 골드/아이템 주고받기)</h4>
-    <div class="rpg-storage-box" data-kind="account"><div class="rpg-loading">불러오는 중...</div></div>
-    <h4>저장상자 (이 캐릭터 전용)</h4>
-    <div class="rpg-storage-box" data-kind="character"><div class="rpg-loading">불러오는 중...</div></div>
   `;
   content.querySelectorAll('.rpg-quest-claim-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
@@ -404,6 +386,27 @@ function renderTownTab(content, container) {
     } catch (e) { showToast(friendlyError(e)); }
   });
   loadBoard(content);
+}
+
+// ── 상점 탭(구매 + 뽑기) ──────────────────────────────
+function renderShopTab(content, container) {
+  const shopItems = Object.values(ITEMS).filter((i) => i.shopPrice && i.type !== 'randombox');
+  content.innerHTML = `
+    <h4>상점</h4>
+    <div class="rpg-shop-list">
+      ${shopItems.map((i) => `
+        <div class="rpg-shop-row">
+          <span>${i.name}${itemStatsLabel(i)} (${i.shopPrice}골드)</span>
+          <button class="rpg-buy-btn" data-item="${i.id}">구매</button>
+        </div>
+      `).join('')}
+    </div>
+    <h4>뽑기 (랜덤박스)</h4>
+    <div class="rpg-shop-row">
+      <span>${ITEMS.random_box.name} — 속성무기·방어구·장신구 중 하나 획득 (${ITEMS.random_box.shopPrice}골드)</span>
+      <button class="rpg-randombox-btn">뽑기</button>
+    </div>
+  `;
   content.querySelectorAll('.rpg-buy-btn').forEach((btn) => {
     btn.addEventListener('click', async () => {
       try {
@@ -425,7 +428,28 @@ function renderTownTab(content, container) {
       showToast(`${item.name}${itemStatsLabel(item)} 획득!` + (r.overflowed ? ' (인벤토리가 가득 차 놓쳤어요)' : ''));
     } catch (e) { showToast(friendlyError(e)); }
   });
+}
+
+// ── 마켓 탭(유저간 거래) ──────────────────────────────
+function renderMarketTab(content, container) {
+  content.innerHTML = `
+    <h4>유저 마켓</h4>
+    <div class="rpg-market-list"><div class="rpg-loading">불러오는 중...</div></div>
+    <div class="rpg-market-list-form">
+      <p class="rpg-hint">인벤토리 탭에서 아이템의 "마켓등록" 버튼으로 판매를 등록하세요.</p>
+    </div>
+  `;
   loadMarketListings(content, container);
+}
+
+// ── 창고 탭(이송상자/저장상자) ────────────────────────
+function renderStorageTab(content, container) {
+  content.innerHTML = `
+    <h4>이송상자 (계정 공유 - 내 다른 캐릭터와 골드/아이템 주고받기)</h4>
+    <div class="rpg-storage-box" data-kind="account"><div class="rpg-loading">불러오는 중...</div></div>
+    <h4>저장상자 (이 캐릭터 전용)</h4>
+    <div class="rpg-storage-box" data-kind="character"><div class="rpg-loading">불러오는 중...</div></div>
+  `;
   loadStorageBox(content, container, 'account');
   loadStorageBox(content, container, 'character');
 }
