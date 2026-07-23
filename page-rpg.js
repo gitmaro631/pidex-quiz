@@ -10,8 +10,15 @@ import { NPCS } from './data/rpg/npcs.js';
 import { QUESTS } from './data/rpg/quests.js';
 import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
-import { capacityForCharacter } from './api/_rpgInventory.js';
 import { computeCharacterCombatStats } from './rpg-combat.js';
+
+// api/ 아래 파일은 Vercel이 서버 함수 전용으로 취급해서 브라우저가 직접 fetch 못 함(404) -
+// 그래서 api/_rpgInventory.js를 import하는 대신, 이 한 줄짜리 로직만 그대로 복제해서 씀
+// (서버쪽 BASE_INVENTORY_CAPACITY와 반드시 같은 값으로 유지할 것)
+const BASE_INVENTORY_CAPACITY = 20;
+function capacityForCharacter(character) {
+  return BASE_INVENTORY_CAPACITY + (character.inventorySlotBonus || 0);
+}
 
 const ELEMENT_NAMES = { water: '물', fire: '불', air: '대기', dark: '어둠', holy: '신성', none: '무속성' };
 
