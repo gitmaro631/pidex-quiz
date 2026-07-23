@@ -12,11 +12,12 @@ export default async function handler(req, res) {
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
 
+  const EQUIPPABLE_TYPES = ['weapon', 'armor', 'ring', 'necklace'];
   const item = ITEMS[itemId];
-  if (!item || (item.type !== 'weapon' && item.type !== 'armor')) {
+  if (!item || !EQUIPPABLE_TYPES.includes(item.type)) {
     return res.status(400).json({ error: 'not_equippable' });
   }
-  const equipSlot = item.type; // 'weapon' | 'armor'
+  const equipSlot = item.type; // 'weapon' | 'armor' | 'ring' | 'necklace'
 
   let outcome = null;
   try {

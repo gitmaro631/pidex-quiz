@@ -43,11 +43,22 @@ export const ITEMS = {
 
   // 레어몹 드랍 장비 — weaponType 없음(무속성 만능이라 임시 처리, 등급 세분화는 나중 콘텐츠 단계에서)
   weapon_uncommon: { id: 'weapon_uncommon', name: '고급 무기(미확정)', type: 'weapon', weaponType: 'sword', rarity: 'uncommon', atkBonus: 8 },
-  weapon_rare: { id: 'weapon_rare', name: '희귀 무기(미확정)', type: 'weapon', weaponType: 'sword', rarity: 'rare', atkBonus: 16 },
-  weapon_legendary: { id: 'weapon_legendary', name: '전설 무기(미확정)', type: 'weapon', weaponType: 'sword', rarity: 'legendary', atkBonus: 30 },
+  weapon_rare: { id: 'weapon_rare', name: '희귀 무기(미확정)', type: 'weapon', weaponType: 'sword', rarity: 'rare', atkBonus: 16, element: 'dark' },
+  weapon_legendary: { id: 'weapon_legendary', name: '전설 무기(미확정)', type: 'weapon', weaponType: 'sword', rarity: 'legendary', atkBonus: 30, element: 'holy' },
   armor_uncommon: { id: 'armor_uncommon', name: '고급 방어구(미확정)', type: 'armor', rarity: 'uncommon', defBonus: 4, hpBonus: 20 },
   armor_rare: { id: 'armor_rare', name: '희귀 방어구(미확정)', type: 'armor', rarity: 'rare', defBonus: 9, hpBonus: 45 },
   armor_legendary: { id: 'armor_legendary', name: '전설 방어구(미확정)', type: 'armor', rarity: 'legendary', defBonus: 18, hpBonus: 90 },
+
+  // 장신구 - 반지/목걸이 (랜덤박스 전용 획득처, 상점 미판매)
+  ring_normal: { id: 'ring_normal', name: '낡은 반지', type: 'ring', rarity: 'normal', atkBonus: 2 },
+  ring_uncommon: { id: 'ring_uncommon', name: '고급 반지', type: 'ring', rarity: 'uncommon', atkBonus: 5, defBonus: 2 },
+  ring_rare: { id: 'ring_rare', name: '희귀 반지', type: 'ring', rarity: 'rare', atkBonus: 10, defBonus: 4 },
+  necklace_normal: { id: 'necklace_normal', name: '낡은 목걸이', type: 'necklace', rarity: 'normal', hpBonus: 15 },
+  necklace_uncommon: { id: 'necklace_uncommon', name: '고급 목걸이', type: 'necklace', rarity: 'uncommon', hpBonus: 35, defBonus: 3 },
+  necklace_rare: { id: 'necklace_rare', name: '희귀 목걸이', type: 'necklace', rarity: 'rare', hpBonus: 70, defBonus: 6 },
+
+  // 랜덤박스 - 상점에서 골드로 직접 뽑기(박스 자체는 인벤토리에 안 쌓이고 즉시 결과만 지급)
+  random_box: { id: 'random_box', name: '수상한 상자', type: 'randombox', rarity: 'normal', shopPrice: 150 },
 };
 
 // NPC 헐값 매입가 계산 — 정가가 있으면 그 30%, 없으면(드랍 전용 재료 등) 등급별 고정가

@@ -62,11 +62,13 @@ export function computeCharacterCombatStats(character) {
   const scalingStat = mainCls.statScaling.atk === 'agi' ? stats.agi : stats.str;
 
   const equipment = character.equipment || {};
+  const equippedItems = ['weapon', 'armor', 'ring', 'necklace']
+    .map((slot) => (equipment[slot] ? ITEMS[equipment[slot]] : null))
+    .filter(Boolean);
   const weaponItem = equipment.weapon ? ITEMS[equipment.weapon] : null;
-  const armorItem = equipment.armor ? ITEMS[equipment.armor] : null;
-  const atkBonus = (weaponItem && weaponItem.atkBonus) || 0;
-  const defBonus = (armorItem && armorItem.defBonus) || 0;
-  const hpBonus = (armorItem && armorItem.hpBonus) || 0;
+  const atkBonus = equippedItems.reduce((sum, it) => sum + (it.atkBonus || 0), 0);
+  const defBonus = equippedItems.reduce((sum, it) => sum + (it.defBonus || 0), 0);
+  const hpBonus = equippedItems.reduce((sum, it) => sum + (it.hpBonus || 0), 0);
 
   return {
     maxHp: stats.vit * 10 + level * 5 + hpBonus,
@@ -74,7 +76,7 @@ export function computeCharacterCombatStats(character) {
     maxStamina: 50 + level * 2, // 향후 스테미나 소모 스킬/행동에 대비한 자원(현재는 회복 대상으로만 사용)
     atk: scalingStat * 2 + level + atkBonus,
     def: stats.vit + defBonus,
-    element: 'none', // 무기 속성 부여는 콘텐츠 확장 단계에서
+    element: (weaponItem && weaponItem.element) || 'none', // 무기에 속성이 있으면 그 속성으로 공격
     classDef,
   };
 }

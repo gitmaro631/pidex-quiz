@@ -11,6 +11,29 @@ import { QUESTS } from './data/rpg/quests.js';
 import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
 import { capacityForCharacter } from './api/_rpgInventory.js';
+import { computeCharacterCombatStats } from './rpg-combat.js';
+
+const ELEMENT_NAMES = { water: '물', fire: '불', air: '대기', dark: '어둠', holy: '신성', none: '무속성' };
+
+// 상점/인벤토리에 표시할 장비 스탯 요약 (ATK/DEF/HP 보너스 + 속성)
+function itemStatsLabel(item) {
+  const parts = [];
+  if (item.atkBonus) parts.push(`공격력+${item.atkBonus}`);
+  if (item.defBonus) parts.push(`방어력+${item.defBonus}`);
+  if (item.hpBonus) parts.push(`최대체력+${item.hpBonus}`);
+  if (item.element && item.element !== 'none') parts.push(`속성:${ELEMENT_NAMES[item.element] || item.element}`);
+  return parts.length ? ` (${parts.join(', ')})` : '';
+}
+
+// 장착/해제 전후 전투 스탯 변화를 사람이 읽을 수 있는 문장으로
+function statsDeltaMessage(before, after) {
+  const lines = [];
+  if (before.atk !== after.atk) lines.push(`공격력 ${before.atk}→${after.atk} (${after.atk > before.atk ? '+' : ''}${after.atk - before.atk})`);
+  if (before.def !== after.def) lines.push(`방어력 ${before.def}→${after.def} (${after.def > before.def ? '+' : ''}${after.def - before.def})`);
+  if (before.maxHp !== after.maxHp) lines.push(`최대체력 ${before.maxHp}→${after.maxHp} (${after.maxHp > before.maxHp ? '+' : ''}${after.maxHp - before.maxHp})`);
+  if (before.element !== after.element) lines.push(`공격 속성: ${ELEMENT_NAMES[before.element]} → ${ELEMENT_NAMES[after.element]}`);
+  return lines.length ? lines.join(' · ') : '스탯 변화 없음';
+}
 
 let character = null;
 let activeSlot = null;
@@ -305,7 +328,7 @@ function questRowHtml(questId) {
 
 // ── 마을 탭(상점 + 마켓 + 이송상자/저장상자) ─────────
 function renderTownTab(content, container) {
-  const shopItems = Object.values(ITEMS).filter((i) => i.shopPrice);
+  const shopItems = Object.values(ITEMS).filter((i) => i.shopPrice && i.type !== 'randombox');
   const townName = (TOWNS[character.currentTown] || {}).name || character.currentTown;
   const townNpcs = Object.values(NPCS).filter((n) => n.townId === character.currentTown);
   content.innerHTML = `
@@ -330,10 +353,15 @@ function renderTownTab(content, container) {
     <div class="rpg-shop-list">
       ${shopItems.map((i) => `
         <div class="rpg-shop-row">
-          <span>${i.name} (${i.shopPrice}골드)</span>
+          <span>${i.name}${itemStatsLabel(i)} (${i.shopPrice}골드)</span>
           <button class="rpg-buy-btn" data-item="${i.id}">구매</button>
         </div>
       `).join('')}
+    </div>
+    <h4>뽑기 (랜덤박스)</h4>
+    <div class="rpg-shop-row">
+      <span>${ITEMS.random_box.name} — 속성무기·방어구·장신구 중 하나 획득 (${ITEMS.random_box.shopPrice}골드)</span>
+      <button class="rpg-randombox-btn">뽑기</button>
     </div>
     <h4>유저 마켓</h4>
     <div class="rpg-market-list"><div class="rpg-loading">불러오는 중...</div></div>
@@ -380,6 +408,15 @@ function renderTownTab(content, container) {
         showToast(friendlyError(e));
       }
     });
+  });
+  content.querySelector('.rpg-randombox-btn').addEventListener('click', async () => {
+    try {
+      const r = await apiPost('open-random-box', {});
+      character.gold = r.gold;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      const item = ITEMS[r.itemId];
+      showToast(`${item.name}${itemStatsLabel(item)} 획득!` + (r.overflowed ? ' (인벤토리가 가득 차 놓쳤어요)' : ''));
+    } catch (e) { showToast(friendlyError(e)); }
   });
   loadMarketListings(content, container);
   loadStorageBox(content, container, 'account');
@@ -527,13 +564,14 @@ function renderInventoryTab(content, container) {
       ${inventory.length ? inventory.map((entry) => {
         const item = ITEMS[entry.itemId] || { name: entry.itemId };
         const actions = [];
+        const equippable = ['weapon', 'armor', 'ring', 'necklace'];
         if (item.type === 'consumable' || item.type === 'bag') actions.push(`<button class="rpg-inv-use" data-item="${entry.itemId}">사용</button>`);
-        if (item.type === 'weapon' || item.type === 'armor') actions.push(`<button class="rpg-inv-equip" data-item="${entry.itemId}">장착</button>`);
+        if (equippable.includes(item.type)) actions.push(`<button class="rpg-inv-equip" data-item="${entry.itemId}">장착</button>`);
         actions.push(`<button class="rpg-inv-sell" data-item="${entry.itemId}">NPC판매</button>`);
         actions.push(`<button class="rpg-inv-list" data-item="${entry.itemId}">마켓등록</button>`);
         return `
           <div class="rpg-inv-row">
-            <span>${item.name} x${entry.qty}</span>
+            <span>${item.name}${itemStatsLabel(item)} x${entry.qty}</span>
             <span class="rpg-inv-actions">${actions.join('')}</span>
           </div>
         `;
@@ -556,10 +594,12 @@ function renderInventoryTab(content, container) {
   }));
   content.querySelectorAll('.rpg-inv-equip').forEach((btn) => btn.addEventListener('click', async () => {
     try {
+      const before = computeCharacterCombatStats(character);
       await apiPost('equip', { itemId: btn.dataset.item });
       await loadCharacter();
+      const after = computeCharacterCombatStats(character);
       renderInventoryTab(content, container);
-      showToast('장착했습니다');
+      showToast(`장착 완료 — ${statsDeltaMessage(before, after)}`);
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-inv-sell').forEach((btn) => btn.addEventListener('click', async () => {
@@ -608,10 +648,7 @@ function renderCharacterTab(content, container) {
         </div>
       `).join('')}
     </div>
-    <div class="rpg-equipment">
-      <p>무기: ${character.equipment.weapon ? (ITEMS[character.equipment.weapon] || {}).name : '없음'} ${character.equipment.weapon ? '<button class="rpg-unequip-btn" data-slot="weapon">해제</button>' : ''}</p>
-      <p>방어구: ${character.equipment.armor ? (ITEMS[character.equipment.armor] || {}).name : '없음'} ${character.equipment.armor ? '<button class="rpg-unequip-btn" data-slot="armor">해제</button>' : ''}</p>
-    </div>
+    ${equipmentSectionHtml()}
     ${subclassSectionHtml()}
     ${potionRulesEditorHtml()}
     ${journalHtml()}
@@ -633,10 +670,12 @@ function renderCharacterTab(content, container) {
   }));
   content.querySelectorAll('.rpg-unequip-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
+      const before = computeCharacterCombatStats(character);
       await apiPost('unequip', { equipSlot: btn.dataset.slot });
       await loadCharacter();
+      const after = computeCharacterCombatStats(character);
       renderCharacterTab(content, container);
-      showToast('해제했습니다');
+      showToast(`해제 완료 — ${statsDeltaMessage(before, after)}`);
     } catch (e) { showToast(friendlyError(e)); }
   }));
 
@@ -668,6 +707,29 @@ function renderCharacterTab(content, container) {
       showToast('포션 자동사용 설정을 저장했습니다');
     } catch (e) { showToast(friendlyError(e)); }
   });
+}
+
+// ── 장비창 — 착용 중인 장비를 슬롯별로 한눈에 보여줌 ──
+const EQUIP_SLOT_LABELS = { weapon: '무기', armor: '방어구', ring: '반지', necklace: '목걸이' };
+function equipmentSectionHtml() {
+  const stats = computeCharacterCombatStats(character);
+  const slots = ['weapon', 'armor', 'ring', 'necklace'];
+  return `
+    <div class="rpg-equipment">
+      <h4>장비창</h4>
+      <p class="rpg-hint">공격력 ${stats.atk} · 방어력 ${stats.def} · 최대체력 ${stats.maxHp} · 공격속성: ${ELEMENT_NAMES[stats.element]}</p>
+      ${slots.map((slot) => {
+        const itemId = character.equipment[slot];
+        const item = itemId ? ITEMS[itemId] : null;
+        return `
+          <div class="rpg-shop-row">
+            <span>${EQUIP_SLOT_LABELS[slot]}: ${item ? `${item.name}${itemStatsLabel(item)}` : '없음'}</span>
+            ${item ? `<button class="rpg-unequip-btn" data-slot="${slot}">해제</button>` : ''}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
 }
 
 // ── 부직업(겸업) 선택 섹션 ───────────────────────────

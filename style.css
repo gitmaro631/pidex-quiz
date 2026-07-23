@@ -1320,6 +1320,7 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
   padding: 12px 14px; text-align: left; color: #fff; cursor: pointer;
 }
 .rpg-subclass-select { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border); }
+.rpg-equipment { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--border); }
 
 .rpg-npc-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 .rpg-npc-card {
