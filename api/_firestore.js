@@ -137,7 +137,7 @@ export async function firestoreCommitUpdate(docPath, data, expectedUpdateTime) {
   const currentDocument = expectedUpdateTime
     ? { updateTime: expectedUpdateTime }
     : { exists: false };
-  const res = await fetch(`https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default):commit`, {
+  const res = await fetch(`https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:commit`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -191,7 +191,7 @@ async function firestoreCommitMulti(writes) {
       currentDocument: expectedUpdateTime ? { updateTime: expectedUpdateTime } : { exists: false },
     })),
   };
-  const res = await fetch(`https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default):commit`, {
+  const res = await fetch(`https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents:commit`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
