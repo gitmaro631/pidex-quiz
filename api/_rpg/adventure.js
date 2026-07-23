@@ -9,6 +9,7 @@ import { resolveCombat } from '../../rpg-combat.js';
 import { applyXpGain } from '../../rpg-progression.js';
 import { checkNewLoreUnlocks } from '../../rpg-lore.js';
 import { LORE_ENTRIES } from '../../data/rpg/lore.js';
+import { isAdminUsername } from '../_rpgAdmin.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -16,6 +17,7 @@ export default async function handler(req, res) {
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  const isAdmin = isAdminUsername(username); // 관리자는 테스트 편의를 위해 턴포인트 한도 없음
 
   const zone = ZONES[zoneId];
   if (!zone) return res.status(400).json({ error: 'invalid zoneId' });
@@ -30,7 +32,7 @@ export default async function handler(req, res) {
       const now = Date.now();
       const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now);
 
-      if (turns < 1) { outcome = { error: 'not_enough_turns' }; return null; }
+      if (!isAdmin && turns < 1) { outcome = { error: 'not_enough_turns' }; return null; }
       const inventory = [...(character.inventory || [])];
       if (zone.requiresTorch) {
         const torchQty = (inventory.find((e) => e.itemId === 'torch') || {}).qty || 0;
@@ -76,7 +78,7 @@ export default async function handler(req, res) {
       const loreUnlocked = [...(character.loreUnlocked || []), ...newLoreIds];
       const newLoreEntries = newLoreIds.map((id) => LORE_ENTRIES[id]);
 
-      const nextTurns = turns - 1;
+      const nextTurns = isAdmin ? turns : turns - 1;
       const progression = applyXpGain(character, combatResult.xpGain);
       outcome = {
         newLore: newLoreEntries,

@@ -10,6 +10,7 @@ import { NPCS } from './data/rpg/npcs.js';
 import { QUESTS } from './data/rpg/quests.js';
 import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
+import { capacityForCharacter } from './api/_rpgInventory.js';
 
 let character = null;
 let activeSlot = null;
@@ -83,8 +84,7 @@ const ERROR_MESSAGES = {
 };
 
 function friendlyError(err) {
-  // TODO(임시 디버깅): 매핑 안 된 에러는 원문을 그대로 보여줌 - 원인 파악되면 지우기
-  return ERROR_MESSAGES[err.message] || `오류: ${err.message}`;
+  return ERROR_MESSAGES[err.message] || '오류가 발생했습니다. 다시 시도해주세요.';
 }
 
 async function loadCharacter() {
@@ -520,7 +520,9 @@ async function loadMarketListings(content, container) {
 // ── 인벤토리 탭 ─────────────────────────────────────
 function renderInventoryTab(content, container) {
   const inventory = character.inventory || [];
+  const capacity = capacityForCharacter(character);
   content.innerHTML = `
+    <p class="rpg-hint">인벤토리 (${inventory.length}/${capacity}칸)</p>
     <div class="rpg-inventory-list">
       ${inventory.length ? inventory.map((entry) => {
         const item = ITEMS[entry.itemId] || { name: entry.itemId };
@@ -545,7 +547,11 @@ function renderInventoryTab(content, container) {
       await loadCharacter();
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderInventoryTab(content, container);
-      showToast('사용했습니다');
+      if (r.effect === 'bag') {
+        showToast(`가방을 사용해 인벤토리가 +${r.slotBonus}칸 늘었습니다! (현재 ${capacityForCharacter(character)}칸)`);
+      } else {
+        showToast('사용했습니다');
+      }
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-inv-equip').forEach((btn) => btn.addEventListener('click', async () => {
