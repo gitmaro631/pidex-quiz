@@ -152,7 +152,10 @@ export async function firestoreCommitUpdate(docPath, data, expectedUpdateTime) {
     err.code = 'PRECONDITION_FAILED';
     throw err;
   }
-  if (!res.ok) throw new Error(`Firestore commit failed: ${res.status}`);
+  if (!res.ok) {
+    const bodyText = await res.text().catch(() => '');
+    throw new Error(`Firestore commit failed: ${res.status} ${bodyText}`);
+  }
   return res.json();
 }
 
@@ -198,7 +201,10 @@ async function firestoreCommitMulti(writes) {
     err.code = 'PRECONDITION_FAILED';
     throw err;
   }
-  if (!res.ok) throw new Error(`Firestore multi-commit failed: ${res.status}`);
+  if (!res.ok) {
+    const bodyText = await res.text().catch(() => '');
+    throw new Error(`Firestore multi-commit failed: ${res.status} ${bodyText}`);
+  }
   return res.json();
 }
 
