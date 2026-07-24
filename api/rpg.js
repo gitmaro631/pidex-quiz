@@ -40,6 +40,8 @@ import collectTerritoryIncome from './_rpg/collect-territory-income.js';
 import trainSkill from './_rpg/train-skill.js';
 import enhanceEquipment from './_rpg/enhance-equipment.js';
 import identifyItem from './_rpg/identify-item.js';
+import claimCastle from './_rpg/claim-castle.js';
+import claimCastleIncome from './_rpg/claim-castle-income.js';
 
 const ROUTES = {
   character, adventure,
@@ -65,6 +67,8 @@ const ROUTES = {
   'train-skill': trainSkill,
   'enhance-equipment': enhanceEquipment,
   'identify-item': identifyItem,
+  'claim-castle': claimCastle,
+  'claim-castle-income': claimCastleIncome,
 };
 
 export default async function handler(req, res) {

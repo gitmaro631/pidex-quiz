@@ -14,6 +14,7 @@ import { computeCharacterCombatStats } from './rpg-combat.js';
 import { MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster } from './data/rpg/mercenaries.js';
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS } from './data/rpg/enhancement.js';
+import { CASTLE_CLEAR_REQUIREMENT } from './data/rpg/castle.js';
 
 function isMeleeClass(classId) {
   const cls = CLASSES[classId];
@@ -132,6 +133,8 @@ const ERROR_MESSAGES = {
   not_enough_wisdom: '지혜가 부족해 착용할 수 없습니다.',
   invalid_skill: '알 수 없는 스킬입니다.',
   max_tier_reached: '이미 최고 단계입니다.',
+  not_enough_clears: '아직 그 지역 성에 도전할 자격이 되지 않습니다 (100회 공략 필요).',
+  already_owner: '이미 이 성을 차지하고 있습니다.',
   not_enough_material: '재료가 부족합니다.',
   no_mild_injury: '붕대로 치료할 수 있는 경상이 없습니다.',
   no_injury: '치료할 부상이 없습니다.',
@@ -341,16 +344,49 @@ function renderMain(container) {
 function renderAdventureTab(content, container) {
   content.innerHTML = `
     <div class="rpg-zone-list">
-      ${Object.values(ZONES).map((z) => `
-        <button class="rpg-zone-btn" data-zone="${z.id}">
-          <div class="rpg-zone-name">${z.name}</div>
-          <div class="rpg-zone-tier">Tier ${z.tier}${z.requiresTorch ? ' · 횃불 필요' : ''}</div>
-        </button>
-      `).join('')}
+      ${Object.values(ZONES).map((z) => {
+        const clears = (character.zoneClearCounts || {})[z.id] || 0;
+        const eligible = clears >= CASTLE_CLEAR_REQUIREMENT;
+        return `
+        <div class="rpg-zone-block">
+          <button class="rpg-zone-btn" data-zone="${z.id}">
+            <div class="rpg-zone-name">${z.name}</div>
+            <div class="rpg-zone-tier">Tier ${z.tier}${z.requiresTorch ? ' · 횃불 필요' : ''}</div>
+          </button>
+          <p class="rpg-hint">성 도전 자격: ${Math.min(clears, CASTLE_CLEAR_REQUIREMENT)}/${CASTLE_CLEAR_REQUIREMENT}회 공략
+            ${eligible ? `<button class="rpg-castle-challenge-btn" data-zone="${z.id}">성 도전하기</button>` : ''}
+          </p>
+        </div>
+      `;
+      }).join('')}
     </div>
+    <p class="rpg-hint"><button class="rpg-castle-income-btn">성주 수입 수령</button></p>
     <div class="rpg-combat-log"></div>
   `;
   const log = content.querySelector('.rpg-combat-log');
+  content.querySelectorAll('.rpg-castle-challenge-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('claim-castle', { zoneId: btn.dataset.zone });
+      if (r.wasEmpty) {
+        showToast(`${ZONES[r.zoneId].name}의 성이 비어있어 바로 차지했습니다!`);
+      } else if (r.won) {
+        showToast(`${r.previousOwnerName}을(를) 꺾고 ${ZONES[r.zoneId].name}의 성을 차지했습니다! (${r.challengerRoll} vs ${r.defenderRoll})`);
+      } else {
+        showToast(`도전 실패... (${r.challengerRoll} vs ${r.defenderRoll})`);
+      }
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  const incomeBtn = content.querySelector('.rpg-castle-income-btn');
+  if (incomeBtn) incomeBtn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('claim-castle-income', {});
+      character.gold = r.gold;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      if (r.alreadyClaimed) showToast('오늘은 이미 수령했습니다.');
+      else if (r.income > 0) showToast(`성주 수입 ${r.income}골드를 수령했습니다! (보유 성 ${r.ownedZones.length}개)`);
+      else showToast('현재 소유한 성이 없습니다.');
+    } catch (e) { showToast(friendlyError(e)); }
+  });
   content.querySelectorAll('.rpg-zone-btn').forEach((btn) => {
     btn.addEventListener('click', async () => {
       log.innerHTML = `<div class="rpg-loading">전투 중...</div>`;

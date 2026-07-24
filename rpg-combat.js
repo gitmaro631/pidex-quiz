@@ -157,6 +157,19 @@ export function computeCharacterCombatStats(character) {
   };
 }
 
+// 파티(본인+활성 용병) 전체 전력치 - 성 점령전(castle.js) 판정에 쓰이는 단순 합산 지표.
+// 실제 턴제 전투 대신 이 수치끼리 확률 비교로 승패를 가름(claim-castle.js 참고)
+export function computePartyPower(character) {
+  const members = [
+    character,
+    ...(character.mercenaries || []).filter((m) => m.assignment === 'active' && !m.hospitalized),
+  ];
+  return members.reduce((sum, m) => {
+    const stats = computeCharacterCombatStats(m);
+    return sum + stats.atk * 2 + stats.def * 3 + stats.maxHp / 5;
+  }, 0);
+}
+
 // 전투 1회를 치른 뒤 장착중인 무기/방어구에 마모를 적용 - 내구도가 낮을수록 조기 파손 확률이 높아짐
 export function applyEquipmentWear(equipment) {
   const next = { ...equipment };

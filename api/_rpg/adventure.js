@@ -111,6 +111,10 @@ export default async function handler(req, res) {
         ? 0
         : (zoneKillCounts[zoneId] || 0) + combatResult.killedMonsterIds.length;
 
+      // 성 도전 자격용 - 레어 pity와 무관하게 그 지역 모험을 승리로 마친 횟수(100 이상이면 도전 가능)
+      const zoneClearCounts = { ...(character.zoneClearCounts || {}) };
+      if (combatResult.victory) zoneClearCounts[zoneId] = (zoneClearCounts[zoneId] || 0) + 1;
+
       const visitedZones = [...(character.visitedZones || [])];
       const isFirstVisit = !visitedZones.includes(zoneId);
       if (isFirstVisit) visitedZones.push(zoneId);
@@ -205,6 +209,7 @@ export default async function handler(req, res) {
         currentTown: nextTown,
         inventory,
         zoneKillCounts,
+        zoneClearCounts,
         visitedZones,
         loreUnlocked,
         equipment: wornEquipment,

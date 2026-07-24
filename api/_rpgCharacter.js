@@ -49,6 +49,8 @@ export function defaultCharacter(slot, now = Date.now()) {
     lastTerritoryCollectAt: now, // 영지에서 일하는 용병들의 수입 정산 기준 시각(지연계산, collect-territory-income.js 참고)
     skillLevels: {}, // 직업훈련소에서 배운 스킬 단계({ [skillId]: 1~3 }) - 없으면(0) 전투에서 그 스킬을 못 씀
     identifiedItems: [], // 한 번 감정(확인)된 아이템id 목록 - 이후로는 항상 실제 스탯이 보임
+    zoneClearCounts: {}, // 지역별 모험 승리 누적(레어 pity용 zoneKillCounts와 별개) - 100 이상이면 성 도전 가능
+    lastCastleIncomeClaimDate: null, // 성주 일일 수입 정산일(YYYY-MM-DD) - claim-castle-income.js 참고
     createdAt: now,
     updatedAt: now,
   };
