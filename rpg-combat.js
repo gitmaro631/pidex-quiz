@@ -7,9 +7,24 @@ import { CLASSES } from './data/rpg/classes.js';
 import { elementalMultiplier } from './data/rpg/elements.js';
 
 const MAX_ROUNDS_PER_ENCOUNTER = 40;
+const BASE_HP = 40;
+const HP_PER_LEVEL = 6;
+const VIT_HP_PER_LEVEL = 0.5; // VIT 1당, 레벨 1당 최대체력 +0.5 - 레벨이 오를수록 VIT 효과가 누적돼 커짐
+const BASE_MP = 15;
+const MP_PER_LEVEL = 2;
+const INT_MP_PER_LEVEL = 0.3; // INT도 VIT/HP와 같은 방식 - 레벨이 오를수록 INT 투자분이 누적돼 마나가 커짐
+const BASE_STAMINA = 40;
+const STAMINA_PER_LEVEL = 2;
+const AGI_STAMINA_PER_LEVEL = 0.4; // AGI도 같은 방식으로 스테미나에 누적 반영
 const BASE_INJURY_CHANCE = 0.08;
 const WEAK_AFFINITY_INJURY_BONUS = 0.12; // 상성이 안 좋으면 다칠 확률이 더 높아짐
 const BASE_DODGE_CHANCE = 0.08; // 다리가 온전할 때만 정상적으로 회피 시도 가능
+// 민첩(AGI) - 회피와 "공격속도"(추가타 확률)에 영향. 공격속도는 라운드제 전투 특성상 별도 행동 순서가
+// 아니라 확률적 추가타(장신구의 2연타 효과와 같은 방식)로 구현 - 두 보너스는 합산됨
+const AGI_DODGE_PER_POINT = 0.004; // 민첩 1당 회피율 +0.4%p
+const AGI_EXTRA_ATTACK_PER_POINT = 0.003; // 민첩 1당 추가타(2연타) 확률 +0.3%p
+const MAX_DODGE_CHANCE = 0.5;
+const MAX_EXTRA_ATTACK_CHANCE = 0.6;
 // severity: 0=건강, 1=경상(붕대로 치료 가능), 2=중상(의사에게만 치료 가능)
 const INJURY_ATK_MULT = { 1: 0.85, 2: 0.6 };
 const INJURY_DODGE_MULT = { 1: 0.5, 2: 0 };
@@ -106,14 +121,18 @@ export function computeCharacterCombatStats(character) {
   const accessoryDefBonus = (ringItem && ringItem.defBonus || 0) + (necklaceItem && necklaceItem.defBonus || 0);
   const accessoryHpBonus = (ringItem && ringItem.hpBonus || 0) + (necklaceItem && necklaceItem.hpBonus || 0);
 
+  // VIT는 레벨과 곱해져서 반영됨 - 레벨이 낮을 땐 VIT를 아무리 투자해도 체력 증가폭이 작고,
+  // 레벨이 오를수록 VIT 투자분이 누적돼서 체력 성장폭이 커짐(비율 성장)
   return {
-    maxHp: stats.vit * 10 + level * 5 + armorHpBonus + accessoryHpBonus,
-    maxMp: stats.int * 5 + level * 2,
-    maxStamina: 50 + level * 2, // 향후 스테미나 소모 스킬/행동에 대비한 자원(현재는 회복 대상으로만 사용)
+    maxHp: BASE_HP + level * HP_PER_LEVEL + Math.round(stats.vit * level * VIT_HP_PER_LEVEL) + armorHpBonus + accessoryHpBonus,
+    maxMp: BASE_MP + level * MP_PER_LEVEL + Math.round(stats.int * level * INT_MP_PER_LEVEL),
+    // 향후 스테미나 소모 스킬/행동에 대비한 자원(현재는 회복 대상으로만 사용)
+    maxStamina: BASE_STAMINA + level * STAMINA_PER_LEVEL + Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL),
     atk: scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus,
     def: stats.vit + armorDefBonus + accessoryDefBonus,
     element: weaponBroken ? 'none' : ((weaponItem && weaponItem.element) || 'none'), // 무기 파손시 속성공격도 사라짐
     weaponType: (weaponItem && weaponItem.weaponType) || null,
+    agi: stats.agi,
     weaponBroken: !!weaponBroken,
     armorBroken: !!armorBroken,
     // 방어구의 "중상방어" 속성 - 중상을 입을 확률을 이만큼 줄여줌(파손되면 무효)
@@ -203,7 +222,12 @@ export function resolveCombat({ character, zoneId, stance }) {
   const ringItemRef = equipmentRef.ring ? ITEMS[equipmentRef.ring] : null;
   const necklaceItemRef = equipmentRef.necklace ? ITEMS[equipmentRef.necklace] : null;
   const accessoryElementDefense = (ringItemRef && ringItemRef.elementDefense) || (necklaceItemRef && necklaceItemRef.elementDefense) || null;
-  const doubleAttackChance = (ringItemRef && ringItemRef.doubleAttackChance) || (necklaceItemRef && necklaceItemRef.doubleAttackChance) || 0;
+  // 민첩(AGI)이 "공격속도" 역할 - 장신구의 확률적 2연타 효과와 합산됨
+  const doubleAttackChance = Math.min(
+    MAX_EXTRA_ATTACK_CHANCE,
+    ((ringItemRef && ringItemRef.doubleAttackChance) || (necklaceItemRef && necklaceItemRef.doubleAttackChance) || 0)
+      + combatStats.agi * AGI_EXTRA_ATTACK_PER_POINT,
+  );
 
   // HP/MP는 모험 사이에도 유지됨(전투마다 풀피 리셋 아님) - 포션 소모가 골드 소모로 이어지게 하기 위함
   let hp = typeof character.currentHp === 'number' ? character.currentHp : combatStats.maxHp;
@@ -280,8 +304,9 @@ export function resolveCombat({ character, zoneId, stance }) {
         break;
       }
 
-      // 몹 턴 - 다리 부상 정도에 따라 회피 확률이 줄어듦
-      const dodgeChance = BASE_DODGE_CHANCE * (injurySeverity.leg ? INJURY_DODGE_MULT[injurySeverity.leg] : 1);
+      // 몹 턴 - 민첩(AGI)이 높을수록 회피율이 오르고, 다리 부상 정도에 따라 줄어듦
+      const dodgeChance = Math.min(MAX_DODGE_CHANCE, BASE_DODGE_CHANCE + combatStats.agi * AGI_DODGE_PER_POINT)
+        * (injurySeverity.leg ? INJURY_DODGE_MULT[injurySeverity.leg] : 1);
       const dodged = Math.random() < dodgeChance;
       if (dodged) {
         log.push(`${monster.name}의 공격을 회피했다!`);
