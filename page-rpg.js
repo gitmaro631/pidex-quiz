@@ -11,6 +11,12 @@ import { QUESTS } from './data/rpg/quests.js';
 import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
 import { computeCharacterCombatStats } from './rpg-combat.js';
+import { MERCENARY_TEMPLATES, MAX_MERCENARIES } from './data/rpg/mercenaries.js';
+
+function isMeleeClass(classId) {
+  const cls = CLASSES[classId];
+  return !!cls && cls.weaponTypes.some((t) => t !== 'bow');
+}
 
 // api/ 아래 파일은 Vercel이 서버 함수 전용으로 취급해서 브라우저가 직접 fetch 못 함(404) -
 // 그래서 api/_rpgInventory.js를 import하는 대신, 이 로직들을 그대로 복제해서 씀
@@ -110,7 +116,13 @@ const ERROR_MESSAGES = {
   not_enough_material: '재료가 부족합니다.',
   no_mild_injury: '붕대로 치료할 수 있는 경상이 없습니다.',
   no_injury: '치료할 부상이 없습니다.',
-  already_full_durability: '이미 내구도가 가득 찼습니다.',
+  party_full: '파티가 가득 찼습니다.',
+  incompatible_class: '본인 직업과 상호보완적인 직업(근접↔원거리)만 고용할 수 있습니다.',
+  unknown_mercenary: '알 수 없는 용병입니다.',
+  mercenary_not_found: '고용하지 않은 용병입니다.',
+  invalid_mercenary: '잘못된 용병 요청입니다.',
+  invalid_formation: '잘못된 진형 값입니다.',
+  no_class_selected: '직업을 먼저 선택해야 합니다.',
   invalid_class: '알 수 없는 직업입니다.',
   class_already_chosen: '이미 직업을 선택했습니다.',
   subclass_already_chosen: '이미 부직업을 선택했습니다.',
@@ -383,6 +395,26 @@ function doctorCureHtml() {
   }).join('');
 }
 
+// ── 선술집 NPC - 용병 고용 UI(본인 직업과 상호보완적인 직업만 고용 가능) ─────
+function tavernHireHtml() {
+  const mercenaries = character.mercenaries || [];
+  if (mercenaries.length >= MAX_MERCENARIES) return `<p class="rpg-hint">파티가 가득 찼습니다 (${mercenaries.length}/${MAX_MERCENARIES}).</p>`;
+  if (!character.classMain) return `<p class="rpg-hint">직업을 먼저 선택해야 용병을 고용할 수 있어요.</p>`;
+  const selfMelee = isMeleeClass(character.classMain);
+  const hiredTemplateIds = new Set(mercenaries.map((m) => m.templateId));
+  const options = Object.values(MERCENARY_TEMPLATES).filter((t) => isMeleeClass(t.classMain) !== selfMelee && !hiredTemplateIds.has(t.id));
+  if (!options.length) return `<p class="rpg-hint">지금은 고용 가능한 용병이 없네요.</p>`;
+  return options.map((t) => {
+    const cls = CLASSES[t.classMain];
+    return `
+      <div class="rpg-shop-row">
+        <span>${t.name} (Lv.${t.baseLevel} ${cls ? cls.name : t.classMain}) — 고용비 ${t.hireCost}골드, 보수 ${t.wagePerAdventure}골드/모험</span>
+        <button class="rpg-hire-btn" data-template="${t.id}">고용</button>
+      </div>
+    `;
+  }).join('');
+}
+
 // ── 마을 탭(NPC + 게시판) ────────────────────────────
 function renderTownTab(content, container) {
   const townName = (TOWNS[character.currentTown] || {}).name || character.currentTown;
@@ -397,6 +429,7 @@ function renderTownTab(content, container) {
           ${npc.dialogue.map((line) => `<p class="rpg-hint">"${line}"</p>`).join('')}
           ${(npc.questIds || []).map((qid) => questRowHtml(qid)).join('')}
           ${npc.role === 'doctor' ? doctorCureHtml() : ''}
+          ${npc.role === 'tavern' ? tavernHireHtml() : ''}
         </div>
       `).join('') || '<p class="rpg-hint">이 마을엔 아직 만날 사람이 없어요.</p>'}
     </div>
@@ -417,6 +450,16 @@ function renderTownTab(content, container) {
       renderTownTab(content, container);
       showToast('퀘스트를 완료했습니다!' + (r.overflowed ? ' (인벤토리가 가득 차 보상 아이템을 놓쳤어요)' : ''));
       if (r.newLore && r.newLore.length) content.insertAdjacentHTML('afterbegin', loreUnlockHtml(r.newLore));
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-hire-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('hire-mercenary', { templateId: btn.dataset.template });
+      character.gold = r.gold;
+      character.mercenaries = [...(character.mercenaries || []), r.hired];
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      renderTownTab(content, container);
+      showToast(`${r.hired.name}을(를) 고용했습니다!`);
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-cure-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -726,6 +769,42 @@ function renderInventoryTab(content, container) {
   }));
 }
 
+// 진형을 '자동'으로 두면 장착 무기로 결정됨(활=후열, 그 외=전열) - 표시용
+function equipmentSectionEffectiveRow(characterLike = character) {
+  const weaponId = characterLike.equipment && characterLike.equipment.weapon;
+  const weapon = weaponId ? ITEMS[weaponId] : null;
+  return weapon && weapon.weaponType === 'bow' ? '후열' : '전열';
+}
+
+// ── 파티(고용한 용병) 섹션 - 캐릭터 탭에서 사용 ─────────
+function partySectionHtml() {
+  const mercenaries = character.mercenaries || [];
+  if (!mercenaries.length) return '';
+  return `
+    <div class="rpg-party">
+      <h4>파티 (용병)</h4>
+      ${mercenaries.map((m) => {
+        const cls = CLASSES[m.classMain];
+        const injured = ['arm', 'leg'].filter((p) => (m.injuries && m.injuries[p] && m.injuries[p].severity) > 0);
+        return `
+          <div class="rpg-npc-card">
+            <div class="rpg-class-name">${m.name} (Lv.${m.level} ${cls ? cls.name : m.classMain})</div>
+            <p class="rpg-hint">HP ${m.currentHp} · 보수 ${m.wagePerAdventure}골드/모험 ${injured.length ? `· 부상: ${injured.map((p) => BODY_PART_NAMES[p]).join(', ')}` : ''}</p>
+            <p>진형:
+              <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="front">전열</button>
+              <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="back">후열</button>
+              <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="">자동</button>
+              (현재: ${m.formationRow === 'front' ? '전열' : m.formationRow === 'back' ? '후열' : `자동(${equipmentSectionEffectiveRow(m)})`})
+              <button class="rpg-dismiss-merc-btn" data-merc="${m.id}">해고</button>
+            </p>
+            ${potionRulesEditorHtml(m.id)}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
 // ── 부상 상태 요약(캐릭터 탭에서 사용) ─────────────────
 function injuriesSummaryHtml() {
   const injuries = character.injuries || {};
@@ -753,6 +832,12 @@ function renderCharacterTab(content, container) {
         <button class="rpg-stance-btn" data-stance="aggressive">공격형</button>
         (현재: ${character.stance === 'aggressive' ? '공격형' : '안정형'})
       </p>
+      <p>진형:
+        <button class="rpg-formation-btn" data-formation="front">전열</button>
+        <button class="rpg-formation-btn" data-formation="back">후열</button>
+        <button class="rpg-formation-btn" data-formation="">자동</button>
+        (현재: ${character.formationRow === 'front' ? '전열' : character.formationRow === 'back' ? '후열' : `자동(${equipmentSectionEffectiveRow()})`})
+      </p>
       ${injuriesSummaryHtml()}
     </div>
     <div class="rpg-stats">
@@ -767,6 +852,7 @@ function renderCharacterTab(content, container) {
     ${equipmentSectionHtml()}
     ${subclassSectionHtml()}
     ${potionRulesEditorHtml()}
+    ${partySectionHtml()}
     ${journalHtml()}
   `;
   content.querySelectorAll('.rpg-stance-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -774,6 +860,28 @@ function renderCharacterTab(content, container) {
       await apiPost('set-stance', { stance: btn.dataset.stance });
       character.stance = btn.dataset.stance;
       renderCharacterTab(content, container);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-formation-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const mercId = btn.dataset.merc || null;
+    const formationRow = btn.dataset.formation || null;
+    try {
+      await apiPost('set-formation', mercId ? { mercId, formationRow } : { formationRow });
+      if (mercId) {
+        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
+        if (merc) merc.formationRow = formationRow;
+      } else {
+        character.formationRow = formationRow;
+      }
+      renderCharacterTab(content, container);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-dismiss-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      await apiPost('dismiss-mercenary', { mercId: btn.dataset.merc });
+      character.mercenaries = (character.mercenaries || []).filter((m) => m.id !== btn.dataset.merc);
+      renderCharacterTab(content, container);
+      showToast('용병을 해고했습니다');
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-stat-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -815,25 +923,31 @@ function renderCharacterTab(content, container) {
     } catch (e) { showToast(friendlyError(e)); }
   }));
 
-  const saveBtn = content.querySelector('.rpg-potion-save-btn');
-  if (saveBtn) saveBtn.addEventListener('click', async () => {
-    const rows = content.querySelectorAll('.rpg-potion-rule-row');
+  content.querySelectorAll('.rpg-potion-save-btn').forEach((saveBtn) => saveBtn.addEventListener('click', async () => {
+    const mercId = saveBtn.dataset.merc || null;
+    const container2 = saveBtn.closest('.rpg-potion-rules');
+    const rows = container2.querySelectorAll('.rpg-potion-rule-row');
     const potionRules = [];
     rows.forEach((row) => {
       const checkbox = row.querySelector('.rpg-potion-enable');
       if (!checkbox.checked) return;
       potionRules.push({
         itemId: row.dataset.item,
-        hpThresholdPct: Number(row.querySelector('.rpg-potion-threshold').value) || 50,
+        thresholdPct: Number(row.querySelector('.rpg-potion-threshold').value) || 50,
         maxPerBattle: Number(row.querySelector('.rpg-potion-max').value) || 1,
       });
     });
     try {
-      await apiPost('set-potion-rules', { potionRules });
-      character.potionRules = potionRules;
+      await apiPost('set-potion-rules', mercId ? { potionRules, mercId } : { potionRules });
+      if (mercId) {
+        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
+        if (merc) merc.potionRules = potionRules;
+      } else {
+        character.potionRules = potionRules;
+      }
       showToast('포션 자동사용 설정을 저장했습니다');
     } catch (e) { showToast(friendlyError(e)); }
-  });
+  }));
 }
 
 // ── 장비창 — 착용 중인 장비를 슬롯별로 한눈에 보여줌 ──
@@ -914,29 +1028,41 @@ function journalHtml() {
   `;
 }
 
-// ── 포션 자동사용 규칙 편집기 (전투 중 HP 임계값 기반 자동사용) ──
-function potionRulesEditorHtml() {
-  const hpPotions = Object.values(ITEMS).filter((i) => i.type === 'consumable' && i.healPct);
+// ── 포션 자동사용 규칙 편집기 (전투 중 HP/MP/스테미나 임계값 기반 자동사용) ──
+// mercId를 주면 본인이 아니라 그 용병(character.mercenaries에서 찾음)의 규칙을 편집함
+const POTION_RESOURCE_LABELS = { hp: 'HP', mp: 'MP', stamina: '스테미나' };
+function potionResourceKind(item) {
+  if (item.healPct) return 'hp';
+  if (item.restoreMpPct) return 'mp';
+  if (item.restoreStaminaPct) return 'stamina';
+  return null;
+}
+function potionRulesEditorHtml(mercId) {
+  const owner = mercId ? (character.mercenaries || []).find((m) => m.id === mercId) : character;
+  if (!owner) return '';
+  const potions = Object.values(ITEMS).filter((i) => i.type === 'consumable' && potionResourceKind(i));
   const rulesByItem = {};
-  (character.potionRules || []).forEach((r) => { rulesByItem[r.itemId] = r; });
+  (owner.potionRules || []).forEach((r) => { rulesByItem[r.itemId] = r; });
+  const idAttr = mercId ? ` data-merc="${mercId}"` : '';
 
   return `
-    <div class="rpg-potion-rules">
-      <p class="rpg-hint">전투 중 체력이 설정한 비율 이하로 떨어지면 자동으로 물약을 마셔요.</p>
-      ${hpPotions.map((item) => {
+    <div class="rpg-potion-rules"${idAttr}>
+      <p class="rpg-hint">전투 중 체력/마나/스테미나가 설정한 비율 이하로 떨어지면 자동으로 물약을 마셔요.</p>
+      ${potions.map((item) => {
         const rule = rulesByItem[item.id];
+        const kind = potionResourceKind(item);
         return `
           <div class="rpg-potion-rule-row" data-item="${item.id}">
             <label>
               <input type="checkbox" class="rpg-potion-enable" ${rule ? 'checked' : ''}>
               ${item.name} 자동사용
             </label>
-            <span>HP <input type="number" class="rpg-potion-threshold" min="1" max="100" value="${rule ? rule.hpThresholdPct : 50}" style="width:48px">% 이하 시</span>
+            <span>${POTION_RESOURCE_LABELS[kind]} <input type="number" class="rpg-potion-threshold" min="1" max="100" value="${rule ? rule.thresholdPct : 50}" style="width:48px">% 이하 시</span>
             <span>전투당 최대 <input type="number" class="rpg-potion-max" min="1" max="10" value="${rule ? rule.maxPerBattle : 2}" style="width:40px">개</span>
           </div>
         `;
       }).join('')}
-      <button class="rpg-potion-save-btn">저장</button>
+      <button class="rpg-potion-save-btn"${idAttr}>저장</button>
     </div>
   `;
 }

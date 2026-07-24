@@ -42,4 +42,17 @@ export const NPCS = {
     dialogue: ['다친 몸으로 계속 싸우면 더 크게 다치는 법이야.'],
     questIds: [],
   },
+  npc_tavern_1: {
+    id: 'npc_tavern_1', name: '선술집 주인', townId: 'town1', role: 'tavern',
+    dialogue: [
+      '혼자 다니기 힘들면 용병을 하나 데려가게.',
+      '근접 전문이면 원거리를, 원거리 전문이면 근접을 붙여야 손발이 맞지.',
+    ],
+    questIds: [],
+  },
+  npc_tavern_2: {
+    id: 'npc_tavern_2', name: '선술집 주인', townId: 'town2', role: 'tavern',
+    dialogue: ['용병 보수는 모험 갈 때마다 자동으로 나가니 주머니 사정을 봐가며 고용하게.'],
+    questIds: [],
+  },
 };

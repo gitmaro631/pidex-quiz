@@ -31,6 +31,9 @@ import openRandomBox from './_rpg/open-random-box.js';
 import repairEquipment from './_rpg/repair-equipment.js';
 import cureInjury from './_rpg/cure-injury.js';
 import craftBandage from './_rpg/craft-bandage.js';
+import hireMercenary from './_rpg/hire-mercenary.js';
+import dismissMercenary from './_rpg/dismiss-mercenary.js';
+import setFormation from './_rpg/set-formation.js';
 
 const ROUTES = {
   character, adventure,
@@ -47,6 +50,9 @@ const ROUTES = {
   'repair-equipment': repairEquipment,
   'cure-injury': cureInjury,
   'craft-bandage': craftBandage,
+  'hire-mercenary': hireMercenary,
+  'dismiss-mercenary': dismissMercenary,
+  'set-formation': setFormation,
 };
 
 export default async function handler(req, res) {

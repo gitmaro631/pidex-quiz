@@ -19,6 +19,8 @@ const AGI_STAMINA_PER_LEVEL = 0.4; // AGI도 같은 방식으로 스테미나에
 // 직업이 숙련되지 않은 무기(classDef.weaponTypes에 없는 타입)를 장착했을 때의 패널티
 const OFF_CLASS_WEAPON_DAMAGE_MULT = 0.7;
 const OFF_CLASS_WEAPON_MISS_CHANCE = 0.2;
+// 용병의 멘탈(공포저항) - 전열에서 피격당할 때마다 낮은 확률로 멘탈이 나가서 후열로 숨음(그 전투 한정, 일시적)
+const MORALE_BREAK_BASE_CHANCE = 0.25;
 const BASE_INJURY_CHANCE = 0.08;
 const WEAK_AFFINITY_INJURY_BONUS = 0.12; // 상성이 안 좋으면 다칠 확률이 더 높아짐
 const BASE_DODGE_CHANCE = 0.08; // 다리가 온전할 때만 정상적으로 회피 시도 가능
@@ -170,22 +172,35 @@ function inventoryQty(inventory, itemId) {
   return entry ? entry.qty : 0;
 }
 
-// 스탠스+포션규칙에 따라 이번 라운드에 포션을 쓸지 결정 (potionsUsed는 호출 사이 누적 상태)
-function maybeUsePotion({ character, hp, maxHp, potionsUsed, log }) {
-  for (const rule of character.potionRules || []) {
+// 아이템이 회복시키는 자원 종류 판별(hp/mp/stamina) - thresholdPct는 "그 자원의 잔여율"을 기준으로 판정
+function potionResourceKind(item) {
+  if (item.healPct) return 'hp';
+  if (item.restoreMpPct) return 'mp';
+  if (item.restoreStaminaPct) return 'stamina';
+  return null;
+}
+
+// 스탠스+포션규칙에 따라 이번 라운드에 포션을 쓸지 결정. 파티원 전원이 "본인 소유 인벤토리는 없고
+// 본대(캐릭터)의 물자를 공유"하는 구조라 inventory/potionsUsed는 파티 전체가 공유하되,
+// 언제/무엇을 마실지 정하는 potionRules(자원별 임계치)는 각자 것을 씀 - HP/MP/스테미나 전부 지원
+function maybeUsePotion({ potionRules, inventory, resources, potionsUsed, log, actorLabel }) {
+  for (const rule of potionRules || []) {
     const used = potionsUsed[rule.itemId] || 0;
     if (used >= rule.maxPerBattle) continue;
-    if (inventoryQty(character.inventory, rule.itemId) - used <= 0) continue;
-    const hpPct = (hp / maxHp) * 100;
-    if (hpPct > rule.hpThresholdPct) continue;
+    if (inventoryQty(inventory, rule.itemId) - used <= 0) continue;
     const item = ITEMS[rule.itemId];
     if (!item) continue;
+    const kind = potionResourceKind(item);
+    if (!kind) continue;
+    const { current, max } = resources[kind];
+    const pct = (current / max) * 100;
+    if (pct > rule.thresholdPct) continue;
     potionsUsed[rule.itemId] = used + 1;
-    if (item.healPct) {
-      const healAmount = Math.round(maxHp * item.healPct);
-      log.push(`${item.name}을(를) 사용해 체력을 ${healAmount} 회복했다.`);
-      return { hpDelta: healAmount };
-    }
+    const restorePct = item.healPct || item.restoreMpPct || item.restoreStaminaPct;
+    const amount = Math.round(max * restorePct);
+    const resourceLabel = kind === 'hp' ? '체력' : kind === 'mp' ? '마나' : '스테미나';
+    log.push(`${actorLabel}이(가) ${item.name}을(를) 사용해 ${resourceLabel}을(를) ${amount} 회복했다.`);
+    return { kind, amount };
   }
   return null;
 }
@@ -215,38 +230,179 @@ function rollLoot(monster) {
   return loot;
 }
 
-// 전투 전체(무리 몹 순차 처리 포함) 판정 - 결과만 반환, 아무것도 저장하지 않음
+// 진형이 명시적으로 지정 안 돼있으면 장착 무기로 자동 결정(활=후열, 그 외=전열)
+export function effectiveFormationRow(characterLike) {
+  if (characterLike.formationRow) return characterLike.formationRow;
+  return computeCharacterCombatStats(characterLike).weaponType === 'bow' ? 'back' : 'front';
+}
+
+// 파티원 1명(본인 또는 용병)의 전투용 런타임 상태를 구성 - characterLike는 character 또는
+// character.mercenaries[i] (둘 다 stats/level/classMain/equipment/injuries 구조가 동일함)
+function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }) {
+  const combatStats = computeCharacterCombatStats(characterLike);
+  const equipment = characterLike.equipment || {};
+  const ringItem = equipment.ring ? ITEMS[equipment.ring] : null;
+  const necklaceItem = equipment.necklace ? ITEMS[equipment.necklace] : null;
+  const accessoryElementDefense = (ringItem && ringItem.elementDefense) || (necklaceItem && necklaceItem.elementDefense) || null;
+  const doubleAttackChance = Math.min(
+    MAX_EXTRA_ATTACK_CHANCE,
+    ((ringItem && ringItem.doubleAttackChance) || (necklaceItem && necklaceItem.doubleAttackChance) || 0)
+      + combatStats.agi * AGI_EXTRA_ATTACK_PER_POINT,
+  );
+  return {
+    id: isSelf ? 'self' : characterLike.id,
+    isSelf,
+    name: isSelf ? '나' : characterLike.name,
+    label: isSelf ? '나' : characterLike.name,
+    combatStats,
+    // 용병은 별도 인벤토리 없이 본대(캐릭터)의 물자를 공유 - 화살/포션 전부 sharedInventory에서 사용
+    potionRules: characterLike.potionRules || [],
+    stance: characterLike.stance || 'stable',
+    formationRow,
+    hp: typeof characterLike.currentHp === 'number' ? characterLike.currentHp : combatStats.maxHp,
+    mp: typeof characterLike.currentMp === 'number' ? characterLike.currentMp : combatStats.maxMp,
+    stamina: typeof characterLike.currentStamina === 'number' ? characterLike.currentStamina : combatStats.maxStamina,
+    alive: true,
+    usesBow: combatStats.weaponType === 'bow',
+    arrowsUsed: 0,
+    accessoryElementDefense,
+    doubleAttackChance,
+    mentalResist: characterLike.mentalResist, // undefined면(본인) 멘탈 붕괴 로직 자체를 건너뜀
+    injurySeverity: {
+      arm: (characterLike.injuries && characterLike.injuries.arm && characterLike.injuries.arm.severity) || 0,
+      leg: (characterLike.injuries && characterLike.injuries.leg && characterLike.injuries.leg.severity) || 0,
+    },
+    newInjuries: {},
+  };
+}
+
+// 파티원 한 명의 공격 1회 처리(스킬/화살/부상/비숙련무기 패널티/2연타 전부 포함) - monster는 참조로 변형됨
+function performAttack({ actor, monster, sharedInventory, log, isUnderleveled }) {
+  const combatStats = actor.combatStats;
+  const skills = combatStats.classDef.skills.filter((s) => s.type === 'attack' && s.manaCost <= actor.mp);
+  const useSkill = actor.stance === 'aggressive' && skills.length > 0;
+  const skill = useSkill ? skills[skills.length - 1] : null;
+  let power = skill ? skill.power : 1.0;
+  if (skill) actor.mp -= skill.manaCost;
+
+  const arrowsLeftBeforeShot = actor.usesBow ? inventoryQty(sharedInventory, 'arrow') - actor.arrowsUsed : 0;
+  const isKiting = actor.usesBow && arrowsLeftBeforeShot > 0;
+  if (actor.usesBow) {
+    if (arrowsLeftBeforeShot > 0) actor.arrowsUsed++;
+    else { power *= 0.6; log.push(`${actor.label}의 화살이 떨어져 단도로 근접전을 벌인다! 위력이 약해졌다.`); }
+  }
+
+  if (actor.injurySeverity.arm > 0) power *= INJURY_ATK_MULT[actor.injurySeverity.arm];
+
+  const offClassWeapon = combatStats.weaponType && !combatStats.classDef.weaponTypes.includes(combatStats.weaponType);
+  if (offClassWeapon) power *= OFF_CLASS_WEAPON_DAMAGE_MULT;
+
+  const elemMult = elementalMultiplier(combatStats.element, monster.element);
+  const affinity = classMonsterAffinity(combatStats.classDef, monster.tags);
+  const affinityMult = affinity ? affinity.multiplier : 1;
+  const affinityNote = affinity
+    ? (affinity.kind === 'strong' ? ' (천적 관계! 추가 피해)' : ' (상성에 밀려 위력 약화)')
+    : '';
+
+  let monsterDied = false;
+  if (offClassWeapon && Math.random() < OFF_CLASS_WEAPON_MISS_CHANCE) {
+    log.push(`${actor.label}의 공격이 (숙련되지 않은 무기라) 빗나갔다!`);
+  } else {
+    const hitCount = Math.random() < actor.doubleAttackChance ? 2 : 1;
+    for (let hitIdx = 0; hitIdx < hitCount && !monsterDied; hitIdx++) {
+      const rawDamage = Math.max(1, Math.round((combatStats.atk * power * elemMult * affinityMult - monster.def) * randRange(0.85, 1.15)));
+      monster.hp -= rawDamage;
+      const hitLabel = hitIdx === 1 ? ' (2연타!)' : '';
+      log.push(`${actor.label}의 ${skill ? skill.name : '공격'}! ${monster.name}에게 ${rawDamage} 피해.${affinityNote}${hitLabel}`);
+      if (monster.hp <= 0) monsterDied = true;
+    }
+  }
+  return { monsterDied, isKiting, affinity };
+}
+
+// 몹의 반격 1회 처리 - target(파티원 한 명)이 대상. 카이팅 중이면 아예 호출되지 않음(resolveCombat에서 스킵)
+function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit }) {
+  const combatStats = target.combatStats;
+  const dodgeChance = Math.min(MAX_DODGE_CHANCE, BASE_DODGE_CHANCE + combatStats.agi * AGI_DODGE_PER_POINT)
+    * (target.injurySeverity.leg ? INJURY_DODGE_MULT[target.injurySeverity.leg] : 1);
+  if (Math.random() < dodgeChance) {
+    log.push(`${target.label}이(가) ${monster.name}의 공격을 회피했다!`);
+    return;
+  }
+
+  const injuryDamageBonus = (INJURY_INCOMING_DAMAGE_BONUS[target.injurySeverity.arm] || 0) + (INJURY_INCOMING_DAMAGE_BONUS[target.injurySeverity.leg] || 0);
+  const elementResistMult = (target.accessoryElementDefense === 'all' || target.accessoryElementDefense === monster.element) ? 0.7 : 1;
+  const monsterDamage = Math.max(1, Math.round((monster.atk - combatStats.def) * randRange(0.85, 1.15) * (1 + injuryDamageBonus) * elementResistMult));
+  target.hp -= monsterDamage;
+  log.push(`${monster.name}이(가) ${target.label}을(를) 공격! ${monsterDamage} 피해.`);
+  if (!monster.statusImmune && monster.poisonChance > 0 && Math.random() < monster.poisonChance) {
+    const poisonDamage = Math.round(combatStats.maxHp * 0.05);
+    target.hp -= poisonDamage;
+    log.push(`${target.label}이(가) 중독됐다! ${poisonDamage} 피해.`);
+  }
+
+  // 용병이 전열에서 맞으면 멘탈(공포저항)이 낮을수록 후열로 도망칠 확률이 있음 - 전투 중 일시적,
+  // 다음 모험에서는 다시 기본 진형으로 돌아옴. 앞이 뚫리면 그만큼 뒤(궁수 등)가 위험해짐
+  if (typeof target.mentalResist === 'number' && target.formationRow === 'front' && target.hp > 0) {
+    const breakChance = MORALE_BREAK_BASE_CHANCE * (1 - target.mentalResist / 100);
+    if (Math.random() < breakChance) {
+      target.formationRow = 'back';
+      log.push(`${target.label}이(가) 공포에 질려 뒤로 물러났다! 진형이 무너졌다.`);
+    }
+  }
+
+  // 아주 작은 확률로 단계를 건너뛰고 곧장 중상 - 상성 나쁨/언더레벨이면 더 잘 발생, 방어구/장신구의 중상방어로 완화
+  const resist = Math.min(0.8, combatStats.severeInjuryResist || 0);
+  const eligibleParts = Object.keys(target.injurySeverity).filter((p) => target.injurySeverity[p] < 2);
+  let injuryHandled = false;
+  if (eligibleParts.length) {
+    const directSevereChance = (DIRECT_SEVERE_BASE_CHANCE
+      + (affinityFromLastHit && affinityFromLastHit.kind === 'weak' ? DIRECT_SEVERE_WEAK_AFFINITY_BONUS : 0)
+      + (isUnderleveled ? DIRECT_SEVERE_UNDERLEVEL_BONUS : 0)) * (1 - resist);
+    if (Math.random() < directSevereChance) {
+      const part = eligibleParts[randInt(0, eligibleParts.length - 1)];
+      target.injurySeverity[part] = 2;
+      const [lo, hi] = INJURY_DURATION_RANGE[2];
+      const turnsLeft = randInt(lo, hi);
+      target.newInjuries[part] = { severity: 2, turnsLeft };
+      log.push(`${target.label}의 ${BODY_PART_NAMES[part]}에 심각한 부상을 입었다! (중상, ${turnsLeft}턴)`);
+      injuryHandled = true;
+    }
+  }
+  if (!injuryHandled && eligibleParts.length) {
+    const part = eligibleParts[randInt(0, eligibleParts.length - 1)];
+    const nextSeverity = target.injurySeverity[part] + 1;
+    const baseChance = BASE_INJURY_CHANCE + (affinityFromLastHit && affinityFromLastHit.kind === 'weak' ? WEAK_AFFINITY_INJURY_BONUS : 0);
+    const chance = nextSeverity === 2 ? baseChance * (1 - resist) : baseChance;
+    if (Math.random() < chance) {
+      target.injurySeverity[part] = nextSeverity;
+      const [lo, hi] = INJURY_DURATION_RANGE[nextSeverity];
+      const turnsLeft = randInt(lo, hi);
+      target.newInjuries[part] = { severity: nextSeverity, turnsLeft };
+      log.push(nextSeverity === 2
+        ? `${target.label}의 ${BODY_PART_NAMES[part]} 부상이 중상으로 악화됐다! (${turnsLeft}턴)`
+        : `${target.label}이(가) ${BODY_PART_NAMES[part]}을(를) 다쳤다! 경상, ${turnsLeft}턴 동안 유지된다.`);
+    }
+  }
+}
+
+// 전투 전체(파티 vs 무리 몹 순차 처리) 판정 - 결과만 반환, 아무것도 저장하지 않음.
+// character.mercenaries(있다면, 최대 2명)가 자동으로 파티에 합류함 - 진형(formationRow)에 따라
+// 몹은 전열(front)이 살아있는 한 전열부터 공격, 전열이 전멸하면 후열을 공격
 export function resolveCombat({ character, zoneId, stance }) {
   const encounter = rollEncounter(zoneId, (character.zoneKillCounts || {})[zoneId] || 0);
   const monsters = encounter.monsterIds.map((id) => buildMonsterInstance(id, encounter.zone));
-  const combatStats = computeCharacterCombatStats(character);
+  const isUnderleveled = (character.level || 1) < encounter.zone.tier * 3;
+  const sharedInventory = character.inventory || []; // 파티 전원이 이 물자(화살/포션)를 공유
 
-  // 장신구 특수 효과(속성방어/2번공격) - 반지/목걸이 둘 중 하나라도 있으면 적용, elementDefense는 'all'이면 모든 속성에 적용
-  const equipmentRef = character.equipment || {};
-  const ringItemRef = equipmentRef.ring ? ITEMS[equipmentRef.ring] : null;
-  const necklaceItemRef = equipmentRef.necklace ? ITEMS[equipmentRef.necklace] : null;
-  const accessoryElementDefense = (ringItemRef && ringItemRef.elementDefense) || (necklaceItemRef && necklaceItemRef.elementDefense) || null;
-  // 민첩(AGI)이 "공격속도" 역할 - 장신구의 확률적 2연타 효과와 합산됨
-  const doubleAttackChance = Math.min(
-    MAX_EXTRA_ATTACK_CHANCE,
-    ((ringItemRef && ringItemRef.doubleAttackChance) || (necklaceItemRef && necklaceItemRef.doubleAttackChance) || 0)
-      + combatStats.agi * AGI_EXTRA_ATTACK_PER_POINT,
-  );
+  const party = [
+    buildCombatant({ characterLike: { ...character, stance }, isSelf: true, formationRow: effectiveFormationRow(character), sharedInventory }),
+    ...(character.mercenaries || []).map((merc) => buildCombatant({
+      characterLike: merc, isSelf: false, formationRow: effectiveFormationRow(merc), sharedInventory,
+    })),
+  ];
 
-  // HP/MP는 모험 사이에도 유지됨(전투마다 풀피 리셋 아님) - 포션 소모가 골드 소모로 이어지게 하기 위함
-  let hp = typeof character.currentHp === 'number' ? character.currentHp : combatStats.maxHp;
-  let mp = typeof character.currentMp === 'number' ? character.currentMp : combatStats.maxMp;
-  const potionsUsed = {};
-  const usesBow = combatStats.weaponType === 'bow';
-  let arrowsUsed = 0;
-  // 부상은 이번 전투에서만 끝나는 게 아니라 캐릭터 문서에 남아 여러 턴(모험) 동안 지속됨(adventure.js가 관리)
-  // severity: 0=건강, 1=경상(붕대로 치료 가능), 2=중상(의사에게만 치료 가능)
-  const injurySeverity = {
-    arm: (character.injuries && character.injuries.arm && character.injuries.arm.severity) || 0,
-    leg: (character.injuries && character.injuries.leg && character.injuries.leg.severity) || 0,
-  };
-  const newInjuries = {}; // 이번 전투 중 심각도가 "바뀐" 부위만 담김({severity, turnsLeft})
-  const isUnderleveled = (character.level || 1) < encounter.zone.tier * 3; // 지역에 비해 렙이 많이 낮음
+  const potionsUsed = {}; // 파티 공용 물자 소모 카운트(itemId별)
   const log = [`${encounter.zone.name}에 진입했다.`];
   let totalXp = 0;
   let totalGold = 0;
@@ -255,58 +411,48 @@ export function resolveCombat({ character, zoneId, stance }) {
   let rounds = 0;
   let victory = true;
 
+  const alivePartyMembers = () => party.filter((p) => p.alive && p.hp > 0);
+  const pickMonsterTarget = () => {
+    const alive = alivePartyMembers();
+    const front = alive.filter((p) => p.formationRow === 'front');
+    const pool = front.length ? front : alive;
+    return pool[randInt(0, pool.length - 1)];
+  };
+
   outer:
   for (const monster of monsters) {
     log.push(`${monster.name}${monster.rare ? '(희귀)' : ''}이(가) 나타났다!`);
     while (monster.hp > 0) {
       rounds++;
       if (rounds > MAX_ROUNDS_PER_ENCOUNTER) { victory = false; log.push('너무 지쳐 전투를 중단했다.'); break outer; }
-
-      const potionResult = maybeUsePotion({ character, hp, maxHp: combatStats.maxHp, potionsUsed, log });
-      if (potionResult) hp = Math.min(combatStats.maxHp, hp + potionResult.hpDelta);
-
-      // 캐릭터 턴: 공격형은 마나 있으면 스킬 우선, 안정형은 기본공격 위주(안전하게)
-      const skills = combatStats.classDef.skills.filter((s) => s.type === 'attack' && s.manaCost <= mp);
-      const useSkill = stance === 'aggressive' && skills.length > 0;
-      const skill = useSkill ? skills[skills.length - 1] : null;
-      let power = skill ? skill.power : 1.0;
-      if (skill) mp -= skill.manaCost;
-
-      // 활 장착시 화살 소모 - 화살이 남아있으면 원거리 견제(아래 몹 턴에서 활용)가 되고,
-      // 떨어지면 보조무기인 단도로 근접전을 벌임(활보다 약하지만 화살 소진 페널티는 완화됨)
-      const arrowsLeftBeforeShot = usesBow ? inventoryQty(character.inventory, 'arrow') - arrowsUsed : 0;
-      const isKiting = usesBow && arrowsLeftBeforeShot > 0; // 이번 라운드에 화살로 견제 중인지
-      if (usesBow) {
-        if (arrowsLeftBeforeShot > 0) arrowsUsed++;
-        else { power *= 0.6; log.push('화살이 떨어져 단도로 근접전을 벌인다! 위력이 약해졌다.'); }
-      }
-
-      if (injurySeverity.arm > 0) power *= INJURY_ATK_MULT[injurySeverity.arm]; // 팔 부상 - 공격력 약화
-
-      // 직업이 숙련되지 않은 무기(예: 궁수가 검을 든 경우)를 쓰면 명중/위력에 패널티
-      const offClassWeapon = combatStats.weaponType && !combatStats.classDef.weaponTypes.includes(combatStats.weaponType);
-      if (offClassWeapon) power *= OFF_CLASS_WEAPON_DAMAGE_MULT;
-
-      const elemMult = elementalMultiplier(combatStats.element, monster.element);
-      const affinity = classMonsterAffinity(combatStats.classDef, monster.tags);
-      const affinityMult = affinity ? affinity.multiplier : 1;
-      const affinityNote = affinity
-        ? (affinity.kind === 'strong' ? ' (천적 관계! 추가 피해)' : ' (상성에 밀려 위력 약화)')
-        : '';
+      if (!alivePartyMembers().length) { victory = false; log.push('파티가 전멸했다...'); break outer; }
 
       let monsterDied = false;
-      if (offClassWeapon && Math.random() < OFF_CLASS_WEAPON_MISS_CHANCE) {
-        log.push(`숙련되지 않은 무기라 공격이 빗나갔다!`);
-      } else {
-        // 장신구/민첩의 "확률적 2타" 효과 - 발동하면 같은 라운드에 한 번 더 때림
-        const hitCount = Math.random() < doubleAttackChance ? 2 : 1;
-        for (let hitIdx = 0; hitIdx < hitCount && !monsterDied; hitIdx++) {
-          const rawDamage = Math.max(1, Math.round((combatStats.atk * power * elemMult * affinityMult - monster.def) * randRange(0.85, 1.15)));
-          monster.hp -= rawDamage;
-          const hitLabel = hitIdx === 1 ? ' (2연타!)' : '';
-          log.push(`${skill ? skill.name : '공격'}! ${monster.name}에게 ${rawDamage} 피해.${affinityNote}${hitLabel}`);
-          if (monster.hp <= 0) monsterDied = true;
+      let lastAffinity = null;
+      let anyKiting = false;
+      for (const actor of party) {
+        if (!actor.alive || actor.hp <= 0) continue;
+        if (monster.hp <= 0) break;
+
+        const potionResult = maybeUsePotion({
+          potionRules: actor.potionRules, inventory: sharedInventory,
+          resources: {
+            hp: { current: actor.hp, max: actor.combatStats.maxHp },
+            mp: { current: actor.mp, max: actor.combatStats.maxMp },
+            stamina: { current: actor.stamina, max: actor.combatStats.maxStamina },
+          },
+          potionsUsed, log, actorLabel: actor.label,
+        });
+        if (potionResult) {
+          if (potionResult.kind === 'hp') actor.hp = Math.min(actor.combatStats.maxHp, actor.hp + potionResult.amount);
+          if (potionResult.kind === 'mp') actor.mp = Math.min(actor.combatStats.maxMp, actor.mp + potionResult.amount);
+          if (potionResult.kind === 'stamina') actor.stamina = Math.min(actor.combatStats.maxStamina, actor.stamina + potionResult.amount);
         }
+
+        const result = performAttack({ actor, monster, sharedInventory, log, isUnderleveled });
+        if (result.isKiting) anyKiting = true;
+        lastAffinity = result.affinity || lastAffinity;
+        if (result.monsterDied) monsterDied = true;
       }
 
       if (monsterDied) {
@@ -318,74 +464,32 @@ export function resolveCombat({ character, zoneId, stance }) {
         break;
       }
 
-      // 몹 턴 - 원거리 몹이 아닌데 화살로 견제 중이면(화살이 남아있으면) 아예 피해를 입지 않음(카이팅).
-      // 그 외엔 민첩(AGI)이 높을수록 회피율이 오르고, 다리 부상 정도에 따라 줄어듦
-      if (isKiting && !monster.ranged) {
+      // 몹의 반격 대상 선정 - 화살로 카이팅 중이고 비원거리 몹이면 이번 라운드는 아무도 맞지 않음
+      if (anyKiting && !monster.ranged) {
         log.push(`화살로 거리를 벌려 ${monster.name}의 접근을 막았다!`);
-        continue;
-      }
-      const dodgeChance = Math.min(MAX_DODGE_CHANCE, BASE_DODGE_CHANCE + combatStats.agi * AGI_DODGE_PER_POINT)
-        * (injurySeverity.leg ? INJURY_DODGE_MULT[injurySeverity.leg] : 1);
-      const dodged = Math.random() < dodgeChance;
-      if (dodged) {
-        log.push(`${monster.name}의 공격을 회피했다!`);
       } else {
-        // 부상 중이면 생명력이 더 잘 떨어짐(경상<중상) + 장신구의 속성방어가 있으면 해당 속성 피해 경감
-        const injuryDamageBonus = (INJURY_INCOMING_DAMAGE_BONUS[injurySeverity.arm] || 0) + (INJURY_INCOMING_DAMAGE_BONUS[injurySeverity.leg] || 0);
-        const elementResistMult = (accessoryElementDefense === 'all' || accessoryElementDefense === monster.element) ? 0.7 : 1;
-        const monsterDamage = Math.max(1, Math.round((monster.atk - combatStats.def) * randRange(0.85, 1.15) * (1 + injuryDamageBonus) * elementResistMult));
-        hp -= monsterDamage;
-        log.push(`${monster.name}의 반격! ${monsterDamage} 피해를 입었다.`);
-        if (!monster.statusImmune && monster.poisonChance > 0 && Math.random() < monster.poisonChance) {
-          const poisonDamage = Math.round(combatStats.maxHp * 0.05);
-          hp -= poisonDamage;
-          log.push(`중독됐다! ${poisonDamage} 피해.`);
-        }
-
-        // 아주 작은 확률로 단계를 건너뛰고 곧장 중상 - 상성 나쁨/언더레벨이면 더 잘 발생, 방어구/장신구의 중상방어로 완화
-        const resist = Math.min(0.8, combatStats.severeInjuryResist || 0);
-        const eligibleParts = Object.keys(injurySeverity).filter((p) => injurySeverity[p] < 2);
-        let injuryHandled = false;
-        if (eligibleParts.length) {
-          const directSevereChance = (DIRECT_SEVERE_BASE_CHANCE
-            + (affinity && affinity.kind === 'weak' ? DIRECT_SEVERE_WEAK_AFFINITY_BONUS : 0)
-            + (isUnderleveled ? DIRECT_SEVERE_UNDERLEVEL_BONUS : 0)) * (1 - resist);
-          if (Math.random() < directSevereChance) {
-            const part = eligibleParts[randInt(0, eligibleParts.length - 1)];
-            injurySeverity[part] = 2;
-            const [lo, hi] = INJURY_DURATION_RANGE[2];
-            const turnsLeft = randInt(lo, hi);
-            newInjuries[part] = { severity: 2, turnsLeft };
-            log.push(`${BODY_PART_NAMES[part]}에 심각한 부상을 입었다! (중상, ${turnsLeft}턴)`);
-            injuryHandled = true;
-          }
-        }
-
-        // 그게 아니면 평소 확률로 한 단계만 악화(건강->경상 또는 경상->중상)
-        if (!injuryHandled && eligibleParts.length) {
-          const part = eligibleParts[randInt(0, eligibleParts.length - 1)];
-          const nextSeverity = injurySeverity[part] + 1;
-          const baseChance = BASE_INJURY_CHANCE + (affinity && affinity.kind === 'weak' ? WEAK_AFFINITY_INJURY_BONUS : 0);
-          const chance = nextSeverity === 2 ? baseChance * (1 - resist) : baseChance;
-          if (Math.random() < chance) {
-            injurySeverity[part] = nextSeverity;
-            const [lo, hi] = INJURY_DURATION_RANGE[nextSeverity];
-            const turnsLeft = randInt(lo, hi);
-            newInjuries[part] = { severity: nextSeverity, turnsLeft };
-            log.push(nextSeverity === 2
-              ? `${BODY_PART_NAMES[part]} 부상이 중상으로 악화됐다! (${turnsLeft}턴)`
-              : `${BODY_PART_NAMES[part]}을(를) 다쳤다! 경상, ${turnsLeft}턴 동안 유지된다.`);
-          }
-        }
+        const target = pickMonsterTarget();
+        if (target) performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit: lastAffinity });
       }
 
-      if (hp <= 0) { victory = false; log.push('쓰러졌다...'); break outer; }
+      if (!alivePartyMembers().length) { victory = false; log.push('파티가 전멸했다...'); break outer; }
     }
   }
 
-  // 패배해도 페널티 없이 즉시 부활(풀피/풀마나) - 아이템은 그대로 유지
-  const finalHp = victory ? Math.max(0, hp) : combatStats.maxHp;
-  const finalMp = victory ? Math.max(0, mp) : combatStats.maxMp;
+  const selfCombatant = party[0];
+  const mercResults = party.slice(1).map((actor) => {
+    // 패배해도 페널티 없이 즉시 부활(풀피/풀마나/풀스테미나) - 아이템은 그대로 유지
+    const finalHp = victory ? Math.max(0, actor.hp) : actor.combatStats.maxHp;
+    const finalMp = victory ? Math.max(0, actor.mp) : actor.combatStats.maxMp;
+    const finalStamina = victory ? Math.max(0, actor.stamina) : actor.combatStats.maxStamina;
+    return {
+      id: actor.id, arrowsUsed: actor.arrowsUsed, newInjuries: actor.newInjuries,
+      finalHp, finalMp, finalStamina, finalHpPct: Math.max(0, Math.round((finalHp / actor.combatStats.maxHp) * 100)),
+    };
+  });
+  const selfFinalHp = victory ? Math.max(0, selfCombatant.hp) : selfCombatant.combatStats.maxHp;
+  const selfFinalMp = victory ? Math.max(0, selfCombatant.mp) : selfCombatant.combatStats.maxMp;
+  const selfFinalStamina = victory ? Math.max(0, selfCombatant.stamina) : selfCombatant.combatStats.maxStamina;
 
   return {
     log, victory, isRareEncounter: encounter.isRare, zoneId,
@@ -393,10 +497,11 @@ export function resolveCombat({ character, zoneId, stance }) {
     goldGain: victory ? totalGold : Math.floor(totalGold * 0.3),
     loot: victory ? loot : [],
     killedMonsterIds,
-    finalHp, finalMp,
-    finalHpPct: Math.max(0, Math.round((finalHp / combatStats.maxHp) * 100)),
+    finalHp: selfFinalHp, finalMp: selfFinalMp, finalStamina: selfFinalStamina,
+    finalHpPct: Math.max(0, Math.round((selfFinalHp / selfCombatant.combatStats.maxHp) * 100)),
     potionsUsed,
-    arrowsUsed,
-    newInjuries,
+    arrowsUsed: selfCombatant.arrowsUsed,
+    newInjuries: selfCombatant.newInjuries,
+    mercenaries: mercResults,
   };
 }
