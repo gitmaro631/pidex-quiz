@@ -230,22 +230,28 @@ async function renderCharacterSelect(container) {
       <h3>캐릭터 선택</h3>
       <p class="rpg-hint">계정당 최대 3명까지 캐릭터를 만들 수 있어요.</p>
       <div class="rpg-class-cards">
-        ${slots.map((s) => s.exists ? `
+        ${slots.map((s) => {
+          // 직업을 아직 선택 안 한 캐릭터는(뒤로가기로 나온 경우 등) 실제로는 아무것도 안 정해진
+          // 상태라 "새 캐릭터 생성"과 똑같이 취급함(선택을 안 했으니 눈에 보이는 변화도 없어야 함)
+          const isBlank = !s.exists || !s.classMain;
+          return isBlank ? `
           <button class="rpg-slot-btn" data-slot="${s.slot}">
-            <div class="rpg-class-name">슬롯 ${s.slot} — Lv.${s.level} ${s.classMain ? (CLASSES[s.classMain] || {}).name : '(직업 미선택)'}</div>
-            <div class="rpg-class-skills">${s.gold}골드</div>
-          </button>
-        ` : `
-          <button class="rpg-slot-btn" data-slot="${s.slot}" data-new="1">
             <div class="rpg-class-name">슬롯 ${s.slot} — 새 캐릭터 생성</div>
           </button>
-        `).join('')}
+        ` : `
+          <button class="rpg-slot-btn" data-slot="${s.slot}">
+            <div class="rpg-class-name">슬롯 ${s.slot} — Lv.${s.level} ${(CLASSES[s.classMain] || {}).name}</div>
+            <div class="rpg-class-skills">${s.gold}골드</div>
+          </button>
+        `;
+        }).join('')}
       </div>
     </div>
   `;
-  container.querySelectorAll('.rpg-slot-btn').forEach((btn) => btn.addEventListener('click', async () => {
+  container.querySelectorAll('.rpg-slot-btn').forEach((btn, i) => btn.addEventListener('click', async () => {
     const slot = Number(btn.dataset.slot);
-    if (btn.dataset.new) {
+    const slotInfo = slots[i];
+    if (!slotInfo.exists) {
       try {
         await apiPostRaw('create-character', { slot });
       } catch (e) {
@@ -261,6 +267,7 @@ async function renderCharacterSelect(container) {
 function renderClassSelect(container) {
   container.innerHTML = `
     <div class="rpg-class-select">
+      <button class="rpg-back-to-slots-btn">← 캐릭터 선택으로</button>
       <h3>직업을 선택하세요</h3>
       <p class="rpg-hint">한 번 선택하면 되돌릴 수 없어요. 부직업은 나중에 레벨업하면 고를 수 있어요.</p>
       <div class="rpg-class-cards">
@@ -273,6 +280,11 @@ function renderClassSelect(container) {
       </div>
     </div>
   `;
+  container.querySelector('.rpg-back-to-slots-btn').addEventListener('click', () => {
+    // 직업을 아직 안 골랐으니 서버에는 아무 변화도 없음 - 그냥 캐릭터 선택 화면으로 돌아감
+    activeSlot = null;
+    renderRpgPage(container);
+  });
   container.querySelectorAll('.rpg-class-card').forEach((btn) => {
     btn.addEventListener('click', async () => {
       try {
