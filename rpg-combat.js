@@ -1,6 +1,9 @@
 // 순수 계산 모듈(입출력 없음) — tax-lots.js와 같은 패턴. RNG(Math.random)만 사용하고
 // Firestore/네트워크 호출은 하지 않음 -> api/rpg/adventure.js가 이 결과를 트랜잭션 안에서 저장.
-import { ZONES, RARE_PITY_BASE_CHANCE, RARE_PITY_KILL_THRESHOLD, RARE_PITY_INCREMENT_PER_KILL } from './data/rpg/zones.js';
+import {
+  ZONES, RARE_PITY_BASE_CHANCE, RARE_PITY_KILL_THRESHOLD, RARE_PITY_INCREMENT_PER_KILL,
+  UNIQUE_TIER_NAMES, UNIQUE_TIER_CHANCES, UNIQUE_TIER_STAT_MULT, UNIQUE_TIER_REWARD_MULT,
+} from './data/rpg/zones.js';
 import { MONSTERS } from './data/rpg/monsters.js';
 import { ITEMS } from './data/rpg/items.js';
 import { CLASSES } from './data/rpg/classes.js';
@@ -62,32 +65,46 @@ export function rareChanceForZone(killCount) {
   return Math.min(1, RARE_PITY_BASE_CHANCE + over * RARE_PITY_INCREMENT_PER_KILL);
 }
 
-// 지역 진입 -> 몹 구성(일반 무리 또는 레어 단독) 결정
+// 지역 진입 -> 몹 구성(일반 무리 또는 레어/유니크/레전더리 단독) 결정. 유니크(2단계)/레전더리(3단계)는
+// pity 없이 항상 고정 확률로만 등장 - 더 희귀한 쪽(레전더리)부터 먼저 판정
 export function rollEncounter(zoneId, killCount) {
   const zone = ZONES[zoneId];
   if (!zone) throw new Error(`unknown zoneId: ${zoneId}`);
 
+  for (const tier of [3, 2]) {
+    if (Math.random() < UNIQUE_TIER_CHANCES[tier]) {
+      return { zone, monsterIds: [zone.rareMonsterId], isRare: true, uniqueTier: tier };
+    }
+  }
+
   const rareChance = rareChanceForZone(killCount);
   if (Math.random() < rareChance) {
-    return { zone, monsterIds: [zone.rareMonsterId], isRare: true };
+    return { zone, monsterIds: [zone.rareMonsterId], isRare: true, uniqueTier: 1 };
   }
   const groupSize = randInt(zone.groupSizeMin, zone.groupSizeMax);
   const monsterIds = Array.from({ length: groupSize }, () => zone.monsterIds[randInt(0, zone.monsterIds.length - 1)]);
-  return { zone, monsterIds, isRare: false };
+  return { zone, monsterIds, isRare: false, uniqueTier: 1 };
 }
 
-function buildMonsterInstance(monsterId, zone) {
+function buildMonsterInstance(monsterId, zone, uniqueTier = 1) {
   const def = MONSTERS[monsterId];
   const variance = randRange(zone.varianceMin, zone.varianceMax);
+  const statMult = UNIQUE_TIER_STAT_MULT[uniqueTier] || 1;
+  const rewardMult = UNIQUE_TIER_REWARD_MULT[uniqueTier] || 1;
+  const uniqueTierName = uniqueTier > 1 ? UNIQUE_TIER_NAMES[uniqueTier] : null;
   return {
-    id: def.id, name: def.name, element: def.element, tags: def.tags || [], rare: !!def.rare,
+    id: def.id, name: uniqueTierName ? `${uniqueTierName} ${def.name}` : def.name,
+    element: def.element, tags: def.tags || [], rare: !!def.rare, uniqueTier,
     statusImmune: !!def.statusImmune, poisonChance: def.poisonChance || 0, ambushChance: def.ambushChance || 0,
     ranged: !!def.ranged,
-    maxHp: Math.round(def.baseStats.hp * variance),
-    hp: Math.round(def.baseStats.hp * variance),
-    atk: Math.round(def.baseStats.atk * variance),
-    def: Math.round(def.baseStats.def * variance),
-    xp: def.xp, goldMin: def.goldMin, goldMax: def.goldMax, dropTable: def.dropTable,
+    maxHp: Math.round(def.baseStats.hp * variance * statMult),
+    hp: Math.round(def.baseStats.hp * variance * statMult),
+    atk: Math.round(def.baseStats.atk * variance * statMult),
+    def: Math.round(def.baseStats.def * variance * statMult),
+    xp: Math.round(def.xp * rewardMult),
+    goldMin: Math.round(def.goldMin * rewardMult),
+    goldMax: Math.round(def.goldMax * rewardMult),
+    dropTable: def.dropTable,
   };
 }
 
@@ -517,7 +534,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
 // 몹은 전열(front)이 살아있는 한 전열부터 공격, 전열이 전멸하면 후열을 공격
 export function resolveCombat({ character, zoneId, stance }) {
   const encounter = rollEncounter(zoneId, (character.zoneKillCounts || {})[zoneId] || 0);
-  const monsters = encounter.monsterIds.map((id) => buildMonsterInstance(id, encounter.zone));
+  const monsters = encounter.monsterIds.map((id) => buildMonsterInstance(id, encounter.zone, encounter.uniqueTier));
   const isUnderleveled = (character.level || 1) < encounter.zone.tier * 3;
   const sharedInventory = character.inventory || []; // 파티 전원이 이 물자(화살/포션)를 공유
 
@@ -549,7 +566,7 @@ export function resolveCombat({ character, zoneId, stance }) {
 
   outer:
   for (const monster of monsters) {
-    log.push(`${monster.name}${monster.rare ? '(희귀)' : ''}이(가) 나타났다!`);
+    log.push(`${monster.name}${monster.rare && monster.uniqueTier === 1 ? '(희귀)' : ''}이(가) 나타났다!`);
     while (monster.hp > 0) {
       rounds++;
       if (rounds > MAX_ROUNDS_PER_ENCOUNTER) { victory = false; log.push('너무 지쳐 전투를 중단했다.'); break outer; }
@@ -597,9 +614,9 @@ export function resolveCombat({ character, zoneId, stance }) {
           loot.push({ itemId: essenceItemId, qty: 1 });
           log.push(`${ITEMS[essenceItemId].name}을(를) 얻었다.`);
         }
-        // 유니크(레어)몹 전용 - 대장간 강화석이 낮은 확률로 드랍
-        if (monster.rare && Math.random() < RARE_MONSTER_STONE_DROP_CHANCE) {
-          loot.push({ itemId: 'enhance_stone', qty: 1 });
+        // 레어/유니크/레전더리몹 전용 - 대장간 강화석이 낮은 확률로 드랍(단계가 높을수록 더 잘 나옴)
+        if (monster.rare && Math.random() < RARE_MONSTER_STONE_DROP_CHANCE * (monster.uniqueTier || 1)) {
+          loot.push({ itemId: 'enhance_stone', qty: monster.uniqueTier >= 3 ? 2 : 1 });
           log.push(`${ITEMS.enhance_stone.name}을(를) 얻었다!`);
         }
         killedMonsterIds.push(monster.id);
