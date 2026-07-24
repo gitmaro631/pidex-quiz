@@ -11,7 +11,7 @@ import { QUESTS } from './data/rpg/quests.js';
 import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
 import { computeCharacterCombatStats } from './rpg-combat.js';
-import { MERCENARY_TEMPLATES, MAX_MERCENARIES } from './data/rpg/mercenaries.js';
+import { MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster } from './data/rpg/mercenaries.js';
 
 function isMeleeClass(classId) {
   const cls = CLASSES[classId];
@@ -116,6 +116,8 @@ const ERROR_MESSAGES = {
   not_enough_material: '재료가 부족합니다.',
   no_mild_injury: '붕대로 치료할 수 있는 경상이 없습니다.',
   no_injury: '치료할 부상이 없습니다.',
+  already_hospitalized: '이미 입원 중입니다.',
+  not_in_today_roster: '오늘 선술집에 없는 용병입니다. 목록이 갱신됐을 수 있어요.',
   party_full: '파티가 가득 찼습니다.',
   incompatible_class: '본인 직업과 상호보완적인 직업(근접↔원거리)만 고용할 수 있습니다.',
   unknown_mercenary: '알 수 없는 용병입니다.',
@@ -379,31 +381,43 @@ function questRowHtml(questId) {
 }
 
 // ── 의사 NPC 치료 UI(경상/중상 관계없이 즉시 완치, 비용은 남은 회복턴에 비례) ─────
+// 본인뿐 아니라 고용한 용병들의 부상도 여기서 같이 치료 가능(mercId 데이터속성으로 구분)
+function cureRowHtml(name, part, injury, mercId) {
+  const severityLabel = injury.severity === 2 ? '중상' : '경상';
+  const mercAttr = mercId ? ` data-merc="${mercId}"` : '';
+  return `
+    <div class="rpg-shop-row">
+      <span>${name} - ${BODY_PART_NAMES[part]} ${severityLabel} (남은 ${injury.turnsLeft}턴)</span>
+      <button class="rpg-cure-btn" data-part="${part}"${mercAttr}>치료</button>
+    </div>
+  `;
+}
 function doctorCureHtml() {
+  const rows = [];
   const injuries = character.injuries || {};
-  const injuredParts = ['arm', 'leg'].filter((p) => (injuries[p] || {}).severity > 0);
-  if (!injuredParts.length) return `<p class="rpg-hint">지금은 다친 곳이 없네요.</p>`;
-  return injuredParts.map((part) => {
-    const injury = injuries[part];
-    const severityLabel = injury.severity === 2 ? '중상' : '경상';
-    return `
-      <div class="rpg-shop-row">
-        <span>${BODY_PART_NAMES[part]} ${severityLabel} (남은 ${injury.turnsLeft}턴)</span>
-        <button class="rpg-cure-btn" data-part="${part}">치료</button>
-      </div>
-    `;
-  }).join('');
+  ['arm', 'leg'].filter((p) => (injuries[p] || {}).severity > 0)
+    .forEach((part) => rows.push(cureRowHtml('나', part, injuries[part], null)));
+  (character.mercenaries || []).forEach((m) => {
+    const mInjuries = m.injuries || {};
+    ['arm', 'leg'].filter((p) => (mInjuries[p] || {}).severity > 0)
+      .forEach((part) => rows.push(cureRowHtml(m.name, part, mInjuries[part], m.id)));
+  });
+  if (!rows.length) return `<p class="rpg-hint">지금은 다친 사람이 없네요.</p>`;
+  return rows.join('');
 }
 
 // ── 선술집 NPC - 용병 고용 UI(본인 직업과 상호보완적인 직업만 고용 가능) ─────
 function tavernHireHtml() {
   const mercenaries = character.mercenaries || [];
-  if (mercenaries.length >= MAX_MERCENARIES) return `<p class="rpg-hint">파티가 가득 찼습니다 (${mercenaries.length}/${MAX_MERCENARIES}).</p>`;
+  const totalCap = MAX_MERCENARIES + MAX_TERRITORY_MERCENARIES;
+  if (mercenaries.length >= totalCap) return `<p class="rpg-hint">더 이상 용병을 고용할 수 없습니다 (${mercenaries.length}/${totalCap}).</p>`;
   if (!character.classMain) return `<p class="rpg-hint">직업을 먼저 선택해야 용병을 고용할 수 있어요.</p>`;
   const selfMelee = isMeleeClass(character.classMain);
   const hiredTemplateIds = new Set(mercenaries.map((m) => m.templateId));
-  const options = Object.values(MERCENARY_TEMPLATES).filter((t) => isMeleeClass(t.classMain) !== selfMelee && !hiredTemplateIds.has(t.id));
-  if (!options.length) return `<p class="rpg-hint">지금은 고용 가능한 용병이 없네요.</p>`;
+  const todayRoster = new Set(dailyTavernRoster(character.currentTown || 'town1'));
+  const options = Object.values(MERCENARY_TEMPLATES)
+    .filter((t) => todayRoster.has(t.id) && isMeleeClass(t.classMain) !== selfMelee && !hiredTemplateIds.has(t.id));
+  if (!options.length) return `<p class="rpg-hint">오늘은 고용 가능한 용병이 없네요. 내일 다시 들러보세요.</p>`;
   return options.map((t) => {
     const cls = CLASSES[t.classMain];
     return `
@@ -463,10 +477,16 @@ function renderTownTab(content, container) {
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-cure-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const mercId = btn.dataset.merc || null;
     try {
-      const r = await apiPost('cure-injury', { part: btn.dataset.part });
+      const r = await apiPost('cure-injury', mercId ? { part: btn.dataset.part, mercId } : { part: btn.dataset.part });
       character.gold = r.gold;
-      character.injuries = r.injuries;
+      if (mercId) {
+        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
+        if (merc) { merc.injuries = r.injuries; merc.hospitalized = false; }
+      } else {
+        character.injuries = r.injuries;
+      }
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
       showToast(`${BODY_PART_NAMES[r.part]} 부상을 치료했습니다 (${r.cost}골드)`);
@@ -777,30 +797,45 @@ function equipmentSectionEffectiveRow(characterLike = character) {
 }
 
 // ── 파티(고용한 용병) 섹션 - 캐릭터 탭에서 사용 ─────────
+// 전투부대(active, 최대 MAX_MERCENARIES명)는 모험에 동행하고, 영지(territory)는 남아서 일을 함
+function mercenaryCardHtml(m) {
+  const cls = CLASSES[m.classMain];
+  const injured = ['arm', 'leg'].filter((p) => (m.injuries && m.injuries[p] && m.injuries[p].severity) > 0);
+  const otherAssignment = m.assignment === 'active' ? 'territory' : 'active';
+  const otherLabel = m.assignment === 'active' ? '영지로 보내기' : '전투부대로 편입';
+  return `
+    <div class="rpg-npc-card">
+      <div class="rpg-class-name">${m.name} (Lv.${m.level} ${cls ? cls.name : m.classMain})${m.hospitalized ? ' — 입원 중 🏥' : ''}</div>
+      <p class="rpg-hint">HP ${m.currentHp} · 보수 ${m.wagePerAdventure}골드/모험 ${injured.length ? `· 부상: ${injured.map((p) => BODY_PART_NAMES[p]).join(', ')}` : ''} ${m.assignment === 'territory' ? `· ${(TERRITORY_JOBS[m.job] || {}).name || '휴식'} 중` : ''}</p>
+      ${injured.length && !m.hospitalized ? `<p><button class="rpg-admit-merc-btn" data-merc="${m.id}">병원에 입원시키기 (10골드, 서서히 회복)</button></p>` : ''}
+      ${m.hospitalized ? `<p class="rpg-hint">입원 중에는 모험에 동행하지 않고 보수도 나가지 않아요. 완쾌하면 자동으로 퇴원해요.</p>` : ''}
+      <p>
+        <button class="rpg-assignment-btn" data-merc="${m.id}" data-assignment="${otherAssignment}">${otherLabel}</button>
+        <button class="rpg-dismiss-merc-btn" data-merc="${m.id}">해고</button>
+      </p>
+      ${m.assignment === 'active' ? `
+        <p>진형:
+          <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="front">전열</button>
+          <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="back">후열</button>
+          <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="">자동</button>
+          (현재: ${m.formationRow === 'front' ? '전열' : m.formationRow === 'back' ? '후열' : `자동(${equipmentSectionEffectiveRow(m)})`})
+        </p>
+        ${potionRulesEditorHtml(m.id)}
+      ` : ''}
+    </div>
+  `;
+}
 function partySectionHtml() {
   const mercenaries = character.mercenaries || [];
   if (!mercenaries.length) return '';
+  const active = mercenaries.filter((m) => m.assignment === 'active');
+  const territory = mercenaries.filter((m) => m.assignment !== 'active');
   return `
     <div class="rpg-party">
-      <h4>파티 (용병)</h4>
-      ${mercenaries.map((m) => {
-        const cls = CLASSES[m.classMain];
-        const injured = ['arm', 'leg'].filter((p) => (m.injuries && m.injuries[p] && m.injuries[p].severity) > 0);
-        return `
-          <div class="rpg-npc-card">
-            <div class="rpg-class-name">${m.name} (Lv.${m.level} ${cls ? cls.name : m.classMain})</div>
-            <p class="rpg-hint">HP ${m.currentHp} · 보수 ${m.wagePerAdventure}골드/모험 ${injured.length ? `· 부상: ${injured.map((p) => BODY_PART_NAMES[p]).join(', ')}` : ''}</p>
-            <p>진형:
-              <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="front">전열</button>
-              <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="back">후열</button>
-              <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="">자동</button>
-              (현재: ${m.formationRow === 'front' ? '전열' : m.formationRow === 'back' ? '후열' : `자동(${equipmentSectionEffectiveRow(m)})`})
-              <button class="rpg-dismiss-merc-btn" data-merc="${m.id}">해고</button>
-            </p>
-            ${potionRulesEditorHtml(m.id)}
-          </div>
-        `;
-      }).join('')}
+      <h4>전투부대 (${active.length}/${MAX_MERCENARIES})</h4>
+      ${active.length ? active.map(mercenaryCardHtml).join('') : '<p class="rpg-hint">동행 중인 용병이 없어요.</p>'}
+      <h4>영지 (${territory.length}/${MAX_TERRITORY_MERCENARIES}) <button class="rpg-collect-territory-btn">수입 수확하기</button></h4>
+      ${territory.length ? territory.map(mercenaryCardHtml).join('') : '<p class="rpg-hint">영지에서 쉬고 있는 용병이 없어요.</p>'}
     </div>
   `;
 }
@@ -884,6 +919,35 @@ function renderCharacterTab(content, container) {
       showToast('용병을 해고했습니다');
     } catch (e) { showToast(friendlyError(e)); }
   }));
+  content.querySelectorAll('.rpg-admit-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('admit-mercenary', { mercId: btn.dataset.merc });
+      character.gold = r.gold;
+      const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
+      if (merc) merc.hospitalized = true;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      renderCharacterTab(content, container);
+      showToast(`병원에 입원시켰습니다 (${r.cost}골드)`);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-assignment-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('set-mercenary-assignment', { mercId: btn.dataset.merc, assignment: btn.dataset.assignment });
+      const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
+      if (merc) { merc.assignment = r.assignment; merc.job = r.assignment === 'territory' ? 'clearing' : null; }
+      renderCharacterTab(content, container);
+      showToast(r.assignment === 'active' ? '전투부대로 편입했습니다' : '영지로 보냈습니다');
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  const collectBtn = content.querySelector('.rpg-collect-territory-btn');
+  if (collectBtn) collectBtn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('collect-territory-income', {});
+      character.gold = r.gold;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      showToast(r.income > 0 ? `영지 수입 ${r.income}골드를 수확했습니다` : '아직 정산할 수입이 없어요');
+    } catch (e) { showToast(friendlyError(e)); }
+  });
   content.querySelectorAll('.rpg-stat-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
       const r = await apiPost('allocate-stat', { stat: btn.dataset.stat, amount: 1 });

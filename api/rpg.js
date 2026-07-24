@@ -34,6 +34,9 @@ import craftBandage from './_rpg/craft-bandage.js';
 import hireMercenary from './_rpg/hire-mercenary.js';
 import dismissMercenary from './_rpg/dismiss-mercenary.js';
 import setFormation from './_rpg/set-formation.js';
+import admitMercenary from './_rpg/admit-mercenary.js';
+import setMercenaryAssignment from './_rpg/set-mercenary-assignment.js';
+import collectTerritoryIncome from './_rpg/collect-territory-income.js';
 
 const ROUTES = {
   character, adventure,
@@ -53,6 +56,9 @@ const ROUTES = {
   'hire-mercenary': hireMercenary,
   'dismiss-mercenary': dismissMercenary,
   'set-formation': setFormation,
+  'admit-mercenary': admitMercenary,
+  'set-mercenary-assignment': setMercenaryAssignment,
+  'collect-territory-income': collectTerritoryIncome,
 };
 
 export default async function handler(req, res) {

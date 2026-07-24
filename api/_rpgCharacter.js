@@ -46,6 +46,7 @@ export function defaultCharacter(slot, now = Date.now()) {
     },
     mercenaries: [], // 선술집에서 고용한 용병(완전한 캐릭터 형태로 저장 - createMercenaryInstance 참고)
     formationRow: null, // null이면 장착 무기로 자동 결정(활=후열, 그 외=전열) - rpg-combat.js의 effectiveFormationRow 참고
+    lastTerritoryCollectAt: now, // 영지에서 일하는 용병들의 수입 정산 기준 시각(지연계산, collect-territory-income.js 참고)
     createdAt: now,
     updatedAt: now,
   };
@@ -91,6 +92,10 @@ export function createMercenaryInstance(templateId, now = Date.now()) {
       arm: { severity: 0, turnsLeft: 0 },
       leg: { severity: 0, turnsLeft: 0 },
     },
+    hospitalized: false, // true면 병원에서 요양 중 - 모험에 동행하지 않고 보수도 안 나가지만 계속 회복은 됨
+    // assignment: 'active'(전투 동행, 최대 2명) | 'territory'(영지에서 일함) - hire-mercenary.js가 자리를 봐서 결정
+    assignment: 'territory',
+    job: 'clearing',
     hiredAt: now,
   };
   // 레벨이 1이 아닐 수 있으니(baseLevel) 매번 계산하는 combatStats 기준으로 초기 체력/마나/스테미나 채움

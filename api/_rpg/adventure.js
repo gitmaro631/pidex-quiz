@@ -60,9 +60,12 @@ export default async function handler(req, res) {
         removeItem(inventory, 'torch', 1);
       }
 
-      // 용병 보수는 모험 1회당 자동 차감 - 못 내면 전원 해고(다음부터는 다시 고용해야 함)
+      // 입원 중이거나 영지에서 일하는(assignment:'territory') 용병은 모험에 동행하지 않음(보수도 안 나감) -
+      // 그냥 시간이 지나며 자연 회복만 진행됨(영지 수입은 collect-territory-income.js가 별도 정산)
+      const restingMercs = (character.mercenaries || []).filter((m) => m.hospitalized || m.assignment !== 'active');
+      // 용병 보수는 모험 1회당 자동 차감(전투 동행 중인 용병만) - 못 내면 그 용병들만 전원 해고
       let gold = character.gold || 0;
-      let mercenaries = character.mercenaries || [];
+      let mercenaries = (character.mercenaries || []).filter((m) => !m.hospitalized && m.assignment === 'active');
       const totalWage = mercenaries.reduce((sum, m) => sum + (m.wagePerAdventure || 0), 0);
       const wageMessages = [];
       if (totalWage > 0) {
@@ -124,15 +127,21 @@ export default async function handler(req, res) {
       const newLoreEntries = newLoreIds.map((id) => LORE_ENTRIES[id]);
 
       const injuries = decayInjuries(character.injuries, combatResult.newInjuries);
+      const progression = applyXpGain(character, combatResult.xpGain);
 
-      // 용병 결과 반영 - 각자 체력/마나/부상/내구도/경험치를 본인과 동일한 방식으로 처리
+      // 용병 결과 반영 - 각자 체력/마나/부상/내구도/경험치를 본인과 동일한 방식으로 처리.
+      // 용병 레벨은 본인 레벨을 넘지 못함(주인공이 파티의 성장 한계) - 넘으면 경험치도 그 시점에서 멈춤
       const updatedMercenaries = mercenaries.map((merc) => {
         const mr = combatResult.mercenaries.find((r) => r.id === merc.id);
         if (!mr) return merc;
         const { equipment: mercWornEquipment, brokenNow: mercBrokenNow } = applyEquipmentWear(merc.equipment || {});
         if (mercBrokenNow.includes('weapon')) combatResult.log.push(`${merc.name}의 무기가 파손되었습니다!`);
         if (mercBrokenNow.includes('armor')) combatResult.log.push(`${merc.name}의 방어구가 파손되었습니다!`);
-        const mercProgression = applyXpGain(merc, combatResult.xpGain);
+        let mercProgression = applyXpGain(merc, combatResult.xpGain);
+        if (mercProgression.level > progression.level) {
+          if (merc.level < progression.level) combatResult.log.push(`${merc.name}은(는) 주인공의 레벨을 넘어설 수 없다.`);
+          mercProgression = { level: progression.level, xp: 0, statPoints: mercProgression.statPoints };
+        }
         return {
           ...merc,
           level: mercProgression.level,
@@ -146,8 +155,17 @@ export default async function handler(req, res) {
         };
       });
 
+      // 입원/영지 근무 중인 용병도 전투는 안 하지만 턴은 지나가니 부상 회복은 계속 진행됨 - 입원 중이었고
+      // 다 나으면 자동 퇴원(영지 근무는 계속 유지, 병상만 벗어남)
+      const updatedRestingMercs = restingMercs.map((merc) => {
+        const nextInjuries = decayInjuries(merc.injuries, null);
+        const stillInjured = ['arm', 'leg'].some((p) => nextInjuries[p].severity > 0);
+        if (merc.hospitalized && !stillInjured) combatResult.log.push(`${merc.name}이(가) 완쾌해 퇴원했다!`);
+        return { ...merc, injuries: nextInjuries, hospitalized: merc.hospitalized && stillInjured };
+      });
+      const allUpdatedMercenaries = [...updatedMercenaries, ...updatedRestingMercs];
+
       const nextTurns = isAdmin ? turns : turns - 1;
-      const progression = applyXpGain(character, combatResult.xpGain);
       outcome = {
         newLore: newLoreEntries,
         log: combatResult.log,
@@ -168,7 +186,7 @@ export default async function handler(req, res) {
         statPoints: progression.statPoints,
         equipment: wornEquipment,
         injuries,
-        mercenaries: updatedMercenaries,
+        mercenaries: allUpdatedMercenaries,
         wagePaid: totalWage,
         gold: gold + combatResult.goldGain,
       };
@@ -191,7 +209,7 @@ export default async function handler(req, res) {
         loreUnlocked,
         equipment: wornEquipment,
         injuries,
-        mercenaries: updatedMercenaries,
+        mercenaries: allUpdatedMercenaries,
         updatedAt: now,
       };
     });
