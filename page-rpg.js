@@ -13,22 +13,40 @@ import { LORE_ENTRIES } from './data/rpg/lore.js';
 import { computeCharacterCombatStats } from './rpg-combat.js';
 
 // api/ 아래 파일은 Vercel이 서버 함수 전용으로 취급해서 브라우저가 직접 fetch 못 함(404) -
-// 그래서 api/_rpgInventory.js를 import하는 대신, 이 한 줄짜리 로직만 그대로 복제해서 씀
-// (서버쪽 BASE_INVENTORY_CAPACITY와 반드시 같은 값으로 유지할 것)
+// 그래서 api/_rpgInventory.js를 import하는 대신, 이 로직들을 그대로 복제해서 씀
+// (서버쪽 api/_rpgInventory.js와 반드시 같은 값/공식으로 유지할 것)
 const BASE_INVENTORY_CAPACITY = 20;
 function capacityForCharacter(character) {
   return BASE_INVENTORY_CAPACITY + (character.inventorySlotBonus || 0);
 }
+const BASE_WEIGHT_LIMIT = 30;
+const WEIGHT_PER_STR = 4;
+function weightLimitForCharacter(character) {
+  const str = (character.stats && character.stats.str) || 0;
+  return BASE_WEIGHT_LIMIT + str * WEIGHT_PER_STR;
+}
+function inventoryWeight(inventory) {
+  return (inventory || []).reduce((sum, e) => sum + ((ITEMS[e.itemId] && ITEMS[e.itemId].weight) || 0) * e.qty, 0);
+}
 
-const ELEMENT_NAMES = { water: '물', fire: '불', air: '대기', dark: '어둠', holy: '신성', none: '무속성' };
+const ELEMENT_NAMES = { water: '물', fire: '불', air: '대기', dark: '어둠', holy: '신성', none: '무속성', all: '전속성' };
+const BODY_PART_NAMES = { arm: '팔', leg: '다리' };
 
-// 상점/인벤토리에 표시할 장비 스탯 요약 (ATK/DEF/HP 보너스 + 속성)
+// 상점/인벤토리에 표시할 장비 스탯 요약 (ATK/DEF/HP/스탯 보너스 + 속성 + 특수효과)
 function itemStatsLabel(item) {
   const parts = [];
   if (item.atkBonus) parts.push(`공격력+${item.atkBonus}`);
   if (item.defBonus) parts.push(`방어력+${item.defBonus}`);
   if (item.hpBonus) parts.push(`최대체력+${item.hpBonus}`);
+  if (item.strBonus) parts.push(`힘+${item.strBonus}`);
+  if (item.agiBonus) parts.push(`민첩+${item.agiBonus}`);
+  if (item.intBonus) parts.push(`지능+${item.intBonus}`);
   if (item.element && item.element !== 'none') parts.push(`속성:${ELEMENT_NAMES[item.element] || item.element}`);
+  if (item.elementDefense) parts.push(`${ELEMENT_NAMES[item.elementDefense] || item.elementDefense}속성방어`);
+  if (item.severeInjuryResist) parts.push(`중상방어+${Math.round(item.severeInjuryResist * 100)}%`);
+  if (item.doubleAttackChance) parts.push(`2연타 확률+${Math.round(item.doubleAttackChance * 100)}%`);
+  if (item.armorClass) parts.push(item.armorClass === 'heavy' ? '중갑' : '경갑');
+  if (typeof item.weight === 'number' && item.weight > 0) parts.push(`무게${item.weight}`);
   return parts.length ? ` (${parts.join(', ')})` : '';
 }
 
@@ -107,6 +125,7 @@ const ERROR_MESSAGES = {
   unknown_item: '알 수 없는 아이템입니다.',
   not_enough_stored_gold: '보관함에 골드가 부족합니다.',
   not_enough_stored_items: '보관함에 아이템이 부족합니다.',
+  already_full_durability: '이미 내구도가 가득 찼습니다.',
   invalid_quest: '알 수 없는 퀘스트입니다.',
   quest_already_done: '이미 완료한 퀘스트입니다.',
   quest_condition_not_met: '아직 퀘스트 조건을 만족하지 못했습니다.',
@@ -339,6 +358,23 @@ function questRowHtml(questId) {
   `;
 }
 
+// ── 의사 NPC 치료 UI(경상/중상 관계없이 즉시 완치, 비용은 남은 회복턴에 비례) ─────
+function doctorCureHtml() {
+  const injuries = character.injuries || {};
+  const injuredParts = ['arm', 'leg'].filter((p) => (injuries[p] || {}).severity > 0);
+  if (!injuredParts.length) return `<p class="rpg-hint">지금은 다친 곳이 없네요.</p>`;
+  return injuredParts.map((part) => {
+    const injury = injuries[part];
+    const severityLabel = injury.severity === 2 ? '중상' : '경상';
+    return `
+      <div class="rpg-shop-row">
+        <span>${BODY_PART_NAMES[part]} ${severityLabel} (남은 ${injury.turnsLeft}턴)</span>
+        <button class="rpg-cure-btn" data-part="${part}">치료</button>
+      </div>
+    `;
+  }).join('');
+}
+
 // ── 마을 탭(NPC + 게시판) ────────────────────────────
 function renderTownTab(content, container) {
   const townName = (TOWNS[character.currentTown] || {}).name || character.currentTown;
@@ -352,6 +388,7 @@ function renderTownTab(content, container) {
           <div class="rpg-class-name">${npc.name}</div>
           ${npc.dialogue.map((line) => `<p class="rpg-hint">"${line}"</p>`).join('')}
           ${(npc.questIds || []).map((qid) => questRowHtml(qid)).join('')}
+          ${npc.role === 'doctor' ? doctorCureHtml() : ''}
         </div>
       `).join('') || '<p class="rpg-hint">이 마을엔 아직 만날 사람이 없어요.</p>'}
     </div>
@@ -372,6 +409,16 @@ function renderTownTab(content, container) {
       renderTownTab(content, container);
       showToast('퀘스트를 완료했습니다!' + (r.overflowed ? ' (인벤토리가 가득 차 보상 아이템을 놓쳤어요)' : ''));
       if (r.newLore && r.newLore.length) content.insertAdjacentHTML('afterbegin', loreUnlockHtml(r.newLore));
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-cure-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('cure-injury', { part: btn.dataset.part });
+      character.gold = r.gold;
+      character.injuries = r.injuries;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      renderTownTab(content, container);
+      showToast(`${BODY_PART_NAMES[r.part]} 부상을 치료했습니다 (${r.cost}골드)`);
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelector('.rpg-board-post-btn').addEventListener('click', async () => {
@@ -396,7 +443,7 @@ function renderShopTab(content, container) {
     <div class="rpg-shop-list">
       ${shopItems.map((i) => `
         <div class="rpg-shop-row">
-          <span>${i.name}${itemStatsLabel(i)} (${i.shopPrice}골드)</span>
+          <span>${i.name}${itemStatsLabel(i)} (${i.type === 'ammo' ? `${i.shopPrice * 10}골드/10개` : `${i.shopPrice}골드`})</span>
           <button class="rpg-buy-btn" data-item="${i.id}">구매</button>
         </div>
       `).join('')}
@@ -409,11 +456,13 @@ function renderShopTab(content, container) {
   `;
   content.querySelectorAll('.rpg-buy-btn').forEach((btn) => {
     btn.addEventListener('click', async () => {
+      const item = ITEMS[btn.dataset.item];
+      const qty = item.type === 'ammo' ? 10 : 1;
       try {
-        const r = await apiPost('shop-buy', { itemId: btn.dataset.item, qty: 1 });
+        const r = await apiPost('shop-buy', { itemId: btn.dataset.item, qty });
         character.gold = r.gold;
         container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-        showToast('구매 완료');
+        showToast(qty > 1 ? `${item.name} ${qty}개 구매 완료` : '구매 완료');
       } catch (e) {
         showToast(friendlyError(e));
       }
@@ -589,8 +638,10 @@ async function loadMarketListings(content, container) {
 function renderInventoryTab(content, container) {
   const inventory = character.inventory || [];
   const capacity = capacityForCharacter(character);
+  const weight = inventoryWeight(inventory);
+  const weightLimit = weightLimitForCharacter(character);
   content.innerHTML = `
-    <p class="rpg-hint">인벤토리 (${inventory.length}/${capacity}칸)</p>
+    <p class="rpg-hint">인벤토리 (${inventory.length}/${capacity}칸, 무게 ${weight.toFixed(1)}/${weightLimit})</p>
     <div class="rpg-inventory-list">
       ${inventory.length ? inventory.map((entry) => {
         const item = ITEMS[entry.itemId] || { name: entry.itemId };
@@ -598,6 +649,7 @@ function renderInventoryTab(content, container) {
         const equippable = ['weapon', 'armor', 'ring', 'necklace'];
         if (item.type === 'consumable' || item.type === 'bag') actions.push(`<button class="rpg-inv-use" data-item="${entry.itemId}">사용</button>`);
         if (equippable.includes(item.type)) actions.push(`<button class="rpg-inv-equip" data-item="${entry.itemId}">장착</button>`);
+        if (entry.itemId === 'torn_cloth' && entry.qty >= 3) actions.push(`<button class="rpg-inv-craft-bandage">붕대로 제작</button>`);
         actions.push(`<button class="rpg-inv-sell" data-item="${entry.itemId}">NPC판매</button>`);
         actions.push(`<button class="rpg-inv-list" data-item="${entry.itemId}">마켓등록</button>`);
         return `
@@ -613,11 +665,14 @@ function renderInventoryTab(content, container) {
     try {
       const r = await apiPost('use-item', { itemId: btn.dataset.item });
       if (r.effect === 'potion') { character.currentHp = r.currentHp; character.currentMp = r.currentMp; }
+      if (r.effect === 'bandage') { character.injuries = r.injuries; }
       await loadCharacter();
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderInventoryTab(content, container);
       if (r.effect === 'bag') {
         showToast(`가방을 사용해 인벤토리가 +${r.slotBonus}칸 늘었습니다! (현재 ${capacityForCharacter(character)}칸)`);
+      } else if (r.effect === 'bandage') {
+        showToast(`${BODY_PART_NAMES[r.healedPart]} 부상을 붕대로 치료했습니다`);
       } else {
         showToast('사용했습니다');
       }
@@ -653,6 +708,27 @@ function renderInventoryTab(content, container) {
       showToast('마켓에 등록했습니다');
     } catch (e) { showToast(friendlyError(e)); }
   }));
+  content.querySelectorAll('.rpg-inv-craft-bandage').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('craft-bandage', { qty: 1 });
+      await loadCharacter();
+      renderInventoryTab(content, container);
+      showToast(`해진 천 ${r.clothUsed}개로 붕대 ${r.crafted}개를 만들었습니다`);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+}
+
+// ── 부상 상태 요약(캐릭터 탭에서 사용) ─────────────────
+function injuriesSummaryHtml() {
+  const injuries = character.injuries || {};
+  const injuredParts = ['arm', 'leg'].filter((p) => (injuries[p] || {}).severity > 0);
+  if (!injuredParts.length) return `<p class="rpg-hint">부상 없음</p>`;
+  const lines = injuredParts.map((p) => {
+    const injury = injuries[p];
+    const severityLabel = injury.severity === 2 ? '중상(의사에게 치료 필요)' : '경상(붕대로 치료 가능)';
+    return `${BODY_PART_NAMES[p]} ${severityLabel} — 남은 ${injury.turnsLeft}턴`;
+  });
+  return `<p class="rpg-hint">🩹 부상: ${lines.join(' / ')}</p>`;
 }
 
 // ── 캐릭터 탭 ───────────────────────────────────────
@@ -669,6 +745,7 @@ function renderCharacterTab(content, container) {
         <button class="rpg-stance-btn" data-stance="aggressive">공격형</button>
         (현재: ${character.stance === 'aggressive' ? '공격형' : '안정형'})
       </p>
+      ${injuriesSummaryHtml()}
     </div>
     <div class="rpg-stats">
       <p>남은 스탯포인트: ${character.statPoints}</p>
@@ -710,6 +787,17 @@ function renderCharacterTab(content, container) {
     } catch (e) { showToast(friendlyError(e)); }
   }));
 
+  content.querySelectorAll('.rpg-repair-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('repair-equipment', { equipSlot: btn.dataset.slot });
+      character.gold = r.gold;
+      character.equipment[`${btn.dataset.slot}Durability`] = r.durability;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      renderCharacterTab(content, container);
+      showToast(`수리 완료! (${r.cost}골드 소모)`);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+
   content.querySelectorAll('.rpg-subclass-card').forEach((btn) => btn.addEventListener('click', async () => {
     try {
       await apiPost('choose-subclass', { classId: btn.dataset.class });
@@ -742,6 +830,8 @@ function renderCharacterTab(content, container) {
 
 // ── 장비창 — 착용 중인 장비를 슬롯별로 한눈에 보여줌 ──
 const EQUIP_SLOT_LABELS = { weapon: '무기', armor: '방어구', ring: '반지', necklace: '목걸이' };
+const DURABILITY_TRACKED_SLOTS = ['weapon', 'armor'];
+const REPAIR_COST_PER_POINT = 2;
 function equipmentSectionHtml() {
   const stats = computeCharacterCombatStats(character);
   const slots = ['weapon', 'armor', 'ring', 'necklace'];
@@ -752,10 +842,18 @@ function equipmentSectionHtml() {
       ${slots.map((slot) => {
         const itemId = character.equipment[slot];
         const item = itemId ? ITEMS[itemId] : null;
+        const tracked = DURABILITY_TRACKED_SLOTS.includes(slot);
+        const durability = tracked ? (character.equipment[`${slot}Durability`] ?? 100) : null;
+        const broken = tracked && durability <= 0;
+        const durabilityLabel = tracked && item ? ` — 내구도 ${durability}/100${broken ? ' (파손됨!)' : ''}` : '';
+        const repairCost = tracked && item && durability < 100 ? Math.ceil((100 - durability) * REPAIR_COST_PER_POINT) : 0;
         return `
           <div class="rpg-shop-row">
-            <span>${EQUIP_SLOT_LABELS[slot]}: ${item ? `${item.name}${itemStatsLabel(item)}` : '없음'}</span>
-            ${item ? `<button class="rpg-unequip-btn" data-slot="${slot}">해제</button>` : ''}
+            <span>${EQUIP_SLOT_LABELS[slot]}: ${item ? `${item.name}${itemStatsLabel(item)}${durabilityLabel}` : '없음'}</span>
+            <span>
+              ${item ? `<button class="rpg-unequip-btn" data-slot="${slot}">해제</button>` : ''}
+              ${repairCost ? `<button class="rpg-repair-btn" data-slot="${slot}">수리(${repairCost}골드)</button>` : ''}
+            </span>
           </div>
         `;
       }).join('')}

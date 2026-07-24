@@ -2,7 +2,7 @@
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
-import { addItem, capacityForCharacter } from '../_rpgInventory.js';
+import { tryAddItem } from '../_rpgInventory.js';
 import { ITEMS } from '../../data/rpg/items.js';
 
 const LOOT_POOL = [
@@ -16,8 +16,25 @@ const LOOT_POOL = [
   { itemId: 'armor_rare', weight: 5 },
   { itemId: 'ring_rare', weight: 4 },
   { itemId: 'necklace_rare', weight: 4 },
+  { itemId: 'armor_reinforced_rare', weight: 3 },
+  { itemId: 'ring_ward_water', weight: 1.5 },
+  { itemId: 'ring_ward_fire', weight: 1.5 },
+  { itemId: 'ring_ward_air', weight: 1.5 },
+  { itemId: 'necklace_ward_dark', weight: 1.5 },
+  { itemId: 'necklace_ward_holy', weight: 1.5 },
+  { itemId: 'ring_stalwart', weight: 1.5 },
+  { itemId: 'necklace_stalwart', weight: 1.5 },
+  { itemId: 'ring_swift_strike', weight: 1.5 },
+  { itemId: 'necklace_swift_strike', weight: 1.5 },
+  { itemId: 'ring_strength', weight: 1.5 },
+  { itemId: 'necklace_strength', weight: 1.5 },
+  { itemId: 'ring_agility', weight: 1.5 },
+  { itemId: 'necklace_agility', weight: 1.5 },
+  { itemId: 'ring_intellect', weight: 1.5 },
+  { itemId: 'necklace_intellect', weight: 1.5 },
   { itemId: 'weapon_legendary', weight: 1 },
   { itemId: 'armor_legendary', weight: 1 },
+  { itemId: 'ring_omniward', weight: 0.05 }, // 전속성방어 - 극히 낮은 확률
 ];
 
 function rollLootPool() {
@@ -48,13 +65,14 @@ export default async function handler(req, res) {
 
       const wonItemId = rollLootPool();
       const inventory = [...(character.inventory || [])];
-      const overflowed = !addItem(inventory, wonItemId, 1, capacityForCharacter(character));
+      const added = tryAddItem(character, inventory, wonItemId, 1);
       const now = Date.now();
 
       outcome = {
         itemId: wonItemId,
         rarity: ITEMS[wonItemId].rarity,
-        overflowed,
+        overflowed: !added.ok,
+        overflowReason: added.ok ? null : added.reason,
         gold: (character.gold || 0) - boxPrice,
       };
 

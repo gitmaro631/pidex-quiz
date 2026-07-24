@@ -28,6 +28,9 @@ import characterStorage from './_rpg/character-storage.js';
 import boardPost from './_rpg/board-post.js';
 import boardBrowse from './_rpg/board-browse.js';
 import openRandomBox from './_rpg/open-random-box.js';
+import repairEquipment from './_rpg/repair-equipment.js';
+import cureInjury from './_rpg/cure-injury.js';
+import craftBandage from './_rpg/craft-bandage.js';
 
 const ROUTES = {
   character, adventure,
@@ -41,6 +44,9 @@ const ROUTES = {
   'account-storage': accountStorage, 'character-storage': characterStorage,
   'board-post': boardPost, 'board-browse': boardBrowse,
   'open-random-box': openRandomBox,
+  'repair-equipment': repairEquipment,
+  'cure-injury': cureInjury,
+  'craft-bandage': craftBandage,
 };
 
 export default async function handler(req, res) {

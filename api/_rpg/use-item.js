@@ -17,7 +17,8 @@ export default async function handler(req, res) {
   const item = ITEMS[itemId];
   const isPotion = item && (item.healPct || item.restoreMpPct || item.restoreStaminaPct);
   const isBag = item && item.type === 'bag';
-  if (!item || (!isPotion && !isBag)) return res.status(400).json({ error: 'not_usable' });
+  const isBandage = item && item.cureInjury === 'mild';
+  if (!item || (!isPotion && !isBag && !isBandage)) return res.status(400).json({ error: 'not_usable' });
 
   let outcome = null;
   try {
@@ -35,6 +36,14 @@ export default async function handler(req, res) {
         const inventorySlotBonus = (character.inventorySlotBonus || 0) + item.slotBonus;
         patch = { ...patch, inventorySlotBonus };
         outcome = { itemId, effect: 'bag', slotBonus: item.slotBonus, inventorySlotBonus };
+      } else if (isBandage) {
+        const injuries = character.injuries || { arm: { severity: 0, turnsLeft: 0 }, leg: { severity: 0, turnsLeft: 0 } };
+        const mildPart = ['arm', 'leg'].find((p) => (injuries[p] || {}).severity === 1);
+        if (!mildPart) { outcome = { error: 'no_mild_injury' }; return null; }
+
+        const nextInjuries = { ...injuries, [mildPart]: { severity: 0, turnsLeft: 0 } };
+        patch = { ...patch, injuries: nextInjuries };
+        outcome = { itemId, effect: 'bandage', healedPart: mildPart, injuries: nextInjuries };
       } else {
         const combatStats = computeCharacterCombatStats(character);
         const currentHp = typeof character.currentHp === 'number' ? character.currentHp : combatStats.maxHp;

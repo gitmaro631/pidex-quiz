@@ -29,4 +29,17 @@ export const NPCS = {
     ],
     questIds: ['q5_canyon_clear'],
   },
+  npc_doctor_1: {
+    id: 'npc_doctor_1', name: '마을 의사', townId: 'town1', role: 'doctor',
+    dialogue: [
+      '팔이나 다리를 다쳤으면 참지 말고 이리 오게.',
+      '경상이야 붕대로도 되지만, 중상은 나한테 와야 낫는다네.',
+    ],
+    questIds: [],
+  },
+  npc_doctor_2: {
+    id: 'npc_doctor_2', name: '마을 의사', townId: 'town2', role: 'doctor',
+    dialogue: ['다친 몸으로 계속 싸우면 더 크게 다치는 법이야.'],
+    questIds: [],
+  },
 };

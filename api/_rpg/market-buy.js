@@ -3,7 +3,7 @@
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { firestoreGetDoc, withMultiDocTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
-import { addItem, capacityForCharacter } from '../_rpgInventory.js';
+import { tryAddItem } from '../_rpgInventory.js';
 
 const MARKET_FEE_RATE = 0.15; // 고수수료로 화폐가치(골드) 유지
 
@@ -42,10 +42,8 @@ export default async function handler(req, res) {
       if ((buyer.gold || 0) < totalCost) { outcome = { error: 'not_enough_gold' }; return {}; }
 
       const buyerInventory = [...(buyer.inventory || [])];
-      if (!addItem(buyerInventory, listing.itemId, buyQty, capacityForCharacter(buyer))) {
-        outcome = { error: 'inventory_full' };
-        return {};
-      }
+      const added = tryAddItem(buyer, buyerInventory, listing.itemId, buyQty);
+      if (!added.ok) { outcome = { error: added.reason }; return {}; }
 
       const fee = Math.floor(totalCost * MARKET_FEE_RATE);
       const sellerProceeds = totalCost - fee;

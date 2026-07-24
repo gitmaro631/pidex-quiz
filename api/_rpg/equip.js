@@ -43,6 +43,8 @@ export default async function handler(req, res) {
         return null;
       }
       equipment[equipSlot] = itemId;
+      if (equipSlot === 'weapon') equipment.weaponDurability = 100;
+      if (equipSlot === 'armor') equipment.armorDurability = 100;
 
       const now = Date.now();
       outcome = { equipSlot, equipped: itemId, previous: previous || null };

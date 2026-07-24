@@ -1,34 +1,36 @@
+// 해진 천(torn_cloth) 3개를 붕대 1개로 개조 - 재료 소재 활용도를 위한 제작 기능.
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
-import { tryAddItem } from '../_rpgInventory.js';
-import { ITEMS } from '../../data/rpg/items.js';
+import { removeItem, inventoryQty, tryAddItem } from '../_rpgInventory.js';
+
+const CLOTH_PER_BANDAGE = 3;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { accessToken, slot, itemId, qty } = req.body;
+  const { accessToken, slot, qty } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
 
-  const buyQty = Math.max(1, Math.floor(Number(qty) || 1));
-  const item = ITEMS[itemId];
-  if (!item || !item.shopPrice) return res.status(400).json({ error: 'not_purchasable' });
+  const craftQty = Math.max(1, Math.floor(Number(qty) || 1));
 
   let outcome = null;
   try {
     const docPath = characterDocPath(username, slot);
     await withFirestoreTransaction(docPath, (current) => {
       const character = current || defaultCharacter(slot);
-      const cost = item.shopPrice * buyQty;
-      if ((character.gold || 0) < cost) { outcome = { error: 'not_enough_gold' }; return null; }
-
       const inventory = [...(character.inventory || [])];
-      const added = tryAddItem(character, inventory, itemId, buyQty);
+      const clothNeeded = craftQty * CLOTH_PER_BANDAGE;
+      if (inventoryQty(inventory, 'torn_cloth') < clothNeeded) { outcome = { error: 'not_enough_material' }; return null; }
+
+      removeItem(inventory, 'torn_cloth', clothNeeded);
+      const added = tryAddItem(character, inventory, 'bandage', craftQty);
       if (!added.ok) { outcome = { error: added.reason }; return null; }
+
       const now = Date.now();
-      outcome = { itemId, qty: buyQty, cost, gold: character.gold - cost };
-      return { ...character, gold: character.gold - cost, inventory, updatedAt: now };
+      outcome = { crafted: craftQty, clothUsed: clothNeeded };
+      return { ...character, inventory, updatedAt: now };
     });
 
     if (outcome && outcome.error) return res.status(400).json({ error: outcome.error });

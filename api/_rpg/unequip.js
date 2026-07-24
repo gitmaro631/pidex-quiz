@@ -25,6 +25,8 @@ export default async function handler(req, res) {
       const inventory = [...(character.inventory || [])];
       addItem(inventory, equippedItemId, 1);
       equipment[equipSlot] = null;
+      if (equipSlot === 'weapon') equipment.weaponDurability = 100;
+      if (equipSlot === 'armor') equipment.armorDurability = 100;
 
       const now = Date.now();
       outcome = { equipSlot, unequipped: equippedItemId };

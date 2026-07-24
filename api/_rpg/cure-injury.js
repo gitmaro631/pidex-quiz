@@ -1,34 +1,35 @@
+// 마을 의사 치료 - 경상/중상 관계없이 골드로 즉시 완치. 비용은 남은 회복턴 x 심각도에 비례.
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
-import { tryAddItem } from '../_rpgInventory.js';
-import { ITEMS } from '../../data/rpg/items.js';
+
+const COST_PER_TURN = 3;
+const SEVERITY_COST_MULT = { 1: 1, 2: 2 };
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { accessToken, slot, itemId, qty } = req.body;
+  const { accessToken, slot, part } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
-
-  const buyQty = Math.max(1, Math.floor(Number(qty) || 1));
-  const item = ITEMS[itemId];
-  if (!item || !item.shopPrice) return res.status(400).json({ error: 'not_purchasable' });
+  if (part !== 'arm' && part !== 'leg') return res.status(400).json({ error: 'invalid_part' });
 
   let outcome = null;
   try {
     const docPath = characterDocPath(username, slot);
     await withFirestoreTransaction(docPath, (current) => {
       const character = current || defaultCharacter(slot);
-      const cost = item.shopPrice * buyQty;
+      const injuries = character.injuries || { arm: { severity: 0, turnsLeft: 0 }, leg: { severity: 0, turnsLeft: 0 } };
+      const injury = injuries[part] || { severity: 0, turnsLeft: 0 };
+      if (!injury.severity) { outcome = { error: 'no_injury' }; return null; }
+
+      const cost = Math.max(5, Math.ceil(injury.turnsLeft * COST_PER_TURN * (SEVERITY_COST_MULT[injury.severity] || 1)));
       if ((character.gold || 0) < cost) { outcome = { error: 'not_enough_gold' }; return null; }
 
-      const inventory = [...(character.inventory || [])];
-      const added = tryAddItem(character, inventory, itemId, buyQty);
-      if (!added.ok) { outcome = { error: added.reason }; return null; }
+      const nextInjuries = { ...injuries, [part]: { severity: 0, turnsLeft: 0 } };
       const now = Date.now();
-      outcome = { itemId, qty: buyQty, cost, gold: character.gold - cost };
-      return { ...character, gold: character.gold - cost, inventory, updatedAt: now };
+      outcome = { part, cost, gold: character.gold - cost, injuries: nextInjuries };
+      return { ...character, gold: character.gold - cost, injuries: nextInjuries, updatedAt: now };
     });
 
     if (outcome && outcome.error) return res.status(400).json({ error: outcome.error });

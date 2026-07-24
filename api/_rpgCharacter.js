@@ -22,7 +22,10 @@ export function defaultCharacter(slot, now = Date.now()) {
     stats: { str: 5, int: 5, agi: 5, vit: 5 },
     classMain: null,
     classSub: null,
-    equipment: { weapon: null, armor: null, head: null, hands: null, feet: null, ring: null, necklace: null },
+    equipment: {
+      weapon: null, armor: null, head: null, hands: null, feet: null, ring: null, necklace: null,
+      weaponDurability: 100, armorDurability: 100, // 착용중인 무기/방어구만 내구도 추적(교체시 초기화)
+    },
     inventory: [],
     inventorySlotBonus: 0,
     currentTown: 'town1',
@@ -35,6 +38,10 @@ export function defaultCharacter(slot, now = Date.now()) {
     visitedZones: [],
     questFlags: {},
     loreUnlocked: [],
+    injuries: {
+      arm: { severity: 0, turnsLeft: 0 },
+      leg: { severity: 0, turnsLeft: 0 },
+    },
     createdAt: now,
     updatedAt: now,
   };
