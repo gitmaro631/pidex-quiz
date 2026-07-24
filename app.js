@@ -261,7 +261,7 @@ function userIdsOf(snap) {
 }
 
 async function computeAdminStats(db) {
-  const [hackSnap, pidexSnap, watchSnap, tradeSnap, reportSnap, opinionSnap, surveySnap, ...leaderboardSnaps] = await Promise.all([
+  const [hackSnap, pidexSnap, watchSnap, tradeSnap, reportSnap, opinionSnap, surveySnap, rpgSnap, ...leaderboardSnaps] = await Promise.all([
     safeGet(db, 'hack_pending_wallets'),
     safeGet(db, 'pidex_wallets'),
     safeGet(db, 'pidex_watch_list'),
@@ -269,12 +269,23 @@ async function computeAdminStats(db) {
     safeGet(db, 'hack_reports'),
     safeGet(db, 'quiz_opinions'),
     safeGet(db, 'surveys'),
+    safeGet(db, 'rpg_characters'),
     ...QUIZ_MODES_LIST.map(m => safeGet(db, `leaderboard_${m}`)),
   ]);
 
   const walletUsers = new Set([...userIdsOf(hackSnap), ...userIdsOf(pidexSnap)]);
   const quizUsers = new Set();
   leaderboardSnaps.forEach(snap => userIdsOf(snap).forEach(id => quizUsers.add(id)));
+
+  // rpg_characters 문서 id는 "username__slot" 형태 - 실제로 모험(존)을 한 번이라도 완료한
+  // 캐릭터만 "참가"로 치고, 계정 단위(username)로 중복 제거해서 셈
+  const rpgAdventureUsers = new Set();
+  (rpgSnap?.docs || []).forEach(d => {
+    const data = d.data();
+    if (!data.visitedZones || !data.visitedZones.length) return;
+    const username = d.id.split('__').slice(0, -1).join('__') || d.id;
+    rpgAdventureUsers.add(username);
+  });
 
   return {
     walletUsers: walletUsers.size,
@@ -287,6 +298,7 @@ async function computeAdminStats(db) {
     opinionCount: opinionSnap ? opinionSnap.size : 0,
     quizUsers: quizUsers.size,
     surveyUsers: surveySnap ? surveySnap.size : 0,
+    rpgAdventureUsers: rpgAdventureUsers.size,
   };
 }
 
@@ -358,6 +370,7 @@ async function loadAndRenderAdminStats(el) {
       ${row('의견 게시글 수', current.opinionCount, prev?.opinionCount)}
       ${row('퀴즈 참여 유저 수', current.quizUsers, prev?.quizUsers)}
       ${row('설문조사 참여 유저 수', current.surveyUsers, prev?.surveyUsers)}
+      ${row('모험(RPG) 참여 유저 수', current.rpgAdventureUsers, prev?.rpgAdventureUsers)}
       ${row('구독자 수 (퀴즈파이 앱)', subscriberCount ?? '?', null)}
     `;
   } catch (e) {
