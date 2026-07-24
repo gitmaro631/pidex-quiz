@@ -5,6 +5,8 @@ import { MONSTERS } from './data/rpg/monsters.js';
 import { ITEMS } from './data/rpg/items.js';
 import { CLASSES } from './data/rpg/classes.js';
 import { elementalMultiplier } from './data/rpg/elements.js';
+import { CLASS_ESSENCE_ITEM, TIER_POWER_MULT } from './data/rpg/training.js';
+import { ENHANCE_ATK_PER_LEVEL, ENHANCE_DEF_PER_LEVEL, RARE_MONSTER_STONE_DROP_CHANCE } from './data/rpg/enhancement.js';
 
 const MAX_ROUNDS_PER_ENCOUNTER = 40;
 const BASE_HP = 40;
@@ -43,6 +45,8 @@ const DIRECT_SEVERE_BASE_CHANCE = 0.02;
 const DIRECT_SEVERE_WEAK_AFFINITY_BONUS = 0.03;
 const DIRECT_SEVERE_UNDERLEVEL_BONUS = 0.03;
 const UNDERLEVEL_ZONE_MULTIPLIER = 3;
+// 직업훈련소 결정 - 몹 종류 무관, 내(본인) 직업에 맞는 결정이 킬당 이 확률로 하나씩 드랍됨
+const ESSENCE_DROP_CHANCE = 0.2;
 
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -123,8 +127,11 @@ export function computeCharacterCombatStats(character) {
   const weaponBroken = weaponItem && (equipment.weaponDurability ?? 100) <= 0;
   const armorBroken = armorItem && (equipment.armorDurability ?? 100) <= 0;
 
-  const weaponAtkBonus = weaponBroken ? 0 : ((weaponItem && weaponItem.atkBonus) || 0);
-  const armorDefBonus = armorBroken ? 0 : ((armorItem && armorItem.defBonus) || 0);
+  // 대장간 강화(1~10단계) - 내구도와 같은 원칙으로, 파손되면 강화 보너스도 함께 사라짐
+  const weaponEnhanceBonus = weaponBroken ? 0 : (equipment.weaponEnhanceLevel || 0) * ENHANCE_ATK_PER_LEVEL;
+  const armorEnhanceBonus = armorBroken ? 0 : (equipment.armorEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
+  const weaponAtkBonus = (weaponBroken ? 0 : ((weaponItem && weaponItem.atkBonus) || 0)) + weaponEnhanceBonus;
+  const armorDefBonus = (armorBroken ? 0 : ((armorItem && armorItem.defBonus) || 0)) + armorEnhanceBonus;
   const armorHpBonus = armorBroken ? 0 : ((armorItem && armorItem.hpBonus) || 0);
   const accessoryAtkBonus = (ringItem && ringItem.atkBonus || 0) + (necklaceItem && necklaceItem.atkBonus || 0);
   const accessoryDefBonus = (ringItem && ringItem.defBonus || 0) + (necklaceItem && necklaceItem.defBonus || 0);
@@ -272,6 +279,8 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }
     accessoryElementDefense,
     doubleAttackChance,
     mentalResist: characterLike.mentalResist, // undefined면(본인) 멘탈 붕괴 로직 자체를 건너뜀
+    // 스킬 훈련(skillLevels)은 본인 전용 - 용병은 훈련소 대상이 아니라 항상 자기 스킬을 자유롭게 씀
+    skillLevels: isSelf ? (characterLike.skillLevels || {}) : null,
     injurySeverity: {
       arm: (characterLike.injuries && characterLike.injuries.arm && characterLike.injuries.arm.severity) || 0,
       leg: (characterLike.injuries && characterLike.injuries.leg && characterLike.injuries.leg.severity) || 0,
@@ -280,15 +289,36 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }
   };
 }
 
+// 스킬 자원 - 물리 직업(전사/궁수)은 스테미나, 마법 직업(마법사/성직자)은 마나를 씀
+function skillResourceKey(actor) {
+  return actor.combatStats.classDef.resourceType === 'stamina' ? 'stamina' : 'mp';
+}
+function spendActorResource(actor, amount) {
+  const key = skillResourceKey(actor);
+  actor[key] -= amount;
+}
+// 스킬을 이번에 쓸 수 있는지 - 자원이 충분한지 + (본인이면) 훈련소에서 배운 스킬인지(미습득 스킬은 사용 불가)
+function isSkillUsable(actor, skill) {
+  if (skill.manaCost > actor[skillResourceKey(actor)]) return false;
+  if (actor.isSelf) return (actor.skillLevels && actor.skillLevels[skill.id] > 0);
+  return true; // 용병은 훈련 시스템 대상이 아니라 항상 사용 가능
+}
+// 훈련 단계(1~3)에 따라 위력이 세짐 - 본인만 해당, 용병은 항상 기본 위력
+function skillEffectivePower(actor, skill) {
+  if (!actor.isSelf) return skill.power;
+  const tier = (actor.skillLevels && actor.skillLevels[skill.id]) || 0;
+  return skill.power * (TIER_POWER_MULT[tier] || 1);
+}
+
 // 파티원 한 명의 공격 1회 처리(스킬/화살/부상/비숙련무기 패널티/2연타 전부 포함) - monster는 참조로 변형됨.
 // otherMonsters: 같은 조우에서 아직 순서를 기다리는 나머지 몹들 - attack_all(광역) 스킬의 스플래시 대상
 function performAttack({ actor, monster, otherMonsters, sharedInventory, log, isUnderleveled, partyBuffs }) {
   const combatStats = actor.combatStats;
-  const skills = combatStats.classDef.skills.filter((s) => (s.type === 'attack' || s.type === 'attack_all') && s.manaCost <= actor.mp);
+  const skills = combatStats.classDef.skills.filter((s) => (s.type === 'attack' || s.type === 'attack_all') && isSkillUsable(actor, s));
   const useSkill = actor.stance === 'aggressive' && skills.length > 0;
   const skill = useSkill ? skills[skills.length - 1] : null;
-  let power = (skill ? skill.power : 1.0) * partyBuffs.atkMult; // 마법사의 "무기 강화" 버프가 파티 전체에 적용됨
-  if (skill) actor.mp -= skill.manaCost;
+  let power = (skill ? skillEffectivePower(actor, skill) : 1.0) * partyBuffs.atkMult; // 마법사의 "무기 강화" 버프가 파티 전체에 적용됨
+  if (skill) spendActorResource(actor, skill.manaCost);
 
   const arrowsLeftBeforeShot = actor.usesBow ? inventoryQty(sharedInventory, 'arrow') - actor.arrowsUsed : 0;
   const isKiting = actor.usesBow && arrowsLeftBeforeShot > 0;
@@ -413,55 +443,55 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
 // 우선순위: 치유(다친 아군 있을 때) > 저주(몹 미저주 상태) > 파티 버프(공격력/방어력/멘탈, 전투당 1회씩만)
 function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
   if (actor.stance !== 'aggressive') return false;
-  const affordable = (s) => s.manaCost <= actor.mp;
   const alive = party.filter((p) => p.alive && p.hp > 0);
 
-  const healSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'heal_ally' && affordable(s));
+  const healSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'heal_ally' && isSkillUsable(actor, s));
   if (healSkill) {
     const hurt = alive.filter((p) => p.hp / p.combatStats.maxHp < 0.6)
       .sort((a, b) => (a.hp / a.combatStats.maxHp) - (b.hp / b.combatStats.maxHp));
     if (hurt.length) {
       const target = hurt[0];
-      actor.mp -= healSkill.manaCost;
+      spendActorResource(actor, healSkill.manaCost);
       // 치유량은 대상 최대체력 비율 + 시전자의 공격력 절반(공격력 자체가 지혜 등 주스탯에 비례하므로
-      // 자연히 지혜가 높을수록 치유량도 커짐)
-      const healAmount = Math.round(target.combatStats.maxHp * healSkill.power) + Math.round(actor.combatStats.atk * 0.5);
+      // 자연히 지혜가 높을수록 치유량도 커짐) - 훈련 단계가 오르면 skillEffectivePower로 회복 비율도 커짐
+      const healAmount = Math.round(target.combatStats.maxHp * skillEffectivePower(actor, healSkill)) + Math.round(actor.combatStats.atk * 0.5);
       target.hp = Math.min(target.combatStats.maxHp, target.hp + healAmount);
       log.push(`${actor.label}의 ${healSkill.name}! ${target.label}의 체력을 ${healAmount} 회복했다.`);
       return true;
     }
   }
 
-  const debuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'debuff_monster' && affordable(s));
+  const debuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'debuff_monster' && isSkillUsable(actor, s));
   if (debuffSkill && !monster.cursed) {
-    actor.mp -= debuffSkill.manaCost;
-    monster.atk = Math.max(1, Math.round(monster.atk * (1 - debuffSkill.power)));
-    monster.def = Math.max(0, Math.round(monster.def * (1 - debuffSkill.power)));
+    spendActorResource(actor, debuffSkill.manaCost);
+    const debuffPower = skillEffectivePower(actor, debuffSkill);
+    monster.atk = Math.max(1, Math.round(monster.atk * (1 - debuffPower)));
+    monster.def = Math.max(0, Math.round(monster.def * (1 - debuffPower)));
     monster.cursed = true;
     log.push(`${actor.label}의 ${debuffSkill.name}! ${monster.name}의 힘이 약해졌다.`);
     return true;
   }
 
-  const atkBuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_atk_party' && affordable(s));
+  const atkBuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_atk_party' && isSkillUsable(actor, s));
   if (atkBuffSkill && partyBuffs.atkMult === 1) {
-    actor.mp -= atkBuffSkill.manaCost;
-    partyBuffs.atkMult = atkBuffSkill.power;
+    spendActorResource(actor, atkBuffSkill.manaCost);
+    partyBuffs.atkMult = skillEffectivePower(actor, atkBuffSkill);
     log.push(`${actor.label}의 ${atkBuffSkill.name}! 파티 전체의 무기가 강화됐다.`);
     return true;
   }
 
-  const defBuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_def_party' && affordable(s));
+  const defBuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_def_party' && isSkillUsable(actor, s));
   if (defBuffSkill && partyBuffs.defMult === 1) {
-    actor.mp -= defBuffSkill.manaCost;
-    partyBuffs.defMult = defBuffSkill.power;
+    spendActorResource(actor, defBuffSkill.manaCost);
+    partyBuffs.defMult = skillEffectivePower(actor, defBuffSkill);
     log.push(`${actor.label}의 ${defBuffSkill.name}! 파티 전체에 마법 방어막이 씌워졌다.`);
     return true;
   }
 
-  const mentalSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_mental_party' && affordable(s));
+  const mentalSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_mental_party' && isSkillUsable(actor, s));
   if (mentalSkill && partyBuffs.mentalBonus === 0) {
-    actor.mp -= mentalSkill.manaCost;
-    partyBuffs.mentalBonus = mentalSkill.power;
+    spendActorResource(actor, mentalSkill.manaCost);
+    partyBuffs.mentalBonus = skillEffectivePower(actor, mentalSkill);
     log.push(`${actor.label}의 ${mentalSkill.name}! 파티의 사기가 진정됐다.`);
     return true;
   }
@@ -548,6 +578,17 @@ export function resolveCombat({ character, zoneId, stance }) {
         totalXp += monster.xp;
         totalGold += randInt(monster.goldMin, monster.goldMax);
         loot.push(...rollLoot(monster));
+        // 직업훈련소 결정 - 몹 종류 무관, 본인 직업에 맞는 결정이 일정 확률로 드랍
+        const essenceItemId = CLASS_ESSENCE_ITEM[character.classMain];
+        if (essenceItemId && Math.random() < ESSENCE_DROP_CHANCE) {
+          loot.push({ itemId: essenceItemId, qty: 1 });
+          log.push(`${ITEMS[essenceItemId].name}을(를) 얻었다.`);
+        }
+        // 유니크(레어)몹 전용 - 대장간 강화석이 낮은 확률로 드랍
+        if (monster.rare && Math.random() < RARE_MONSTER_STONE_DROP_CHANCE) {
+          loot.push({ itemId: 'enhance_stone', qty: 1 });
+          log.push(`${ITEMS.enhance_stone.name}을(를) 얻었다!`);
+        }
         killedMonsterIds.push(monster.id);
         break;
       }

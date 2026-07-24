@@ -55,4 +55,30 @@ export const NPCS = {
     dialogue: ['용병 보수는 모험 갈 때마다 자동으로 나가니 주머니 사정을 봐가며 고용하게.'],
     questIds: [],
   },
+  npc_trainer_1: {
+    id: 'npc_trainer_1', name: '직업 교관', townId: 'town1', role: 'trainer',
+    dialogue: [
+      '스킬은 그냥 아는 게 아니야. 몹을 잡아 결정을 모으고, 여기서 제대로 배워야 쓸 수 있어.',
+      '단계를 올릴수록 위력이 세지지만 그만큼 결정도 골드도 더 필요하네.',
+    ],
+    questIds: [],
+  },
+  npc_trainer_2: {
+    id: 'npc_trainer_2', name: '직업 교관', townId: 'town2', role: 'trainer',
+    dialogue: ['배우지 않은 스킬은 전투에서 안 나가네. 먼저 여기서 배우게.'],
+    questIds: [],
+  },
+  npc_blacksmith_1: {
+    id: 'npc_blacksmith_1', name: '대장장이', townId: 'town1', role: 'blacksmith',
+    dialogue: [
+      '유니크한 놈을 잡으면 가끔 강화석이 나오지. 그걸 가져오면 무기든 방어구든 세게 만들어주겠네.',
+      '단계가 오를수록 더 많이 필요해지니 각오하게.',
+    ],
+    questIds: [],
+  },
+  npc_blacksmith_2: {
+    id: 'npc_blacksmith_2', name: '대장장이', townId: 'town2', role: 'blacksmith',
+    dialogue: ['장비를 갈아끼우면 강화 단계가 초기화되니 신중하게 정하게.'],
+    questIds: [],
+  },
 };

@@ -47,6 +47,8 @@ export function defaultCharacter(slot, now = Date.now()) {
     mercenaries: [], // 선술집에서 고용한 용병(완전한 캐릭터 형태로 저장 - createMercenaryInstance 참고)
     formationRow: null, // null이면 장착 무기로 자동 결정(활=후열, 그 외=전열) - rpg-combat.js의 effectiveFormationRow 참고
     lastTerritoryCollectAt: now, // 영지에서 일하는 용병들의 수입 정산 기준 시각(지연계산, collect-territory-income.js 참고)
+    skillLevels: {}, // 직업훈련소에서 배운 스킬 단계({ [skillId]: 1~3 }) - 없으면(0) 전투에서 그 스킬을 못 씀
+    identifiedItems: [], // 한 번 감정(확인)된 아이템id 목록 - 이후로는 항상 실제 스탯이 보임
     createdAt: now,
     updatedAt: now,
   };

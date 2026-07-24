@@ -37,6 +37,9 @@ import setFormation from './_rpg/set-formation.js';
 import admitMercenary from './_rpg/admit-mercenary.js';
 import setMercenaryAssignment from './_rpg/set-mercenary-assignment.js';
 import collectTerritoryIncome from './_rpg/collect-territory-income.js';
+import trainSkill from './_rpg/train-skill.js';
+import enhanceEquipment from './_rpg/enhance-equipment.js';
+import identifyItem from './_rpg/identify-item.js';
 
 const ROUTES = {
   character, adventure,
@@ -59,6 +62,9 @@ const ROUTES = {
   'admit-mercenary': admitMercenary,
   'set-mercenary-assignment': setMercenaryAssignment,
   'collect-territory-income': collectTerritoryIncome,
+  'train-skill': trainSkill,
+  'enhance-equipment': enhanceEquipment,
+  'identify-item': identifyItem,
 };
 
 export default async function handler(req, res) {

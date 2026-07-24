@@ -9,6 +9,7 @@ export const ITEMS = {
   torch: { id: 'torch', name: '횃불', type: 'consumable', rarity: 'normal', shopPrice: 30, weight: 1 },
   arrow: { id: 'arrow', name: '화살', type: 'ammo', rarity: 'normal', shopPrice: 2, weight: 0.1 }, // 상점에서 10개 묶음으로 구매됨(개당 가격)
   bandage: { id: 'bandage', name: '붕대', type: 'consumable', rarity: 'normal', cureInjury: 'mild', shopPrice: 25, weight: 0.3 }, // 경상만 치료, 중상은 의사에게
+  identify_scroll: { id: 'identify_scroll', name: '감정 스크롤', type: 'consumable', rarity: 'normal', identifyScroll: true, shopPrice: 40, weight: 0.2 }, // 미확인 아이템 즉시 감정
 
   // 가방 - 사용하면 즉시 소모되며 인벤토리 슬롯을 영구히 늘려줌(장착 아님)
   bag_small: { id: 'bag_small', name: '작은 가방', type: 'bag', rarity: 'normal', slotBonus: 5, weight: 2 },
@@ -40,6 +41,16 @@ export const ITEMS = {
   miner_pick: { id: 'miner_pick', name: '광부의 곡괭이', type: 'material', rarity: 'uncommon', weight: 3 },
   bone_fragment: { id: 'bone_fragment', name: '뼛조각', type: 'material', rarity: 'normal', weight: 0.5 },
   wraith_essence: { id: 'wraith_essence', name: '망령의 정수', type: 'material', rarity: 'uncommon', weight: 0.2 },
+
+  // 직업훈련소 결정 - 몹을 잡으면 내 직업에 맞는 게 일정 확률로 드랍(몹 종류 무관). 스킬을 배우거나
+  // 단계를 올릴 때 소모됨(data/rpg/training.js 참고)
+  essence_strength: { id: 'essence_strength', name: '힘의 결정', type: 'material', rarity: 'uncommon', weight: 0.3 },
+  essence_agility: { id: 'essence_agility', name: '민첩의 결정', type: 'material', rarity: 'uncommon', weight: 0.3 },
+  essence_arcane: { id: 'essence_arcane', name: '마력의 결정', type: 'material', rarity: 'uncommon', weight: 0.3 },
+  essence_holy: { id: 'essence_holy', name: '신성의 결정', type: 'material', rarity: 'uncommon', weight: 0.3 },
+
+  // 대장간 강화석 - 유니크(레어)몹을 잡으면 낮은 확률로 드랍(data/rpg/enhancement.js 참고)
+  enhance_stone: { id: 'enhance_stone', name: '강화석', type: 'material', rarity: 'rare', weight: 0.5 },
 
   // 레어몹 전용 드랍 (합성/장비 소재)
   slime_core: { id: 'slime_core', name: '슬라임 핵', type: 'material', rarity: 'uncommon', weight: 0.5 },
@@ -111,3 +122,7 @@ export function npcSellPrice(itemId) {
   if (item.shopPrice) return Math.max(1, Math.floor(item.shopPrice * 0.3));
   return RARITY_SELL_FALLBACK[item.rarity] || 3;
 }
+
+// 등급별 "아이템 레벨" 근사치 - 실제 레벨 필드가 없는 대신 등급으로 대략적인 착용 시점을 추정.
+// 내 레벨보다 아이템 레벨이 높으면 미확인(감정 필요) 상태로 표시됨(page-rpg.js의 isItemIdentified 참고)
+export const RARITY_ITEM_LEVEL = { normal: 1, uncommon: 8, rare: 16, epic: 26, legendary: 36 };

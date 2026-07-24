@@ -57,8 +57,9 @@ export default async function handler(req, res) {
         return null;
       }
       equipment[equipSlot] = itemId;
-      if (equipSlot === 'weapon') equipment.weaponDurability = 100;
-      if (equipSlot === 'armor') equipment.armorDurability = 100;
+      // 내구도와 강화 단계 모두 개별 아이템 인스턴스를 추적하지 않는 v1 단순화 설계라 재장착시 초기화됨
+      if (equipSlot === 'weapon') { equipment.weaponDurability = 100; equipment.weaponEnhanceLevel = 0; }
+      if (equipSlot === 'armor') { equipment.armorDurability = 100; equipment.armorEnhanceLevel = 0; }
 
       const now = Date.now();
       outcome = { equipSlot, equipped: itemId, previous: previous || null };
