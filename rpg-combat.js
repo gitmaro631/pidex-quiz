@@ -12,7 +12,9 @@ const HP_PER_LEVEL = 6;
 const VIT_HP_PER_LEVEL = 0.5; // VIT 1당, 레벨 1당 최대체력 +0.5 - 레벨이 오를수록 VIT 효과가 누적돼 커짐
 const BASE_MP = 15;
 const MP_PER_LEVEL = 2;
-const INT_MP_PER_LEVEL = 0.3; // INT도 VIT/HP와 같은 방식 - 레벨이 오를수록 INT 투자분이 누적돼 마나가 커짐
+// 마나는 각 직업의 주스탯(전사=STR, 궁수=AGI, 마법사=INT, 성직자=WIS)에 비례 - VIT/HP와 같은 방식으로
+// 레벨이 오를수록 그 스탯 투자분이 누적돼 마나가 커짐
+const MAGIC_STAT_MP_PER_LEVEL = 0.3;
 const BASE_STAMINA = 40;
 const STAMINA_PER_LEVEL = 2;
 const AGI_STAMINA_PER_LEVEL = 0.4; // AGI도 같은 방식으로 스테미나에 누적 반영
@@ -87,7 +89,7 @@ function buildMonsterInstance(monsterId, zone) {
 
 // 반지/목걸이의 힘/민첩/지능 보너스를 기본 스탯에 더한 "실효 스탯" - 전투 계산과 소지 가능 무게 계산이 공유
 export function effectiveStats(character) {
-  const stats = character.stats || { str: 5, int: 5, agi: 5, vit: 5 };
+  const stats = character.stats || { str: 5, int: 5, agi: 5, vit: 5, wis: 5 };
   const equipment = character.equipment || {};
   const ringItem = equipment.ring ? ITEMS[equipment.ring] : null;
   const necklaceItem = equipment.necklace ? ITEMS[equipment.necklace] : null;
@@ -95,6 +97,7 @@ export function effectiveStats(character) {
     str: stats.str + ((ringItem && ringItem.strBonus) || 0) + ((necklaceItem && necklaceItem.strBonus) || 0),
     agi: stats.agi + ((ringItem && ringItem.agiBonus) || 0) + ((necklaceItem && necklaceItem.agiBonus) || 0),
     int: stats.int + ((ringItem && ringItem.intBonus) || 0) + ((necklaceItem && necklaceItem.intBonus) || 0),
+    wis: (stats.wis || 0) + ((ringItem && ringItem.wisBonus) || 0) + ((necklaceItem && necklaceItem.wisBonus) || 0),
     vit: stats.vit,
   };
 }
@@ -108,7 +111,7 @@ export function computeCharacterCombatStats(character) {
   // 겸업(부직업)을 고르면 부직업 스킬까지 함께 사용 가능 - 본업 정체성(무기타입/스탯보정)은 그대로 유지
   const skills = subCls ? [...mainCls.skills, ...subCls.skills] : mainCls.skills;
   const classDef = { ...mainCls, skills };
-  const scalingStat = mainCls.statScaling.atk === 'agi' ? stats.agi : stats.str;
+  const scalingStat = stats[mainCls.statScaling.atk] ?? stats.str; // str/agi/int 등 직업별 주스탯
 
   const equipment = character.equipment || {};
   const weaponItem = equipment.weapon ? ITEMS[equipment.weapon] : null;
@@ -131,7 +134,7 @@ export function computeCharacterCombatStats(character) {
   // 레벨이 오를수록 VIT 투자분이 누적돼서 체력 성장폭이 커짐(비율 성장)
   return {
     maxHp: BASE_HP + level * HP_PER_LEVEL + Math.round(stats.vit * level * VIT_HP_PER_LEVEL) + armorHpBonus + accessoryHpBonus,
-    maxMp: BASE_MP + level * MP_PER_LEVEL + Math.round(stats.int * level * INT_MP_PER_LEVEL),
+    maxMp: BASE_MP + level * MP_PER_LEVEL + Math.round(scalingStat * level * MAGIC_STAT_MP_PER_LEVEL),
     // 향후 스테미나 소모 스킬/행동에 대비한 자원(현재는 회복 대상으로만 사용)
     maxStamina: BASE_STAMINA + level * STAMINA_PER_LEVEL + Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL),
     atk: scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus,
@@ -230,10 +233,11 @@ function rollLoot(monster) {
   return loot;
 }
 
-// 진형이 명시적으로 지정 안 돼있으면 장착 무기로 자동 결정(활=후열, 그 외=전열)
+const RANGED_WEAPON_TYPES = ['bow', 'staff']; // 원거리 무기 - 자동 진형 판정시 후열로 분류(활=사격, 지팡이=마법)
+// 진형이 명시적으로 지정 안 돼있으면 장착 무기로 자동 결정(활/지팡이=후열, 그 외=전열)
 export function effectiveFormationRow(characterLike) {
   if (characterLike.formationRow) return characterLike.formationRow;
-  return computeCharacterCombatStats(characterLike).weaponType === 'bow' ? 'back' : 'front';
+  return RANGED_WEAPON_TYPES.includes(computeCharacterCombatStats(characterLike).weaponType) ? 'back' : 'front';
 }
 
 // 파티원 1명(본인 또는 용병)의 전투용 런타임 상태를 구성 - characterLike는 character 또는
@@ -276,13 +280,14 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }
   };
 }
 
-// 파티원 한 명의 공격 1회 처리(스킬/화살/부상/비숙련무기 패널티/2연타 전부 포함) - monster는 참조로 변형됨
-function performAttack({ actor, monster, sharedInventory, log, isUnderleveled }) {
+// 파티원 한 명의 공격 1회 처리(스킬/화살/부상/비숙련무기 패널티/2연타 전부 포함) - monster는 참조로 변형됨.
+// otherMonsters: 같은 조우에서 아직 순서를 기다리는 나머지 몹들 - attack_all(광역) 스킬의 스플래시 대상
+function performAttack({ actor, monster, otherMonsters, sharedInventory, log, isUnderleveled, partyBuffs }) {
   const combatStats = actor.combatStats;
-  const skills = combatStats.classDef.skills.filter((s) => s.type === 'attack' && s.manaCost <= actor.mp);
+  const skills = combatStats.classDef.skills.filter((s) => (s.type === 'attack' || s.type === 'attack_all') && s.manaCost <= actor.mp);
   const useSkill = actor.stance === 'aggressive' && skills.length > 0;
   const skill = useSkill ? skills[skills.length - 1] : null;
-  let power = skill ? skill.power : 1.0;
+  let power = (skill ? skill.power : 1.0) * partyBuffs.atkMult; // 마법사의 "무기 강화" 버프가 파티 전체에 적용됨
   if (skill) actor.mp -= skill.manaCost;
 
   const arrowsLeftBeforeShot = actor.usesBow ? inventoryQty(sharedInventory, 'arrow') - actor.arrowsUsed : 0;
@@ -297,31 +302,45 @@ function performAttack({ actor, monster, sharedInventory, log, isUnderleveled })
   const offClassWeapon = combatStats.weaponType && !combatStats.classDef.weaponTypes.includes(combatStats.weaponType);
   if (offClassWeapon) power *= OFF_CLASS_WEAPON_DAMAGE_MULT;
 
-  const elemMult = elementalMultiplier(combatStats.element, monster.element);
+  // 스킬이 자체 속성(elements)을 가지면 매번 그 중 하나를 무작위로 골라 무기 속성 대신 사용
+  const castElement = skill && skill.elements ? skill.elements[randInt(0, skill.elements.length - 1)] : combatStats.element;
+  const elemMult = elementalMultiplier(castElement, monster.element);
   const affinity = classMonsterAffinity(combatStats.classDef, monster.tags);
   const affinityMult = affinity ? affinity.multiplier : 1;
   const affinityNote = affinity
     ? (affinity.kind === 'strong' ? ' (천적 관계! 추가 피해)' : ' (상성에 밀려 위력 약화)')
     : '';
+  const elementNote = skill && skill.elements ? ` [${castElement}]` : '';
 
   let monsterDied = false;
   if (offClassWeapon && Math.random() < OFF_CLASS_WEAPON_MISS_CHANCE) {
     log.push(`${actor.label}의 공격이 (숙련되지 않은 무기라) 빗나갔다!`);
   } else {
     const hitCount = Math.random() < actor.doubleAttackChance ? 2 : 1;
+    let lastRawDamage = 0;
     for (let hitIdx = 0; hitIdx < hitCount && !monsterDied; hitIdx++) {
       const rawDamage = Math.max(1, Math.round((combatStats.atk * power * elemMult * affinityMult - monster.def) * randRange(0.85, 1.15)));
+      lastRawDamage = rawDamage;
       monster.hp -= rawDamage;
       const hitLabel = hitIdx === 1 ? ' (2연타!)' : '';
-      log.push(`${actor.label}의 ${skill ? skill.name : '공격'}! ${monster.name}에게 ${rawDamage} 피해.${affinityNote}${hitLabel}`);
+      log.push(`${actor.label}의 ${skill ? skill.name : '공격'}! ${monster.name}에게 ${rawDamage} 피해.${elementNote}${affinityNote}${hitLabel}`);
       if (monster.hp <= 0) monsterDied = true;
+    }
+    // 광역(attack_all) - 대기 중인 다른 몹들에게도 스플래시 피해(스플래시로는 죽지 않음, HP 1 보존)
+    if (skill && skill.type === 'attack_all' && otherMonsters && otherMonsters.length) {
+      const splashDamage = Math.max(1, Math.round(lastRawDamage * 0.4));
+      for (const other of otherMonsters) {
+        if (other === monster || other.hp <= 0) continue;
+        other.hp = Math.max(1, other.hp - splashDamage);
+      }
+      log.push(`${actor.label}의 ${skill.name}이(가) 주변까지 휩쓸었다! (스플래시 ${splashDamage})`);
     }
   }
   return { monsterDied, isKiting, affinity };
 }
 
 // 몹의 반격 1회 처리 - target(파티원 한 명)이 대상. 카이팅 중이면 아예 호출되지 않음(resolveCombat에서 스킵)
-function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit }) {
+function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit, partyBuffs }) {
   const combatStats = target.combatStats;
   const dodgeChance = Math.min(MAX_DODGE_CHANCE, BASE_DODGE_CHANCE + combatStats.agi * AGI_DODGE_PER_POINT)
     * (target.injurySeverity.leg ? INJURY_DODGE_MULT[target.injurySeverity.leg] : 1);
@@ -332,7 +351,9 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
 
   const injuryDamageBonus = (INJURY_INCOMING_DAMAGE_BONUS[target.injurySeverity.arm] || 0) + (INJURY_INCOMING_DAMAGE_BONUS[target.injurySeverity.leg] || 0);
   const elementResistMult = (target.accessoryElementDefense === 'all' || target.accessoryElementDefense === monster.element) ? 0.7 : 1;
-  const monsterDamage = Math.max(1, Math.round((monster.atk - combatStats.def) * randRange(0.85, 1.15) * (1 + injuryDamageBonus) * elementResistMult));
+  // 마법사의 "마법 방어막" 버프가 파티 전체 방어력에 적용됨(defMult가 1보다 크면 방어력 상승)
+  const effectiveDef = combatStats.def * partyBuffs.defMult;
+  const monsterDamage = Math.max(1, Math.round((monster.atk - effectiveDef) * randRange(0.85, 1.15) * (1 + injuryDamageBonus) * elementResistMult));
   target.hp -= monsterDamage;
   log.push(`${monster.name}이(가) ${target.label}을(를) 공격! ${monsterDamage} 피해.`);
   if (!monster.statusImmune && monster.poisonChance > 0 && Math.random() < monster.poisonChance) {
@@ -342,9 +363,11 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   }
 
   // 용병이 전열에서 맞으면 멘탈(공포저항)이 낮을수록 후열로 도망칠 확률이 있음 - 전투 중 일시적,
-  // 다음 모험에서는 다시 기본 진형으로 돌아옴. 앞이 뚫리면 그만큼 뒤(궁수 등)가 위험해짐
+  // 다음 모험에서는 다시 기본 진형으로 돌아옴. 앞이 뚫리면 그만큼 뒤(궁수 등)가 위험해짐. 성직자의
+  // "평정심"으로 멘탈저항이 일시적으로 오를 수 있음(partyBuffs.mentalBonus)
   if (typeof target.mentalResist === 'number' && target.formationRow === 'front' && target.hp > 0) {
-    const breakChance = MORALE_BREAK_BASE_CHANCE * (1 - target.mentalResist / 100);
+    const effectiveMentalResist = Math.min(100, target.mentalResist + partyBuffs.mentalBonus);
+    const breakChance = MORALE_BREAK_BASE_CHANCE * (1 - effectiveMentalResist / 100);
     if (Math.random() < breakChance) {
       target.formationRow = 'back';
       log.push(`${target.label}이(가) 공포에 질려 뒤로 물러났다! 진형이 무너졌다.`);
@@ -386,6 +409,66 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   }
 }
 
+// 공격이 아닌 스킬(치유/저주/파티버프) 사용 시도 - 사용했으면 true를 반환(이번 라운드 이 배우는 공격 안 함).
+// 우선순위: 치유(다친 아군 있을 때) > 저주(몹 미저주 상태) > 파티 버프(공격력/방어력/멘탈, 전투당 1회씩만)
+function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
+  if (actor.stance !== 'aggressive') return false;
+  const affordable = (s) => s.manaCost <= actor.mp;
+  const alive = party.filter((p) => p.alive && p.hp > 0);
+
+  const healSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'heal_ally' && affordable(s));
+  if (healSkill) {
+    const hurt = alive.filter((p) => p.hp / p.combatStats.maxHp < 0.6)
+      .sort((a, b) => (a.hp / a.combatStats.maxHp) - (b.hp / b.combatStats.maxHp));
+    if (hurt.length) {
+      const target = hurt[0];
+      actor.mp -= healSkill.manaCost;
+      // 치유량은 대상 최대체력 비율 + 시전자의 공격력 절반(공격력 자체가 지혜 등 주스탯에 비례하므로
+      // 자연히 지혜가 높을수록 치유량도 커짐)
+      const healAmount = Math.round(target.combatStats.maxHp * healSkill.power) + Math.round(actor.combatStats.atk * 0.5);
+      target.hp = Math.min(target.combatStats.maxHp, target.hp + healAmount);
+      log.push(`${actor.label}의 ${healSkill.name}! ${target.label}의 체력을 ${healAmount} 회복했다.`);
+      return true;
+    }
+  }
+
+  const debuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'debuff_monster' && affordable(s));
+  if (debuffSkill && !monster.cursed) {
+    actor.mp -= debuffSkill.manaCost;
+    monster.atk = Math.max(1, Math.round(monster.atk * (1 - debuffSkill.power)));
+    monster.def = Math.max(0, Math.round(monster.def * (1 - debuffSkill.power)));
+    monster.cursed = true;
+    log.push(`${actor.label}의 ${debuffSkill.name}! ${monster.name}의 힘이 약해졌다.`);
+    return true;
+  }
+
+  const atkBuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_atk_party' && affordable(s));
+  if (atkBuffSkill && partyBuffs.atkMult === 1) {
+    actor.mp -= atkBuffSkill.manaCost;
+    partyBuffs.atkMult = atkBuffSkill.power;
+    log.push(`${actor.label}의 ${atkBuffSkill.name}! 파티 전체의 무기가 강화됐다.`);
+    return true;
+  }
+
+  const defBuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_def_party' && affordable(s));
+  if (defBuffSkill && partyBuffs.defMult === 1) {
+    actor.mp -= defBuffSkill.manaCost;
+    partyBuffs.defMult = defBuffSkill.power;
+    log.push(`${actor.label}의 ${defBuffSkill.name}! 파티 전체에 마법 방어막이 씌워졌다.`);
+    return true;
+  }
+
+  const mentalSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_mental_party' && affordable(s));
+  if (mentalSkill && partyBuffs.mentalBonus === 0) {
+    actor.mp -= mentalSkill.manaCost;
+    partyBuffs.mentalBonus = mentalSkill.power;
+    log.push(`${actor.label}의 ${mentalSkill.name}! 파티의 사기가 진정됐다.`);
+    return true;
+  }
+
+  return false;
+}
+
 // 전투 전체(파티 vs 무리 몹 순차 처리) 판정 - 결과만 반환, 아무것도 저장하지 않음.
 // character.mercenaries(있다면, 최대 2명)가 자동으로 파티에 합류함 - 진형(formationRow)에 따라
 // 몹은 전열(front)이 살아있는 한 전열부터 공격, 전열이 전멸하면 후열을 공격
@@ -403,6 +486,8 @@ export function resolveCombat({ character, zoneId, stance }) {
   ];
 
   const potionsUsed = {}; // 파티 공용 물자 소모 카운트(itemId별)
+  // 마법사/성직자의 파티 버프 - 한 번 발동하면 이 전투(모험) 내내 유지됨(재시전으로 갱신 안 됨, 1회성)
+  const partyBuffs = { atkMult: 1, defMult: 1, mentalBonus: 0 };
   const log = [`${encounter.zone.name}에 진입했다.`];
   let totalXp = 0;
   let totalGold = 0;
@@ -449,7 +534,10 @@ export function resolveCombat({ character, zoneId, stance }) {
           if (potionResult.kind === 'stamina') actor.stamina = Math.min(actor.combatStats.maxStamina, actor.stamina + potionResult.amount);
         }
 
-        const result = performAttack({ actor, monster, sharedInventory, log, isUnderleveled });
+        if (tryUtilitySkill({ actor, party, monster, log, partyBuffs })) continue;
+
+        const otherMonsters = monsters.filter((m) => m !== monster);
+        const result = performAttack({ actor, monster, otherMonsters, sharedInventory, log, isUnderleveled, partyBuffs });
         if (result.isKiting) anyKiting = true;
         lastAffinity = result.affinity || lastAffinity;
         if (result.monsterDied) monsterDied = true;
@@ -469,7 +557,7 @@ export function resolveCombat({ character, zoneId, stance }) {
         log.push(`화살로 거리를 벌려 ${monster.name}의 접근을 막았다!`);
       } else {
         const target = pickMonsterTarget();
-        if (target) performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit: lastAffinity });
+        if (target) performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit: lastAffinity, partyBuffs });
       }
 
       if (!alivePartyMembers().length) { victory = false; log.push('파티가 전멸했다...'); break outer; }

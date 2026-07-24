@@ -21,7 +21,7 @@ export function defaultCharacter(slot, now = Date.now()) {
     level: 1,
     xp: 0,
     statPoints: 0,
-    stats: { str: 5, int: 5, agi: 5, vit: 5 },
+    stats: { str: 5, int: 5, agi: 5, vit: 5, wis: 5 },
     classMain: null,
     classSub: null,
     equipment: {
@@ -76,7 +76,7 @@ export function createMercenaryInstance(templateId, now = Date.now()) {
     level: template.baseLevel,
     xp: 0,
     statPoints: 0,
-    stats: { str: 5, int: 5, agi: 5, vit: 5 },
+    stats: { str: 5, int: 5, agi: 5, vit: 5, wis: 5 },
     classMain: template.classMain,
     classSub: null,
     equipment: {

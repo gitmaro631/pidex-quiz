@@ -37,10 +37,14 @@ export default async function handler(req, res) {
           return null;
         }
       }
-      if ((equipSlot === 'armor' || equipSlot === 'weapon') && item.strRequirement) {
-        const str = effectiveStats(character).str;
-        if (str < item.strRequirement) {
+      if ((equipSlot === 'armor' || equipSlot === 'weapon') && (item.strRequirement || item.wisRequirement)) {
+        const stats = effectiveStats(character);
+        if (item.strRequirement && stats.str < item.strRequirement) {
           outcome = { error: 'not_enough_strength' };
+          return null;
+        }
+        if (item.wisRequirement && stats.wis < item.wisRequirement) {
+          outcome = { error: 'not_enough_wisdom' };
           return null;
         }
       }

@@ -1,9 +1,9 @@
-// 레벨업으로 쌓인 statPoints를 str/int/agi/vit 중 하나에 배분
+// 레벨업으로 쌓인 statPoints를 str/int/agi/vit/wis 중 하나에 배분
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
 
-const VALID_STATS = ['str', 'int', 'agi', 'vit'];
+const VALID_STATS = ['str', 'int', 'agi', 'vit', 'wis'];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

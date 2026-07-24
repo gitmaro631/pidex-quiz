@@ -35,7 +35,7 @@ function inventoryWeight(inventory) {
   return (inventory || []).reduce((sum, e) => sum + ((ITEMS[e.itemId] && ITEMS[e.itemId].weight) || 0) * e.qty, 0);
 }
 
-const ELEMENT_NAMES = { water: '물', fire: '불', air: '대기', dark: '어둠', holy: '신성', none: '무속성', all: '전속성' };
+const ELEMENT_NAMES = { water: '물', fire: '불', air: '대기', earth: '흙', dark: '어둠', holy: '신성', none: '무속성', all: '전속성' };
 const BODY_PART_NAMES = { arm: '팔', leg: '다리' };
 
 // 상점/인벤토리에 표시할 장비 스탯 요약 (ATK/DEF/HP/스탯 보너스 + 속성 + 특수효과)
@@ -47,12 +47,14 @@ function itemStatsLabel(item) {
   if (item.strBonus) parts.push(`힘+${item.strBonus}`);
   if (item.agiBonus) parts.push(`민첩+${item.agiBonus}`);
   if (item.intBonus) parts.push(`지능+${item.intBonus}`);
+  if (item.wisBonus) parts.push(`지혜+${item.wisBonus}`);
   if (item.element && item.element !== 'none') parts.push(`속성:${ELEMENT_NAMES[item.element] || item.element}`);
   if (item.elementDefense) parts.push(`${ELEMENT_NAMES[item.elementDefense] || item.elementDefense}속성방어`);
   if (item.severeInjuryResist) parts.push(`중상방어+${Math.round(item.severeInjuryResist * 100)}%`);
   if (item.doubleAttackChance) parts.push(`2연타 확률+${Math.round(item.doubleAttackChance * 100)}%`);
-  if (item.armorClass) parts.push(item.armorClass === 'heavy' ? '중갑' : '경갑');
+  if (item.armorClass) parts.push({ heavy: '중갑', light: '경갑', cloth: '천갑' }[item.armorClass] || item.armorClass);
   if (item.strRequirement) parts.push(`요구 힘 ${item.strRequirement}`);
+  if (item.wisRequirement) parts.push(`요구 지혜 ${item.wisRequirement}`);
   if (typeof item.weight === 'number' && item.weight > 0) parts.push(`무게${item.weight}`);
   return parts.length ? ` (${parts.join(', ')})` : '';
 }
@@ -113,6 +115,7 @@ const ERROR_MESSAGES = {
   overweight: '짐이 너무 무거워서 더 들 수 없습니다. 힘을 올리거나 짐을 정리하세요.',
   armor_class_restricted: '이 직업은 착용할 수 없는 방어구 종류입니다.',
   not_enough_strength: '힘이 부족해 착용할 수 없습니다.',
+  not_enough_wisdom: '지혜가 부족해 착용할 수 없습니다.',
   not_enough_material: '재료가 부족합니다.',
   no_mild_injury: '붕대로 치료할 수 있는 경상이 없습니다.',
   no_injury: '치료할 부상이 없습니다.',
@@ -793,7 +796,7 @@ function renderInventoryTab(content, container) {
 function equipmentSectionEffectiveRow(characterLike = character) {
   const weaponId = characterLike.equipment && characterLike.equipment.weapon;
   const weapon = weaponId ? ITEMS[weaponId] : null;
-  return weapon && weapon.weaponType === 'bow' ? '후열' : '전열';
+  return weapon && ['bow', 'staff'].includes(weapon.weaponType) ? '후열' : '전열';
 }
 
 // ── 파티(고용한 용병) 섹션 - 캐릭터 탭에서 사용 ─────────
@@ -877,7 +880,7 @@ function renderCharacterTab(content, container) {
     </div>
     <div class="rpg-stats">
       <p>남은 스탯포인트: ${character.statPoints}</p>
-      ${['str', 'int', 'agi', 'vit'].map((s) => `
+      ${['str', 'int', 'agi', 'vit', 'wis'].map((s) => `
         <div class="rpg-stat-row">
           <span>${s.toUpperCase()}: ${character.stats[s]}</span>
           ${character.statPoints > 0 ? `<button class="rpg-stat-btn" data-stat="${s}">+1</button>` : ''}

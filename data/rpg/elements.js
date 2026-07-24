@@ -1,7 +1,7 @@
-// 속성 상성: 물→불→대기→물 순환(각 방향 다 보너스/페널티), 어둠↔신성은 서로 상극(양방향 보너스)
-export const ELEMENTS = ['water', 'fire', 'air', 'dark', 'holy', 'none'];
+// 속성 상성: 물→불→대기→흙→물 순환(각 방향 다 보너스/페널티), 어둠↔신성은 서로 상극(양방향 보너스)
+export const ELEMENTS = ['water', 'fire', 'air', 'earth', 'dark', 'holy', 'none'];
 
-const CYCLE = ['water', 'fire', 'air']; // water beats fire, fire beats air, air beats water
+const CYCLE = ['water', 'fire', 'air', 'earth']; // water beats fire, fire beats air, air beats earth, earth beats water
 
 export const ADVANTAGE_MULT = 1.25;
 export const DISADVANTAGE_MULT = 0.85;
@@ -13,8 +13,9 @@ export function elementalMultiplier(attackerEl, defenderEl) {
   const aIdx = CYCLE.indexOf(attackerEl);
   const dIdx = CYCLE.indexOf(defenderEl);
   if (aIdx !== -1 && dIdx !== -1) {
-    if ((aIdx + 1) % 3 === dIdx) return ADVANTAGE_MULT; // attacker beats defender
-    if ((dIdx + 1) % 3 === aIdx) return DISADVANTAGE_MULT; // defender beats attacker
+    const cycleLen = CYCLE.length;
+    if ((aIdx + 1) % cycleLen === dIdx) return ADVANTAGE_MULT; // attacker beats defender
+    if ((dIdx + 1) % cycleLen === aIdx) return DISADVANTAGE_MULT; // defender beats attacker
     return 1;
   }
 
