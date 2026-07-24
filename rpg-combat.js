@@ -16,6 +16,9 @@ const INT_MP_PER_LEVEL = 0.3; // INT도 VIT/HP와 같은 방식 - 레벨이 오�
 const BASE_STAMINA = 40;
 const STAMINA_PER_LEVEL = 2;
 const AGI_STAMINA_PER_LEVEL = 0.4; // AGI도 같은 방식으로 스테미나에 누적 반영
+// 직업이 숙련되지 않은 무기(classDef.weaponTypes에 없는 타입)를 장착했을 때의 패널티
+const OFF_CLASS_WEAPON_DAMAGE_MULT = 0.7;
+const OFF_CLASS_WEAPON_MISS_CHANCE = 0.2;
 const BASE_INJURY_CHANCE = 0.08;
 const WEAK_AFFINITY_INJURY_BONUS = 0.12; // 상성이 안 좋으면 다칠 확률이 더 높아짐
 const BASE_DODGE_CHANCE = 0.08; // 다리가 온전할 때만 정상적으로 회피 시도 가능
@@ -71,6 +74,7 @@ function buildMonsterInstance(monsterId, zone) {
   return {
     id: def.id, name: def.name, element: def.element, tags: def.tags || [], rare: !!def.rare,
     statusImmune: !!def.statusImmune, poisonChance: def.poisonChance || 0, ambushChance: def.ambushChance || 0,
+    ranged: !!def.ranged,
     maxHp: Math.round(def.baseStats.hp * variance),
     hp: Math.round(def.baseStats.hp * variance),
     atk: Math.round(def.baseStats.atk * variance),
@@ -268,14 +272,20 @@ export function resolveCombat({ character, zoneId, stance }) {
       let power = skill ? skill.power : 1.0;
       if (skill) mp -= skill.manaCost;
 
-      // 활 장착시 화살 소모 - 화살이 없으면 위력이 크게 줄어듦(맨손 수준)
+      // 활 장착시 화살 소모 - 화살이 남아있으면 원거리 견제(아래 몹 턴에서 활용)가 되고,
+      // 떨어지면 보조무기인 단도로 근접전을 벌임(활보다 약하지만 화살 소진 페널티는 완화됨)
+      const arrowsLeftBeforeShot = usesBow ? inventoryQty(character.inventory, 'arrow') - arrowsUsed : 0;
+      const isKiting = usesBow && arrowsLeftBeforeShot > 0; // 이번 라운드에 화살로 견제 중인지
       if (usesBow) {
-        const arrowsLeft = inventoryQty(character.inventory, 'arrow') - arrowsUsed;
-        if (arrowsLeft > 0) arrowsUsed++;
-        else { power *= 0.3; log.push('화살이 떨어졌다! 위력이 크게 약해졌다.'); }
+        if (arrowsLeftBeforeShot > 0) arrowsUsed++;
+        else { power *= 0.6; log.push('화살이 떨어져 단도로 근접전을 벌인다! 위력이 약해졌다.'); }
       }
 
       if (injurySeverity.arm > 0) power *= INJURY_ATK_MULT[injurySeverity.arm]; // 팔 부상 - 공격력 약화
+
+      // 직업이 숙련되지 않은 무기(예: 궁수가 검을 든 경우)를 쓰면 명중/위력에 패널티
+      const offClassWeapon = combatStats.weaponType && !combatStats.classDef.weaponTypes.includes(combatStats.weaponType);
+      if (offClassWeapon) power *= OFF_CLASS_WEAPON_DAMAGE_MULT;
 
       const elemMult = elementalMultiplier(combatStats.element, monster.element);
       const affinity = classMonsterAffinity(combatStats.classDef, monster.tags);
@@ -284,15 +294,19 @@ export function resolveCombat({ character, zoneId, stance }) {
         ? (affinity.kind === 'strong' ? ' (천적 관계! 추가 피해)' : ' (상성에 밀려 위력 약화)')
         : '';
 
-      // 장신구의 "확률적 2타" 효과 - 발동하면 같은 라운드에 한 번 더 때림
-      const hitCount = Math.random() < doubleAttackChance ? 2 : 1;
       let monsterDied = false;
-      for (let hitIdx = 0; hitIdx < hitCount && !monsterDied; hitIdx++) {
-        const rawDamage = Math.max(1, Math.round((combatStats.atk * power * elemMult * affinityMult - monster.def) * randRange(0.85, 1.15)));
-        monster.hp -= rawDamage;
-        const hitLabel = hitIdx === 1 ? ' (2연타!)' : '';
-        log.push(`${skill ? skill.name : '공격'}! ${monster.name}에게 ${rawDamage} 피해.${affinityNote}${hitLabel}`);
-        if (monster.hp <= 0) monsterDied = true;
+      if (offClassWeapon && Math.random() < OFF_CLASS_WEAPON_MISS_CHANCE) {
+        log.push(`숙련되지 않은 무기라 공격이 빗나갔다!`);
+      } else {
+        // 장신구/민첩의 "확률적 2타" 효과 - 발동하면 같은 라운드에 한 번 더 때림
+        const hitCount = Math.random() < doubleAttackChance ? 2 : 1;
+        for (let hitIdx = 0; hitIdx < hitCount && !monsterDied; hitIdx++) {
+          const rawDamage = Math.max(1, Math.round((combatStats.atk * power * elemMult * affinityMult - monster.def) * randRange(0.85, 1.15)));
+          monster.hp -= rawDamage;
+          const hitLabel = hitIdx === 1 ? ' (2연타!)' : '';
+          log.push(`${skill ? skill.name : '공격'}! ${monster.name}에게 ${rawDamage} 피해.${affinityNote}${hitLabel}`);
+          if (monster.hp <= 0) monsterDied = true;
+        }
       }
 
       if (monsterDied) {
@@ -304,7 +318,12 @@ export function resolveCombat({ character, zoneId, stance }) {
         break;
       }
 
-      // 몹 턴 - 민첩(AGI)이 높을수록 회피율이 오르고, 다리 부상 정도에 따라 줄어듦
+      // 몹 턴 - 원거리 몹이 아닌데 화살로 견제 중이면(화살이 남아있으면) 아예 피해를 입지 않음(카이팅).
+      // 그 외엔 민첩(AGI)이 높을수록 회피율이 오르고, 다리 부상 정도에 따라 줄어듦
+      if (isKiting && !monster.ranged) {
+        log.push(`화살로 거리를 벌려 ${monster.name}의 접근을 막았다!`);
+        continue;
+      }
       const dodgeChance = Math.min(MAX_DODGE_CHANCE, BASE_DODGE_CHANCE + combatStats.agi * AGI_DODGE_PER_POINT)
         * (injurySeverity.leg ? INJURY_DODGE_MULT[injurySeverity.leg] : 1);
       const dodged = Math.random() < dodgeChance;

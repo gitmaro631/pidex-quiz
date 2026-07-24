@@ -13,7 +13,10 @@ export const CLASSES = {
     weakVs: [{ tag: 'beast', chance: 0.2, multiplier: 0.7 }],
   },
   archer: {
-    id: 'archer', name: '궁수', weaponTypes: ['bow'], statScaling: { atk: 'agi' },
+    // 궁수는 경갑만 착용 가능(중갑은 방어력은 높지만 무거워서 기동성 있는 궁술에 방해됨) - armorRestriction 참고
+    // 주무기는 활, 화살이 떨어지면 보조무기인 단도로 근접전 - 그 외 무기는 equip.js에서 막지 않지만
+    // classDef.weaponTypes에 없는 무기라 rpg-combat.js에서 명중/데미지 패널티를 받음
+    id: 'archer', name: '궁수', weaponTypes: ['bow', 'dagger'], armorRestriction: ['light'], statScaling: { atk: 'agi' },
     skills: [
       { id: 'aimed_shot', name: '조준사격', manaCost: 5, type: 'attack', power: 1.5 },
       { id: 'multi_shot', name: '다중사격', manaCost: 8, type: 'attack_all', power: 1.0 },

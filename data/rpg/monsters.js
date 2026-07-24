@@ -43,7 +43,8 @@ export const MONSTERS = {
   },
 
   bandit: {
-    id: 'bandit', name: '도적', element: 'none', tags: ['humanoid'], rare: false,
+    // ranged: true - 활을 쓰는 몹이라 궁수가 화살로 견제해도 무효(원거리 대 원거리)
+    id: 'bandit', name: '도적', element: 'none', tags: ['humanoid'], rare: false, ranged: true,
     baseStats: { hp: 30, atk: 7, def: 1 },
     xp: 6, goldMin: 5, goldMax: 10, // 도적은 즉시 골드를 흘림(컨셉과 일치)
     dropTable: [
@@ -63,7 +64,7 @@ export const MONSTERS = {
     ],
   },
   goblin_chief: {
-    id: 'goblin_chief', name: '고블린 족장', element: 'none', tags: ['humanoid'], rare: true,
+    id: 'goblin_chief', name: '고블린 족장', element: 'none', tags: ['humanoid'], rare: true, ranged: true,
     baseStats: { hp: 110, atk: 14, def: 4 },
     xp: 30, goldMin: 25, goldMax: 45,
     dropTable: [
@@ -148,7 +149,7 @@ export const MONSTERS = {
     ],
   },
   wraith: {
-    id: 'wraith', name: '망령', element: 'dark', tags: ['undead'], rare: false, statusImmune: true,
+    id: 'wraith', name: '망령', element: 'dark', tags: ['undead'], rare: false, statusImmune: true, ranged: true,
     baseStats: { hp: 75, atk: 15, def: 3 },
     xp: 18, goldMin: 9, goldMax: 16,
     dropTable: [
@@ -158,7 +159,7 @@ export const MONSTERS = {
     ],
   },
   dungeon_guardian: {
-    id: 'dungeon_guardian', name: '던전 수호자', element: 'dark', tags: ['undead'], rare: true, statusImmune: true,
+    id: 'dungeon_guardian', name: '던전 수호자', element: 'dark', tags: ['undead'], rare: true, statusImmune: true, ranged: true,
     baseStats: { hp: 320, atk: 26, def: 8 },
     xp: 90, goldMin: 80, goldMax: 140,
     dropTable: [

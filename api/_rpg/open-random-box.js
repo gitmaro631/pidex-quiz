@@ -9,11 +9,13 @@ const LOOT_POOL = [
   { itemId: 'ring_normal', weight: 25 },
   { itemId: 'necklace_normal', weight: 25 },
   { itemId: 'weapon_uncommon', weight: 15 },
-  { itemId: 'armor_uncommon', weight: 15 },
+  { itemId: 'armor_uncommon', weight: 8 },
+  { itemId: 'armor_light_uncommon', weight: 7 },
   { itemId: 'ring_uncommon', weight: 12 },
   { itemId: 'necklace_uncommon', weight: 12 },
   { itemId: 'weapon_rare', weight: 5 },
-  { itemId: 'armor_rare', weight: 5 },
+  { itemId: 'armor_rare', weight: 3 },
+  { itemId: 'armor_light_rare', weight: 2 },
   { itemId: 'ring_rare', weight: 4 },
   { itemId: 'necklace_rare', weight: 4 },
   { itemId: 'armor_reinforced_rare', weight: 3 },
@@ -33,7 +35,8 @@ const LOOT_POOL = [
   { itemId: 'ring_intellect', weight: 1.5 },
   { itemId: 'necklace_intellect', weight: 1.5 },
   { itemId: 'weapon_legendary', weight: 1 },
-  { itemId: 'armor_legendary', weight: 1 },
+  { itemId: 'armor_legendary', weight: 0.6 },
+  { itemId: 'armor_light_legendary', weight: 0.4 },
   { itemId: 'ring_omniward', weight: 0.05 }, // 전속성방어 - 극히 낮은 확률
 ];
 

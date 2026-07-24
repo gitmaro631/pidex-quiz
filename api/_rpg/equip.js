@@ -4,6 +4,7 @@ import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacte
 import { addItem, removeItem, inventoryQty, capacityForCharacter } from '../_rpgInventory.js';
 import { ITEMS } from '../../data/rpg/items.js';
 import { CLASSES } from '../../data/rpg/classes.js';
+import { effectiveStats } from '../../rpg-combat.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -27,10 +28,19 @@ export default async function handler(req, res) {
       const inventory = [...(character.inventory || [])];
       if (inventoryQty(inventory, itemId) < 1) { outcome = { error: 'item_not_owned' }; return null; }
 
-      if (equipSlot === 'weapon') {
+      // 무기는 직업에 안 맞아도 장착은 허용(전투 중 명중/위력 패널티는 rpg-combat.js가 처리) -
+      // 갑옷은 직업 제한(예: 궁수는 경갑만)과 힘 요구치를 못 채우면 아예 장착 불가(하드 블록)
+      if (equipSlot === 'armor' && item.armorClass) {
         const cls = CLASSES[character.classMain] || CLASSES.warrior;
-        if (item.weaponType && !cls.weaponTypes.includes(item.weaponType)) {
-          outcome = { error: 'wrong_weapon_type' };
+        if (cls.armorRestriction && !cls.armorRestriction.includes(item.armorClass)) {
+          outcome = { error: 'armor_class_restricted' };
+          return null;
+        }
+      }
+      if ((equipSlot === 'armor' || equipSlot === 'weapon') && item.strRequirement) {
+        const str = effectiveStats(character).str;
+        if (str < item.strRequirement) {
+          outcome = { error: 'not_enough_strength' };
           return null;
         }
       }

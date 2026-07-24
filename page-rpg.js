@@ -46,6 +46,7 @@ function itemStatsLabel(item) {
   if (item.severeInjuryResist) parts.push(`중상방어+${Math.round(item.severeInjuryResist * 100)}%`);
   if (item.doubleAttackChance) parts.push(`2연타 확률+${Math.round(item.doubleAttackChance * 100)}%`);
   if (item.armorClass) parts.push(item.armorClass === 'heavy' ? '중갑' : '경갑');
+  if (item.strRequirement) parts.push(`요구 힘 ${item.strRequirement}`);
   if (typeof item.weight === 'number' && item.weight > 0) parts.push(`무게${item.weight}`);
   return parts.length ? ` (${parts.join(', ')})` : '';
 }
@@ -103,6 +104,13 @@ const ERROR_MESSAGES = {
   not_equippable: '장착할 수 없는 아이템입니다.',
   nothing_equipped: '장착된 아이템이 없습니다.',
   inventory_full: '인벤토리가 가득 찼습니다.',
+  overweight: '짐이 너무 무거워서 더 들 수 없습니다. 힘을 올리거나 짐을 정리하세요.',
+  armor_class_restricted: '이 직업은 착용할 수 없는 방어구 종류입니다.',
+  not_enough_strength: '힘이 부족해 착용할 수 없습니다.',
+  not_enough_material: '재료가 부족합니다.',
+  no_mild_injury: '붕대로 치료할 수 있는 경상이 없습니다.',
+  no_injury: '치료할 부상이 없습니다.',
+  already_full_durability: '이미 내구도가 가득 찼습니다.',
   invalid_class: '알 수 없는 직업입니다.',
   class_already_chosen: '이미 직업을 선택했습니다.',
   subclass_already_chosen: '이미 부직업을 선택했습니다.',
