@@ -1,7 +1,7 @@
 import { currentAccessToken } from './pi-sdk.js';
 import { showToast } from './page-quiz.js';
 import { setupPullToRefresh } from './util-ptr.js';
-import { ITEMS, RARITY_ITEM_LEVEL } from './data/rpg/items.js';
+import { ITEMS, RARITY_ITEM_LEVEL, SET_BONUSES, ZONE_SET_ITEMS } from './data/rpg/items.js';
 import { ZONES } from './data/rpg/zones.js';
 import { CLASSES } from './data/rpg/classes.js';
 import { xpToNextLevel, SUB_CLASS_UNLOCK_LEVEL } from './rpg-progression.js';
@@ -71,7 +71,19 @@ function itemStatsLabel(item) {
   if (item.strRequirement) parts.push(`요구 힘 ${item.strRequirement}`);
   if (item.wisRequirement) parts.push(`요구 지혜 ${item.wisRequirement}`);
   if (typeof item.weight === 'number' && item.weight > 0) parts.push(`무게${item.weight}`);
-  return parts.length ? ` (${parts.join(', ')})` : '';
+  const statsStr = parts.length ? ` (${parts.join(', ')})` : '';
+  const setStr = item.setId ? ` <button class="rpg-set-info-btn" data-set="${item.setId}">🧩${SET_BONUSES[item.setId].name}</button>` : '';
+  return statsStr + setStr;
+}
+
+// 세트 아이템 클릭시(🧩버튼) 이 세트가 반지+목걸이 뭐로 구성되는지, 세트 효과가 뭔지 보여줌
+function showSetInfo(setId) {
+  const setDef = SET_BONUSES[setId];
+  if (!setDef) return;
+  const [ringId, necklaceId] = ZONE_SET_ITEMS[setDef.zoneId] || [];
+  const pieceNames = [ringId, necklaceId].filter(Boolean).map((id) => (ITEMS[id] || {}).name || id);
+  const bonusText = itemStatsLabel({ ...setDef.bonus }).replace(/^ \(|\)$/g, '');
+  alert(`${setDef.name}\n\n구성: ${pieceNames.join(' + ')}\n둘 다 착용시 세트 효과: ${bonusText || '없음'}`);
 }
 
 // 장착/해제 전후 전투 스탯 변화를 사람이 읽을 수 있는 문장으로
@@ -334,6 +346,8 @@ function renderMain(container) {
       activeSlot = null;
       renderRpgPage(container);
     }
+    const setBtn = e.target.closest('.rpg-set-info-btn');
+    if (setBtn) showSetInfo(setBtn.dataset.set);
   });
   container.querySelectorAll('.rpg-tab').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.tab === activeTab);

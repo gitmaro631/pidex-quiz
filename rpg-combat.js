@@ -5,11 +5,17 @@ import {
   UNIQUE_TIER_NAMES, UNIQUE_TIER_CHANCES, UNIQUE_TIER_STAT_MULT, UNIQUE_TIER_REWARD_MULT,
 } from './data/rpg/zones.js';
 import { MONSTERS } from './data/rpg/monsters.js';
-import { ITEMS } from './data/rpg/items.js';
+import { ITEMS, SET_BONUSES, ZONE_SET_ITEMS } from './data/rpg/items.js';
 import { CLASSES } from './data/rpg/classes.js';
 import { elementalMultiplier } from './data/rpg/elements.js';
 import { CLASS_ESSENCE_ITEM, TIER_POWER_MULT } from './data/rpg/training.js';
 import { ENHANCE_ATK_PER_LEVEL, ENHANCE_DEF_PER_LEVEL, RARE_MONSTER_STONE_DROP_CHANCE } from './data/rpg/enhancement.js';
+
+// 반지+목걸이가 같은 세트(setId)면 세트 보너스를 반환, 아니면 null
+function matchedSetBonus(ringItem, necklaceItem) {
+  if (!ringItem || !necklaceItem || !ringItem.setId || ringItem.setId !== necklaceItem.setId) return null;
+  return SET_BONUSES[ringItem.setId] || null;
+}
 
 const MAX_ROUNDS_PER_ENCOUNTER = 40;
 const BASE_HP = 40;
@@ -50,6 +56,8 @@ const DIRECT_SEVERE_UNDERLEVEL_BONUS = 0.03;
 const UNDERLEVEL_ZONE_MULTIPLIER = 3;
 // 직업훈련소 결정 - 몹 종류 무관, 내(본인) 직업에 맞는 결정이 킬당 이 확률로 하나씩 드랍됨
 const ESSENCE_DROP_CHANCE = 0.2;
+// 그 지역 유니크(2단계)/레전더리(3단계) 몹 전용 - 세트 아이템(반지/목걸이 중 하나)이 이 확률로 드랍
+const SET_ITEM_DROP_CHANCE = 0.08;
 
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -150,9 +158,11 @@ export function computeCharacterCombatStats(character) {
   const weaponAtkBonus = (weaponBroken ? 0 : ((weaponItem && weaponItem.atkBonus) || 0)) + weaponEnhanceBonus;
   const armorDefBonus = (armorBroken ? 0 : ((armorItem && armorItem.defBonus) || 0)) + armorEnhanceBonus;
   const armorHpBonus = armorBroken ? 0 : ((armorItem && armorItem.hpBonus) || 0);
-  const accessoryAtkBonus = (ringItem && ringItem.atkBonus || 0) + (necklaceItem && necklaceItem.atkBonus || 0);
-  const accessoryDefBonus = (ringItem && ringItem.defBonus || 0) + (necklaceItem && necklaceItem.defBonus || 0);
-  const accessoryHpBonus = (ringItem && ringItem.hpBonus || 0) + (necklaceItem && necklaceItem.hpBonus || 0);
+  // 반지+목걸이를 같은 세트(setId)로 맞춰 착용하면 각 아이템 자체 스탯 위에 세트 보너스가 추가로 붙음
+  const setBonus = (matchedSetBonus(ringItem, necklaceItem) || {}).bonus || {};
+  const accessoryAtkBonus = (ringItem && ringItem.atkBonus || 0) + (necklaceItem && necklaceItem.atkBonus || 0) + (setBonus.atkBonus || 0);
+  const accessoryDefBonus = (ringItem && ringItem.defBonus || 0) + (necklaceItem && necklaceItem.defBonus || 0) + (setBonus.defBonus || 0);
+  const accessoryHpBonus = (ringItem && ringItem.hpBonus || 0) + (necklaceItem && necklaceItem.hpBonus || 0) + (setBonus.hpBonus || 0);
 
   // VIT는 레벨과 곱해져서 반영됨 - 레벨이 낮을 땐 VIT를 아무리 투자해도 체력 증가폭이 작고,
   // 레벨이 오를수록 VIT 투자분이 누적돼서 체력 성장폭이 커짐(비율 성장)
@@ -169,7 +179,9 @@ export function computeCharacterCombatStats(character) {
     weaponBroken: !!weaponBroken,
     armorBroken: !!armorBroken,
     // 방어구의 "중상방어" 속성 - 중상을 입을 확률을 이만큼 줄여줌(파손되면 무효)
-    severeInjuryResist: armorBroken ? 0 : ((armorItem && armorItem.severeInjuryResist) || 0),
+    severeInjuryResist: (armorBroken ? 0 : ((armorItem && armorItem.severeInjuryResist) || 0))
+      + ((ringItem && ringItem.severeInjuryResist) || 0) + ((necklaceItem && necklaceItem.severeInjuryResist) || 0)
+      + (setBonus.severeInjuryResist || 0),
     classDef,
   };
 }
@@ -285,9 +297,10 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }
   const ringItem = equipment.ring ? ITEMS[equipment.ring] : null;
   const necklaceItem = equipment.necklace ? ITEMS[equipment.necklace] : null;
   const accessoryElementDefense = (ringItem && ringItem.elementDefense) || (necklaceItem && necklaceItem.elementDefense) || null;
+  const setBonus = (matchedSetBonus(ringItem, necklaceItem) || {}).bonus || {};
   const doubleAttackChance = Math.min(
     MAX_EXTRA_ATTACK_CHANCE,
-    ((ringItem && ringItem.doubleAttackChance) || (necklaceItem && necklaceItem.doubleAttackChance) || 0)
+    ((ringItem && ringItem.doubleAttackChance) || (necklaceItem && necklaceItem.doubleAttackChance) || 0) + (setBonus.doubleAttackChance || 0)
       + combatStats.agi * AGI_EXTRA_ATTACK_PER_POINT,
   );
   return {
@@ -618,6 +631,16 @@ export function resolveCombat({ character, zoneId, stance }) {
         if (monster.rare && Math.random() < RARE_MONSTER_STONE_DROP_CHANCE * (monster.uniqueTier || 1)) {
           loot.push({ itemId: 'enhance_stone', qty: monster.uniqueTier >= 3 ? 2 : 1 });
           log.push(`${ITEMS.enhance_stone.name}을(를) 얻었다!`);
+        }
+        // 그 지역 유니크(2단계)/레전더리(3단계) 몹만 아주 낮은 확률로 세트 아이템 한 짝을 드랍 -
+        // 반지/목걸이 중 무작위 하나. 유저간 마켓 거래로 나머지 한 짝을 구해 세트를 맞출 수 있음
+        if (monster.uniqueTier >= 2 && Math.random() < SET_ITEM_DROP_CHANCE) {
+          const setPieces = ZONE_SET_ITEMS[zoneId];
+          if (setPieces) {
+            const pieceItemId = setPieces[randInt(0, setPieces.length - 1)];
+            loot.push({ itemId: pieceItemId, qty: 1 });
+            log.push(`${ITEMS[pieceItemId].name}을(를) 얻었다!! 세트 아이템이다!`);
+          }
         }
         killedMonsterIds.push(monster.id);
         break;

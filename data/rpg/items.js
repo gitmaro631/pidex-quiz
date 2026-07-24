@@ -110,9 +110,39 @@ export const ITEMS = {
   // 전속성방어 - 모든 아이템 통틀어 극히 낮은 확률로만 나오는 신화급 장신구
   ring_omniward: { id: 'ring_omniward', name: '만물 수호의 반지', type: 'ring', rarity: 'legendary', atkBonus: 8, defBonus: 6, elementDefense: 'all', weight: 0.2 },
 
+  // 세트 아이템 - 그 지역 유니크(2단계)/레전더리(3단계) 몹만 낮은 확률로 드랍. 반지+목걸이 두 짝을
+  // 같은 setId로 함께 착용하면 SET_BONUSES의 추가 보너스가 붙음(반지/목걸이는 원래 직업 제한이 없어서
+  // 어떤 직업이든 맞출 수 있음). 유저간 마켓 거래로 짝을 맞추기 쉽도록 클래스 무관하게 설계함
+  ring_set_meadow: { id: 'ring_set_meadow', name: '숲의 파수꾼 반지', type: 'ring', rarity: 'epic', setId: 'meadow_set', atkBonus: 6, hpBonus: 20, weight: 0.2 },
+  necklace_set_meadow: { id: 'necklace_set_meadow', name: '숲의 파수꾼 목걸이', type: 'necklace', rarity: 'epic', setId: 'meadow_set', hpBonus: 40, defBonus: 4, weight: 0.3 },
+  ring_set_ruins_hill: { id: 'ring_set_ruins_hill', name: '폐허 약탈자 반지', type: 'ring', rarity: 'epic', setId: 'ruins_hill_set', atkBonus: 12, weight: 0.2 },
+  necklace_set_ruins_hill: { id: 'necklace_set_ruins_hill', name: '폐허 약탈자 목걸이', type: 'necklace', rarity: 'epic', setId: 'ruins_hill_set', atkBonus: 6, hpBonus: 30, weight: 0.3 },
+  ring_set_swamp: { id: 'ring_set_swamp', name: '늪지 사령관 반지', type: 'ring', rarity: 'epic', setId: 'swamp_set', defBonus: 8, elementDefense: 'water', weight: 0.2 },
+  necklace_set_swamp: { id: 'necklace_set_swamp', name: '늪지 사령관 목걸이', type: 'necklace', rarity: 'epic', setId: 'swamp_set', hpBonus: 50, elementDefense: 'water', weight: 0.3 },
+  ring_set_canyon: { id: 'ring_set_canyon', name: '협곡 추적자 반지', type: 'ring', rarity: 'epic', setId: 'canyon_set', atkBonus: 8, doubleAttackChance: 0.08, weight: 0.2 },
+  necklace_set_canyon: { id: 'necklace_set_canyon', name: '협곡 추적자 목걸이', type: 'necklace', rarity: 'epic', setId: 'canyon_set', hpBonus: 35, doubleAttackChance: 0.08, weight: 0.3 },
+  ring_set_dungeon: { id: 'ring_set_dungeon', name: '망자의 유산 반지', type: 'ring', rarity: 'epic', setId: 'dungeon_set', atkBonus: 10, elementDefense: 'dark', weight: 0.2 },
+  necklace_set_dungeon: { id: 'necklace_set_dungeon', name: '망자의 유산 목걸이', type: 'necklace', rarity: 'epic', setId: 'dungeon_set', hpBonus: 45, severeInjuryResist: 0.15, weight: 0.3 },
+
   // 랜덤박스 - 상점에서 골드로 직접 뽑기(박스 자체는 인벤토리에 안 쌓이고 즉시 결과만 지급)
   random_box: { id: 'random_box', name: '수상한 상자', type: 'randombox', rarity: 'normal', shopPrice: 150, weight: 0 },
 };
+
+// 세트 보너스 - 반지+목걸이(setId 동일) 둘 다 착용시 추가로 붙는 보너스. 지역(zoneId)별 세트를
+// 그 지역 유니크/레전더리 몹 전용 드랍으로 연결하는 데도 씀(rpg-combat.js의 rollSetItemDrop 참고)
+export const SET_BONUSES = {
+  meadow_set: { zoneId: 'meadow', name: '숲의 파수꾼 세트', bonus: { hpBonus: 30, defBonus: 3 } },
+  ruins_hill_set: { zoneId: 'ruins_hill', name: '폐허 약탈자 세트', bonus: { atkBonus: 8 } },
+  swamp_set: { zoneId: 'swamp', name: '늪지 사령관 세트', bonus: { defBonus: 6, hpBonus: 30 } },
+  canyon_set: { zoneId: 'canyon', name: '협곡 추적자 세트', bonus: { doubleAttackChance: 0.07 } },
+  dungeon_set: { zoneId: 'dungeon', name: '망자의 유산 세트', bonus: { atkBonus: 6, severeInjuryResist: 0.1 } },
+};
+
+// 지역id -> 그 지역 세트의 [반지itemId, 목걸이itemId] - 드랍 판정에 사용
+export const ZONE_SET_ITEMS = Object.entries(SET_BONUSES).reduce((acc, [setId, def]) => {
+  acc[def.zoneId] = [`ring_set_${def.zoneId}`, `necklace_set_${def.zoneId}`];
+  return acc;
+}, {});
 
 // NPC 헐값 매입가 계산 — 정가가 있으면 그 30%, 없으면(드랍 전용 재료 등) 등급별 고정가
 const RARITY_SELL_FALLBACK = { normal: 5, uncommon: 15, rare: 40, epic: 100, legendary: 250 };
