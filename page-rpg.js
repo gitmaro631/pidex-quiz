@@ -13,7 +13,7 @@ import { LORE_ENTRIES } from './data/rpg/lore.js';
 import { computeCharacterCombatStats } from './rpg-combat.js';
 import { MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster } from './data/rpg/mercenaries.js';
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
-import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS } from './data/rpg/enhancement.js';
+import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
 import { CASTLE_CLEAR_REQUIREMENT } from './data/rpg/castle.js';
 
 function isMeleeClass(classId) {
@@ -41,7 +41,7 @@ function inventoryWeight(inventory) {
 const ELEMENT_NAMES = { water: '물', fire: '불', air: '대기', earth: '흙', dark: '어둠', holy: '신성', none: '무속성', all: '전속성' };
 const BODY_PART_NAMES = { arm: '팔', leg: '다리' };
 
-const IDENTIFIABLE_TYPES = ['weapon', 'armor', 'ring', 'necklace'];
+const IDENTIFIABLE_TYPES = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
 // 아이템 등급이 내 레벨보다 높으면 미확인 상태 - 감정 스크롤을 쓰거나, 본인/활성 용병 중 지혜가
 // 충분한 누군가가 있으면 자동으로 실제 스탯이 보임(identifiedItems에 한 번 기록되면 계속 보임)
 function isItemIdentified(item) {
@@ -141,6 +141,8 @@ const ERROR_MESSAGES = {
   inventory_full: '인벤토리가 가득 찼습니다.',
   overweight: '짐이 너무 무거워서 더 들 수 없습니다. 힘을 올리거나 짐을 정리하세요.',
   armor_class_restricted: '이 직업은 착용할 수 없는 방어구 종류입니다.',
+  shield_not_usable: '이 직업은 방패를 착용할 수 없습니다(두 손이 필요한 직업).',
+  repair_skill_too_low: '수리스킬 단계가 부족해 이 등급은 셀프 수리할 수 없습니다.',
   not_enough_strength: '힘이 부족해 착용할 수 없습니다.',
   not_enough_wisdom: '지혜가 부족해 착용할 수 없습니다.',
   invalid_skill: '알 수 없는 스킬입니다.',
@@ -513,6 +515,42 @@ function trainerHtml() {
   `;
 }
 
+// ── 대장간 NPC - 수리(항상 가능) + 수리스킬 훈련(배우면 셀프 수리 가능, 대장간보다 저렴) ─────
+const REPAIR_COST_PER_POINT_BY_RARITY = { normal: 2, uncommon: 3, rare: 5, epic: 8, legendary: 12 };
+const RARITY_NAMES = { normal: '일반', uncommon: '고급', rare: '희귀', epic: '영웅', legendary: '전설' };
+function blacksmithHtml() {
+  const needsRepair = DURABILITY_TRACKED_SLOTS
+    .map((s) => ({ slot: s, itemId: character.equipment[s], durability: character.equipment[`${s}Durability`] ?? 100 }))
+    .filter((e) => e.itemId && e.durability < 100);
+
+  const repairRows = needsRepair.length ? needsRepair.map((e) => {
+    const item = ITEMS[e.itemId];
+    const costPerPoint = REPAIR_COST_PER_POINT_BY_RARITY[item.rarity] || 2;
+    const cost = Math.ceil((100 - e.durability) * costPerPoint);
+    return `
+      <div class="rpg-shop-row">
+        <span>${EQUIP_SLOT_LABELS[e.slot]}: ${item.name} — 내구도 ${e.durability}/100</span>
+        <button class="rpg-blacksmith-repair-btn" data-slot="${e.slot}">수리(${cost}골드)</button>
+      </div>
+    `;
+  }).join('') : `<p class="rpg-hint">수리가 필요한 장비가 없어요.</p>`;
+
+  const repairSkill = character.repairSkillLevel || 0;
+  const maxedSkill = repairSkill >= MAX_REPAIR_SKILL_LEVEL;
+  const nextSkillCost = maxedSkill ? null : REPAIR_SKILL_COSTS[repairSkill + 1];
+  const capLabel = repairSkill > 0 ? `${RARITY_NAMES[REPAIR_SKILL_RARITY_CAP[repairSkill]]} 등급까지 셀프 수리 가능` : '아직 셀프 수리 불가';
+
+  return `
+    <h5>수리가 필요한 장비</h5>
+    ${repairRows}
+    <h5>수리스킬 (배우면 수리 망치로 직접 수리 가능, 대장간보다 저렴)</h5>
+    <div class="rpg-shop-row">
+      <span>수리스킬 ${repairSkill}/${MAX_REPAIR_SKILL_LEVEL}단계 — ${capLabel}</span>
+      ${maxedSkill ? '' : `<button class="rpg-train-repair-skill-btn">${repairSkill === 0 ? '배우기' : '단계 올리기'} (${nextSkillCost}골드)</button>`}
+    </div>
+  `;
+}
+
 // ── 선술집 NPC - 용병 고용 UI(본인 직업과 상호보완적인 직업만 고용 가능) ─────
 function tavernHireHtml() {
   const mercenaries = character.mercenaries || [];
@@ -552,6 +590,7 @@ function renderTownTab(content, container) {
           ${npc.role === 'doctor' ? doctorCureHtml() : ''}
           ${npc.role === 'tavern' ? tavernHireHtml() : ''}
           ${npc.role === 'trainer' ? trainerHtml() : ''}
+          ${npc.role === 'blacksmith' ? blacksmithHtml() : ''}
         </div>
       `).join('') || '<p class="rpg-hint">이 마을엔 아직 만날 사람이 없어요.</p>'}
     </div>
@@ -594,6 +633,27 @@ function renderTownTab(content, container) {
       showToast(`${r.tier}단계로 훈련했습니다!`);
     } catch (e) { showToast(friendlyError(e)); }
   }));
+  content.querySelectorAll('.rpg-blacksmith-repair-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('repair-equipment', { equipSlot: btn.dataset.slot });
+      character.gold = r.gold;
+      character.equipment[`${btn.dataset.slot}Durability`] = r.durability;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      renderTownTab(content, container);
+      showToast(`수리 완료! (${r.cost}골드 소모)`);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  const trainRepairBtn = content.querySelector('.rpg-train-repair-skill-btn');
+  if (trainRepairBtn) trainRepairBtn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('train-repair-skill', {});
+      character.gold = r.gold;
+      character.repairSkillLevel = r.level;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      renderTownTab(content, container);
+      showToast(`수리스킬 ${r.level}단계로 훈련했습니다!`);
+    } catch (e) { showToast(friendlyError(e)); }
+  });
   content.querySelectorAll('.rpg-cure-btn').forEach((btn) => btn.addEventListener('click', async () => {
     const mercId = btn.dataset.merc || null;
     try {
@@ -835,7 +895,7 @@ function renderInventoryTab(content, container) {
       ${inventory.length ? inventory.map((entry) => {
         const item = ITEMS[entry.itemId] || { name: entry.itemId };
         const actions = [];
-        const equippable = ['weapon', 'armor', 'ring', 'necklace'];
+        const equippable = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
         if (item.type === 'consumable' || item.type === 'bag') actions.push(`<button class="rpg-inv-use" data-item="${entry.itemId}">사용</button>`);
         if (equippable.includes(item.type)) actions.push(`<button class="rpg-inv-equip" data-item="${entry.itemId}">장착</button>`);
         if (!isItemIdentified(item)) {
@@ -1103,14 +1163,15 @@ function renderCharacterTab(content, container) {
     } catch (e) { showToast(friendlyError(e)); }
   }));
 
-  content.querySelectorAll('.rpg-repair-btn').forEach((btn) => btn.addEventListener('click', async () => {
+  content.querySelectorAll('.rpg-self-repair-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
-      const r = await apiPost('repair-equipment', { equipSlot: btn.dataset.slot });
+      const r = await apiPost('self-repair-equipment', { equipSlot: btn.dataset.slot });
       character.gold = r.gold;
       character.equipment[`${btn.dataset.slot}Durability`] = r.durability;
+      await loadCharacter(); // 망치 소모분 인벤토리 갱신
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderCharacterTab(content, container);
-      showToast(`수리 완료! (${r.cost}골드 소모)`);
+      showToast(`직접 수리 완료! (${r.cost}골드 소모)`);
     } catch (e) { showToast(friendlyError(e)); }
   }));
 
@@ -1162,16 +1223,17 @@ function renderCharacterTab(content, container) {
 }
 
 // ── 장비창 — 착용 중인 장비를 슬롯별로 한눈에 보여줌 ──
-const EQUIP_SLOT_LABELS = { weapon: '무기', armor: '방어구', ring: '반지', necklace: '목걸이' };
-const DURABILITY_TRACKED_SLOTS = ['weapon', 'armor'];
-const REPAIR_COST_PER_POINT = 2;
+const EQUIP_SLOT_LABELS = { weapon: '무기', shield: '방패', armor_top: '상의', armor_bottom: '하의', ring: '반지', necklace: '목걸이' };
+const DURABILITY_TRACKED_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
 function equipmentSectionHtml() {
   const stats = computeCharacterCombatStats(character);
-  const slots = ['weapon', 'armor', 'ring', 'necklace'];
+  const slots = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
+  const hammerQty = ((character.inventory || []).find((e) => e.itemId === 'repair_hammer') || {}).qty || 0;
   return `
     <div class="rpg-equipment">
       <h4>장비창</h4>
       <p class="rpg-hint">공격력 ${stats.atk} · 방어력 ${stats.def} · 최대체력 ${stats.maxHp} · 공격속성: ${ELEMENT_NAMES[stats.element]}</p>
+      <p class="rpg-hint">수리는 기본적으로 대장간에서만 가능해요. 수리스킬을 배우고 수리 망치를 가지고 있으면 여기서 직접 저렴하게 수리할 수 있어요.</p>
       ${slots.map((slot) => {
         const itemId = character.equipment[slot];
         const item = itemId ? ITEMS[itemId] : null;
@@ -1179,7 +1241,11 @@ function equipmentSectionHtml() {
         const durability = tracked ? (character.equipment[`${slot}Durability`] ?? 100) : null;
         const broken = tracked && durability <= 0;
         const durabilityLabel = tracked && item ? ` — 내구도 ${durability}/100${broken ? ' (파손됨!)' : ''}` : '';
-        const repairCost = tracked && item && durability < 100 ? Math.ceil((100 - durability) * REPAIR_COST_PER_POINT) : 0;
+        const canSelfRepair = tracked && item && durability < 100
+          && hammerQty > 0 && rarityAllowedBySkill(item.rarity, character.repairSkillLevel || 0);
+        const selfRepairCost = canSelfRepair
+          ? Math.ceil((100 - durability) * (REPAIR_COST_PER_POINT_BY_RARITY[item.rarity] || 2) * 0.6)
+          : 0;
         const enhanceLevel = tracked ? (character.equipment[`${slot}EnhanceLevel`] || 0) : 0;
         const enhanceLabel = tracked && item && enhanceLevel > 0 ? ` +${enhanceLevel}` : '';
         const nextEnhanceCost = tracked && item && enhanceLevel < MAX_ENHANCE_LEVEL ? ENHANCE_LEVEL_COSTS[enhanceLevel + 1] : null;
@@ -1188,7 +1254,7 @@ function equipmentSectionHtml() {
             <span>${EQUIP_SLOT_LABELS[slot]}: ${item ? `${item.name}${enhanceLabel}${itemStatsLabel(item)}${durabilityLabel}` : '없음'}</span>
             <span>
               ${item ? `<button class="rpg-unequip-btn" data-slot="${slot}">해제</button>` : ''}
-              ${repairCost ? `<button class="rpg-repair-btn" data-slot="${slot}">수리(${repairCost}골드)</button>` : ''}
+              ${canSelfRepair ? `<button class="rpg-self-repair-btn" data-slot="${slot}">직접 수리(망치 1개, ${selfRepairCost}골드)</button>` : ''}
               ${nextEnhanceCost ? `<button class="rpg-enhance-btn" data-slot="${slot}">강화(${nextEnhanceCost.stones}개 결정, ${nextEnhanceCost.gold}골드)</button>` : ''}
             </span>
           </div>

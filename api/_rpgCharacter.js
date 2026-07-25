@@ -24,9 +24,11 @@ export function defaultCharacter(slot, now = Date.now()) {
     stats: { str: 5, int: 5, agi: 5, vit: 5, wis: 5 },
     classMain: null,
     classSub: null,
+    // 장비 슬롯: weapon(무기) / shield(방패, 물리직업 전용) / armor_top(상의) / armor_bottom(하의) /
+    // ring(반지) / necklace(목걸이). durability/강화단계는 내구도 추적 대상 4종(무기/방패/상의/하의)만 존재
     equipment: {
-      weapon: null, armor: null, head: null, hands: null, feet: null, ring: null, necklace: null,
-      weaponDurability: 100, armorDurability: 100, // 착용중인 무기/방어구만 내구도 추적(교체시 초기화)
+      weapon: null, shield: null, armor_top: null, armor_bottom: null, ring: null, necklace: null,
+      weaponDurability: 100, shieldDurability: 100, armor_topDurability: 100, armor_bottomDurability: 100,
     },
     inventory: [],
     inventorySlotBonus: 0,
@@ -48,6 +50,7 @@ export function defaultCharacter(slot, now = Date.now()) {
     formationRow: null, // null이면 장착 무기로 자동 결정(활=후열, 그 외=전열) - rpg-combat.js의 effectiveFormationRow 참고
     lastTerritoryCollectAt: now, // 영지에서 일하는 용병들의 수입 정산 기준 시각(지연계산, collect-territory-income.js 참고)
     skillLevels: {}, // 직업훈련소에서 배운 스킬 단계({ [skillId]: 1~3 }) - 없으면(0) 전투에서 그 스킬을 못 씀
+    repairSkillLevel: 0, // 대장간에서 배우는 셀프 수리 스킬(0~4) - 단계에 따라 셀프 수리 가능 등급이 오름
     identifiedItems: [], // 한 번 감정(확인)된 아이템id 목록 - 이후로는 항상 실제 스탯이 보임
     zoneClearCounts: {}, // 지역별 모험 승리 누적(레어 pity용 zoneKillCounts와 별개) - 100 이상이면 성 도전 가능
     lastCastleIncomeClaimDate: null, // 성주 일일 수입 정산일(YYYY-MM-DD) - claim-castle-income.js 참고
@@ -71,7 +74,7 @@ export function createMercenaryInstance(templateId, now = Date.now()) {
   const cls = CLASSES[template.classMain];
   const isMelee = cls.weaponTypes.some((t) => t !== 'bow'); // 근접 무기 위주 직업이면 기본 전열
   const weaponId = template.classMain === 'archer' ? 'weapon_basic_bow' : 'weapon_basic_sword';
-  const armorId = 'armor_basic'; // 요구 힘 5로 기본 스탯(5)에서 바로 착용 가능
+  const armorTopId = 'armor_basic'; // 요구 힘 5로 기본 스탯(5)에서 바로 착용 가능
 
   const instance = {
     id: `${templateId}_${now}`,
@@ -84,8 +87,8 @@ export function createMercenaryInstance(templateId, now = Date.now()) {
     classMain: template.classMain,
     classSub: null,
     equipment: {
-      weapon: weaponId, armor: armorId, head: null, hands: null, feet: null, ring: null, necklace: null,
-      weaponDurability: 100, armorDurability: 100,
+      weapon: weaponId, shield: null, armor_top: armorTopId, armor_bottom: null, ring: null, necklace: null,
+      weaponDurability: 100, shieldDurability: 100, armor_topDurability: 100, armor_bottomDurability: 100,
     },
     wagePerAdventure: template.wagePerAdventure,
     mentalResist: template.mentalResist || 50,

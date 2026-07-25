@@ -5,7 +5,7 @@ import {
   UNIQUE_TIER_NAMES, UNIQUE_TIER_CHANCES, UNIQUE_TIER_STAT_MULT, UNIQUE_TIER_REWARD_MULT,
 } from './data/rpg/zones.js';
 import { MONSTERS } from './data/rpg/monsters.js';
-import { ITEMS, SET_BONUSES, ZONE_SET_ITEMS } from './data/rpg/items.js';
+import { ITEMS, SET_BONUSES, ZONE_SET_ITEMS, FULL_SET_DEFS, ALL_FULL_SET_ITEM_IDS } from './data/rpg/items.js';
 import { CLASSES } from './data/rpg/classes.js';
 import { elementalMultiplier } from './data/rpg/elements.js';
 import { CLASS_ESSENCE_ITEM, TIER_POWER_MULT } from './data/rpg/training.js';
@@ -15,6 +15,18 @@ import { ENHANCE_ATK_PER_LEVEL, ENHANCE_DEF_PER_LEVEL, RARE_MONSTER_STONE_DROP_C
 function matchedSetBonus(ringItem, necklaceItem) {
   if (!ringItem || !necklaceItem || !ringItem.setId || ringItem.setId !== necklaceItem.setId) return null;
   return SET_BONUSES[ringItem.setId] || null;
+}
+
+// 5피스 풀세트 판정 - 상의/하의/목걸이/반지 4개 고정 + 방패 또는 무기(altSlotPieces) 중 하나만
+// 갖춰도 세트 완성으로 인정. 여러 세트가 동시에 완성될 순 없음(슬롯이 겹쳐서) - 맞는 것 하나만 반환
+function computeFullSetBonus(equipment) {
+  const equippedIds = new Set(Object.values(equipment).filter((v) => typeof v === 'string'));
+  for (const def of Object.values(FULL_SET_DEFS)) {
+    const hasFixedPieces = def.pieces.every((id) => equippedIds.has(id));
+    const hasAltPiece = def.altSlotPieces.some((id) => equippedIds.has(id));
+    if (hasFixedPieces && hasAltPiece) return def;
+  }
+  return null;
 }
 
 const MAX_ROUNDS_PER_ENCOUNTER = 40;
@@ -58,6 +70,8 @@ const UNDERLEVEL_ZONE_MULTIPLIER = 3;
 const ESSENCE_DROP_CHANCE = 0.2;
 // 그 지역 유니크(2단계)/레전더리(3단계) 몹 전용 - 세트 아이템(반지/목걸이 중 하나)이 이 확률로 드랍
 const SET_ITEM_DROP_CHANCE = 0.08;
+// 5피스 풀세트(지역 무관) 조각 드랍 확률 - 아무 지역이든 유니크/레전더리몹이면 발동, 훨씬 희귀함
+const FULL_SET_ITEM_DROP_CHANCE = 0.02;
 
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -144,22 +158,47 @@ export function computeCharacterCombatStats(character) {
 
   const equipment = character.equipment || {};
   const weaponItem = equipment.weapon ? ITEMS[equipment.weapon] : null;
-  const armorItem = equipment.armor ? ITEMS[equipment.armor] : null;
+  const shieldItem = equipment.shield ? ITEMS[equipment.shield] : null;
+  const armorTopItem = equipment.armor_top ? ITEMS[equipment.armor_top] : null;
+  const armorBottomItem = equipment.armor_bottom ? ITEMS[equipment.armor_bottom] : null;
   const ringItem = equipment.ring ? ITEMS[equipment.ring] : null;
   const necklaceItem = equipment.necklace ? ITEMS[equipment.necklace] : null;
 
   // 내구도 0이 되면 파손 - 수리 전까지 그 부위 보너스가 전부 사라짐(장신구는 내구도 대상 아님)
   const weaponBroken = weaponItem && (equipment.weaponDurability ?? 100) <= 0;
-  const armorBroken = armorItem && (equipment.armorDurability ?? 100) <= 0;
+  const shieldBroken = shieldItem && (equipment.shieldDurability ?? 100) <= 0;
+  const armorTopBroken = armorTopItem && (equipment.armor_topDurability ?? 100) <= 0;
+  const armorBottomBroken = armorBottomItem && (equipment.armor_bottomDurability ?? 100) <= 0;
 
   // 대장간 강화(1~10단계) - 내구도와 같은 원칙으로, 파손되면 강화 보너스도 함께 사라짐
   const weaponEnhanceBonus = weaponBroken ? 0 : (equipment.weaponEnhanceLevel || 0) * ENHANCE_ATK_PER_LEVEL;
-  const armorEnhanceBonus = armorBroken ? 0 : (equipment.armorEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
+  const shieldEnhanceBonus = shieldBroken ? 0 : (equipment.shieldEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
+  const armorTopEnhanceBonus = armorTopBroken ? 0 : (equipment.armor_topEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
+  const armorBottomEnhanceBonus = armorBottomBroken ? 0 : (equipment.armor_bottomEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
   const weaponAtkBonus = (weaponBroken ? 0 : ((weaponItem && weaponItem.atkBonus) || 0)) + weaponEnhanceBonus;
-  const armorDefBonus = (armorBroken ? 0 : ((armorItem && armorItem.defBonus) || 0)) + armorEnhanceBonus;
-  const armorHpBonus = armorBroken ? 0 : ((armorItem && armorItem.hpBonus) || 0);
-  // 반지+목걸이를 같은 세트(setId)로 맞춰 착용하면 각 아이템 자체 스탯 위에 세트 보너스가 추가로 붙음
-  const setBonus = (matchedSetBonus(ringItem, necklaceItem) || {}).bonus || {};
+  // 방패+상의+하의가 함께 "몸통 방어구" 취급으로 방어력/체력에 합산됨
+  const gearDefBonus = (shieldBroken ? 0 : ((shieldItem && shieldItem.defBonus) || 0)) + shieldEnhanceBonus
+    + (armorTopBroken ? 0 : ((armorTopItem && armorTopItem.defBonus) || 0)) + armorTopEnhanceBonus
+    + (armorBottomBroken ? 0 : ((armorBottomItem && armorBottomItem.defBonus) || 0)) + armorBottomEnhanceBonus;
+  const gearHpBonus = (shieldBroken ? 0 : ((shieldItem && shieldItem.hpBonus) || 0))
+    + (armorTopBroken ? 0 : ((armorTopItem && armorTopItem.hpBonus) || 0))
+    + (armorBottomBroken ? 0 : ((armorBottomItem && armorBottomItem.hpBonus) || 0));
+  const gearSevereInjuryResist = (shieldBroken ? 0 : ((shieldItem && shieldItem.severeInjuryResist) || 0))
+    + (armorTopBroken ? 0 : ((armorTopItem && armorTopItem.severeInjuryResist) || 0))
+    + (armorBottomBroken ? 0 : ((armorBottomItem && armorBottomItem.severeInjuryResist) || 0));
+  // 반지+목걸이를 같은 세트(setId)로 맞춰 착용하면, 그리고 5피스 풀세트를 갖추면 각 아이템 자체
+  // 스탯 위에 세트 보너스가 추가로 붙음(두 시스템은 서로 다른 slot조합이라 동시 발동도 가능)
+  const twoPieceSetBonus = (matchedSetBonus(ringItem, necklaceItem) || {}).bonus || {};
+  const fullSetDef = computeFullSetBonus(equipment);
+  const fullSetBonus = (fullSetDef && fullSetDef.bonus) || {};
+  const setBonus = {
+    atkBonus: (twoPieceSetBonus.atkBonus || 0) + (fullSetBonus.atkBonus || 0),
+    defBonus: (twoPieceSetBonus.defBonus || 0) + (fullSetBonus.defBonus || 0),
+    hpBonus: (twoPieceSetBonus.hpBonus || 0) + (fullSetBonus.hpBonus || 0),
+    severeInjuryResist: (twoPieceSetBonus.severeInjuryResist || 0) + (fullSetBonus.severeInjuryResist || 0),
+    elementDefense: twoPieceSetBonus.elementDefense || fullSetBonus.elementDefense || null,
+    doubleAttackChance: (twoPieceSetBonus.doubleAttackChance || 0) + (fullSetBonus.doubleAttackChance || 0),
+  };
   const accessoryAtkBonus = (ringItem && ringItem.atkBonus || 0) + (necklaceItem && necklaceItem.atkBonus || 0) + (setBonus.atkBonus || 0);
   const accessoryDefBonus = (ringItem && ringItem.defBonus || 0) + (necklaceItem && necklaceItem.defBonus || 0) + (setBonus.defBonus || 0);
   const accessoryHpBonus = (ringItem && ringItem.hpBonus || 0) + (necklaceItem && necklaceItem.hpBonus || 0) + (setBonus.hpBonus || 0);
@@ -167,21 +206,25 @@ export function computeCharacterCombatStats(character) {
   // VIT는 레벨과 곱해져서 반영됨 - 레벨이 낮을 땐 VIT를 아무리 투자해도 체력 증가폭이 작고,
   // 레벨이 오를수록 VIT 투자분이 누적돼서 체력 성장폭이 커짐(비율 성장)
   return {
-    maxHp: BASE_HP + level * HP_PER_LEVEL + Math.round(stats.vit * level * VIT_HP_PER_LEVEL) + armorHpBonus + accessoryHpBonus,
+    maxHp: BASE_HP + level * HP_PER_LEVEL + Math.round(stats.vit * level * VIT_HP_PER_LEVEL) + gearHpBonus + accessoryHpBonus,
     maxMp: BASE_MP + level * MP_PER_LEVEL + Math.round(scalingStat * level * MAGIC_STAT_MP_PER_LEVEL),
     // 향후 스테미나 소모 스킬/행동에 대비한 자원(현재는 회복 대상으로만 사용)
     maxStamina: BASE_STAMINA + level * STAMINA_PER_LEVEL + Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL),
     atk: scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus,
-    def: stats.vit + armorDefBonus + accessoryDefBonus,
+    def: stats.vit + gearDefBonus + accessoryDefBonus,
     element: weaponBroken ? 'none' : ((weaponItem && weaponItem.element) || 'none'), // 무기 파손시 속성공격도 사라짐
     weaponType: (weaponItem && weaponItem.weaponType) || null,
+    hasShield: !!(shieldItem && !shieldBroken), // 방패 스킬(방패 강타 등) 사용 조건
     agi: stats.agi,
     weaponBroken: !!weaponBroken,
-    armorBroken: !!armorBroken,
-    // 방어구의 "중상방어" 속성 - 중상을 입을 확률을 이만큼 줄여줌(파손되면 무효)
-    severeInjuryResist: (armorBroken ? 0 : ((armorItem && armorItem.severeInjuryResist) || 0))
+    armorBroken: !!(armorTopBroken || armorBottomBroken),
+    // 방어구의 "중상방어" 속성 - 중상을 입을 확률을 이만큼 줄여줌(파손되면 무효). 세트 전용 전속성방어는
+    // gearElementDefense로 별도 노출(장신구쪽 elementDefense와 buildCombatant에서 합쳐짐)
+    severeInjuryResist: gearSevereInjuryResist
       + ((ringItem && ringItem.severeInjuryResist) || 0) + ((necklaceItem && necklaceItem.severeInjuryResist) || 0)
       + (setBonus.severeInjuryResist || 0),
+    gearElementDefense: setBonus.elementDefense || null,
+    setDoubleAttackChance: setBonus.doubleAttackChance || 0,
     classDef,
   };
 }
@@ -215,7 +258,9 @@ export function applyEquipmentWear(equipment) {
     if (after === 0) brokenNow.push(itemKey);
   };
   wearOne('weapon', 'weaponDurability');
-  wearOne('armor', 'armorDurability');
+  wearOne('shield', 'shieldDurability');
+  wearOne('armor_top', 'armor_topDurability');
+  wearOne('armor_bottom', 'armor_bottomDurability');
   return { equipment: next, brokenNow };
 }
 
@@ -296,11 +341,13 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }
   const equipment = characterLike.equipment || {};
   const ringItem = equipment.ring ? ITEMS[equipment.ring] : null;
   const necklaceItem = equipment.necklace ? ITEMS[equipment.necklace] : null;
-  const accessoryElementDefense = (ringItem && ringItem.elementDefense) || (necklaceItem && necklaceItem.elementDefense) || null;
-  const setBonus = (matchedSetBonus(ringItem, necklaceItem) || {}).bonus || {};
+  // gearElementDefense는 5피스 풀세트(중량방어구 세트 등)의 전속성방어 - 장신구쪽 elementDefense와 합쳐짐.
+  // combatStats.setDoubleAttackChance는 2피스+5피스 세트 보너스가 이미 합산된 값(computeCharacterCombatStats 참고)
+  const accessoryElementDefense = (ringItem && ringItem.elementDefense) || (necklaceItem && necklaceItem.elementDefense) || combatStats.gearElementDefense || null;
   const doubleAttackChance = Math.min(
     MAX_EXTRA_ATTACK_CHANCE,
-    ((ringItem && ringItem.doubleAttackChance) || (necklaceItem && necklaceItem.doubleAttackChance) || 0) + (setBonus.doubleAttackChance || 0)
+    ((ringItem && ringItem.doubleAttackChance) || (necklaceItem && necklaceItem.doubleAttackChance) || 0)
+      + (combatStats.setDoubleAttackChance || 0)
       + combatStats.agi * AGI_EXTRA_ATTACK_PER_POINT,
   );
   return {
@@ -343,6 +390,7 @@ function spendActorResource(actor, amount) {
 // 스킬을 이번에 쓸 수 있는지 - 자원이 충분한지 + (본인이면) 훈련소에서 배운 스킬인지(미습득 스킬은 사용 불가)
 function isSkillUsable(actor, skill) {
   if (skill.manaCost > actor[skillResourceKey(actor)]) return false;
+  if (skill.requiresShield && !actor.combatStats.hasShield) return false; // 방패 스킬은 방패 장착 중일 때만
   if (actor.isSelf) return (actor.skillLevels && actor.skillLevels[skill.id] > 0);
   return true; // 용병은 훈련 시스템 대상이 아니라 항상 사용 가능
 }
@@ -641,6 +689,12 @@ export function resolveCombat({ character, zoneId, stance }) {
             loot.push({ itemId: pieceItemId, qty: 1 });
             log.push(`${ITEMS[pieceItemId].name}을(를) 얻었다!! 세트 아이템이다!`);
           }
+        }
+        // 5피스 풀세트(중량방어구/직업별 세트) 조각 - 지역 무관, 아무 유니크/레전더리몹에서나 드랍
+        if (monster.uniqueTier >= 2 && Math.random() < FULL_SET_ITEM_DROP_CHANCE) {
+          const pieceItemId = ALL_FULL_SET_ITEM_IDS[randInt(0, ALL_FULL_SET_ITEM_IDS.length - 1)];
+          loot.push({ itemId: pieceItemId, qty: 1 });
+          log.push(`${ITEMS[pieceItemId].name}을(를) 얻었다!! 세트 아이템이다!`);
         }
         killedMonsterIds.push(monster.id);
         break;

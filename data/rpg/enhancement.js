@@ -20,3 +20,17 @@ export const ENHANCE_LEVEL_COSTS = {
   9: { stones: 20, gold: 2500 },
   10: { stones: 25, gold: 3500 },
 };
+
+// 수리는 기본적으로 대장간(NPC)에서만 가능 - 셀프 수리를 하려면 수리스킬을 배우고 그 아이템 등급까지
+// 단계를 올려야 하고, 수리 망치(소모품)도 있어야 함. 대장간 수리는 스킬/망치 없이 항상 가능(등급별
+// 비용은 repair-equipment.js의 REPAIR_COST_PER_POINT_BY_RARITY 그대로 재사용)
+export const MAX_REPAIR_SKILL_LEVEL = 4;
+export const REPAIR_SKILL_COSTS = { 1: 150, 2: 400, 3: 900, 4: 1800 }; // 골드만 필요(결정 불필요)
+// 수리스킬 단계별로 셀프 수리 가능한 최고 등급
+export const REPAIR_SKILL_RARITY_CAP = { 1: 'uncommon', 2: 'rare', 3: 'epic', 4: 'legendary' };
+const RARITY_ORDER = ['normal', 'uncommon', 'rare', 'epic', 'legendary'];
+export function rarityAllowedBySkill(rarity, skillLevel) {
+  if (skillLevel <= 0) return false;
+  const cap = REPAIR_SKILL_RARITY_CAP[skillLevel] || 'normal';
+  return RARITY_ORDER.indexOf(rarity) <= RARITY_ORDER.indexOf(cap);
+}

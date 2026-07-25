@@ -6,6 +6,10 @@ import { ITEMS } from '../../data/rpg/items.js';
 import { CLASSES } from '../../data/rpg/classes.js';
 import { effectiveStats } from '../../rpg-combat.js';
 
+const EQUIPPABLE_TYPES = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
+const ARMOR_SLOTS = ['armor_top', 'armor_bottom'];
+const DURABILITY_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { accessToken, slot, itemId } = req.body;
@@ -13,12 +17,11 @@ export default async function handler(req, res) {
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
 
-  const EQUIPPABLE_TYPES = ['weapon', 'armor', 'ring', 'necklace'];
   const item = ITEMS[itemId];
   if (!item || !EQUIPPABLE_TYPES.includes(item.type)) {
     return res.status(400).json({ error: 'not_equippable' });
   }
-  const equipSlot = item.type; // 'weapon' | 'armor' | 'ring' | 'necklace'
+  const equipSlot = item.type; // 'weapon' | 'shield' | 'armor_top' | 'armor_bottom' | 'ring' | 'necklace'
 
   let outcome = null;
   try {
@@ -28,16 +31,22 @@ export default async function handler(req, res) {
       const inventory = [...(character.inventory || [])];
       if (inventoryQty(inventory, itemId) < 1) { outcome = { error: 'item_not_owned' }; return null; }
 
+      const cls = CLASSES[character.classMain] || CLASSES.warrior;
+
       // 무기는 직업에 안 맞아도 장착은 허용(전투 중 명중/위력 패널티는 rpg-combat.js가 처리) -
-      // 갑옷은 직업 제한(예: 궁수는 경갑만)과 힘 요구치를 못 채우면 아예 장착 불가(하드 블록)
-      if (equipSlot === 'armor' && item.armorClass) {
-        const cls = CLASSES[character.classMain] || CLASSES.warrior;
+      // 상/하의는 직업 제한(예: 궁수는 경갑만)을 못 채우면 아예 장착 불가(하드 블록)
+      if (ARMOR_SLOTS.includes(equipSlot) && item.armorClass) {
         if (cls.armorRestriction && !cls.armorRestriction.includes(item.armorClass)) {
           outcome = { error: 'armor_class_restricted' };
           return null;
         }
       }
-      if ((equipSlot === 'armor' || equipSlot === 'weapon') && (item.strRequirement || item.wisRequirement)) {
+      // 방패는 물리 직업(전사/궁수, resourceType:'stamina')만 착용 가능 - 캐스터는 두 손이 지팡이를 쥐어야 함
+      if (equipSlot === 'shield' && cls.resourceType !== 'stamina') {
+        outcome = { error: 'shield_not_usable' };
+        return null;
+      }
+      if ((ARMOR_SLOTS.includes(equipSlot) || equipSlot === 'weapon' || equipSlot === 'shield') && (item.strRequirement || item.wisRequirement)) {
         const stats = effectiveStats(character);
         if (item.strRequirement && stats.str < item.strRequirement) {
           outcome = { error: 'not_enough_strength' };
@@ -58,8 +67,10 @@ export default async function handler(req, res) {
       }
       equipment[equipSlot] = itemId;
       // 내구도와 강화 단계 모두 개별 아이템 인스턴스를 추적하지 않는 v1 단순화 설계라 재장착시 초기화됨
-      if (equipSlot === 'weapon') { equipment.weaponDurability = 100; equipment.weaponEnhanceLevel = 0; }
-      if (equipSlot === 'armor') { equipment.armorDurability = 100; equipment.armorEnhanceLevel = 0; }
+      if (DURABILITY_SLOTS.includes(equipSlot)) {
+        equipment[`${equipSlot}Durability`] = 100;
+        equipment[`${equipSlot}EnhanceLevel`] = 0;
+      }
 
       const now = Date.now();
       outcome = { equipSlot, equipped: itemId, previous: previous || null };

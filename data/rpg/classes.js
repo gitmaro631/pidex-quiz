@@ -9,6 +9,8 @@ export const CLASSES = {
       { id: 'whirlwind', name: '회전베기', manaCost: 8, type: 'attack_all', power: 1.1 },
       { id: 'guard_stance', name: '방어태세', manaCost: 4, type: 'buff_def', power: 1.5 },
       { id: 'execute', name: '처형', manaCost: 10, type: 'execute', power: 2.5, hpThresholdPct: 0.2 },
+      // 방패를 장착하고 있을 때만 쓸 수 있는 스킬 - 직업훈련소에서 다른 스킬과 똑같이 배우고 단계를 올림
+      { id: 'shield_bash', name: '방패 강타', manaCost: 6, type: 'attack', power: 1.7, requiresShield: true },
     ],
     // 직업-몹 타입 상성(확률 발동, 명중 보장 아님) - 전사는 언데드 사냥에 강하고 야수 상대는 약함
     strongVs: [{ tag: 'undead', chance: 0.25, multiplier: 1.4 }],

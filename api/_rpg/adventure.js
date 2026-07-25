@@ -11,6 +11,8 @@ import { checkNewLoreUnlocks } from '../../rpg-lore.js';
 import { LORE_ENTRIES } from '../../data/rpg/lore.js';
 import { isAdminUsername } from '../_rpgAdmin.js';
 
+const EQUIP_SLOT_LABELS = { weapon: '무기', shield: '방패', armor_top: '상의', armor_bottom: '하의' };
+
 // 부상은 모험(턴 소모) 단위로 회복이 진행됨 - 새로 다치거나 악화된 부위는 freshInjuries로 갱신되고,
 // 그 외 기존 부상은 턴이 1 지날 때마다 회복 카운트가 줄어듦(본인/용병 공용 로직)
 function decayInjuries(prevInjuries, freshInjuries) {
@@ -95,8 +97,7 @@ export default async function handler(req, res) {
 
       // 전투 1회를 치르면 장착중인 무기/방어구가 마모됨 - 내구도가 낮을수록 조기 파손 확률이 높아짐
       const { equipment: wornEquipment, brokenNow } = applyEquipmentWear(character.equipment || {});
-      if (brokenNow.includes('weapon')) combatResult.log.push('무기가 파손되었습니다! 수리가 필요해요.');
-      if (brokenNow.includes('armor')) combatResult.log.push('방어구가 파손되었습니다! 수리가 필요해요.');
+      brokenNow.forEach((s) => combatResult.log.push(`${EQUIP_SLOT_LABELS[s] || s}이(가) 파손되었습니다! 수리가 필요해요.`));
 
       // 죽으면(패배) 아이템은 그대로 유지한 채 마지막으로 있었던 마을로 돌아감 - 부활 자체는 무료지만
       // 다시 사냥터까지 가려면 소모품을 또 써야 하니 결과적으로 골드 소모를 유도함
@@ -139,8 +140,7 @@ export default async function handler(req, res) {
         const mr = combatResult.mercenaries.find((r) => r.id === merc.id);
         if (!mr) return merc;
         const { equipment: mercWornEquipment, brokenNow: mercBrokenNow } = applyEquipmentWear(merc.equipment || {});
-        if (mercBrokenNow.includes('weapon')) combatResult.log.push(`${merc.name}의 무기가 파손되었습니다!`);
-        if (mercBrokenNow.includes('armor')) combatResult.log.push(`${merc.name}의 방어구가 파손되었습니다!`);
+        mercBrokenNow.forEach((s) => combatResult.log.push(`${merc.name}의 ${EQUIP_SLOT_LABELS[s] || s}이(가) 파손되었습니다!`));
         let mercProgression = applyXpGain(merc, combatResult.xpGain);
         if (mercProgression.level > progression.level) {
           if (merc.level < progression.level) combatResult.log.push(`${merc.name}은(는) 주인공의 레벨을 넘어설 수 없다.`);

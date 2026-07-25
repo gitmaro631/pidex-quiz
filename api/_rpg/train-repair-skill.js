@@ -1,39 +1,31 @@
+// 대장간 수리스킬 훈련 - 골드만 필요(결정 불필요). 단계가 오를수록 셀프 수리 가능한 아이템 등급이 오름
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
-import { addItem } from '../_rpgInventory.js';
-
-const VALID_EQUIP_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
-const DURABILITY_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
+import { MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS } from '../../data/rpg/enhancement.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { accessToken, slot, equipSlot } = req.body;
+  const { accessToken, slot } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
-  if (!VALID_EQUIP_SLOTS.includes(equipSlot)) return res.status(400).json({ error: 'invalid_equip_slot' });
 
   let outcome = null;
   try {
     const docPath = characterDocPath(username, slot);
     await withFirestoreTransaction(docPath, (current) => {
       const character = current || defaultCharacter(slot);
-      const equipment = { ...(character.equipment || {}) };
-      const equippedItemId = equipment[equipSlot];
-      if (!equippedItemId) { outcome = { error: 'nothing_equipped' }; return null; }
+      const currentLevel = character.repairSkillLevel || 0;
+      const nextLevel = currentLevel + 1;
+      if (nextLevel > MAX_REPAIR_SKILL_LEVEL) { outcome = { error: 'max_tier_reached' }; return null; }
 
-      const inventory = [...(character.inventory || [])];
-      addItem(inventory, equippedItemId, 1);
-      equipment[equipSlot] = null;
-      if (DURABILITY_SLOTS.includes(equipSlot)) {
-        equipment[`${equipSlot}Durability`] = 100;
-        equipment[`${equipSlot}EnhanceLevel`] = 0;
-      }
+      const cost = REPAIR_SKILL_COSTS[nextLevel];
+      if ((character.gold || 0) < cost) { outcome = { error: 'not_enough_gold' }; return null; }
 
       const now = Date.now();
-      outcome = { equipSlot, unequipped: equippedItemId };
-      return { ...character, equipment, inventory, updatedAt: now };
+      outcome = { level: nextLevel, cost, gold: character.gold - cost };
+      return { ...character, gold: character.gold - cost, repairSkillLevel: nextLevel, updatedAt: now };
     });
 
     if (outcome && outcome.error) return res.status(400).json({ error: outcome.error });

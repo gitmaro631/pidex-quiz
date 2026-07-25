@@ -10,6 +10,7 @@ export const ITEMS = {
   arrow: { id: 'arrow', name: '화살', type: 'ammo', rarity: 'normal', shopPrice: 2, weight: 0.1 }, // 상점에서 10개 묶음으로 구매됨(개당 가격)
   bandage: { id: 'bandage', name: '붕대', type: 'consumable', rarity: 'normal', cureInjury: 'mild', shopPrice: 25, weight: 0.3 }, // 경상만 치료, 중상은 의사에게
   identify_scroll: { id: 'identify_scroll', name: '감정 스크롤', type: 'consumable', rarity: 'normal', identifyScroll: true, shopPrice: 40, weight: 0.2 }, // 미확인 아이템 즉시 감정
+  repair_hammer: { id: 'repair_hammer', name: '수리 망치', type: 'consumable', rarity: 'normal', repairHammer: true, shopPrice: 30, weight: 1 }, // 셀프 수리 1회당 소모(수리스킬 필요)
 
   // 가방 - 사용하면 즉시 소모되며 인벤토리 슬롯을 영구히 늘려줌(장착 아님)
   bag_small: { id: 'bag_small', name: '작은 가방', type: 'bag', rarity: 'normal', slotBonus: 5, weight: 2 },
@@ -25,9 +26,22 @@ export const ITEMS = {
   weapon_basic_bow: { id: 'weapon_basic_bow', name: '낡은 활', type: 'weapon', weaponType: 'bow', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 3 },
   weapon_basic_dagger: { id: 'weapon_basic_dagger', name: '낡은 단도', type: 'weapon', weaponType: 'dagger', rarity: 'normal', atkBonus: 2, shopPrice: 40, weight: 2 }, // 궁수의 보조무기 - 화살이 떨어지면 이걸로 근접전
   weapon_basic_staff: { id: 'weapon_basic_staff', name: '낡은 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 3 },
-  armor_basic: { id: 'armor_basic', name: '낡은 갑옷', type: 'armor', rarity: 'normal', armorClass: 'light', defBonus: 2, hpBonus: 10, shopPrice: 60, weight: 6, strRequirement: 5 },
+  armor_basic: { id: 'armor_basic', name: '낡은 갑옷', type: 'armor_top', rarity: 'normal', armorClass: 'light', defBonus: 2, hpBonus: 10, shopPrice: 60, weight: 6, strRequirement: 5 },
   // 천 방어구(cloth) - 마법사/성직자 전용. 힘과 지혜 둘 다 일정 이상 필요(마력 운용에 정신력도 필요하다는 설정)
-  armor_cloth_basic: { id: 'armor_cloth_basic', name: '낡은 로브', type: 'armor', rarity: 'normal', armorClass: 'cloth', defBonus: 1, hpBonus: 8, shopPrice: 55, weight: 3, strRequirement: 4, wisRequirement: 4 },
+  armor_cloth_basic: { id: 'armor_cloth_basic', name: '낡은 로브', type: 'armor_top', rarity: 'normal', armorClass: 'cloth', defBonus: 1, hpBonus: 8, shopPrice: 55, weight: 3, strRequirement: 4, wisRequirement: 4 },
+
+  // 하의(armor_bottom) - 상의와 별개 슬롯. armorClass 원칙은 상의와 동일(경갑/중갑/천갑)
+  armor_bottom_basic: { id: 'armor_bottom_basic', name: '낡은 하의', type: 'armor_bottom', rarity: 'normal', armorClass: 'light', defBonus: 1, hpBonus: 6, shopPrice: 45, weight: 4, strRequirement: 5 },
+  armor_bottom_cloth_basic: { id: 'armor_bottom_cloth_basic', name: '낡은 로브 하의', type: 'armor_bottom', rarity: 'normal', armorClass: 'cloth', defBonus: 1, hpBonus: 5, shopPrice: 40, weight: 2, strRequirement: 4, wisRequirement: 4 },
+  armor_bottom_light_uncommon: { id: 'armor_bottom_light_uncommon', name: '가죽 각반', type: 'armor_bottom', rarity: 'uncommon', armorClass: 'light', defBonus: 2, hpBonus: 10, weight: 3, strRequirement: 8 },
+  armor_bottom_heavy_uncommon: { id: 'armor_bottom_heavy_uncommon', name: '강철 각반', type: 'armor_bottom', rarity: 'uncommon', armorClass: 'heavy', defBonus: 3, hpBonus: 14, weight: 9, strRequirement: 12 },
+  armor_bottom_cloth_uncommon: { id: 'armor_bottom_cloth_uncommon', name: '견습 마법사의 로브 하의', type: 'armor_bottom', rarity: 'uncommon', armorClass: 'cloth', defBonus: 1, hpBonus: 10, weight: 3, strRequirement: 6, wisRequirement: 8 },
+
+  // 방패(shield) - 물리 직업(전사/궁수, resourceType:'stamina')만 착용 가능. 캐스터는 두 손이
+  // 지팡이를 쥐어야 해서 방패를 못 씀(equip.js가 classDef.resourceType으로 판정)
+  shield_basic: { id: 'shield_basic', name: '낡은 방패', type: 'shield', rarity: 'normal', defBonus: 3, hpBonus: 5, shopPrice: 55, weight: 5, strRequirement: 6 },
+  shield_uncommon: { id: 'shield_uncommon', name: '강철 방패', type: 'shield', rarity: 'uncommon', defBonus: 6, hpBonus: 15, weight: 8, strRequirement: 10 },
+  shield_rare: { id: 'shield_rare', name: '수호자의 방패', type: 'shield', rarity: 'rare', defBonus: 12, hpBonus: 30, severeInjuryResist: 0.15, weight: 11, strRequirement: 16 },
 
   // 지역별 재료 (합성/승급 소재, 상점 단계에서 용도 확장)
   slime_jelly: { id: 'slime_jelly', name: '슬라임 젤리', type: 'material', rarity: 'normal', weight: 0.5 },
@@ -63,20 +77,20 @@ export const ITEMS = {
   weapon_uncommon: { id: 'weapon_uncommon', name: '단련된 장검', type: 'weapon', weaponType: 'sword', rarity: 'uncommon', atkBonus: 8, weight: 4 },
   weapon_rare: { id: 'weapon_rare', name: '칠흑의 검', type: 'weapon', weaponType: 'sword', rarity: 'rare', atkBonus: 16, element: 'dark', weight: 5 },
   weapon_legendary: { id: 'weapon_legendary', name: '수호자의 성검', type: 'weapon', weaponType: 'sword', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 6 },
-  armor_uncommon: { id: 'armor_uncommon', name: '강철 갑옷', type: 'armor', rarity: 'uncommon', armorClass: 'heavy', defBonus: 4, hpBonus: 20, weight: 12, strRequirement: 12 },
-  armor_rare: { id: 'armor_rare', name: '정련된 판금 갑옷', type: 'armor', rarity: 'rare', armorClass: 'heavy', defBonus: 9, hpBonus: 45, weight: 16, strRequirement: 18 },
-  armor_legendary: { id: 'armor_legendary', name: '수호자의 갑주', type: 'armor', rarity: 'legendary', armorClass: 'heavy', defBonus: 18, hpBonus: 90, weight: 20, strRequirement: 28 },
-  armor_reinforced_rare: { id: 'armor_reinforced_rare', name: '중갑 보강 흉갑', type: 'armor', rarity: 'rare', armorClass: 'heavy', defBonus: 9, hpBonus: 40, severeInjuryResist: 0.3, weight: 18, strRequirement: 18 },
+  armor_uncommon: { id: 'armor_uncommon', name: '강철 갑옷', type: 'armor_top', rarity: 'uncommon', armorClass: 'heavy', defBonus: 4, hpBonus: 20, weight: 12, strRequirement: 12 },
+  armor_rare: { id: 'armor_rare', name: '정련된 판금 갑옷', type: 'armor_top', rarity: 'rare', armorClass: 'heavy', defBonus: 9, hpBonus: 45, weight: 16, strRequirement: 18 },
+  armor_legendary: { id: 'armor_legendary', name: '수호자의 갑주', type: 'armor_top', rarity: 'legendary', armorClass: 'heavy', defBonus: 18, hpBonus: 90, weight: 20, strRequirement: 28 },
+  armor_reinforced_rare: { id: 'armor_reinforced_rare', name: '중갑 보강 흉갑', type: 'armor_top', rarity: 'rare', armorClass: 'heavy', defBonus: 9, hpBonus: 40, severeInjuryResist: 0.3, weight: 18, strRequirement: 18 },
 
   // 경갑 상위 등급 - 중갑보다 방어력/체력은 낮지만 훨씬 가볍고 힘 요구치도 낮음(궁수 전용 착용 라인)
-  armor_light_uncommon: { id: 'armor_light_uncommon', name: '가죽 조끼', type: 'armor', rarity: 'uncommon', armorClass: 'light', defBonus: 3, hpBonus: 15, weight: 5, strRequirement: 8 },
-  armor_light_rare: { id: 'armor_light_rare', name: '숙련된 사냥꾼의 경갑', type: 'armor', rarity: 'rare', armorClass: 'light', defBonus: 6, hpBonus: 32, weight: 7, strRequirement: 12 },
-  armor_light_legendary: { id: 'armor_light_legendary', name: '바람추적자의 경갑', type: 'armor', rarity: 'legendary', armorClass: 'light', defBonus: 12, hpBonus: 65, weight: 9, strRequirement: 20 },
+  armor_light_uncommon: { id: 'armor_light_uncommon', name: '가죽 조끼', type: 'armor_top', rarity: 'uncommon', armorClass: 'light', defBonus: 3, hpBonus: 15, weight: 5, strRequirement: 8 },
+  armor_light_rare: { id: 'armor_light_rare', name: '숙련된 사냥꾼의 경갑', type: 'armor_top', rarity: 'rare', armorClass: 'light', defBonus: 6, hpBonus: 32, weight: 7, strRequirement: 12 },
+  armor_light_legendary: { id: 'armor_light_legendary', name: '바람추적자의 경갑', type: 'armor_top', rarity: 'legendary', armorClass: 'light', defBonus: 12, hpBonus: 65, weight: 9, strRequirement: 20 },
 
   // 천 방어구 상위 등급 - 마법사/성직자 전용, 힘+지혜 둘 다 요구
-  armor_cloth_uncommon: { id: 'armor_cloth_uncommon', name: '견습 마법사의 로브', type: 'armor', rarity: 'uncommon', armorClass: 'cloth', defBonus: 2, hpBonus: 14, weight: 4, strRequirement: 6, wisRequirement: 8 },
-  armor_cloth_rare: { id: 'armor_cloth_rare', name: '현자의 로브', type: 'armor', rarity: 'rare', armorClass: 'cloth', defBonus: 5, hpBonus: 30, weight: 5, strRequirement: 9, wisRequirement: 12 },
-  armor_cloth_legendary: { id: 'armor_cloth_legendary', name: '대주교의 성의', type: 'armor', rarity: 'legendary', armorClass: 'cloth', defBonus: 10, hpBonus: 60, weight: 6, strRequirement: 14, wisRequirement: 20 },
+  armor_cloth_uncommon: { id: 'armor_cloth_uncommon', name: '견습 마법사의 로브', type: 'armor_top', rarity: 'uncommon', armorClass: 'cloth', defBonus: 2, hpBonus: 14, weight: 4, strRequirement: 6, wisRequirement: 8 },
+  armor_cloth_rare: { id: 'armor_cloth_rare', name: '현자의 로브', type: 'armor_top', rarity: 'rare', armorClass: 'cloth', defBonus: 5, hpBonus: 30, weight: 5, strRequirement: 9, wisRequirement: 12 },
+  armor_cloth_legendary: { id: 'armor_cloth_legendary', name: '대주교의 성의', type: 'armor_top', rarity: 'legendary', armorClass: 'cloth', defBonus: 10, hpBonus: 60, weight: 6, strRequirement: 14, wisRequirement: 20 },
 
   // 장신구 - 반지/목걸이 (랜덤박스 전용 획득처, 상점 미판매)
   ring_normal: { id: 'ring_normal', name: '낡은 반지', type: 'ring', rarity: 'normal', atkBonus: 2, weight: 0.2 },
@@ -124,6 +138,41 @@ export const ITEMS = {
   ring_set_dungeon: { id: 'ring_set_dungeon', name: '망자의 유산 반지', type: 'ring', rarity: 'epic', setId: 'dungeon_set', atkBonus: 10, elementDefense: 'dark', weight: 0.2 },
   necklace_set_dungeon: { id: 'necklace_set_dungeon', name: '망자의 유산 목걸이', type: 'necklace', rarity: 'epic', setId: 'dungeon_set', hpBonus: 45, severeInjuryResist: 0.15, weight: 0.3 },
 
+  // 5피스 풀세트 - 상의+하의+목걸이+반지 4개는 공통이고, 5번째 자리는 방패 또는 무기 중 하나로
+  // 채우면 세트 완성으로 인정됨(FULL_SET_DEFS의 altPieceMap 참고). 어느 지역이든 유니크/레전더리몹이
+  // 낮은 확률로 드랍(지역 한정 아님) - 마켓 거래로 나머지 조각을 모을 수 있음
+  armor_top_heavyset: { id: 'armor_top_heavyset', name: '중량 갑주 상의', type: 'armor_top', rarity: 'epic', armorClass: 'heavy', defBonus: 14, hpBonus: 55, weight: 16, strRequirement: 16 },
+  armor_bottom_heavyset: { id: 'armor_bottom_heavyset', name: '중량 갑주 하의', type: 'armor_bottom', rarity: 'epic', armorClass: 'heavy', defBonus: 10, hpBonus: 40, weight: 12, strRequirement: 16 },
+  necklace_heavyset: { id: 'necklace_heavyset', name: '중량 수호자의 목걸이', type: 'necklace', rarity: 'epic', hpBonus: 40, defBonus: 4, weight: 0.3 },
+  ring_heavyset: { id: 'ring_heavyset', name: '중량 수호자의 반지', type: 'ring', rarity: 'epic', defBonus: 6, atkBonus: 2, weight: 0.2 },
+  shield_heavyset: { id: 'shield_heavyset', name: '중량 수호자의 방패', type: 'shield', rarity: 'epic', defBonus: 10, hpBonus: 25, weight: 12, strRequirement: 16 },
+  weapon_heavyset: { id: 'weapon_heavyset', name: '중량 수호자의 대검', type: 'weapon', weaponType: 'sword', rarity: 'epic', atkBonus: 20, weight: 7 },
+
+  // 직업별 5피스 세트(현재 1개씩) - 각 직업 무기 타입에 맞춘 5번째 자리(무기 또는 방패)
+  armor_top_warriorset: { id: 'armor_top_warriorset', name: '용맹한 전사의 흉갑', type: 'armor_top', rarity: 'epic', armorClass: 'heavy', defBonus: 12, hpBonus: 45, weight: 14, strRequirement: 15 },
+  armor_bottom_warriorset: { id: 'armor_bottom_warriorset', name: '용맹한 전사의 각반', type: 'armor_bottom', rarity: 'epic', armorClass: 'heavy', defBonus: 8, hpBonus: 30, weight: 10, strRequirement: 15 },
+  necklace_warriorset: { id: 'necklace_warriorset', name: '용맹한 전사의 목걸이', type: 'necklace', rarity: 'epic', atkBonus: 6, hpBonus: 25, weight: 0.3 },
+  ring_warriorset: { id: 'ring_warriorset', name: '용맹한 전사의 반지', type: 'ring', rarity: 'epic', atkBonus: 8, weight: 0.2 },
+  shield_warriorset: { id: 'shield_warriorset', name: '용맹한 전사의 방패', type: 'shield', rarity: 'epic', defBonus: 9, hpBonus: 20, weight: 10, strRequirement: 15 },
+
+  armor_top_archerset: { id: 'armor_top_archerset', name: '바람추적자의 상의', type: 'armor_top', rarity: 'epic', armorClass: 'light', defBonus: 6, hpBonus: 30, weight: 6, strRequirement: 12 },
+  armor_bottom_archerset: { id: 'armor_bottom_archerset', name: '바람추적자의 하의', type: 'armor_bottom', rarity: 'epic', armorClass: 'light', defBonus: 4, hpBonus: 20, weight: 4, strRequirement: 12 },
+  necklace_archerset: { id: 'necklace_archerset', name: '바람추적자의 목걸이', type: 'necklace', rarity: 'epic', agiBonus: 4, hpBonus: 20, weight: 0.3 },
+  ring_archerset: { id: 'ring_archerset', name: '바람추적자의 반지', type: 'ring', rarity: 'epic', atkBonus: 6, agiBonus: 3, weight: 0.2 },
+  weapon_archerset: { id: 'weapon_archerset', name: '바람추적자의 활', type: 'weapon', weaponType: 'bow', rarity: 'epic', atkBonus: 18, weight: 4 },
+
+  armor_top_mageset: { id: 'armor_top_mageset', name: '대현자의 로브', type: 'armor_top', rarity: 'epic', armorClass: 'cloth', defBonus: 5, hpBonus: 28, weight: 5, strRequirement: 9, wisRequirement: 14 },
+  armor_bottom_mageset: { id: 'armor_bottom_mageset', name: '대현자의 로브 하의', type: 'armor_bottom', rarity: 'epic', armorClass: 'cloth', defBonus: 3, hpBonus: 18, weight: 3, strRequirement: 9, wisRequirement: 14 },
+  necklace_mageset: { id: 'necklace_mageset', name: '대현자의 목걸이', type: 'necklace', rarity: 'epic', intBonus: 4, hpBonus: 20, weight: 0.3 },
+  ring_mageset: { id: 'ring_mageset', name: '대현자의 반지', type: 'ring', rarity: 'epic', atkBonus: 6, intBonus: 3, weight: 0.2 },
+  weapon_mageset: { id: 'weapon_mageset', name: '대현자의 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'epic', atkBonus: 18, weight: 4 },
+
+  armor_top_priestset: { id: 'armor_top_priestset', name: '대주교 성의', type: 'armor_top', rarity: 'epic', armorClass: 'cloth', defBonus: 5, hpBonus: 30, weight: 5, strRequirement: 9, wisRequirement: 14 },
+  armor_bottom_priestset: { id: 'armor_bottom_priestset', name: '대주교 성의 하의', type: 'armor_bottom', rarity: 'epic', armorClass: 'cloth', defBonus: 3, hpBonus: 20, weight: 3, strRequirement: 9, wisRequirement: 14 },
+  necklace_priestset: { id: 'necklace_priestset', name: '대주교의 목걸이', type: 'necklace', rarity: 'epic', wisBonus: 4, hpBonus: 25, weight: 0.3 },
+  ring_priestset: { id: 'ring_priestset', name: '대주교의 반지', type: 'ring', rarity: 'epic', wisBonus: 3, defBonus: 3, weight: 0.2 },
+  weapon_priestset: { id: 'weapon_priestset', name: '대주교의 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'epic', atkBonus: 16, weight: 4 },
+
   // 랜덤박스 - 상점에서 골드로 직접 뽑기(박스 자체는 인벤토리에 안 쌓이고 즉시 결과만 지급)
   random_box: { id: 'random_box', name: '수상한 상자', type: 'randombox', rarity: 'normal', shopPrice: 150, weight: 0 },
 };
@@ -143,6 +192,46 @@ export const ZONE_SET_ITEMS = Object.entries(SET_BONUSES).reduce((acc, [setId, d
   acc[def.zoneId] = [`ring_set_${def.zoneId}`, `necklace_set_${def.zoneId}`];
   return acc;
 }, {});
+
+// 5피스 풀세트 정의 - 상의/하의/목걸이/반지 4개는 고정이고, 5번째 자리(altSlot)는 방패 또는 무기 중
+// 하나만 있어도 세트 완성으로 인정됨(방패는 물리 직업만 착용 가능해서 캐스터는 무기 쪽으로 맞춤).
+// 지역 한정이 아니라 아무 지역 유니크/레전더리몹에서나 낮은 확률로 조각이 드랍됨(rpg-combat.js 참고)
+export const FULL_SET_DEFS = {
+  heavy_set: {
+    name: '중량방어구 세트',
+    pieces: ['armor_top_heavyset', 'armor_bottom_heavyset', 'necklace_heavyset', 'ring_heavyset'],
+    altSlotPieces: ['shield_heavyset', 'weapon_heavyset'], // 둘 중 하나만 있어도 됨
+    bonus: { elementDefense: 'all' },
+  },
+  warrior_set: {
+    name: '용맹한 전사 세트', classId: 'warrior',
+    pieces: ['armor_top_warriorset', 'armor_bottom_warriorset', 'necklace_warriorset', 'ring_warriorset'],
+    altSlotPieces: ['shield_warriorset'],
+    bonus: { atkBonus: 10, defBonus: 6 },
+  },
+  archer_set: {
+    name: '바람추적자 세트', classId: 'archer',
+    pieces: ['armor_top_archerset', 'armor_bottom_archerset', 'necklace_archerset', 'ring_archerset'],
+    altSlotPieces: ['weapon_archerset'],
+    bonus: { doubleAttackChance: 0.1, agiBonus: 3 },
+  },
+  mage_set: {
+    name: '대현자 세트', classId: 'mage',
+    pieces: ['armor_top_mageset', 'armor_bottom_mageset', 'necklace_mageset', 'ring_mageset'],
+    altSlotPieces: ['weapon_mageset'],
+    bonus: { intBonus: 5, atkBonus: 8 },
+  },
+  priest_set: {
+    name: '대주교 세트', classId: 'priest',
+    pieces: ['armor_top_priestset', 'armor_bottom_priestset', 'necklace_priestset', 'ring_priestset'],
+    altSlotPieces: ['weapon_priestset'],
+    bonus: { wisBonus: 5, severeInjuryResist: 0.15 },
+  },
+};
+
+// 풀세트에 속한 모든 조각 itemId 목록(드랍 풀에 사용)
+export const ALL_FULL_SET_ITEM_IDS = Object.values(FULL_SET_DEFS)
+  .flatMap((def) => [...def.pieces, ...def.altSlotPieces]);
 
 // NPC 헐값 매입가 계산 — 정가가 있으면 그 30%, 없으면(드랍 전용 재료 등) 등급별 고정가
 const RARITY_SELL_FALLBACK = { normal: 5, uncommon: 15, rare: 40, epic: 100, legendary: 250 };
