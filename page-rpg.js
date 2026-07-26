@@ -249,14 +249,19 @@ async function renderCharacterSelect(container) {
           // 상태라 "새 캐릭터 생성"과 똑같이 취급함(선택을 안 했으니 눈에 보이는 변화도 없어야 함)
           const isBlank = !s.exists || !s.classMain;
           return isBlank ? `
-          <button class="rpg-slot-btn" data-slot="${s.slot}">
-            <div class="rpg-class-name">슬롯 ${s.slot} — 새 캐릭터 생성</div>
-          </button>
+          <div class="rpg-slot-block">
+            <button class="rpg-slot-btn" data-slot="${s.slot}">
+              <div class="rpg-class-name">슬롯 ${s.slot} — 새 캐릭터 생성</div>
+            </button>
+          </div>
         ` : `
-          <button class="rpg-slot-btn" data-slot="${s.slot}">
-            <div class="rpg-class-name">슬롯 ${s.slot} — Lv.${s.level} ${(CLASSES[s.classMain] || {}).name}</div>
-            <div class="rpg-class-skills">${s.gold}골드</div>
-          </button>
+          <div class="rpg-slot-block">
+            <button class="rpg-slot-btn" data-slot="${s.slot}">
+              <div class="rpg-class-name">슬롯 ${s.slot} — Lv.${s.level} ${(CLASSES[s.classMain] || {}).name}</div>
+              <div class="rpg-class-skills">${s.gold}골드</div>
+            </button>
+            <button class="rpg-slot-delete-btn" data-slot="${s.slot}">이 캐릭터 삭제</button>
+          </div>
         `;
         }).join('')}
       </div>
@@ -275,6 +280,17 @@ async function renderCharacterSelect(container) {
     }
     activeSlot = slot;
     renderRpgPage(container);
+  }));
+  container.querySelectorAll('.rpg-slot-delete-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const slot = Number(btn.dataset.slot);
+    if (!confirm(`슬롯 ${slot} 캐릭터를 정말 삭제할까요? 장비/인벤토리/골드/용병이 전부 사라지고 되돌릴 수 없습니다.`)) return;
+    try {
+      await apiPostRaw('delete-character', { slot });
+      showToast('캐릭터를 삭제했습니다');
+      renderCharacterSelect(container);
+    } catch (e) {
+      showToast(friendlyError(e));
+    }
   }));
 }
 
@@ -1058,9 +1074,9 @@ function renderCharacterTab(content, container) {
     <div class="rpg-char-info">
       <p>직업: ${cls ? cls.name : '-'}${subCls ? ` (부직업: ${subCls.name})` : ''}</p>
       <p>경험치: ${character.xp} / ${needed}</p>
-      <p>전투 스탠스:
-        <button class="rpg-stance-btn" data-stance="stable">안정형</button>
-        <button class="rpg-stance-btn" data-stance="aggressive">공격형</button>
+      <p>전투 스탠스 (스킬은 스탠스와 무관하게 항상 씀 — 이건 몹이 여럿일 때 누구부터 때릴지만 정함):
+        <button class="rpg-stance-btn" data-stance="stable">안정형(약한 몹부터)</button>
+        <button class="rpg-stance-btn" data-stance="aggressive">공격형(강한 몹부터)</button>
         (현재: ${character.stance === 'aggressive' ? '공격형' : '안정형'})
       </p>
       <p>진형:

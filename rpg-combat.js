@@ -30,6 +30,9 @@ function computeFullSetBonus(equipment) {
 }
 
 const MAX_ROUNDS_PER_ENCOUNTER = 40;
+// 패배해서 마을로 돌아오면 무료로 부활은 하지만 완전 회복은 아님 - 최대치의 이 비율만큼만 채워진 채로
+// 돌아옴(그래야 "졌다"는 느낌이 남고, 바로 다시 나가기 전에 회복할 동기가 생김)
+const DEFEAT_REVIVE_PCT = 0.3;
 const BASE_HP = 40;
 const HP_PER_LEVEL = 6;
 const VIT_HP_PER_LEVEL = 0.5; // VIT 1당, 레벨 1당 최대체력 +0.5 - 레벨이 오를수록 VIT 효과가 누적돼 커짐
@@ -127,6 +130,9 @@ function buildMonsterInstance(monsterId, zone, uniqueTier = 1) {
     goldMin: Math.round(def.goldMin * rewardMult),
     goldMax: Math.round(def.goldMax * rewardMult),
     dropTable: def.dropTable,
+    // 이니셔티브(행동순서) 계산용 속도 - 몹 데이터에 별도 speed 필드가 없어서 지역 변동폭(variance)
+    // 롤을 재사용해 그때그때 다르게 산출(기본 캐릭터 AGI 5~10대와 비슷한 범위가 되도록 스케일)
+    speed: Math.round(8 * variance),
   };
 }
 
@@ -405,8 +411,10 @@ function skillEffectivePower(actor, skill) {
 // otherMonsters: 같은 조우에서 아직 순서를 기다리는 나머지 몹들 - attack_all(광역) 스킬의 스플래시 대상
 function performAttack({ actor, monster, otherMonsters, sharedInventory, log, isUnderleveled, partyBuffs }) {
   const combatStats = actor.combatStats;
+  // 스킬은 스탠스와 무관하게 자원이 되는 한 항상 씀(안 쓰는 건 불리해지기만 할 뿐 "방어적"인 게 아님) -
+  // 스탠스는 대신 몹 타겟 우선순위(약한 몹부터/강한 몹부터)를 결정함(resolveCombat 참고)
   const skills = combatStats.classDef.skills.filter((s) => (s.type === 'attack' || s.type === 'attack_all') && isSkillUsable(actor, s));
-  const useSkill = actor.stance === 'aggressive' && skills.length > 0;
+  const useSkill = skills.length > 0;
   const skill = useSkill ? skills[skills.length - 1] : null;
   let power = (skill ? skillEffectivePower(actor, skill) : 1.0) * partyBuffs.atkMult; // 마법사의 "무기 강화" 버프가 파티 전체에 적용됨
   if (skill) spendActorResource(actor, skill.manaCost);
@@ -533,7 +541,6 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
 // 공격이 아닌 스킬(치유/저주/파티버프) 사용 시도 - 사용했으면 true를 반환(이번 라운드 이 배우는 공격 안 함).
 // 우선순위: 치유(다친 아군 있을 때) > 저주(몹 미저주 상태) > 파티 버프(공격력/방어력/멘탈, 전투당 1회씩만)
 function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
-  if (actor.stance !== 'aggressive') return false;
   const alive = party.filter((p) => p.alive && p.hp > 0);
 
   const healSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'heal_ally' && isSkillUsable(actor, s));
@@ -590,9 +597,12 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
   return false;
 }
 
-// 전투 전체(파티 vs 무리 몹 순차 처리) 판정 - 결과만 반환, 아무것도 저장하지 않음.
-// character.mercenaries(있다면, 최대 2명)가 자동으로 파티에 합류함 - 진형(formationRow)에 따라
-// 몹은 전열(front)이 살아있는 한 전열부터 공격, 전열이 전멸하면 후열을 공격
+// 전투 전체(파티 vs 몹 무리 동시 전투) 판정 - 결과만 반환, 아무것도 저장하지 않음.
+// character.mercenaries(있다면, 최대 2명)가 자동으로 파티에 합류함. 몹 무리는 순차 처리가 아니라
+// 전부 동시에 "살아있는" 상태로 등장하고, 매 라운드 파티원+몹 전원이 속도(AGI/몹 속도) 기준
+// 이니셔티브 순서로 한 번씩 행동함(발더스게이트류 개별 행동순서). 파티원 공격은 몹 중 "현재 체력이
+// 가장 낮은" 개체를 자동으로 골라 때리고(약한 몹부터 정리), 몹의 반격 대상은 기존과 동일하게
+// 전열(front)이 살아있는 한 전열부터 맞음(진형은 "누가 맞아주냐"만 결정, "누가 때리냐"는 무관)
 export function resolveCombat({ character, zoneId, stance }) {
   const encounter = rollEncounter(zoneId, (character.zoneKillCounts || {})[zoneId] || 0);
   const monsters = encounter.monsterIds.map((id) => buildMonsterInstance(id, encounter.zone, encounter.uniqueTier));
@@ -610,6 +620,7 @@ export function resolveCombat({ character, zoneId, stance }) {
   // 마법사/성직자의 파티 버프 - 한 번 발동하면 이 전투(모험) 내내 유지됨(재시전으로 갱신 안 됨, 1회성)
   const partyBuffs = { atkMult: 1, defMult: 1, mentalBonus: 0 };
   const log = [`${encounter.zone.name}에 진입했다.`];
+  monsters.forEach((m) => log.push(`${m.name}${m.rare && m.uniqueTier === 1 ? '(희귀)' : ''}이(가) 나타났다!`));
   let totalXp = 0;
   let totalGold = 0;
   const loot = [];
@@ -618,27 +629,76 @@ export function resolveCombat({ character, zoneId, stance }) {
   let victory = true;
 
   const alivePartyMembers = () => party.filter((p) => p.alive && p.hp > 0);
+  const aliveMonsters = () => monsters.filter((m) => m.hp > 0);
   const pickMonsterTarget = () => {
     const alive = alivePartyMembers();
     const front = alive.filter((p) => p.formationRow === 'front');
     const pool = front.length ? front : alive;
     return pool[randInt(0, pool.length - 1)];
   };
+  // 파티원의 공격 대상 - 스탠스가 타겟 우선순위를 결정함. 안정형(stable)은 체력이 가장 낮은 몹부터
+  // 정리(약한 순), 공격형(aggressive)은 체력이 가장 높은(가장 위협적인) 몹부터 노림(강한 순)
+  const pickMonsterByStance = (stance) => {
+    const alive = aliveMonsters();
+    if (!alive.length) return null;
+    if (stance === 'aggressive') return alive.reduce((max, m) => (m.hp > max.hp ? m : max), alive[0]);
+    return alive.reduce((min, m) => (m.hp < min.hp ? m : min), alive[0]);
+  };
+  const handleMonsterDeath = (monster) => {
+    log.push(`${monster.name}을(를) 쓰러뜨렸다.`);
+    totalXp += monster.xp;
+    totalGold += randInt(monster.goldMin, monster.goldMax);
+    loot.push(...rollLoot(monster));
+    // 직업훈련소 결정 - 몹 종류 무관, 본인 직업에 맞는 결정이 일정 확률로 드랍
+    const essenceItemId = CLASS_ESSENCE_ITEM[character.classMain];
+    if (essenceItemId && Math.random() < ESSENCE_DROP_CHANCE) {
+      loot.push({ itemId: essenceItemId, qty: 1 });
+      log.push(`${ITEMS[essenceItemId].name}을(를) 얻었다.`);
+    }
+    // 레어/유니크/레전더리몹 전용 - 대장간 강화석이 낮은 확률로 드랍(단계가 높을수록 더 잘 나옴)
+    if (monster.rare && Math.random() < RARE_MONSTER_STONE_DROP_CHANCE * (monster.uniqueTier || 1)) {
+      loot.push({ itemId: 'enhance_stone', qty: monster.uniqueTier >= 3 ? 2 : 1 });
+      log.push(`${ITEMS.enhance_stone.name}을(를) 얻었다!`);
+    }
+    // 그 지역 유니크(2단계)/레전더리(3단계) 몹만 아주 낮은 확률로 세트 아이템 한 짝을 드랍 -
+    // 반지/목걸이 중 무작위 하나. 유저간 마켓 거래로 나머지 한 짝을 구해 세트를 맞출 수 있음
+    if (monster.uniqueTier >= 2 && Math.random() < SET_ITEM_DROP_CHANCE) {
+      const setPieces = ZONE_SET_ITEMS[zoneId];
+      if (setPieces) {
+        const pieceItemId = setPieces[randInt(0, setPieces.length - 1)];
+        loot.push({ itemId: pieceItemId, qty: 1 });
+        log.push(`${ITEMS[pieceItemId].name}을(를) 얻었다!! 세트 아이템이다!`);
+      }
+    }
+    // 5피스 풀세트(중량방어구/직업별 세트) 조각 - 지역 무관, 아무 유니크/레전더리몹에서나 드랍
+    if (monster.uniqueTier >= 2 && Math.random() < FULL_SET_ITEM_DROP_CHANCE) {
+      const pieceItemId = ALL_FULL_SET_ITEM_IDS[randInt(0, ALL_FULL_SET_ITEM_IDS.length - 1)];
+      loot.push({ itemId: pieceItemId, qty: 1 });
+      log.push(`${ITEMS[pieceItemId].name}을(를) 얻었다!! 세트 아이템이다!`);
+    }
+    killedMonsterIds.push(monster.id);
+  };
 
   outer:
-  for (const monster of monsters) {
-    log.push(`${monster.name}${monster.rare && monster.uniqueTier === 1 ? '(희귀)' : ''}이(가) 나타났다!`);
-    while (monster.hp > 0) {
-      rounds++;
-      if (rounds > MAX_ROUNDS_PER_ENCOUNTER) { victory = false; log.push('너무 지쳐 전투를 중단했다.'); break outer; }
-      if (!alivePartyMembers().length) { victory = false; log.push('파티가 전멸했다...'); break outer; }
+  while (aliveMonsters().length) {
+    rounds++;
+    if (rounds > MAX_ROUNDS_PER_ENCOUNTER) { victory = false; log.push('너무 지쳐 전투를 중단했다.'); break outer; }
+    if (!alivePartyMembers().length) { victory = false; log.push('파티가 전멸했다...'); break outer; }
 
-      let monsterDied = false;
-      let lastAffinity = null;
-      let anyKiting = false;
-      for (const actor of party) {
-        if (!actor.alive || actor.hp <= 0) continue;
-        if (monster.hp <= 0) break;
+    // 이니셔티브 순서 - 속도(민첩/몹 속도)가 높을수록 먼저 행동. 매 라운드 다시 굴려서 소폭의
+    // 변동(지터)을 줌 - 완전히 고정된 턴 순서가 되지 않게
+    const initiative = [
+      ...alivePartyMembers().map((p) => ({ kind: 'party', ref: p, roll: p.combatStats.agi + Math.random() * 3 })),
+      ...aliveMonsters().map((m) => ({ kind: 'monster', ref: m, roll: m.speed + Math.random() * 3 })),
+    ].sort((a, b) => b.roll - a.roll);
+
+    let anyKiting = false;
+    for (const entry of initiative) {
+      if (!alivePartyMembers().length || !aliveMonsters().length) break;
+
+      if (entry.kind === 'party') {
+        const actor = entry.ref;
+        if (actor.hp <= 0) continue;
 
         const potionResult = maybeUsePotion({
           potionRules: actor.potionRules, inventory: sharedInventory,
@@ -655,77 +715,42 @@ export function resolveCombat({ character, zoneId, stance }) {
           if (potionResult.kind === 'stamina') actor.stamina = Math.min(actor.combatStats.maxStamina, actor.stamina + potionResult.amount);
         }
 
-        if (tryUtilitySkill({ actor, party, monster, log, partyBuffs })) continue;
+        const target = pickMonsterByStance(actor.stance);
+        if (!target) continue;
+        if (tryUtilitySkill({ actor, party, monster: target, log, partyBuffs })) continue;
 
-        const otherMonsters = monsters.filter((m) => m !== monster);
-        const result = performAttack({ actor, monster, otherMonsters, sharedInventory, log, isUnderleveled, partyBuffs });
+        const otherMonsters = monsters.filter((m) => m !== target);
+        const result = performAttack({ actor, monster: target, otherMonsters, sharedInventory, log, isUnderleveled, partyBuffs });
         if (result.isKiting) anyKiting = true;
-        lastAffinity = result.affinity || lastAffinity;
-        if (result.monsterDied) monsterDied = true;
-      }
-
-      if (monsterDied) {
-        log.push(`${monster.name}을(를) 쓰러뜨렸다.`);
-        totalXp += monster.xp;
-        totalGold += randInt(monster.goldMin, monster.goldMax);
-        loot.push(...rollLoot(monster));
-        // 직업훈련소 결정 - 몹 종류 무관, 본인 직업에 맞는 결정이 일정 확률로 드랍
-        const essenceItemId = CLASS_ESSENCE_ITEM[character.classMain];
-        if (essenceItemId && Math.random() < ESSENCE_DROP_CHANCE) {
-          loot.push({ itemId: essenceItemId, qty: 1 });
-          log.push(`${ITEMS[essenceItemId].name}을(를) 얻었다.`);
-        }
-        // 레어/유니크/레전더리몹 전용 - 대장간 강화석이 낮은 확률로 드랍(단계가 높을수록 더 잘 나옴)
-        if (monster.rare && Math.random() < RARE_MONSTER_STONE_DROP_CHANCE * (monster.uniqueTier || 1)) {
-          loot.push({ itemId: 'enhance_stone', qty: monster.uniqueTier >= 3 ? 2 : 1 });
-          log.push(`${ITEMS.enhance_stone.name}을(를) 얻었다!`);
-        }
-        // 그 지역 유니크(2단계)/레전더리(3단계) 몹만 아주 낮은 확률로 세트 아이템 한 짝을 드랍 -
-        // 반지/목걸이 중 무작위 하나. 유저간 마켓 거래로 나머지 한 짝을 구해 세트를 맞출 수 있음
-        if (monster.uniqueTier >= 2 && Math.random() < SET_ITEM_DROP_CHANCE) {
-          const setPieces = ZONE_SET_ITEMS[zoneId];
-          if (setPieces) {
-            const pieceItemId = setPieces[randInt(0, setPieces.length - 1)];
-            loot.push({ itemId: pieceItemId, qty: 1 });
-            log.push(`${ITEMS[pieceItemId].name}을(를) 얻었다!! 세트 아이템이다!`);
-          }
-        }
-        // 5피스 풀세트(중량방어구/직업별 세트) 조각 - 지역 무관, 아무 유니크/레전더리몹에서나 드랍
-        if (monster.uniqueTier >= 2 && Math.random() < FULL_SET_ITEM_DROP_CHANCE) {
-          const pieceItemId = ALL_FULL_SET_ITEM_IDS[randInt(0, ALL_FULL_SET_ITEM_IDS.length - 1)];
-          loot.push({ itemId: pieceItemId, qty: 1 });
-          log.push(`${ITEMS[pieceItemId].name}을(를) 얻었다!! 세트 아이템이다!`);
-        }
-        killedMonsterIds.push(monster.id);
-        break;
-      }
-
-      // 몹의 반격 대상 선정 - 화살로 카이팅 중이고 비원거리 몹이면 이번 라운드는 아무도 맞지 않음
-      if (anyKiting && !monster.ranged) {
-        log.push(`화살로 거리를 벌려 ${monster.name}의 접근을 막았다!`);
+        if (result.monsterDied) handleMonsterDeath(target);
       } else {
+        const monster = entry.ref;
+        if (monster.hp <= 0) continue;
+        // 화살로 카이팅 중이고 비원거리 몹이면 이 몹의 반격은 무효
+        if (anyKiting && !monster.ranged) {
+          log.push(`화살로 거리를 벌려 ${monster.name}의 접근을 막았다!`);
+          continue;
+        }
         const target = pickMonsterTarget();
-        if (target) performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit: lastAffinity, partyBuffs });
+        if (target) performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit: null, partyBuffs });
       }
-
-      if (!alivePartyMembers().length) { victory = false; log.push('파티가 전멸했다...'); break outer; }
     }
   }
 
   const selfCombatant = party[0];
   const mercResults = party.slice(1).map((actor) => {
-    // 패배해도 페널티 없이 즉시 부활(풀피/풀마나/풀스테미나) - 아이템은 그대로 유지
-    const finalHp = victory ? Math.max(0, actor.hp) : actor.combatStats.maxHp;
-    const finalMp = victory ? Math.max(0, actor.mp) : actor.combatStats.maxMp;
-    const finalStamina = victory ? Math.max(0, actor.stamina) : actor.combatStats.maxStamina;
+    // 패배하면 죽지는 않고 마을로 돌아오지만(무료 부활), 완전 회복은 아니고 최대치의 일부만 채워짐
+    const finalHp = victory ? Math.max(0, actor.hp) : Math.round(actor.combatStats.maxHp * DEFEAT_REVIVE_PCT);
+    const finalMp = victory ? Math.max(0, actor.mp) : Math.round(actor.combatStats.maxMp * DEFEAT_REVIVE_PCT);
+    const finalStamina = victory ? Math.max(0, actor.stamina) : Math.round(actor.combatStats.maxStamina * DEFEAT_REVIVE_PCT);
     return {
       id: actor.id, arrowsUsed: actor.arrowsUsed, newInjuries: actor.newInjuries,
       finalHp, finalMp, finalStamina, finalHpPct: Math.max(0, Math.round((finalHp / actor.combatStats.maxHp) * 100)),
     };
   });
-  const selfFinalHp = victory ? Math.max(0, selfCombatant.hp) : selfCombatant.combatStats.maxHp;
-  const selfFinalMp = victory ? Math.max(0, selfCombatant.mp) : selfCombatant.combatStats.maxMp;
-  const selfFinalStamina = victory ? Math.max(0, selfCombatant.stamina) : selfCombatant.combatStats.maxStamina;
+  const selfFinalHp = victory ? Math.max(0, selfCombatant.hp) : Math.round(selfCombatant.combatStats.maxHp * DEFEAT_REVIVE_PCT);
+  const selfFinalMp = victory ? Math.max(0, selfCombatant.mp) : Math.round(selfCombatant.combatStats.maxMp * DEFEAT_REVIVE_PCT);
+  const selfFinalStamina = victory ? Math.max(0, selfCombatant.stamina) : Math.round(selfCombatant.combatStats.maxStamina * DEFEAT_REVIVE_PCT);
 
   return {
     log, victory, isRareEncounter: encounter.isRare, zoneId,

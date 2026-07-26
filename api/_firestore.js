@@ -119,6 +119,14 @@ export async function firestoreSetDoc(docPath, data) {
   return res.json();
 }
 
+// 문서를 완전히 삭제 (존재하지 않아도 에러 없이 조용히 통과)
+export async function firestoreDeleteDoc(docPath) {
+  const token = await getFirestoreAccessToken();
+  const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/${docPath}`;
+  const res = await fetch(url, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  if (!res.ok && res.status !== 404) throw new Error(`Firestore delete failed: ${res.status}`);
+}
+
 // firestoreGetDoc과 동일하지만, 낙관적 동시성 제어에 쓸 updateTime도 함께 반환
 export async function firestoreGetDocWithMeta(docPath) {
   const token = await getFirestoreAccessToken();

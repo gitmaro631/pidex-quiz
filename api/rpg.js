@@ -44,6 +44,7 @@ import claimCastle from './_rpg/claim-castle.js';
 import claimCastleIncome from './_rpg/claim-castle-income.js';
 import trainRepairSkill from './_rpg/train-repair-skill.js';
 import selfRepairEquipment from './_rpg/self-repair-equipment.js';
+import deleteCharacter from './_rpg/delete-character.js';
 
 const ROUTES = {
   character, adventure,
@@ -73,6 +74,7 @@ const ROUTES = {
   'claim-castle-income': claimCastleIncome,
   'train-repair-skill': trainRepairSkill,
   'self-repair-equipment': selfRepairEquipment,
+  'delete-character': deleteCharacter,
 };
 
 export default async function handler(req, res) {
