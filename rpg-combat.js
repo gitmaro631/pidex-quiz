@@ -124,6 +124,11 @@ function buildMonsterInstance(monsterId, zone, uniqueTier = 1) {
     element: def.element, tags: def.tags || [], rare: !!def.rare, uniqueTier,
     statusImmune: !!def.statusImmune, poisonChance: def.poisonChance || 0, ambushChance: def.ambushChance || 0,
     ranged: !!def.ranged,
+    // targetPriority - 이 몹이 매 공격 대상을 고르는 방식(기본 'front'=진형 우선순위). skills는
+    // 매 라운드 기본공격 대신 확률적으로 나가는 특수기(공격/전체공격/자가치유) - tryMonsterSkill 참고
+    targetPriority: def.targetPriority || 'front',
+    skills: def.skills || [],
+    skillCooldowns: {},
     maxHp: Math.round(def.baseStats.hp * variance * statMult),
     hp: Math.round(def.baseStats.hp * variance * statMult),
     atk: Math.round(def.baseStats.atk * variance * statMult),
@@ -660,10 +665,49 @@ export function resolveCombat({ character, zoneId, stance }) {
 
   const alivePartyMembers = () => party.filter((p) => p.alive && p.hp > 0);
   const aliveMonsters = () => monsters.filter((m) => m.hp > 0);
-  const pickMonsterTarget = () => {
+  // 몹마다 다른 방식으로 파티 공격대상을 고름(targetPriority, monsters.js 참고):
+  // front(기본, 진형 우선순위) / lowest_hp(약한 상대 마무리) / highest_atk(가장 위협적인 상대부터) / random(무작위)
+  const pickMonsterTarget = (monster) => {
     const alive = alivePartyMembers();
+    if (!alive.length) return null;
+    const priority = monster.targetPriority || 'front';
+    if (priority === 'lowest_hp') return alive.reduce((min, p) => (p.hp < min.hp ? p : min), alive[0]);
+    if (priority === 'highest_atk') return alive.reduce((max, p) => (p.combatStats.atk > max.combatStats.atk ? p : max), alive[0]);
+    if (priority === 'random') return alive[randInt(0, alive.length - 1)];
     const pool = FORMATION_ROWS.map((row) => alive.filter((p) => p.formationRow === row)).find((rowMembers) => rowMembers.length) || alive;
     return pool[randInt(0, pool.length - 1)];
+  };
+  // 몹의 특수기 - 매 라운드 기본공격 전에 확률+쿨다운으로 판정, 나가면 이번 라운드 기본공격은 생략
+  const tryMonsterSkill = (monster) => {
+    for (const skill of monster.skills) {
+      if ((monster.skillCooldowns[skill.id] || 0) > 0) continue;
+      if (Math.random() >= (skill.chance ?? 0.3)) continue;
+      monster.skillCooldowns[skill.id] = skill.cooldownRounds ?? 3;
+      if (skill.type === 'heal_self') {
+        const healAmount = Math.round(monster.maxHp * (skill.healPct ?? 0.15));
+        monster.hp = Math.min(monster.maxHp, monster.hp + healAmount);
+        log.push(`${monster.name}의 ${skill.name}! 체력을 ${healAmount} 회복했다.`);
+        return true;
+      }
+      if (skill.type === 'attack_all') {
+        const alive = alivePartyMembers();
+        alive.forEach((target) => {
+          const dmg = Math.max(1, Math.round((monster.atk * (skill.powerMult ?? 1.3) - target.combatStats.def * partyBuffs.defMult) * randRange(0.85, 1.15)));
+          target.hp -= dmg;
+        });
+        log.push(`${monster.name}의 ${skill.name}! 파티 전체에게 피해를 입혔다.`);
+        return true;
+      }
+      if (skill.type === 'attack') {
+        const target = pickMonsterTarget(monster);
+        if (!target) return false;
+        const dmg = Math.max(1, Math.round((monster.atk * (skill.powerMult ?? 1.6) - target.combatStats.def * partyBuffs.defMult) * randRange(0.85, 1.15)));
+        target.hp -= dmg;
+        log.push(`${monster.name}의 ${skill.name}! ${target.label}에게 ${dmg} 피해.`);
+        return true;
+      }
+    }
+    return false;
   };
   // 파티원의 공격 대상 - 스탠스가 타겟 우선순위를 결정함. 안정형(stable)은 체력이 가장 낮은 몹부터
   // 정리(약한 순), 공격형(aggressive)은 체력이 가장 높은(가장 위협적인) 몹부터 노림(강한 순)
@@ -713,6 +757,9 @@ export function resolveCombat({ character, zoneId, stance }) {
     rounds++;
     if (rounds > MAX_ROUNDS_PER_ENCOUNTER) { victory = false; log.push('너무 지쳐 전투를 중단했다.'); break outer; }
     if (!alivePartyMembers().length) { victory = false; log.push('파티가 전멸했다...'); break outer; }
+    aliveMonsters().forEach((m) => {
+      for (const skillId in m.skillCooldowns) if (m.skillCooldowns[skillId] > 0) m.skillCooldowns[skillId]--;
+    });
 
     // 이니셔티브 순서 - 속도(민첩/몹 속도)가 높을수록 먼저 행동. 매 라운드 다시 굴려서 소폭의
     // 변동(지터)을 줌 - 완전히 고정된 턴 순서가 되지 않게
@@ -760,7 +807,8 @@ export function resolveCombat({ character, zoneId, stance }) {
           log.push(`화살로 거리를 벌려 ${monster.name}의 접근을 막았다!`);
           continue;
         }
-        const target = pickMonsterTarget();
+        if (tryMonsterSkill(monster)) continue;
+        const target = pickMonsterTarget(monster);
         if (target) performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit: null, partyBuffs, party });
       }
     }
