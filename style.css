@@ -1309,7 +1309,7 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
 }
 .rpg-inv-actions { display: flex; gap: 4px; flex-wrap: wrap; }
 .rpg-buy-btn, .rpg-inv-use, .rpg-inv-equip, .rpg-inv-sell, .rpg-inv-list,
-.rpg-stance-btn, .rpg-stat-btn, .rpg-unequip-btn {
+.rpg-stance-btn, .rpg-stat-btn, .rpg-unequip-btn, .rpg-quest-claim-btn {
   background: #6366f1; color: #fff; border: none; border-radius: 6px;
   padding: 5px 10px; font-size: 12px; cursor: pointer;
 }
@@ -1327,7 +1327,7 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
   background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px;
   padding: 10px 14px;
 }
-.rpg-quest-claim-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.rpg-quest-claim-btn:disabled { background: #4b5563; color: rgba(255,255,255,0.85); cursor: not-allowed; }
 .rpg-board-list { margin-bottom: 8px; max-height: 200px; overflow-y: auto; }
 .rpg-board-form { display: flex; gap: 6px; margin-bottom: 14px; }
 .rpg-board-input {
