@@ -15,6 +15,7 @@ import { MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRIT
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
 import { CASTLE_CLEAR_REQUIREMENT } from './data/rpg/castle.js';
+import { computeCureCost } from './data/rpg/injuries.js';
 
 function isMeleeClass(classId) {
   const cls = CLASSES[classId];
@@ -482,10 +483,11 @@ function questRowHtml(questId) {
 function cureRowHtml(name, part, injury, mercId) {
   const severityLabel = injury.severity === 2 ? '중상' : '경상';
   const mercAttr = mercId ? ` data-merc="${mercId}"` : '';
+  const cost = computeCureCost(injury);
   return `
     <div class="rpg-shop-row">
       <span>${name} - ${BODY_PART_NAMES[part]} ${severityLabel} (남은 ${injury.turnsLeft}턴)</span>
-      <button class="rpg-cure-btn" data-part="${part}"${mercAttr}>치료</button>
+      <button class="rpg-cure-btn" data-part="${part}"${mercAttr}>치료 (${cost}골드)</button>
     </div>
   `;
 }

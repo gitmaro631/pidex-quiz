@@ -3,9 +3,7 @@
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
-
-const COST_PER_TURN = 3;
-const SEVERITY_COST_MULT = { 1: 1, 2: 2 };
+import { computeCureCost } from '../../data/rpg/injuries.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -34,7 +32,7 @@ export default async function handler(req, res) {
       const injury = injuries[part] || { severity: 0, turnsLeft: 0 };
       if (!injury.severity) { outcome = { error: 'no_injury' }; return null; }
 
-      const cost = Math.max(5, Math.ceil(injury.turnsLeft * COST_PER_TURN * (SEVERITY_COST_MULT[injury.severity] || 1)));
+      const cost = computeCureCost(injury);
       if ((character.gold || 0) < cost) { outcome = { error: 'not_enough_gold' }; return null; }
 
       const nextInjuries = { ...injuries, [part]: { severity: 0, turnsLeft: 0 } };
