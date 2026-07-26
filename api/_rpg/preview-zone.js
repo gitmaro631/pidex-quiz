@@ -1,0 +1,87 @@
+// 사냥터 진입 미리보기 - 지역을 고르면 몹 구성을 먼저 보여주고, 그 구성 그대로 전투를 시작함
+// ("보이는 게 곧 싸울 상대"). 처음 보는 건 무료, 마음에 안 들어서 새로고침(다시 굴리기)하려면
+// 턴포인트 1을 쓰고 실시간 1시간에 한 번만 가능함. adventure.js가 이 미리보기를 그대로 소비함.
+import { verifyPiUser } from '../_verifyPiUser.js';
+import { withFirestoreTransaction } from '../_firestore.js';
+import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
+import { computeCurrentTurns } from '../_rpgTurns.js';
+import { ZONES } from '../../data/rpg/zones.js';
+import { MONSTERS } from '../../data/rpg/monsters.js';
+import { rollEncounter } from '../../rpg-combat.js';
+import { CASTLE_CLEAR_REQUIREMENT } from '../../data/rpg/castle.js';
+import { isAdminUsername } from '../_rpgAdmin.js';
+
+const REFRESH_COOLDOWN_MS = 60 * 60 * 1000; // 실시간 1시간
+
+function previewPayload(zonePreview) {
+  return {
+    zoneId: zonePreview.zoneId,
+    isRare: zonePreview.isRare,
+    uniqueTier: zonePreview.uniqueTier,
+    lastRefreshAt: zonePreview.lastRefreshAt,
+    canRefreshAt: zonePreview.lastRefreshAt + REFRESH_COOLDOWN_MS,
+    monsters: zonePreview.monsterIds.map((id) => {
+      const def = MONSTERS[id];
+      return { monsterId: id, name: def ? def.name : id, tags: def ? def.tags : [] };
+    }),
+  };
+}
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  const { accessToken, slot, zoneId, refresh } = req.body;
+  const username = await verifyPiUser(accessToken);
+  if (!username) return res.status(401).json({ error: 'invalid accessToken' });
+  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  const zone = ZONES[zoneId];
+  if (!zone) return res.status(400).json({ error: 'invalid zoneId' });
+  const isAdmin = isAdminUsername(username);
+
+  let outcome = null;
+  try {
+    const docPath = characterDocPath(username, slot);
+    await withFirestoreTransaction(docPath, (current) => {
+      const character = current || defaultCharacter(slot);
+      const now = Date.now();
+      if (zone.unlockZoneId && ((character.zoneClearCounts || {})[zone.unlockZoneId] || 0) < CASTLE_CLEAR_REQUIREMENT) {
+        outcome = { error: 'zone_locked' }; return null;
+      }
+
+      const existing = character.zonePreview;
+      const sameZoneExisting = existing && existing.zoneId === zoneId;
+
+      if (refresh) {
+        if (!sameZoneExisting) { outcome = { error: 'no_preview_to_refresh' }; return null; }
+        const remainingCooldown = REFRESH_COOLDOWN_MS - (now - (existing.lastRefreshAt || 0));
+        if (remainingCooldown > 0) { outcome = { error: 'refresh_on_cooldown' }; return null; }
+        const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now);
+        if (!isAdmin && turns < 1) { outcome = { error: 'not_enough_turns' }; return null; }
+
+        const encounter = rollEncounter(zoneId, (character.zoneKillCounts || {})[zoneId] || 0);
+        const nextZonePreview = {
+          zoneId, monsterIds: encounter.monsterIds, isRare: encounter.isRare, uniqueTier: encounter.uniqueTier, lastRefreshAt: now,
+        };
+        const nextTurns = isAdmin ? turns : turns - 1;
+        outcome = { preview: previewPayload(nextZonePreview), turnPoints: nextTurns };
+        return {
+          ...character, zonePreview: nextZonePreview, turnPoints: nextTurns, turnPointsUpdatedAt: now, updatedAt: now,
+        };
+      }
+
+      // 새로고침이 아니면: 같은 지역을 이미 보고 있었으면 그대로 재사용(공짜), 아니면 새로 무료로 하나 굴려줌
+      if (sameZoneExisting) { outcome = { preview: previewPayload(existing), turnPoints: character.turnPoints }; return null; }
+
+      const encounter = rollEncounter(zoneId, (character.zoneKillCounts || {})[zoneId] || 0);
+      const nextZonePreview = {
+        zoneId, monsterIds: encounter.monsterIds, isRare: encounter.isRare, uniqueTier: encounter.uniqueTier, lastRefreshAt: now,
+      };
+      outcome = { preview: previewPayload(nextZonePreview), turnPoints: character.turnPoints };
+      return { ...character, zonePreview: nextZonePreview, updatedAt: now };
+    });
+
+    if (outcome && outcome.error) return res.status(400).json({ error: outcome.error });
+    return res.status(200).json(outcome);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+}

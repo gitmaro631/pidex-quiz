@@ -4,6 +4,7 @@ import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
 import { computeCureCost } from '../../data/rpg/injuries.js';
+import { hospitalCostMultiplier } from '../../data/rpg/facilities.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -32,7 +33,7 @@ export default async function handler(req, res) {
       const injury = injuries[part] || { severity: 0, turnsLeft: 0 };
       if (!injury.severity) { outcome = { error: 'no_injury' }; return null; }
 
-      const cost = computeCureCost(injury);
+      const cost = Math.max(1, Math.round(computeCureCost(injury) * hospitalCostMultiplier(character)));
       if ((character.gold || 0) < cost) { outcome = { error: 'not_enough_gold' }; return null; }
 
       const nextInjuries = { ...injuries, [part]: { severity: 0, turnsLeft: 0 } };

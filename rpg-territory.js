@@ -25,7 +25,7 @@ export function settleTerritoryDays(character, daysToProcess) {
   const clearingWorkers = workingMercs.filter((m) => m.job === 'clearing');
 
   // 1) 농장 - 식량 생산은 항상 그대로 적립됨(다른 시설 사정과 무관)
-  const farmProduced = facilityAccrualRate(farmWorkers) * FOOD_PER_DAY_PER_FARMER * daysToProcess
+  const farmProduced = facilityAccrualRate(farmWorkers, 'farm') * FOOD_PER_DAY_PER_FARMER * daysToProcess
     * facilityBonusMultiplier(character, 'farm');
   const foodAfterProduction = (character.foodStock || 0) + farmProduced;
 
@@ -43,7 +43,7 @@ export function settleTerritoryDays(character, daysToProcess) {
   const leveledUp = [];
   for (const jobId of Object.keys(TERRITORY_JOBS)) {
     const mercsForJob = workingMercs.filter((m) => m.job === jobId);
-    nextFacilityDays[jobId] = (nextFacilityDays[jobId] || 0) + facilityAccrualRate(mercsForJob) * daysToProcess;
+    nextFacilityDays[jobId] = (nextFacilityDays[jobId] || 0) + facilityAccrualRate(mercsForJob, jobId) * daysToProcess;
     const newLevel = facilityLevelForDays(nextFacilityDays[jobId]);
     if (newLevel > (prevLevels[jobId] || 0)) leveledUp.push({ jobId, name: TERRITORY_JOBS[jobId].name, level: newLevel });
     nextFacilityLevels[jobId] = newLevel;

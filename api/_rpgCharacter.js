@@ -37,7 +37,6 @@ export function defaultCharacter(slot, now = Date.now()) {
     turnPoints: turnCapForLevel(1),
     turnPointsUpdatedAt: now,
     stance: 'stable',
-    potionRules: [],
     zoneKillCounts: {},
     visitedZones: [],
     questFlags: {},
@@ -58,6 +57,7 @@ export function defaultCharacter(slot, now = Date.now()) {
     identifiedItems: [], // 한 번 감정(확인)된 아이템id 목록 - 이후로는 항상 실제 스탯이 보임
     zoneClearCounts: {}, // 지역별 모험 승리 누적(레어 pity용 zoneKillCounts와 별개) - 100 이상이면 성 도전 가능
     lastCastleIncomeClaimDate: null, // 성주 일일 수입 정산일(YYYY-MM-DD) - claim-castle-income.js 참고
+    zonePreview: null, // 지금 미리보기 중인 지역의 몹 구성(preview-zone.js가 생성, adventure.js가 소비 후 비움)
     createdAt: now,
     updatedAt: now,
   };
@@ -98,7 +98,6 @@ export function createMercenaryInstance(templateId, now = Date.now()) {
     mentalResist: template.mentalResist || 50,
     formationRow: isMelee ? 'front' : 'back',
     stance: 'stable',
-    potionRules: [],
     injuries: {
       arm: { severity: 0, turnsLeft: 0 },
       leg: { severity: 0, turnsLeft: 0 },

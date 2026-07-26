@@ -11,13 +11,13 @@ import { QUESTS } from './data/rpg/quests.js';
 import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
 import { computeCharacterCombatStats } from './rpg-combat.js';
-import { MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster } from './data/rpg/mercenaries.js';
+import { MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster, PLAYER_TERRITORY_BONUS_MULT } from './data/rpg/mercenaries.js';
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
 import { CASTLE_CLEAR_REQUIREMENT } from './data/rpg/castle.js';
 import { computeCureCost, REST_HEAL_TURN_COST_BY_SEVERITY } from './data/rpg/injuries.js';
 import { allowedFormationRows } from './rpg-combat.js';
-import { facilityProgress, MAX_MERCS_PER_FACILITY } from './data/rpg/facilities.js';
+import { facilityProgress, MAX_MERCS_PER_FACILITY, BASELINE_MERC_LEVEL } from './data/rpg/facilities.js';
 
 // api/ 아래 파일은 Vercel이 서버 함수 전용으로 취급해서 브라우저가 직접 fetch 못 함(404) -
 // 그래서 api/_rpgInventory.js를 import하는 대신, 이 로직들을 그대로 복제해서 씀
@@ -166,7 +166,6 @@ const ERROR_MESSAGES = {
   inventory_full: '인벤토리가 가득 찼습니다.',
   overweight: '짐이 너무 무거워서 더 들 수 없습니다. 힘을 올리거나 짐을 정리하세요.',
   armor_class_restricted: '이 직업은 착용할 수 없는 방어구 종류입니다.',
-  shield_not_usable: '이 직업은 방패를 착용할 수 없습니다(두 손이 필요한 직업).',
   repair_skill_too_low: '수리스킬 단계가 부족해 이 등급은 셀프 수리할 수 없습니다.',
   not_enough_strength: '힘이 부족해 착용할 수 없습니다.',
   not_enough_wisdom: '지혜가 부족해 착용할 수 없습니다.',
@@ -207,6 +206,9 @@ const ERROR_MESSAGES = {
   slot_occupied: '이미 캐릭터가 있는 슬롯입니다.',
   character_not_found: '캐릭터 정보를 찾을 수 없습니다.',
   invalid_town: '알 수 없는 마을입니다.',
+  already_there: '이미 그 마을에 있습니다.',
+  no_preview_to_refresh: '먼저 지역에 들어가야 새로고침할 수 있습니다.',
+  refresh_on_cooldown: '새로고침은 1시간에 한 번만 가능합니다.',
   invalid_direction: '잘못된 요청입니다.',
   invalid_amount: '금액/수량을 확인해주세요.',
   choose_one_resource_type: '골드와 아이템은 한 번에 하나만 처리할 수 있습니다.',
@@ -416,23 +418,25 @@ function renderMain(container) {
   else if (activeTab === 'character') renderCharacterTab(content, container);
 }
 
-// ── 모험 탭 ─────────────────────────────────────────
+// ── 모험 탭 - 지역 목록(현재 마을 소속 + 던전)만 보여줌. 마을 이동은 마을 탭에서 ─────
+const MONSTER_TAG_ICONS = { beast: '🐾', humanoid: '🗡️', undead: '💀', demon: '😈' };
+
 function renderAdventureTab(content, container) {
   const townName = (TOWNS[character.currentTown] || {}).name || character.currentTown || '없음(던전)';
+  const townZones = Object.values(ZONES).filter((z) => z.town === character.currentTown || z.town === null);
   content.innerHTML = `
-    <p class="rpg-hint">현재 위치: ${townName} — 다른 마을 소속 지역에 들어가면 그 마을로 자동 이동해요.</p>
+    <p class="rpg-hint">현재 위치: ${townName} — 다른 마을로 가려면 "마을" 탭에서 이동하세요.</p>
     <div class="rpg-zone-list">
-      ${Object.values(ZONES).map((z) => {
+      ${townZones.map((z) => {
         const clears = (character.zoneClearCounts || {})[z.id] || 0;
         const eligible = clears >= CASTLE_CLEAR_REQUIREMENT;
-        const zoneTownName = z.town ? ((TOWNS[z.town] || {}).name || z.town) : '던전(마을 없음)';
         const unlockClears = z.unlockZoneId ? ((character.zoneClearCounts || {})[z.unlockZoneId] || 0) : null;
         const locked = z.unlockZoneId && unlockClears < CASTLE_CLEAR_REQUIREMENT;
         return `
         <div class="rpg-zone-block">
           <button class="rpg-zone-btn" data-zone="${z.id}" ${locked ? 'disabled' : ''}>
             <div class="rpg-zone-name">${z.name}${locked ? ' 🔒' : ''}</div>
-            <div class="rpg-zone-tier">Tier ${z.tier} · ${zoneTownName} 소속${z.requiresTorch ? ' · 횃불 필요' : ''}</div>
+            <div class="rpg-zone-tier">Tier ${z.tier}${z.requiresTorch ? ' · 횃불 필요' : ''}</div>
             ${locked ? `<div class="rpg-zone-tier">${ZONES[z.unlockZoneId].name} ${unlockClears}/${CASTLE_CLEAR_REQUIREMENT}회 공략 후 해금</div>` : ''}
           </button>
           ${eligible ? `<p class="rpg-hint"><button class="rpg-castle-challenge-btn" data-zone="${z.id}">성 도전하기</button></p>` : ''}
@@ -443,13 +447,11 @@ function renderAdventureTab(content, container) {
     <p class="rpg-hint"><button class="rpg-castle-income-btn">성주 수입 수령</button></p>
     <div class="rpg-facility-dashboard">
       <h4>🛠️ 영지 근무 (전투 없이 턴 1개로 안전하게 시설에 기여, 용병보다 20% 더 효율적)</h4>
-      <p class="rpg-hint">
-        ${Object.values(TERRITORY_JOBS).map((job) => `<button class="rpg-work-territory-btn" data-job="${job.id}">${FACILITY_ICONS[job.id] || ''} ${job.name}</button>`).join('')}
-      </p>
+      <div class="rpg-work-territory-list">
+        ${Object.keys(TERRITORY_JOBS).map((jobId) => workTerritoryCardHtml(jobId)).join('')}
+      </div>
     </div>
-    <div class="rpg-combat-log"></div>
   `;
-  const log = content.querySelector('.rpg-combat-log');
   content.querySelectorAll('.rpg-castle-challenge-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
       const r = await apiPost('claim-castle', { zoneId: btn.dataset.zone });
@@ -473,7 +475,7 @@ function renderAdventureTab(content, container) {
       else showToast('현재 소유한 성이 없습니다.');
     } catch (e) { showToast(friendlyError(e)); }
   });
-  content.querySelectorAll('.rpg-work-territory-btn').forEach((btn) => btn.addEventListener('click', async () => {
+  content.querySelectorAll('.rpg-work-territory-card').forEach((btn) => btn.addEventListener('click', async () => {
     try {
       const r = await apiPost('work-territory', { job: btn.dataset.job });
       character.gold = r.gold;
@@ -487,28 +489,75 @@ function renderAdventureTab(content, container) {
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-zone-btn').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      log.innerHTML = `<div class="rpg-loading">전투 중...</div>`;
-      try {
-        const result = await apiPost('adventure', { zoneId: btn.dataset.zone });
-        await loadCharacter(); // 레벨업으로 maxHp 등이 바뀌었을 수 있어 서버 최신값으로 새로고침
-
-        await playCombatLog(log, result.log);
-        log.insertAdjacentHTML('beforeend', `
-          <div class="rpg-log-summary">
-            ${result.victory ? '승리' : '패배'} · 경험치 +${result.xpGain} · 골드 +${result.goldGain}
-            ${result.levelsGained ? ` · <b>레벨업! Lv.${result.level}</b>` : ''}
-            ${result.loot.length ? `<br>획득: ${result.loot.map((d) => `${(ITEMS[d.itemId] || {}).name || d.itemId} x${d.qty}`).join(', ')}` : ''}
-          </div>
-          ${loreUnlockHtml(result.newLore)}
-        `);
-        container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-        showTerritoryNotice(container, result.territoryNotice);
-      } catch (e) {
-        log.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div>`;
-      }
-    });
+    btn.addEventListener('click', () => enterZonePreview(content, container, btn.dataset.zone));
   });
+}
+
+// 지역 클릭 시 - 바로 전투가 아니라 몹 구성을 먼저 보여줌("필드에 들어간" 느낌). 처음 보는 건 무료
+async function enterZonePreview(content, container, zoneId) {
+  content.innerHTML = `<div class="rpg-loading">지역에 들어가는 중...</div>`;
+  try {
+    const r = await apiPost('preview-zone', { zoneId });
+    renderZonePreviewScreen(content, container, r.preview);
+  } catch (e) {
+    content.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div><p><button class="rpg-zone-back-btn">◀ 지역 목록</button></p>`;
+    const backBtn = content.querySelector('.rpg-zone-back-btn');
+    if (backBtn) backBtn.addEventListener('click', () => renderAdventureTab(content, container));
+  }
+}
+
+// 필드 진입 화면 - 몹 구성을 보여주고, 새로고침(턴1, 1시간마다) 또는 몹 클릭으로 바로 전투 시작(스크롤 없이)
+function renderZonePreviewScreen(content, container, preview) {
+  const zone = ZONES[preview.zoneId];
+  const canRefreshNow = Date.now() >= preview.canRefreshAt;
+  content.innerHTML = `
+    <p><button class="rpg-zone-back-btn">◀ 지역 목록</button></p>
+    <h4>${zone.name}에 들어왔다${preview.isRare ? ' — 심상치 않은 기운이 느껴진다!' : ''}</h4>
+    <div class="rpg-encounter-list">
+      ${preview.monsters.map((m) => `
+        <button class="rpg-encounter-monster-btn" data-zone="${preview.zoneId}">
+          <span class="rpg-encounter-icon">${MONSTER_TAG_ICONS[(m.tags || [])[0]] || '❓'}</span>
+          <span class="rpg-encounter-name">${m.name}</span>
+        </button>
+      `).join('')}
+    </div>
+    <p class="rpg-hint">
+      <button class="rpg-refresh-encounter-btn" data-zone="${preview.zoneId}" ${canRefreshNow ? '' : 'disabled'}>🔄 새로고침 (턴 1개)</button>
+      ${canRefreshNow ? '' : ' 1시간에 한 번만 가능해요'}
+    </p>
+    <div class="rpg-combat-log"></div>
+  `;
+  const log = content.querySelector('.rpg-combat-log');
+  content.querySelector('.rpg-zone-back-btn').addEventListener('click', () => renderAdventureTab(content, container));
+  content.querySelector('.rpg-refresh-encounter-btn').addEventListener('click', async () => {
+    try {
+      const r = await apiPost('preview-zone', { zoneId: preview.zoneId, refresh: true });
+      character.turnPoints = r.turnPoints;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      renderZonePreviewScreen(content, container, r.preview);
+    } catch (e) { showToast(friendlyError(e)); }
+  });
+  content.querySelectorAll('.rpg-encounter-monster-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    log.innerHTML = `<div class="rpg-loading">전투 중...</div>`;
+    try {
+      const result = await apiPost('adventure', { zoneId: btn.dataset.zone });
+      await loadCharacter(); // 레벨업으로 maxHp 등이 바뀌었을 수 있어 서버 최신값으로 새로고침
+
+      await playCombatLog(log, result.log);
+      log.insertAdjacentHTML('beforeend', `
+        <div class="rpg-log-summary">
+          ${result.victory ? '승리' : '패배'} · 경험치 +${result.xpGain} · 골드 +${result.goldGain}
+          ${result.levelsGained ? ` · <b>레벨업! Lv.${result.level}</b>` : ''}
+          ${result.loot.length ? `<br>획득: ${result.loot.map((d) => `${(ITEMS[d.itemId] || {}).name || d.itemId} x${d.qty}`).join(', ')}` : ''}
+        </div>
+        ${loreUnlockHtml(result.newLore)}
+      `);
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      showTerritoryNotice(container, result.territoryNotice);
+    } catch (e) {
+      log.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div>`;
+    }
+  }));
 }
 
 // 전투 로그를 한 번에 쏟아내지 않고 한 줄씩 순차 출력 - 결과를 바로 던지는 대신 진행 과정을
@@ -666,12 +715,30 @@ function tavernHireHtml() {
   }).join('');
 }
 
+// 다른 마을로 이동 가능한지 - 그 마을 소속 지역의 unlockZoneId 조건(이전 마을 최상위 지역 100회 공략)을 봄
+function isTownUnlocked(townId) {
+  if (townId === character.currentTown) return true;
+  const gateZone = Object.values(ZONES).find((z) => z.town === townId);
+  const gateZoneId = gateZone && gateZone.unlockZoneId;
+  if (!gateZoneId) return true;
+  return ((character.zoneClearCounts || {})[gateZoneId] || 0) >= CASTLE_CLEAR_REQUIREMENT;
+}
+
 // ── 마을 탭(NPC + 게시판) ────────────────────────────
 function renderTownTab(content, container) {
   const townName = (TOWNS[character.currentTown] || {}).name || character.currentTown;
   const townNpcs = Object.values(NPCS).filter((n) => n.townId === character.currentTown);
+  const otherTowns = Object.values(TOWNS).filter((t) => t.id !== character.currentTown);
   content.innerHTML = `
     <p class="rpg-hint">현재 위치: ${townName}</p>
+    <h4>다른 마을로 이동</h4>
+    <p class="rpg-hint">
+      ${otherTowns.map((t) => {
+        const unlocked = isTownUnlocked(t.id);
+        return `<button class="rpg-travel-town-btn" data-town="${t.id}" ${unlocked ? '' : 'disabled'}>${t.name}${unlocked ? '' : ' 🔒'}</button>`;
+      }).join('')}
+      (턴 1개 소모)
+    </p>
     <h4>마을 사람들</h4>
     <div class="rpg-npc-list">
       ${townNpcs.map((npc) => `
@@ -693,6 +760,20 @@ function renderTownTab(content, container) {
       <button class="rpg-board-post-btn">등록</button>
     </div>
   `;
+  content.querySelectorAll('.rpg-travel-town-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const destTown = TOWNS[btn.dataset.town];
+    if (!confirm(`${destTown.name}(으)로 이동하시겠습니까? 턴포인트 1개를 소모합니다.`)) return;
+    try {
+      const r = await apiPost('travel-town', { townId: btn.dataset.town });
+      character.currentTown = r.currentTown;
+      character.turnPoints = r.turnPoints;
+      character.gold = r.gold;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      renderTownTab(content, container);
+      showToast(`${destTown.name}(으)로 이동했습니다`);
+      showTerritoryNotice(container, r.territoryNotice);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
   content.querySelectorAll('.rpg-quest-claim-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
       const r = await apiPost('claim-quest', { questId: btn.dataset.quest });
@@ -1128,6 +1209,36 @@ function formationSectionHtml(characterLike, mercId) {
 // 전투부대(active, 최대 MAX_MERCENARIES명)는 모험에 동행하고, 영지(territory)는 남아서 일을 함
 // ── 영지 현황판 - 시설(개간지/훈련소/방벽/농장) 레벨과 다음 레벨까지 진행률을 한눈에 보여줌 ──
 const FACILITY_ICONS = { clearing: '🌾', training: '⚔️', ramparts: '🛡️', farm: '🌱' };
+
+// api/_rpgTurns.js와 반드시 같은 공식 유지 - 서버 전용 파일이라 브라우저가 직접 못 불러와서 복제해서 씀
+function turnCapForLevelClient(level) {
+  return 10 + Math.floor((level || 1) / 5);
+}
+
+// "영지 근무" 버튼 밑에 보여줄 "다음 레벨까지 턴 몇 개 남았는지" - work-territory.js의 기여 공식과 동일하게 계산
+function turnsNeededForNextFacilityLevel(jobId) {
+  const progress = facilityProgress((character.facilityDays || {})[jobId] || 0);
+  const remainingDays = progress.daysForNextLevel - progress.daysIntoLevel;
+  const contributionPerTurn = (character.level / BASELINE_MERC_LEVEL) * PLAYER_TERRITORY_BONUS_MULT / turnCapForLevelClient(character.level);
+  return Math.max(1, Math.ceil(remainingDays / contributionPerTurn));
+}
+
+// 영지 근무 카드 - 아이콘/버튼을 크게 만들어 "여기 누르면 턴을 써서 이 시설을 키운다"는 게 분명하게 보이게 함
+function workTerritoryCardHtml(jobId) {
+  const job = TERRITORY_JOBS[jobId];
+  const progress = facilityProgress((character.facilityDays || {})[jobId] || 0);
+  const turnsNeeded = turnsNeededForNextFacilityLevel(jobId);
+  return `
+    <button class="rpg-work-territory-card" data-job="${jobId}">
+      <div class="rpg-work-territory-icon">${FACILITY_ICONS[jobId] || '🏛️'}</div>
+      <div class="rpg-work-territory-info">
+        <div class="rpg-work-territory-name">${job.name} <span class="rpg-hint">Lv.${progress.level}</span></div>
+        <div class="rpg-hint">턴 1개로 여기서 일하기</div>
+        <div class="rpg-hint">다음 레벨까지 턴 약 ${turnsNeeded}개 필요</div>
+      </div>
+    </button>
+  `;
+}
 function facilityDashboardHtml() {
   const days = character.facilityDays || {};
   const territoryMercs = (character.mercenaries || []).filter((m) => m.assignment === 'territory' && !m.hospitalized);
@@ -1177,7 +1288,6 @@ function mercenaryCardHtml(m) {
       </p>
       ${m.assignment === 'active' ? `
         ${formationSectionHtml(m, m.id)}
-        ${potionRulesEditorHtml(m.id)}
       ` : `
         <p>일자리:
           ${Object.values(TERRITORY_JOBS).map((job) => {
@@ -1242,41 +1352,11 @@ function wireFormationButtons(content, rerender) {
   }));
 }
 
-// 여러 탭(캐릭터/영지)에서 공용으로 쓰는 포션 자동사용 규칙 저장 핸들러
-function wirePotionSaveButtons(content) {
-  content.querySelectorAll('.rpg-potion-save-btn').forEach((saveBtn) => saveBtn.addEventListener('click', async () => {
-    const mercId = saveBtn.dataset.merc || null;
-    const rulesContainer = saveBtn.closest('.rpg-potion-rules');
-    const rows = rulesContainer.querySelectorAll('.rpg-potion-rule-row');
-    const potionRules = [];
-    rows.forEach((row) => {
-      const checkbox = row.querySelector('.rpg-potion-enable');
-      if (!checkbox.checked) return;
-      potionRules.push({
-        itemId: row.dataset.item,
-        thresholdPct: Number(row.querySelector('.rpg-potion-threshold').value) || 50,
-        maxPerBattle: Number(row.querySelector('.rpg-potion-max').value) || 1,
-      });
-    });
-    try {
-      await apiPost('set-potion-rules', mercId ? { potionRules, mercId } : { potionRules });
-      if (mercId) {
-        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
-        if (merc) merc.potionRules = potionRules;
-      } else {
-        character.potionRules = potionRules;
-      }
-      showToast('포션 자동사용 설정을 저장했습니다');
-    } catch (e) { showToast(friendlyError(e)); }
-  }));
-}
-
-// ── 영지 탭 - 고용한 용병 관리(전투부대/영지 배치, 진형, 해고, 입원, 포션 규칙) ──
+// ── 영지 탭 - 고용한 용병 관리(전투부대/영지 배치, 진형, 해고, 입원) ──
 function renderTerritoryTab(content, container) {
   content.innerHTML = partySectionHtml();
   const rerender = () => renderTerritoryTab(content, container);
   wireFormationButtons(content, rerender);
-  wirePotionSaveButtons(content);
   content.querySelectorAll('.rpg-dismiss-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
       await apiPost('dismiss-mercenary', { mercId: btn.dataset.merc });
@@ -1380,7 +1460,6 @@ function renderCharacterTab(content, container) {
     </div>
     ${equipmentSectionHtml()}
     ${subclassSectionHtml()}
-    ${potionRulesEditorHtml()}
     ${journalHtml()}
   `;
   content.querySelectorAll('.rpg-stance-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -1391,7 +1470,6 @@ function renderCharacterTab(content, container) {
     } catch (e) { showToast(friendlyError(e)); }
   }));
   wireFormationButtons(content, () => renderCharacterTab(content, container));
-  wirePotionSaveButtons(content);
   content.querySelectorAll('.rpg-stat-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
       const r = await apiPost('allocate-stat', { stat: btn.dataset.stat, amount: 1 });
@@ -1440,32 +1518,6 @@ function renderCharacterTab(content, container) {
       await loadCharacter();
       renderCharacterTab(content, container);
       showToast('부직업을 선택했습니다');
-    } catch (e) { showToast(friendlyError(e)); }
-  }));
-
-  content.querySelectorAll('.rpg-potion-save-btn').forEach((saveBtn) => saveBtn.addEventListener('click', async () => {
-    const mercId = saveBtn.dataset.merc || null;
-    const container2 = saveBtn.closest('.rpg-potion-rules');
-    const rows = container2.querySelectorAll('.rpg-potion-rule-row');
-    const potionRules = [];
-    rows.forEach((row) => {
-      const checkbox = row.querySelector('.rpg-potion-enable');
-      if (!checkbox.checked) return;
-      potionRules.push({
-        itemId: row.dataset.item,
-        thresholdPct: Number(row.querySelector('.rpg-potion-threshold').value) || 50,
-        maxPerBattle: Number(row.querySelector('.rpg-potion-max').value) || 1,
-      });
-    });
-    try {
-      await apiPost('set-potion-rules', mercId ? { potionRules, mercId } : { potionRules });
-      if (mercId) {
-        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
-        if (merc) merc.potionRules = potionRules;
-      } else {
-        character.potionRules = potionRules;
-      }
-      showToast('포션 자동사용 설정을 저장했습니다');
     } catch (e) { showToast(friendlyError(e)); }
   }));
 }
@@ -1559,39 +1611,3 @@ function journalHtml() {
 
 // ── 포션 자동사용 규칙 편집기 (전투 중 HP/MP/스테미나 임계값 기반 자동사용) ──
 // mercId를 주면 본인이 아니라 그 용병(character.mercenaries에서 찾음)의 규칙을 편집함
-const POTION_RESOURCE_LABELS = { hp: 'HP', mp: 'MP', stamina: '스테미나' };
-function potionResourceKind(item) {
-  if (item.healPct) return 'hp';
-  if (item.restoreMpPct) return 'mp';
-  if (item.restoreStaminaPct) return 'stamina';
-  return null;
-}
-function potionRulesEditorHtml(mercId) {
-  const owner = mercId ? (character.mercenaries || []).find((m) => m.id === mercId) : character;
-  if (!owner) return '';
-  const potions = Object.values(ITEMS).filter((i) => i.type === 'consumable' && potionResourceKind(i));
-  const rulesByItem = {};
-  (owner.potionRules || []).forEach((r) => { rulesByItem[r.itemId] = r; });
-  const idAttr = mercId ? ` data-merc="${mercId}"` : '';
-
-  return `
-    <div class="rpg-potion-rules"${idAttr}>
-      <p class="rpg-hint">전투 중 체력/마나/스테미나가 설정한 비율 이하로 떨어지면 자동으로 물약을 마셔요.</p>
-      ${potions.map((item) => {
-        const rule = rulesByItem[item.id];
-        const kind = potionResourceKind(item);
-        return `
-          <div class="rpg-potion-rule-row" data-item="${item.id}">
-            <label>
-              <input type="checkbox" class="rpg-potion-enable" ${rule ? 'checked' : ''}>
-              ${item.name} 자동사용
-            </label>
-            <span>${POTION_RESOURCE_LABELS[kind]} <input type="number" class="rpg-potion-threshold" min="1" max="100" value="${rule ? rule.thresholdPct : 50}" style="width:48px">% 이하 시</span>
-            <span>전투당 최대 <input type="number" class="rpg-potion-max" min="1" max="10" value="${rule ? rule.maxPerBattle : 2}" style="width:40px">개</span>
-          </div>
-        `;
-      }).join('')}
-      <button class="rpg-potion-save-btn"${idAttr}>저장</button>
-    </div>
-  `;
-}

@@ -21,6 +21,19 @@ export const MERCENARY_TEMPLATES = {
     id: 'merc_priest_1', name: '떠돌이 성직자', classMain: 'priest',
     baseLevel: 15, hireCost: 400, wagePerAdventure: 18, mentalResist: 60, minTownTier: 3,
   },
+  // 영지 시설 업그레이드 특화 용병 - 다른 용병과 똑같이 전투에도 데려갈 수 있고 전투로 레벨업함
+  // (classMain에 따라 공/방이 정해짐). 차이는 territorySpecialty에 맞는 시설에 배치하면
+  // 기여 속도에 SPECIALTY_BONUS_MULT 보너스가 추가로 붙는다는 것뿐(facilityAccrualRate 참고)
+  merc_doctor_1: {
+    id: 'merc_doctor_1', name: '떠돌이 군의관', classMain: 'priest',
+    baseLevel: 8, hireCost: 250, wagePerAdventure: 12, mentalResist: 55, minTownTier: 2,
+    territorySpecialty: 'hospital',
+  },
+  merc_engineer_1: {
+    id: 'merc_engineer_1', name: '떠돌이 배관공', classMain: 'warrior',
+    baseLevel: 8, hireCost: 250, wagePerAdventure: 12, mentalResist: 60, minTownTier: 2,
+    territorySpecialty: 'farm', // 관개수로(배관) 정비 - 농장 특화
+  },
 };
 
 // 고용 시 자동으로 붙는 랜덤 이름(나중에 사용자가 원하면 rename-mercenary.js로 직접 바꿀 수 있음)
@@ -49,7 +62,11 @@ export const TERRITORY_JOBS = {
   // bonusPctPerLevel은 여기선 식량 생산량에 적용됨). 식량이 부족하면 그 부족분을 골드로 사와야 함
   // (foodEmergencyCost) - 영지 일자리들이 서로 맞물리는 핵심 연결고리
   farm: { id: 'farm', name: '농장', goldPerDay: 0, statKey: 'food', bonusPctPerLevel: 2 },
+  // 병원 - 레벨마다 부상 치료 비용/시간이 줄어듦(의사/붕대 골드비용, 영지에서 쉬기 턴비용, 입원비 전부 해당)
+  hospital: { id: 'hospital', name: '병원', goldPerDay: 0, statKey: 'healCostReduction', bonusPctPerLevel: 4 },
 };
+
+export const SPECIALTY_BONUS_MULT = 1.5; // territorySpecialty가 맞는 시설에 배치하면 기여 속도 50% 추가
 
 export const FOOD_PER_DAY_PER_FARMER = 3; // 농부 1명(레벨5 기준) 영지 1일당 식량 생산
 export const FOOD_CONSUMPTION_PER_DAY_PER_WORKER = 1; // 농장을 제외한 영지 근무자 1명당 영지 1일당 식량 소비

@@ -41,11 +41,8 @@ export default async function handler(req, res) {
           return null;
         }
       }
-      // 방패는 물리 직업(전사/궁수, resourceType:'stamina')만 착용 가능 - 캐스터는 두 손이 지팡이를 쥐어야 함
-      if (equipSlot === 'shield' && cls.resourceType !== 'stamina') {
-        outcome = { error: 'shield_not_usable' };
-        return null;
-      }
+      // 방패는 캐스터도 장착은 허용(하드 블록 없음) - 다만 전투 중 방어력 기여가 크게 깎임(rpg-combat.js의
+      // OFF_CLASS_SHIELD_DEF_MULT 참고), 무기의 직업 불일치 패널티와 같은 원칙
       if ((ARMOR_SLOTS.includes(equipSlot) || equipSlot === 'weapon' || equipSlot === 'shield') && (item.strRequirement || item.wisRequirement)) {
         const stats = effectiveStats(character);
         if (item.strRequirement && stats.str < item.strRequirement) {

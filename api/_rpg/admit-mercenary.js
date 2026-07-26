@@ -3,6 +3,7 @@
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
+import { hospitalCostMultiplier } from '../../data/rpg/facilities.js';
 
 const ADMIT_COST = 10;
 
@@ -28,13 +29,14 @@ export default async function handler(req, res) {
       const isInjured = ['arm', 'leg'].some((p) => (injuries[p] || {}).severity > 0);
       if (!isInjured) { outcome = { error: 'no_injury' }; return null; }
       if (merc.hospitalized) { outcome = { error: 'already_hospitalized' }; return null; }
-      if ((character.gold || 0) < ADMIT_COST) { outcome = { error: 'not_enough_gold' }; return null; }
+      const cost = Math.max(1, Math.round(ADMIT_COST * hospitalCostMultiplier(character)));
+      if ((character.gold || 0) < cost) { outcome = { error: 'not_enough_gold' }; return null; }
 
       const nextMercenaries = [...mercenaries];
       nextMercenaries[idx] = { ...merc, hospitalized: true };
       const now = Date.now();
-      outcome = { mercId, cost: ADMIT_COST, gold: character.gold - ADMIT_COST };
-      return { ...character, gold: character.gold - ADMIT_COST, mercenaries: nextMercenaries, updatedAt: now };
+      outcome = { mercId, cost, gold: character.gold - cost };
+      return { ...character, gold: character.gold - cost, mercenaries: nextMercenaries, updatedAt: now };
     });
 
     if (outcome && outcome.error) return res.status(400).json({ error: outcome.error });

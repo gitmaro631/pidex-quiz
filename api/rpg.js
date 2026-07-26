@@ -14,7 +14,6 @@ import chooseClass from './_rpg/choose-class.js';
 import chooseSubclass from './_rpg/choose-subclass.js';
 import allocateStat from './_rpg/allocate-stat.js';
 import setStance from './_rpg/set-stance.js';
-import setPotionRules from './_rpg/set-potion-rules.js';
 import claimDailyBonus from './_rpg/claim-daily-bonus.js';
 import claimQuest from './_rpg/claim-quest.js';
 import listCharacters from './_rpg/list-characters.js';
@@ -49,12 +48,14 @@ import renameMercenary from './_rpg/rename-mercenary.js';
 import squireMercenary from './_rpg/squire-mercenary.js';
 import workTerritory from './_rpg/work-territory.js';
 import restHeal from './_rpg/rest-heal.js';
+import previewZone from './_rpg/preview-zone.js';
+import travelTown from './_rpg/travel-town.js';
 
 const ROUTES = {
   character, adventure,
   'shop-buy': shopBuy, 'sell-item': sellItem, equip, unequip, 'use-item': useItem,
   'choose-class': chooseClass, 'choose-subclass': chooseSubclass,
-  'allocate-stat': allocateStat, 'set-stance': setStance, 'set-potion-rules': setPotionRules,
+  'allocate-stat': allocateStat, 'set-stance': setStance,
   'claim-daily-bonus': claimDailyBonus, 'claim-quest': claimQuest,
   'list-characters': listCharacters, 'create-character': createCharacter,
   'gold-leaderboard': goldLeaderboard,
@@ -83,6 +84,8 @@ const ROUTES = {
   'squire-mercenary': squireMercenary,
   'work-territory': workTerritory,
   'rest-heal': restHeal,
+  'preview-zone': previewZone,
+  'travel-town': travelTown,
 };
 
 export default async function handler(req, res) {

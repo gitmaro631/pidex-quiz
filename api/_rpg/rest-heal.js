@@ -6,6 +6,7 @@ import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
 import { computeCurrentTurns } from '../_rpgTurns.js';
 import { REST_HEAL_TURN_COST_BY_SEVERITY } from '../../data/rpg/injuries.js';
+import { hospitalCostMultiplier } from '../../data/rpg/facilities.js';
 import { isAdminUsername } from '../_rpgAdmin.js';
 
 export default async function handler(req, res) {
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
       const injury = injuries[part] || { severity: 0, turnsLeft: 0 };
       if (!injury.severity) { outcome = { error: 'no_injury' }; return null; }
 
-      const cost = REST_HEAL_TURN_COST_BY_SEVERITY[injury.severity] || 2;
+      const cost = Math.max(1, Math.round((REST_HEAL_TURN_COST_BY_SEVERITY[injury.severity] || 2) * hospitalCostMultiplier(character)));
       if (!isAdmin && turns < cost) { outcome = { error: 'not_enough_turns' }; return null; }
 
       const nextInjuries = { ...injuries, [part]: { severity: 0, turnsLeft: 0 } };

@@ -48,25 +48,28 @@ const MAGIC_STAT_MP_PER_LEVEL = 0.3;
 const BASE_STAMINA = 40;
 const STAMINA_PER_LEVEL = 2;
 const AGI_STAMINA_PER_LEVEL = 0.4; // AGI도 같은 방식으로 스테미나에 누적 반영
-// 직업이 숙련되지 않은 무기(classDef.weaponTypes에 없는 타입)를 장착했을 때의 패널티
+// 직업이 숙련되지 않은 무기(classDef.weaponTypes에 없는 타입)를 장착했을 때의 패널티 - 명중굴림에 페널티로 통합됨
 const OFF_CLASS_WEAPON_DAMAGE_MULT = 0.7;
-const OFF_CLASS_WEAPON_MISS_CHANCE = 0.2;
+const OFF_CLASS_WEAPON_ATTACK_PENALTY = 4; // D&D식 명중굴림(1d20+공격보정 vs AC)에 -4
+// 캐스터(마법사/성직자, resourceType이 stamina가 아닌 직업)가 방패를 장착했을 때의 패널티 - 두 손이
+// 자유롭지 않아 방패를 제대로 못 다루므로 방패의 방어력 기여분이 이만큼만 반영됨(회피/AC 저하로 체감)
+const OFF_CLASS_SHIELD_DEF_MULT = 0.4;
 // 용병의 멘탈(공포저항) - 전열에서 피격당할 때마다 낮은 확률로 멘탈이 나가서 후열로 숨음(그 전투 한정, 일시적)
 const MORALE_BREAK_BASE_CHANCE = 0.25;
 const PLAYER_BASE_MENTAL_RESIST = 50; // 유저 캐릭터 전용 스탯이 따로 없어 용병 평균값(50~65)대로 기본값 사용
 const BASE_INJURY_CHANCE = 0.08;
 const WEAK_AFFINITY_INJURY_BONUS = 0.12; // 상성이 안 좋으면 다칠 확률이 더 높아짐
-const BASE_DODGE_CHANCE = 0.08; // 다리가 온전할 때만 정상적으로 회피 시도 가능
-// 민첩(AGI) - 회피와 "공격속도"(추가타 확률)에 영향. 공격속도는 라운드제 전투 특성상 별도 행동 순서가
-// 아니라 확률적 추가타(장신구의 2연타 효과와 같은 방식)로 구현 - 두 보너스는 합산됨
-const AGI_DODGE_PER_POINT = 0.004; // 민첩 1당 회피율 +0.4%p
-const AGI_EXTRA_ATTACK_PER_POINT = 0.003; // 민첩 1당 추가타(2연타) 확률 +0.3%p
-const MAX_DODGE_CHANCE = 0.5;
-const MAX_EXTRA_ATTACK_CHANCE = 0.6;
+// D&D식 명중판정 - 1d20 + 공격보정 vs 상대 AC. 자연 20은 항상 명중(치명타), 자연 1은 항상 빗나감.
+// AC/공격보정은 레벨·지역tier 위주로 스케일링(공격력/방어력 원수치가 이미 커서 그대로 쓰면 고티어에서
+// 항상 명중해버림 - 그래서 레벨/tier 기반 소수치로 압축해서 계산, computeCharacterCombatStats/buildMonsterInstance 참고)
+const CRIT_DAMAGE_MULT = 2;
+const LEG_INJURY_AC_PENALTY = { 1: 2, 2: 5 }; // 다리 부상이면 그만큼 AC(회피력) 하락
 // severity: 0=건강, 1=경상(붕대로 치료 가능), 2=중상(의사에게만 치료 가능)
 const INJURY_ATK_MULT = { 1: 0.85, 2: 0.6 };
-const INJURY_DODGE_MULT = { 1: 0.5, 2: 0 };
 const INJURY_INCOMING_DAMAGE_BONUS = { 1: 0.1, 2: 0.25 };
+// 민첩(AGI) - 이제 회피 대신 "공격속도"(추가타 확률)에만 영향(회피는 AC 명중판정으로 통합됨)
+const AGI_EXTRA_ATTACK_PER_POINT = 0.003; // 민첩 1당 추가타(2연타) 확률 +0.3%p
+const MAX_EXTRA_ATTACK_CHANCE = 0.6;
 const INJURY_DURATION_RANGE = { 1: [5, 15], 2: [15, 40] };
 const BODY_PART_NAMES = { arm: '팔', leg: '다리' };
 // 아주 작은 확률로 단계를 건너뛰고 곧장 중상 - 상성이 나쁘거나 지역에 비해 렙이 낮으면 더 잘 발생
@@ -80,10 +83,25 @@ const ESSENCE_DROP_CHANCE = 0.2;
 const SET_ITEM_DROP_CHANCE = 0.08;
 // 5피스 풀세트(지역 무관) 조각 드랍 확률 - 아무 지역이든 유니크/레전더리몹이면 발동, 훨씬 희귀함
 const FULL_SET_ITEM_DROP_CHANCE = 0.02;
+// 골드주머니 고블린(방랑) - 지역 무관 이 확률로 일반 조우 대신 등장(monsters.js의 gold_pouch_goblin 참고)
+const GOLD_POUCH_GOBLIN_CHANCE = 0.005;
 
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+function pickFlavor(arr) {
+  return arr[randInt(0, arr.length - 1)];
+}
+
+// 전투 로그 연출용 문구 - 매번 같은 "N 피해"만 반복하면 지루하니 짧은 동사구를 랜덤으로 섞어씀.
+// 문법이 꼬이지 않게 항상 "이(가)/을(를)" 형태의 조사 뒤에 붙는 구조로 통일(기존 코드 관례와 동일)
+const ATTACK_HIT_INTROS = ['제대로 꽂혔다', '정확히 적중했다', '매섭게 파고들었다', '빈틈을 찔렀다', '묵직하게 들어갔다'];
+const ATTACK_CRIT_INTROS = ['급소를 완벽히 꿰뚫었다', '치명적인 일격이 작렬했다', '빈틈없이 급소를 노렸다'];
+const ATTACK_MISS_LINES = ['빗나갔다', '허공을 갈랐다', '아슬아슬하게 비껴갔다', '가로막혔다'];
+const MONSTER_HIT_INTROS = ['강타했다', '물어뜯었다', '베어냈다', '덮쳤다', '내리찍었다'];
+const MONSTER_CRIT_INTROS = ['치명적으로 급소를 강타했다', '방어를 완전히 무너뜨렸다'];
+const MONSTER_MISS_LINES = ['공격을 가까스로 피했다', '아슬아슬하게 회피했다', '몸을 굴려 피했다', '방어로 막아냈다'];
 
 function randRange(min, max) {
   return Math.random() * (max - min) + min;
@@ -100,6 +118,11 @@ export function rareChanceForZone(killCount) {
 export function rollEncounter(zoneId, killCount) {
   const zone = ZONES[zoneId];
   if (!zone) throw new Error(`unknown zoneId: ${zoneId}`);
+
+  // 방랑하는 골드주머니 고블린 - 지역 무관, 아주 낮은 확률로 그 지역의 일반 조우를 대체함(항상 혼자 등장)
+  if (Math.random() < GOLD_POUCH_GOBLIN_CHANCE) {
+    return { zone, monsterIds: ['gold_pouch_goblin'], isRare: true, uniqueTier: 1 };
+  }
 
   for (const tier of [3, 2]) {
     if (Math.random() < UNIQUE_TIER_CHANCES[tier]) {
@@ -136,6 +159,10 @@ function buildMonsterInstance(monsterId, zone, uniqueTier = 1) {
     hp: Math.round(def.baseStats.hp * variance * statMult),
     atk: Math.round(def.baseStats.atk * variance * statMult),
     def: Math.round(def.baseStats.def * variance * statMult),
+    // D&D식 명중판정용(레벨 대신 지역 tier 기준으로 압축) - computeCharacterCombatStats의 ac/attackBonus와 짝.
+    // acBonus는 골드주머니 고블린처럼 특별히 회피력이 높은 개체용 추가 보정(monsters.js 참고)
+    ac: 10 + zone.tier + (uniqueTier - 1) * 2 + (def.acBonus || 0),
+    attackBonus: 2 + zone.tier + (uniqueTier - 1) * 2,
     xp: Math.round(def.xp * rewardMult),
     goldMin: Math.round(def.goldMin * rewardMult),
     goldMax: Math.round(def.goldMax * rewardMult),
@@ -197,8 +224,12 @@ export function computeCharacterCombatStats(character) {
   const armorTopEnhanceBonus = armorTopBroken ? 0 : (equipment.armor_topEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
   const armorBottomEnhanceBonus = armorBottomBroken ? 0 : (equipment.armor_bottomEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
   const weaponAtkBonus = (weaponBroken ? 0 : ((weaponItem && weaponItem.atkBonus) || 0)) + weaponEnhanceBonus;
+  // 방패는 물리 직업(전사/궁수) 전용 장비지만 캐스터도 장착 자체는 가능 - 다만 방어력 기여가 대폭 깎임(회피 저하)
+  const offClassShield = !!(shieldItem && !shieldBroken && mainCls.resourceType !== 'stamina');
+  const shieldDefContribution = (shieldBroken ? 0 : (((shieldItem && shieldItem.defBonus) || 0) + shieldEnhanceBonus))
+    * (offClassShield ? OFF_CLASS_SHIELD_DEF_MULT : 1);
   // 방패+상의+하의가 함께 "몸통 방어구" 취급으로 방어력/체력에 합산됨
-  const gearDefBonus = (shieldBroken ? 0 : ((shieldItem && shieldItem.defBonus) || 0)) + shieldEnhanceBonus
+  const gearDefBonus = shieldDefContribution
     + (armorTopBroken ? 0 : ((armorTopItem && armorTopItem.defBonus) || 0)) + armorTopEnhanceBonus
     + (armorBottomBroken ? 0 : ((armorBottomItem && armorBottomItem.defBonus) || 0)) + armorBottomEnhanceBonus;
   const gearHpBonus = (shieldBroken ? 0 : ((shieldItem && shieldItem.hpBonus) || 0))
@@ -231,13 +262,21 @@ export function computeCharacterCombatStats(character) {
   const facilityDefMult = facilityBonusMultiplier(character, 'ramparts');
   // 종자로 흡수한 용병의 스탯 일부(흡수 시점에 고정된 값) - squire-mercenary.js가 부여
   const squireBonus = character.squireStatBonus || {};
+  const finalAtk = Math.round((scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus) * facilityAtkMult) + (squireBonus.atk || 0);
+  const finalDef = Math.round((stats.vit + gearDefBonus + accessoryDefBonus) * facilityDefMult) + (squireBonus.def || 0);
+  // D&D식 명중판정용 - 레벨/tier 위주로 압축한 값(공/방 원수치를 그대로 쓰면 고티어에서 늘 명중해버림).
+  // attackBonus: 레벨 + 무기숙련(atk의 일부) / ac: 레벨 + 방어(def의 일부) + 민첩(dex 보정격)
+  const attackBonus = 2 + Math.floor(level / 3) + Math.min(6, Math.floor(finalAtk / 10));
+  const ac = 10 + Math.floor(level / 3) + Math.min(8, Math.floor(finalDef / 8)) + Math.min(5, Math.floor(stats.agi / 8));
   return {
     maxHp: BASE_HP + level * HP_PER_LEVEL + Math.round(stats.vit * level * VIT_HP_PER_LEVEL) + gearHpBonus + accessoryHpBonus + (squireBonus.maxHp || 0),
     maxMp: BASE_MP + level * MP_PER_LEVEL + Math.round(scalingStat * level * MAGIC_STAT_MP_PER_LEVEL),
     // 향후 스테미나 소모 스킬/행동에 대비한 자원(현재는 회복 대상으로만 사용)
     maxStamina: BASE_STAMINA + level * STAMINA_PER_LEVEL + Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL),
-    atk: Math.round((scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus) * facilityAtkMult) + (squireBonus.atk || 0),
-    def: Math.round((stats.vit + gearDefBonus + accessoryDefBonus) * facilityDefMult) + (squireBonus.def || 0),
+    atk: finalAtk,
+    def: finalDef,
+    attackBonus,
+    ac,
     element: weaponBroken ? 'none' : ((weaponItem && weaponItem.element) || 'none'), // 무기 파손시 속성공격도 사라짐
     weaponType: (weaponItem && weaponItem.weaponType) || null,
     hasShield: !!(shieldItem && !shieldBroken), // 방패 스킬(방패 강타 등) 사용 조건
@@ -295,38 +334,6 @@ function inventoryQty(inventory, itemId) {
   return entry ? entry.qty : 0;
 }
 
-// 아이템이 회복시키는 자원 종류 판별(hp/mp/stamina) - thresholdPct는 "그 자원의 잔여율"을 기준으로 판정
-function potionResourceKind(item) {
-  if (item.healPct) return 'hp';
-  if (item.restoreMpPct) return 'mp';
-  if (item.restoreStaminaPct) return 'stamina';
-  return null;
-}
-
-// 스탠스+포션규칙에 따라 이번 라운드에 포션을 쓸지 결정. 파티원 전원이 "본인 소유 인벤토리는 없고
-// 본대(캐릭터)의 물자를 공유"하는 구조라 inventory/potionsUsed는 파티 전체가 공유하되,
-// 언제/무엇을 마실지 정하는 potionRules(자원별 임계치)는 각자 것을 씀 - HP/MP/스테미나 전부 지원
-function maybeUsePotion({ potionRules, inventory, resources, potionsUsed, log, actorLabel }) {
-  for (const rule of potionRules || []) {
-    const used = potionsUsed[rule.itemId] || 0;
-    if (used >= rule.maxPerBattle) continue;
-    if (inventoryQty(inventory, rule.itemId) - used <= 0) continue;
-    const item = ITEMS[rule.itemId];
-    if (!item) continue;
-    const kind = potionResourceKind(item);
-    if (!kind) continue;
-    const { current, max } = resources[kind];
-    const pct = (current / max) * 100;
-    if (pct > rule.thresholdPct) continue;
-    potionsUsed[rule.itemId] = used + 1;
-    const restorePct = item.healPct || item.restoreMpPct || item.restoreStaminaPct;
-    const amount = Math.round(max * restorePct);
-    const resourceLabel = kind === 'hp' ? '체력' : kind === 'mp' ? '마나' : '스테미나';
-    log.push(`${actorLabel}이(가) ${item.name}을(를) 사용해 ${resourceLabel}을(를) ${amount} 회복했다.`);
-    return { kind, amount };
-  }
-  return null;
-}
 
 // 직업-몹 타입 상성(확률 발동) - 명중 보장 아님, 발동하면 그 라운드 데미지에 배율 적용
 function classMonsterAffinity(classDef, monsterTags) {
@@ -343,11 +350,30 @@ function classMonsterAffinity(classDef, monsterTags) {
   return null;
 }
 
+// 공용 무기/방어구 등급(uncommon/rare/legendary) 드랍은 원래 검/중갑 하나로만 고정되어 있었음 -
+// 어떤 직업이 잡든 무기/방어구 타입이 완전 무작위로 갈리게 해서(캐릭 직업과 무관) 다른 타입을 얻으면
+// 직접 쓰거나(무기는 직업 불일치 패널티 감수, 방패도 동일한 원칙) 마켓에서 맞는 직업에게 거래할 수 있음
+const WEAPON_TIER_VARIANTS = {
+  weapon_uncommon: ['weapon_uncommon', 'weapon_bow_uncommon', 'weapon_staff_uncommon'],
+  weapon_rare: ['weapon_rare', 'weapon_bow_rare', 'weapon_staff_rare'],
+  weapon_legendary: ['weapon_legendary', 'weapon_bow_legendary', 'weapon_staff_legendary'],
+};
+const ARMOR_TIER_VARIANTS = {
+  armor_uncommon: ['armor_uncommon', 'armor_light_uncommon', 'armor_cloth_uncommon'],
+  armor_rare: ['armor_rare', 'armor_light_rare', 'armor_cloth_rare'],
+  armor_legendary: ['armor_legendary', 'armor_light_legendary', 'armor_cloth_legendary'],
+};
+function rollLootItemId(itemId) {
+  const variants = WEAPON_TIER_VARIANTS[itemId] || ARMOR_TIER_VARIANTS[itemId];
+  if (!variants) return itemId;
+  return variants[randInt(0, variants.length - 1)];
+}
+
 function rollLoot(monster) {
   const loot = [];
   for (const drop of monster.dropTable || []) {
     if (Math.random() < drop.chance) {
-      loot.push({ itemId: drop.itemId, qty: randInt(drop.qtyMin, drop.qtyMax) });
+      loot.push({ itemId: rollLootItemId(drop.itemId), qty: randInt(drop.qtyMin, drop.qtyMax) });
     }
   }
   return loot;
@@ -402,8 +428,7 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }
     name: isSelf ? '나' : characterLike.name,
     label: isSelf ? '나' : characterLike.name,
     combatStats,
-    // 용병은 별도 인벤토리 없이 본대(캐릭터)의 물자를 공유 - 화살/포션 전부 sharedInventory에서 사용
-    potionRules: characterLike.potionRules || [],
+    // 용병은 별도 인벤토리 없이 본대(캐릭터)의 물자를 공유 - 화살은 sharedInventory에서 사용
     stance: characterLike.stance || 'stable',
     formationRow,
     allowedRows,
@@ -428,16 +453,24 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }
 }
 
 // 스킬 자원 - 물리 직업(전사/궁수)은 스테미나, 마법 직업(마법사/성직자)은 마나를 씀
-function skillResourceKey(actor) {
-  return actor.combatStats.classDef.resourceType === 'stamina' ? 'stamina' : 'mp';
+// 자원 종류는 기본적으로 직업(classDef.resourceType) 하나로 정해지지만, 스킬이 resourceType을 직접
+// 지정하면(성기사의 마나 스킬, 흑기사의 hp 스킬 등) 직업 기본값 대신 그 스킬의 자원을 씀 - 한 직업이
+// 스태미나+마나를 섞어 쓰거나(하이브리드), 체력 자체를 자원으로 쓰는(리스크형) 스킬 구성이 가능해짐
+function skillResourceKey(actor, skill) {
+  const resourceType = (skill && skill.resourceType) || actor.combatStats.classDef.resourceType;
+  if (resourceType === 'hp') return 'hp';
+  return resourceType === 'stamina' ? 'stamina' : 'mp';
 }
-function spendActorResource(actor, amount) {
-  const key = skillResourceKey(actor);
+const HP_SKILL_MIN_REMAINING = 1; // 체력을 자원으로 쓰는 스킬은 자살 방지로 최소 이 수치는 남겨둠
+function spendActorResource(actor, skill, amount) {
+  const key = skillResourceKey(actor, skill);
   actor[key] -= amount;
 }
 // 스킬을 이번에 쓸 수 있는지 - 자원이 충분한지 + (본인이면) 훈련소에서 배운 스킬인지(미습득 스킬은 사용 불가)
 function isSkillUsable(actor, skill) {
-  if (skill.manaCost > actor[skillResourceKey(actor)]) return false;
+  const key = skillResourceKey(actor, skill);
+  const available = key === 'hp' ? actor.hp - HP_SKILL_MIN_REMAINING : actor[key];
+  if (skill.manaCost > available) return false;
   if (skill.requiresShield && !actor.combatStats.hasShield) return false; // 방패 스킬은 방패 장착 중일 때만
   if (actor.isSelf) return (actor.skillLevels && actor.skillLevels[skill.id] > 0);
   return true; // 용병은 훈련 시스템 대상이 아니라 항상 사용 가능
@@ -461,7 +494,7 @@ function performAttack({ actor, monster, otherMonsters, sharedInventory, log, is
   const useSkill = skills.length > 0;
   const skill = useSkill ? skills[skills.length - 1] : null;
   let power = (skill ? skillEffectivePower(actor, skill) : 1.0) * partyBuffs.atkMult; // 마법사의 "무기 강화" 버프가 파티 전체에 적용됨
-  if (skill) spendActorResource(actor, skill.manaCost);
+  if (skill) spendActorResource(actor, skill, skill.manaCost);
 
   const arrowsLeftBeforeShot = actor.usesBow ? inventoryQty(sharedInventory, 'arrow') - actor.arrowsUsed : 0;
   const isKiting = actor.usesBow && arrowsLeftBeforeShot > 0;
@@ -485,29 +518,40 @@ function performAttack({ actor, monster, otherMonsters, sharedInventory, log, is
     : '';
   const elementNote = skill && skill.elements ? ` [${castElement}]` : '';
 
+  // D&D식 명중판정 - 1d20 + 공격보정(비숙련무기면 -4) vs 몹 AC. 자연20은 항상 명중+치명타, 자연1은 항상 빗나감
   let monsterDied = false;
-  if (offClassWeapon && Math.random() < OFF_CLASS_WEAPON_MISS_CHANCE) {
-    log.push(`${actor.label}의 공격이 (숙련되지 않은 무기라) 빗나갔다!`);
-  } else {
-    const hitCount = Math.random() < actor.doubleAttackChance ? 2 : 1;
-    let lastRawDamage = 0;
-    for (let hitIdx = 0; hitIdx < hitCount && !monsterDied; hitIdx++) {
-      const rawDamage = Math.max(1, Math.round((combatStats.atk * power * elemMult * affinityMult - monster.def) * randRange(0.85, 1.15)));
-      lastRawDamage = rawDamage;
-      monster.hp -= rawDamage;
-      const hitLabel = hitIdx === 1 ? ' (2연타!)' : '';
-      log.push(`${actor.label}의 ${skill ? skill.name : '공격'}! ${monster.name}에게 ${rawDamage} 피해.${elementNote}${affinityNote}${hitLabel}`);
-      if (monster.hp <= 0) monsterDied = true;
+  const hitCount = Math.random() < actor.doubleAttackChance ? 2 : 1;
+  let lastRawDamage = 0;
+  let anyHit = false;
+  for (let hitIdx = 0; hitIdx < hitCount && !monsterDied; hitIdx++) {
+    const naturalRoll = randInt(1, 20);
+    const attackRollBonus = combatStats.attackBonus - (offClassWeapon ? OFF_CLASS_WEAPON_ATTACK_PENALTY : 0);
+    const isCrit = naturalRoll === 20;
+    const isFumble = naturalRoll === 1;
+    const hit = isCrit || (!isFumble && naturalRoll + attackRollBonus >= monster.ac);
+    const hitLabel = hitIdx === 1 ? ' (추가타!)' : '';
+    if (!hit) {
+      log.push(`${actor.label}의 ${skill ? skill.name : '공격'}이(가) ${pickFlavor(ATTACK_MISS_LINES)}!${hitLabel}`);
+      continue;
     }
-    // 광역(attack_all) - 대기 중인 다른 몹들에게도 스플래시 피해(스플래시로는 죽지 않음, HP 1 보존)
-    if (skill && skill.type === 'attack_all' && otherMonsters && otherMonsters.length) {
-      const splashDamage = Math.max(1, Math.round(lastRawDamage * 0.4));
-      for (const other of otherMonsters) {
-        if (other === monster || other.hp <= 0) continue;
-        other.hp = Math.max(1, other.hp - splashDamage);
-      }
-      log.push(`${actor.label}의 ${skill.name}이(가) 주변까지 휩쓸었다! (스플래시 ${splashDamage})`);
+    anyHit = true;
+    const critMult = isCrit ? CRIT_DAMAGE_MULT : 1;
+    const rawDamage = Math.max(1, Math.round(combatStats.atk * power * elemMult * affinityMult * critMult * randRange(0.85, 1.15)));
+    lastRawDamage = rawDamage;
+    monster.hp -= rawDamage;
+    const intro = isCrit ? pickFlavor(ATTACK_CRIT_INTROS) : pickFlavor(ATTACK_HIT_INTROS);
+    const critLabel = isCrit ? ' 💥치명타!' : '';
+    log.push(`${actor.label}의 ${skill ? skill.name : '공격'}, ${intro}! ${monster.name}에게 ${rawDamage} 피해.${elementNote}${affinityNote}${critLabel}${hitLabel}`);
+    if (monster.hp <= 0) monsterDied = true;
+  }
+  // 광역(attack_all) - 대기 중인 다른 몹들에게도 스플래시 피해(스플래시로는 죽지 않음, HP 1 보존)
+  if (anyHit && skill && skill.type === 'attack_all' && otherMonsters && otherMonsters.length) {
+    const splashDamage = Math.max(1, Math.round(lastRawDamage * 0.4));
+    for (const other of otherMonsters) {
+      if (other === monster || other.hp <= 0) continue;
+      other.hp = Math.max(1, other.hp - splashDamage);
     }
+    log.push(`${actor.label}의 ${skill.name}이(가) 주변까지 휩쓸었다! (스플래시 ${splashDamage})`);
   }
   return { monsterDied, isKiting, affinity };
 }
@@ -515,20 +559,28 @@ function performAttack({ actor, monster, otherMonsters, sharedInventory, log, is
 // 몹의 반격 1회 처리 - target(파티원 한 명)이 대상. 카이팅 중이면 아예 호출되지 않음(resolveCombat에서 스킵)
 function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit, partyBuffs, party }) {
   const combatStats = target.combatStats;
-  const dodgeChance = Math.min(MAX_DODGE_CHANCE, BASE_DODGE_CHANCE + combatStats.agi * AGI_DODGE_PER_POINT)
-    * (target.injurySeverity.leg ? INJURY_DODGE_MULT[target.injurySeverity.leg] : 1);
-  if (Math.random() < dodgeChance) {
-    log.push(`${target.label}이(가) ${monster.name}의 공격을 회피했다!`);
+  // D&D식 명중판정 - 다리 부상이면 AC가 그만큼 낮아짐(예전엔 회피율 저하로 표현하던 것과 같은 자리).
+  // 성직자의 "마법 방어막" 버프(defMult>1)는 이제 데미지 감소 대신 AC 상승으로 반영됨
+  const legPenalty = target.injurySeverity.leg ? (LEG_INJURY_AC_PENALTY[target.injurySeverity.leg] || 0) : 0;
+  const defBuffAcBonus = Math.round((partyBuffs.defMult - 1) * 10);
+  const targetAC = combatStats.ac + defBuffAcBonus - legPenalty;
+  const naturalRoll = randInt(1, 20);
+  const isCrit = naturalRoll === 20;
+  const isFumble = naturalRoll === 1;
+  const hit = isCrit || (!isFumble && naturalRoll + monster.attackBonus >= targetAC);
+  if (!hit) {
+    log.push(`${target.label}이(가) ${monster.name}의 공격을 ${pickFlavor(MONSTER_MISS_LINES)}!`);
     return;
   }
 
   const injuryDamageBonus = (INJURY_INCOMING_DAMAGE_BONUS[target.injurySeverity.arm] || 0) + (INJURY_INCOMING_DAMAGE_BONUS[target.injurySeverity.leg] || 0);
   const elementResistMult = (target.accessoryElementDefense === 'all' || target.accessoryElementDefense === monster.element) ? 0.7 : 1;
-  // 마법사의 "마법 방어막" 버프가 파티 전체 방어력에 적용됨(defMult가 1보다 크면 방어력 상승)
-  const effectiveDef = combatStats.def * partyBuffs.defMult;
-  const monsterDamage = Math.max(1, Math.round((monster.atk - effectiveDef) * randRange(0.85, 1.15) * (1 + injuryDamageBonus) * elementResistMult));
+  const critMult = isCrit ? CRIT_DAMAGE_MULT : 1;
+  const monsterDamage = Math.max(1, Math.round(monster.atk * critMult * randRange(0.85, 1.15) * (1 + injuryDamageBonus) * elementResistMult));
   target.hp -= monsterDamage;
-  log.push(`${monster.name}이(가) ${target.label}을(를) 공격! ${monsterDamage} 피해.`);
+  const intro = isCrit ? pickFlavor(MONSTER_CRIT_INTROS) : pickFlavor(MONSTER_HIT_INTROS);
+  const critLabel = isCrit ? ' 💥치명타!' : '';
+  log.push(`${monster.name}이(가) ${target.label}을(를) ${intro}! ${monsterDamage} 피해.${critLabel}`);
   if (!monster.statusImmune && monster.poisonChance > 0 && Math.random() < monster.poisonChance) {
     const poisonDamage = Math.round(combatStats.maxHp * 0.05);
     target.hp -= poisonDamage;
@@ -603,7 +655,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
       .sort((a, b) => (a.hp / a.combatStats.maxHp) - (b.hp / b.combatStats.maxHp));
     if (hurt.length) {
       const target = hurt[0];
-      spendActorResource(actor, healSkill.manaCost);
+      spendActorResource(actor, healSkill, healSkill.manaCost);
       // 치유량은 대상 최대체력 비율 + 시전자의 공격력 절반(공격력 자체가 지혜 등 주스탯에 비례하므로
       // 자연히 지혜가 높을수록 치유량도 커짐) - 훈련 단계가 오르면 skillEffectivePower로 회복 비율도 커짐
       const healAmount = Math.round(target.combatStats.maxHp * skillEffectivePower(actor, healSkill)) + Math.round(actor.combatStats.atk * 0.5);
@@ -615,7 +667,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
 
   const debuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'debuff_monster' && isSkillUsable(actor, s));
   if (debuffSkill && !monster.cursed) {
-    spendActorResource(actor, debuffSkill.manaCost);
+    spendActorResource(actor, debuffSkill, debuffSkill.manaCost);
     const debuffPower = skillEffectivePower(actor, debuffSkill);
     monster.atk = Math.max(1, Math.round(monster.atk * (1 - debuffPower)));
     monster.def = Math.max(0, Math.round(monster.def * (1 - debuffPower)));
@@ -626,7 +678,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
 
   const atkBuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_atk_party' && isSkillUsable(actor, s));
   if (atkBuffSkill && partyBuffs.atkMult === 1) {
-    spendActorResource(actor, atkBuffSkill.manaCost);
+    spendActorResource(actor, atkBuffSkill, atkBuffSkill.manaCost);
     partyBuffs.atkMult = skillEffectivePower(actor, atkBuffSkill);
     log.push(`${actor.label}의 ${atkBuffSkill.name}! 파티 전체의 무기가 강화됐다.`);
     return true;
@@ -634,7 +686,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
 
   const defBuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_def_party' && isSkillUsable(actor, s));
   if (defBuffSkill && partyBuffs.defMult === 1) {
-    spendActorResource(actor, defBuffSkill.manaCost);
+    spendActorResource(actor, defBuffSkill, defBuffSkill.manaCost);
     partyBuffs.defMult = skillEffectivePower(actor, defBuffSkill);
     log.push(`${actor.label}의 ${defBuffSkill.name}! 파티 전체에 마법 방어막이 씌워졌다.`);
     return true;
@@ -642,7 +694,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
 
   const mentalSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_mental_party' && isSkillUsable(actor, s));
   if (mentalSkill && partyBuffs.mentalBonus === 0) {
-    spendActorResource(actor, mentalSkill.manaCost);
+    spendActorResource(actor, mentalSkill, mentalSkill.manaCost);
     partyBuffs.mentalBonus = skillEffectivePower(actor, mentalSkill);
     log.push(`${actor.label}의 ${mentalSkill.name}! 파티의 사기가 진정됐다.`);
     return true;
@@ -657,8 +709,10 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
 // 이니셔티브 순서로 한 번씩 행동함(발더스게이트류 개별 행동순서). 파티원 공격은 몹 중 "현재 체력이
 // 가장 낮은" 개체를 자동으로 골라 때리고(약한 몹부터 정리), 몹의 반격 대상은 기존과 동일하게
 // 전열(front)이 살아있는 한 전열부터 맞음(진형은 "누가 맞아주냐"만 결정, "누가 때리냐"는 무관)
-export function resolveCombat({ character, zoneId, stance }) {
-  const encounter = rollEncounter(zoneId, (character.zoneKillCounts || {})[zoneId] || 0);
+// presetEncounter를 주면(필드 미리보기 화면에서 이미 굴려둔 조우) 새로 굴리지 않고 그대로 사용함 -
+// "보이는 몹이 곧 싸울 몹"이 되도록(preview-zone.js가 만들고 adventure.js가 그대로 소비)
+export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
+  const encounter = presetEncounter || rollEncounter(zoneId, (character.zoneKillCounts || {})[zoneId] || 0);
   const monsters = encounter.monsterIds.map((id) => buildMonsterInstance(id, encounter.zone, encounter.uniqueTier));
   const isUnderleveled = (character.level || 1) < encounter.zone.tier * 3;
   const sharedInventory = character.inventory || []; // 파티 전원이 이 물자(화살/포션)를 공유
@@ -670,7 +724,6 @@ export function resolveCombat({ character, zoneId, stance }) {
     })),
   ];
 
-  const potionsUsed = {}; // 파티 공용 물자 소모 카운트(itemId별)
   // 마법사/성직자의 파티 버프 - 한 번 발동하면 이 전투(모험) 내내 유지됨(재시전으로 갱신 안 됨, 1회성)
   const partyBuffs = { atkMult: 1, defMult: 1, mentalBonus: 0 };
   const log = [`${encounter.zone.name}에 진입했다.`];
@@ -709,20 +762,31 @@ export function resolveCombat({ character, zoneId, stance }) {
         return true;
       }
       if (skill.type === 'attack_all') {
+        // 광역기는 명중굴림 없이 전체 타격(플레이어의 attack_all 스플래시와 같은 취급) - D&D에서도
+        // 광역 주문은 보통 회피굴림이지 명중굴림이 아니므로, 여기선 단순화해 항상 맞는 것으로 처리
         const alive = alivePartyMembers();
         alive.forEach((target) => {
-          const dmg = Math.max(1, Math.round((monster.atk * (skill.powerMult ?? 1.3) - target.combatStats.def * partyBuffs.defMult) * randRange(0.85, 1.15)));
+          const dmg = Math.max(1, Math.round(monster.atk * (skill.powerMult ?? 1.3) * randRange(0.85, 1.15)));
           target.hp -= dmg;
         });
-        log.push(`${monster.name}의 ${skill.name}! 파티 전체에게 피해를 입혔다.`);
+        log.push(`${monster.name}의 ${skill.name}! 파티 전체를 휩쓸었다.`);
         return true;
       }
       if (skill.type === 'attack') {
         const target = pickMonsterTarget(monster);
         if (!target) return false;
-        const dmg = Math.max(1, Math.round((monster.atk * (skill.powerMult ?? 1.6) - target.combatStats.def * partyBuffs.defMult) * randRange(0.85, 1.15)));
+        const legPenalty = target.injurySeverity.leg ? (LEG_INJURY_AC_PENALTY[target.injurySeverity.leg] || 0) : 0;
+        const targetAC = target.combatStats.ac + Math.round((partyBuffs.defMult - 1) * 10) - legPenalty;
+        const naturalRoll = randInt(1, 20);
+        const isCrit = naturalRoll === 20;
+        const isFumble = naturalRoll === 1;
+        if (!isCrit && (isFumble || naturalRoll + monster.attackBonus < targetAC)) {
+          log.push(`${monster.name}의 ${skill.name}! ${target.label}이(가) ${pickFlavor(MONSTER_MISS_LINES)}!`);
+          return true;
+        }
+        const dmg = Math.max(1, Math.round(monster.atk * (skill.powerMult ?? 1.6) * (isCrit ? CRIT_DAMAGE_MULT : 1) * randRange(0.85, 1.15)));
         target.hp -= dmg;
-        log.push(`${monster.name}의 ${skill.name}! ${target.label}에게 ${dmg} 피해.`);
+        log.push(`${monster.name}의 ${skill.name}! ${target.label}에게 ${dmg} 피해.${isCrit ? ' 💥치명타!' : ''}`);
         return true;
       }
     }
@@ -795,21 +859,6 @@ export function resolveCombat({ character, zoneId, stance }) {
         const actor = entry.ref;
         if (actor.hp <= 0) continue;
 
-        const potionResult = maybeUsePotion({
-          potionRules: actor.potionRules, inventory: sharedInventory,
-          resources: {
-            hp: { current: actor.hp, max: actor.combatStats.maxHp },
-            mp: { current: actor.mp, max: actor.combatStats.maxMp },
-            stamina: { current: actor.stamina, max: actor.combatStats.maxStamina },
-          },
-          potionsUsed, log, actorLabel: actor.label,
-        });
-        if (potionResult) {
-          if (potionResult.kind === 'hp') actor.hp = Math.min(actor.combatStats.maxHp, actor.hp + potionResult.amount);
-          if (potionResult.kind === 'mp') actor.mp = Math.min(actor.combatStats.maxMp, actor.mp + potionResult.amount);
-          if (potionResult.kind === 'stamina') actor.stamina = Math.min(actor.combatStats.maxStamina, actor.stamina + potionResult.amount);
-        }
-
         // 무기 사거리가 안 닿는 위치면 아무 행동도 못 함 - 활/지팡이(원거리)는 위치 무관 항상 가능,
         // 창/사슬도리깨는 사거리가 있어 전열/중열까지 가능, 그 외 근접(검/도끼 등)은 전열이어야만 가능.
         // 공포에 밀려났거나(진형 붕괴) 원래 자리가 아니게 된 경우 전부 해당 - 이번 라운드는 몸빵만 하다가 넘어감
@@ -870,7 +919,6 @@ export function resolveCombat({ character, zoneId, stance }) {
     killedMonsterIds,
     finalHp: selfFinalHp, finalMp: selfFinalMp, finalStamina: selfFinalStamina,
     finalHpPct: Math.max(0, Math.round((selfFinalHp / selfCombatant.combatStats.maxHp) * 100)),
-    potionsUsed,
     arrowsUsed: selfCombatant.arrowsUsed,
     newInjuries: selfCombatant.newInjuries,
     mercenaries: mercResults,

@@ -1275,11 +1275,32 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
 
 /* RPG */
 .rpg-page { padding: 12px; }
+/* 기본 버튼 모양(눌러야 할 것 같은 느낌) - :where()로 감싸 특이도를 0으로 만들어서, 파일 어디에
+   있든(앞이든 뒤든) 개별 .rpg-*-btn 규칙이 항상 이 기본값을 덮어쓰도록 함. 많은 액션 버튼이
+   커스텀 스타일 없이 브라우저 기본 버튼으로 렌더링돼 "눌러지는지 인지가 안 된다"는 피드백을 받아
+   최소한의 공통 존재감(배경/둥근모서리/여백)을 기본값으로 깔아줌 */
+:where(.rpg-page) button {
+  background: #6366f1; color: #fff; border: none; border-radius: 6px;
+  padding: 6px 12px; font-size: 13px; cursor: pointer;
+}
+:where(.rpg-page) button:disabled { background: #4b5563; color: rgba(255,255,255,0.7); cursor: not-allowed; }
 .rpg-loading, .rpg-hint { color: var(--muted); font-size: 13px; padding: 8px 0; }
 
 .rpg-statusbar {
-  display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; font-weight: 600;
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 13px; font-weight: 600;
   background: rgba(255,255,255,0.05); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px;
+}
+.rpg-switch-char-btn {
+  background: #6366f1; color: #fff; border: none; border-radius: 6px;
+  padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; margin-left: auto;
+}
+.rpg-set-info-btn {
+  background: rgba(99,102,241,0.25); border: 1px solid #6366f1; border-radius: 6px;
+  color: #fff; font-size: 12px; padding: 2px 8px; cursor: pointer;
+}
+.rpg-zone-back-btn {
+  background: rgba(255,255,255,0.1); border: 1px solid var(--border); border-radius: 8px;
+  color: #fff; font-size: 14px; padding: 8px 16px; cursor: pointer;
 }
 
 .rpg-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
@@ -1297,6 +1318,26 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
 }
 .rpg-zone-name { font-weight: 600; font-size: 14px; }
 .rpg-zone-tier { font-size: 12px; color: var(--muted); }
+
+.rpg-encounter-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+.rpg-encounter-monster-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: rgba(220,38,38,0.15); border: 1px solid #dc2626; border-radius: 12px;
+  padding: 12px 16px; min-width: 84px; color: #fff; cursor: pointer;
+}
+.rpg-encounter-monster-btn:active { background: rgba(220,38,38,0.3); }
+.rpg-encounter-icon { font-size: 28px; }
+.rpg-encounter-name { font-size: 12px; text-align: center; }
+.rpg-refresh-encounter-btn {
+  background: #6366f1; color: #fff; border: none; border-radius: 6px;
+  padding: 6px 12px; font-size: 13px; cursor: pointer;
+}
+.rpg-refresh-encounter-btn:disabled { background: #4b5563; color: rgba(255,255,255,0.7); cursor: not-allowed; }
+.rpg-travel-town-btn {
+  background: #6366f1; color: #fff; border: none; border-radius: 6px;
+  padding: 5px 10px; font-size: 12px; cursor: pointer; margin: 2px 4px 2px 0;
+}
+.rpg-travel-town-btn:disabled { background: #4b5563; color: rgba(255,255,255,0.7); cursor: not-allowed; }
 
 .rpg-combat-log { background: rgba(0,0,0,0.25); border-radius: 10px; padding: 12px; font-size: 13px; }
 .rpg-log-lines { max-height: 260px; overflow-y: auto; }
@@ -1334,7 +1375,21 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
   padding: 5px 10px; font-size: 12px; cursor: pointer; margin: 2px 4px 2px 0;
 }
 .rpg-merc-job-btn:disabled { background: #4b5563; color: rgba(255,255,255,0.7); cursor: not-allowed; }
-.rpg-rename-merc-btn { background: none; border: none; cursor: pointer; font-size: 12px; padding: 0 2px; }
+.rpg-rename-merc-btn {
+  background: rgba(255,255,255,0.12); border: 1px solid var(--border); border-radius: 6px;
+  cursor: pointer; font-size: 14px; padding: 3px 8px; vertical-align: middle;
+}
+
+.rpg-work-territory-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.rpg-work-territory-card {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  background: rgba(99,102,241,0.18); border: 1px solid #6366f1; border-radius: 12px;
+  padding: 12px 14px; cursor: pointer;
+}
+.rpg-work-territory-card:active { background: rgba(99,102,241,0.32); }
+.rpg-work-territory-icon { font-size: 32px; line-height: 1; flex-shrink: 0; }
+.rpg-work-territory-info { display: flex; flex-direction: column; gap: 2px; }
+.rpg-work-territory-name { font-size: 15px; font-weight: 700; color: #fff; }
 
 .rpg-notice-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200;

@@ -79,6 +79,101 @@ export const ITEMS = {
   cursed_rosary: { id: 'cursed_rosary', name: '저주받은 묵주', type: 'material', rarity: 'normal', weight: 0.3 },
   abyss_essence: { id: 'abyss_essence', name: '심연의 정수', type: 'material', rarity: 'normal', weight: 0.2 },
   assassin_blade_shard: { id: 'assassin_blade_shard', name: '암살자의 칼조각', type: 'material', rarity: 'normal', weight: 0.4 },
+  gold_pouch: { id: 'gold_pouch', name: '두둑한 금주머니', type: 'material', rarity: 'uncommon', weight: 0.5 },
+
+  // ── 신규 확장 지역 재료(town1~5 각 8개 신규 사냥터 + 신규 던전 2곳) ──
+  // town1 신규 (해변 저지대 계열) 일반몹 재료
+  crab_shell: { id: 'crab_shell', name: '게 껍질', type: 'material', rarity: 'normal', weight: 0.5 },
+  gull_feather: { id: 'gull_feather', name: '갈매기 깃털', type: 'material', rarity: 'normal', weight: 0.2 },
+  smuggled_goods: { id: 'smuggled_goods', name: '밀수품 꾸러미', type: 'material', rarity: 'normal', weight: 0.6 },
+  hermit_shell: { id: 'hermit_shell', name: '은둔자의 조개껍질', type: 'material', rarity: 'normal', weight: 0.5 },
+  driftwood_chunk: { id: 'driftwood_chunk', name: '유목 조각', type: 'material', rarity: 'normal', weight: 1 },
+  brine_essence: { id: 'brine_essence', name: '바닷물 정수', type: 'material', rarity: 'normal', weight: 0.3 },
+  // town1 신규 레어몹 전용 드랍
+  crab_king_claw: { id: 'crab_king_claw', name: '게 왕의 집게', type: 'material', rarity: 'uncommon', weight: 1 },
+  smuggler_ledger: { id: 'smuggler_ledger', name: '밀수단의 장부', type: 'material', rarity: 'uncommon', weight: 0.3 },
+  ancient_pearl: { id: 'ancient_pearl', name: '태고의 진주', type: 'material', rarity: 'uncommon', weight: 0.3 },
+  storm_feather: { id: 'storm_feather', name: '폭풍의 깃털', type: 'material', rarity: 'uncommon', weight: 0.2 },
+  brine_matriarch_core: { id: 'brine_matriarch_core', name: '바닷물 마녀 대모의 정수', type: 'material', rarity: 'rare', weight: 0.5 },
+  captain_ghost_lantern: { id: 'captain_ghost_lantern', name: '선장의 유령 등불', type: 'material', rarity: 'rare', weight: 0.5 },
+  commander_badge: { id: 'commander_badge', name: '감시대장의 휘장', type: 'material', rarity: 'rare', weight: 0.4 },
+  serpent_pearl: { id: 'serpent_pearl', name: '이무기의 진주', type: 'material', rarity: 'rare', weight: 0.5 },
+
+  // town2 신규 (항만/채석장) 일반몹 재료
+  rat_swarm_fur: { id: 'rat_swarm_fur', name: '쥐떼의 털뭉치', type: 'material', rarity: 'normal', weight: 0.3 },
+  dock_thug_club: { id: 'dock_thug_club', name: '부두 건달의 몽둥이', type: 'material', rarity: 'normal', weight: 1 },
+  broken_harpoon: { id: 'broken_harpoon', name: '부러진 작살', type: 'material', rarity: 'normal', weight: 0.8 },
+  quarry_stone: { id: 'quarry_stone', name: '채석장의 돌덩이', type: 'material', rarity: 'normal', weight: 1.5 },
+  stalker_cloak: { id: 'stalker_cloak', name: '잠복자의 망토', type: 'material', rarity: 'normal', weight: 0.4 },
+  rusted_gear: { id: 'rusted_gear', name: '녹슨 톱니바퀴', type: 'material', rarity: 'normal', weight: 0.7 },
+  // town2 신규 레어몹 전용 드랍
+  harbor_overseer_seal: { id: 'harbor_overseer_seal', name: '항만 감독관의 인장', type: 'material', rarity: 'rare', weight: 0.5 },
+  drowned_crown: { id: 'drowned_crown', name: '익사한 선원왕의 왕관', type: 'material', rarity: 'rare', weight: 0.7 },
+  rat_queen_core: { id: 'rat_queen_core', name: '쥐떼 여왕의 핵', type: 'material', rarity: 'rare', weight: 0.4 },
+  quarry_overlord_pick: { id: 'quarry_overlord_pick', name: '채석장 지배자의 곡괭이', type: 'material', rarity: 'rare', weight: 1 },
+  shaft_horror_core: { id: 'shaft_horror_core', name: '갱도 공포의 핵', type: 'material', rarity: 'rare', weight: 0.5 },
+  foundry_golem_core: { id: 'foundry_golem_core', name: '제련소 골렘의 핵', type: 'material', rarity: 'epic', weight: 1 },
+  kingpin_ledger: { id: 'kingpin_ledger', name: '밀수 보스의 장부', type: 'material', rarity: 'epic', weight: 0.5 },
+  flood_serpent_scale: { id: 'flood_serpent_scale', name: '범람 이무기의 비늘', type: 'material', rarity: 'epic', weight: 1 },
+
+  // town3 신규 (산악) 일반몹 재료
+  hawk_talon: { id: 'hawk_talon', name: '매의 발톱', type: 'material', rarity: 'normal', weight: 0.3 },
+  frayed_rope: { id: 'frayed_rope', name: '해진 밧줄', type: 'material', rarity: 'normal', weight: 0.6 },
+  troll_hide: { id: 'troll_hide', name: '트롤 가죽', type: 'material', rarity: 'normal', weight: 1.2 },
+  yeti_fur: { id: 'yeti_fur', name: '예티 털가죽', type: 'material', rarity: 'normal', weight: 1 },
+  shaman_totem_shard: { id: 'shaman_totem_shard', name: '주술사의 토템 조각', type: 'material', rarity: 'normal', weight: 0.5 },
+  ram_horn: { id: 'ram_horn', name: '산양 뿔', type: 'material', rarity: 'normal', weight: 0.5 },
+  // town3 신규 레어몹 전용 드랍
+  sky_hawk_feather: { id: 'sky_hawk_feather', name: '하늘매 대모의 깃털', type: 'material', rarity: 'rare', weight: 0.4 },
+  bridge_warlord_banner: { id: 'bridge_warlord_banner', name: '구름다리 전쟁군주의 깃발', type: 'material', rarity: 'rare', weight: 0.8 },
+  elder_troll_core: { id: 'elder_troll_core', name: '늙은 돌 트롤의 핵', type: 'material', rarity: 'rare', weight: 1.2 },
+  frost_wyvern_scale: { id: 'frost_wyvern_scale', name: '서리 와이번의 비늘', type: 'material', rarity: 'epic', weight: 1 },
+  high_shaman_staff_head: { id: 'high_shaman_staff_head', name: '대주술사의 지팡이 머리', type: 'material', rarity: 'epic', weight: 0.5 },
+  alpha_yeti_pelt: { id: 'alpha_yeti_pelt', name: '우두머리 예티의 모피', type: 'material', rarity: 'epic', weight: 1.2 },
+  thunder_roc_feather: { id: 'thunder_roc_feather', name: '천둥 로크의 깃털', type: 'material', rarity: 'epic', weight: 0.6 },
+  ram_king_horn: { id: 'ram_king_horn', name: '산양왕의 뿔', type: 'material', rarity: 'epic', weight: 0.7 },
+
+  // town4 신규 (화산지대) 일반몹 재료
+  magma_residue: { id: 'magma_residue', name: '마그마 찌꺼기', type: 'material', rarity: 'normal', weight: 0.8 },
+  imp_horn: { id: 'imp_horn', name: '임프의 뿔', type: 'material', rarity: 'normal', weight: 0.3 },
+  obsidian_shard: { id: 'obsidian_shard', name: '흑요석 파편', type: 'material', rarity: 'normal', weight: 1 },
+  cinder_pelt: { id: 'cinder_pelt', name: '잿불 늑대 가죽', type: 'material', rarity: 'normal', weight: 1 },
+  molten_relic: { id: 'molten_relic', name: '용암 사제의 유물', type: 'material', rarity: 'normal', weight: 0.5 },
+  wasp_stinger: { id: 'wasp_stinger', name: '말벌 독침', type: 'material', rarity: 'normal', weight: 0.2 },
+  // town4 신규 레어몹 전용 드랍
+  magma_behemoth_core: { id: 'magma_behemoth_core', name: '마그마 거수의 핵', type: 'material', rarity: 'epic', weight: 1.5 },
+  imp_overlord_horn: { id: 'imp_overlord_horn', name: '임프 대공의 뿔', type: 'material', rarity: 'epic', weight: 0.6 },
+  obsidian_colossus_core: { id: 'obsidian_colossus_core', name: '흑요석 거상의 핵', type: 'material', rarity: 'epic', weight: 1.5 },
+  cinder_alpha_fang: { id: 'cinder_alpha_fang', name: '잿불 우두머리의 송곳니', type: 'material', rarity: 'legendary', weight: 0.5 },
+  molten_archpriest_censer: { id: 'molten_archpriest_censer', name: '용암 대사제의 향로', type: 'material', rarity: 'legendary', weight: 0.7 },
+  wasp_queen_stinger: { id: 'wasp_queen_stinger', name: '말벌 여왕의 독침', type: 'material', rarity: 'legendary', weight: 0.3 },
+  ashfall_wyrm_scale: { id: 'ashfall_wyrm_scale', name: '잿비 와이번의 비늘', type: 'material', rarity: 'legendary', weight: 1 },
+  brimstone_warden_core: { id: 'brimstone_warden_core', name: '유황문 파수병의 핵', type: 'material', rarity: 'legendary', weight: 1.2 },
+
+  // town5 신규 (고대유적) 일반몹 재료
+  sentinel_rubble: { id: 'sentinel_rubble', name: '파수병의 잔해', type: 'material', rarity: 'normal', weight: 1 },
+  ghoul_claw: { id: 'ghoul_claw', name: '구울의 발톱', type: 'material', rarity: 'normal', weight: 0.3 },
+  wisp_flame: { id: 'wisp_flame', name: '도깨비불의 불꽃', type: 'material', rarity: 'normal', weight: 0.2 },
+  bone_arrowhead: { id: 'bone_arrowhead', name: '뼈 화살촉', type: 'material', rarity: 'normal', weight: 0.3 },
+  hound_fang: { id: 'hound_fang', name: '그림자 사냥개의 이빨', type: 'material', rarity: 'normal', weight: 0.3 },
+  acolyte_seal: { id: 'acolyte_seal', name: '신도의 봉인', type: 'material', rarity: 'normal', weight: 0.3 },
+  // town5 신규 레어몹 전용 드랍
+  ancient_sentinel_core: { id: 'ancient_sentinel_core', name: '고대 파수병왕의 핵', type: 'material', rarity: 'legendary', weight: 1.2 },
+  ghoul_matriarch_core: { id: 'ghoul_matriarch_core', name: '구울 여왕의 핵', type: 'material', rarity: 'legendary', weight: 0.8 },
+  wisp_avatar_core: { id: 'wisp_avatar_core', name: '도깨비불 화신의 핵', type: 'material', rarity: 'legendary', weight: 0.5 },
+  bone_archon_skull: { id: 'bone_archon_skull', name: '해골 대군의 두개골', type: 'material', rarity: 'legendary', weight: 1 },
+  hound_alpha_fang: { id: 'hound_alpha_fang', name: '그림자 사냥개 우두머리의 송곳니', type: 'material', rarity: 'legendary', weight: 0.5 },
+  void_high_priest_relic: { id: 'void_high_priest_relic', name: '공허 대사제의 유물', type: 'material', rarity: 'legendary', weight: 1 },
+  vault_wraith_key: { id: 'vault_wraith_key', name: '금고 수호 망령의 열쇠', type: 'material', rarity: 'legendary', weight: 0.7 },
+  starlight_revenant_core: { id: 'starlight_revenant_core', name: '별빛 부활자의 핵', type: 'material', rarity: 'legendary', weight: 1 },
+
+  // 신규 던전 2곳 재료
+  wight_grave_dust: { id: 'wight_grave_dust', name: '강시의 무덤 먼지', type: 'material', rarity: 'normal', weight: 0.5 },
+  specter_bowstring: { id: 'specter_bowstring', name: '원혼의 활시위', type: 'material', rarity: 'normal', weight: 0.3 },
+  crypt_lord_crown: { id: 'crypt_lord_crown', name: '지하묘지 군주의 왕관', type: 'material', rarity: 'epic', weight: 1 },
+  construct_core_shard: { id: 'construct_core_shard', name: '강철병의 핵 조각', type: 'material', rarity: 'normal', weight: 0.8 },
+  reaper_scythe_blade: { id: 'reaper_scythe_blade', name: '수확자의 낫날', type: 'material', rarity: 'normal', weight: 0.7 },
+  eternal_judge_seal: { id: 'eternal_judge_seal', name: '영원한 심판자의 봉인', type: 'material', rarity: 'legendary', weight: 1 },
 
   // 직업훈련소 결정 - 몹을 잡으면 내 직업에 맞는 게 일정 확률로 드랍(몹 종류 무관). 스킬을 배우거나
   // 단계를 올릴 때 소모됨(data/rpg/training.js 참고)
@@ -86,6 +181,8 @@ export const ITEMS = {
   essence_agility: { id: 'essence_agility', name: '민첩의 결정', type: 'material', rarity: 'uncommon', weight: 0.3 },
   essence_arcane: { id: 'essence_arcane', name: '마력의 결정', type: 'material', rarity: 'uncommon', weight: 0.3 },
   essence_holy: { id: 'essence_holy', name: '신성의 결정', type: 'material', rarity: 'uncommon', weight: 0.3 },
+  essence_radiant: { id: 'essence_radiant', name: '광휘의 결정', type: 'material', rarity: 'uncommon', weight: 0.3 }, // 성기사 전용
+  essence_abyssal: { id: 'essence_abyssal', name: '심연의 결정', type: 'material', rarity: 'uncommon', weight: 0.3 }, // 흑기사 전용
 
   // 대장간 강화석 - 유니크(레어)몹을 잡으면 낮은 확률로 드랍(data/rpg/enhancement.js 참고)
   enhance_stone: { id: 'enhance_stone', name: '강화석', type: 'material', rarity: 'rare', weight: 0.5 },
@@ -107,6 +204,14 @@ export const ITEMS = {
   weapon_uncommon: { id: 'weapon_uncommon', name: '단련된 장검', type: 'weapon', weaponType: 'sword', rarity: 'uncommon', atkBonus: 8, weight: 4 },
   weapon_rare: { id: 'weapon_rare', name: '칠흑의 검', type: 'weapon', weaponType: 'sword', rarity: 'rare', atkBonus: 16, element: 'dark', weight: 5 },
   weapon_legendary: { id: 'weapon_legendary', name: '수호자의 성검', type: 'weapon', weaponType: 'sword', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 6 },
+  // 궁수/마법사·성직자용 몹 드랍 무기 라인 - weapon_uncommon/rare/legendary(검)과 동일한 공격력 수치로,
+  // 몹을 잡을 때 캐릭터 직업(classMain)에 맞게 자동으로 치환되어 드랍됨(rpg-combat.js의 CLASS_WEAPON_TIER_MAP 참고)
+  weapon_bow_uncommon: { id: 'weapon_bow_uncommon', name: '단련된 활', type: 'weapon', weaponType: 'bow', rarity: 'uncommon', atkBonus: 8, weight: 3 },
+  weapon_bow_rare: { id: 'weapon_bow_rare', name: '칠흑의 활', type: 'weapon', weaponType: 'bow', rarity: 'rare', atkBonus: 16, element: 'dark', weight: 4 },
+  weapon_bow_legendary: { id: 'weapon_bow_legendary', name: '수호자의 성궁', type: 'weapon', weaponType: 'bow', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 4 },
+  weapon_staff_uncommon: { id: 'weapon_staff_uncommon', name: '단련된 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'uncommon', atkBonus: 8, weight: 3 },
+  weapon_staff_rare: { id: 'weapon_staff_rare', name: '칠흑의 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'rare', atkBonus: 16, element: 'dark', weight: 4 },
+  weapon_staff_legendary: { id: 'weapon_staff_legendary', name: '수호자의 성장', type: 'weapon', weaponType: 'staff', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 4 },
   armor_uncommon: { id: 'armor_uncommon', name: '강철 갑옷', type: 'armor_top', rarity: 'uncommon', armorClass: 'heavy', defBonus: 4, hpBonus: 20, weight: 12, strRequirement: 12 },
   armor_rare: { id: 'armor_rare', name: '정련된 판금 갑옷', type: 'armor_top', rarity: 'rare', armorClass: 'heavy', defBonus: 9, hpBonus: 45, weight: 16, strRequirement: 18 },
   armor_legendary: { id: 'armor_legendary', name: '수호자의 갑주', type: 'armor_top', rarity: 'legendary', armorClass: 'heavy', defBonus: 18, hpBonus: 90, weight: 20, strRequirement: 28 },

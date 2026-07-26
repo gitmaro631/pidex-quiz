@@ -89,7 +89,13 @@ export default async function handler(req, res) {
         }
       }
 
-      const combatResult = resolveCombat({ character: { ...character, mercenaries }, zoneId, stance: character.stance });
+      // 필드 미리보기(preview-zone.js)로 이미 본 몹 구성이 있으면 그대로 씀("보이는 게 곧 상대") -
+      // 없으면(미리보기 화면을 건너뛴 예전 클라이언트 등) 안전하게 그 자리에서 새로 굴림
+      const zonePreview = character.zonePreview;
+      const presetEncounter = (zonePreview && zonePreview.zoneId === zoneId)
+        ? { zone, monsterIds: zonePreview.monsterIds, isRare: zonePreview.isRare, uniqueTier: zonePreview.uniqueTier }
+        : null;
+      const combatResult = resolveCombat({ character: { ...character, mercenaries }, zoneId, stance: character.stance, presetEncounter });
       combatResult.log.unshift(...wageMessages);
       if (travelingBetweenTowns) {
         combatResult.log.unshift(`${(TOWNS[zone.town] || {}).name || zone.town}(으)로 이동했다. (턴포인트 1 추가 소모)`);
@@ -103,7 +109,6 @@ export default async function handler(req, res) {
       }
       if (overflowedLoot.length) combatResult.log.push('인벤토리가 가득 차서 일부 전리품을 놓쳤다.');
       if (overweightLoot.length) combatResult.log.push('짐이 너무 무거워서 일부 전리품을 챙기지 못했다.');
-      for (const [itemId, usedQty] of Object.entries(combatResult.potionsUsed)) removeItem(inventory, itemId, usedQty);
       // 화살은 본인+용병이 같은 물자를 공유해서 소모 - 전체 합계만큼 인벤토리에서 차감
       const totalArrowsUsed = combatResult.arrowsUsed + combatResult.mercenaries.reduce((sum, m) => sum + m.arrowsUsed, 0);
       if (totalArrowsUsed > 0) removeItem(inventory, 'arrow', totalArrowsUsed);
@@ -259,6 +264,7 @@ export default async function handler(req, res) {
         equipment: wornEquipment,
         injuries,
         mercenaries: allUpdatedMercenaries,
+        zonePreview: null, // 이번 조우는 소비됨 - 다음에 이 지역을 다시 보면 무료로 새로 굴려짐
         updatedAt: now,
       };
     });

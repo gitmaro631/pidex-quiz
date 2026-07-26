@@ -63,5 +63,35 @@ export const CLASSES = {
     strongVs: [{ tag: 'undead', chance: 0.3, multiplier: 1.4 }],
     weakVs: [{ tag: 'humanoid', chance: 0.2, multiplier: 0.75 }],
   },
+  // 성기사 - 전사+성직자 진짜 하이브리드. 기본 공격/방패기는 스태미나로, 신성 스킬(치유/파티방어막/대신관의
+  // 일격)은 마나로 씀(스킬 정의에 resourceType을 직접 지정해서 직업 기본 자원과 다르게 쓸 수 있음 -
+  // rpg-combat.js의 skillResourceKey 참고). WIS 요구치가 없어도 되게 스킬 위력 자체를 성직자보다 낮게 잡음
+  paladin: {
+    id: 'paladin', name: '성기사', weaponTypes: ['sword', 'axe', 'flail'], statScaling: { atk: 'str' }, resourceType: 'stamina',
+    skills: [
+      { id: 'holy_strike', name: '성스러운 일격', manaCost: 5, type: 'attack', power: 1.6 },
+      { id: 'holy_shield_bash', name: '성스러운 방패 강타', manaCost: 6, type: 'attack', power: 1.7, requiresShield: true },
+      { id: 'smite_undead', name: '심판의 빛줄기', manaCost: 10, type: 'attack', power: 2.0, resourceType: 'mana' },
+      { id: 'lay_on_hands', name: '안수 치유', manaCost: 8, type: 'heal_ally', power: 0.25, resourceType: 'mana' },
+      { id: 'divine_shield', name: '신성한 방벽', manaCost: 6, type: 'buff_def_party', power: 1.3, resourceType: 'mana' },
+    ],
+    strongVs: [{ tag: 'undead', chance: 0.3, multiplier: 1.5 }, { tag: 'demon', chance: 0.25, multiplier: 1.4 }],
+    weakVs: [{ tag: 'beast', chance: 0.2, multiplier: 0.75 }],
+  },
+  // 흑기사 - 체력 자체를 자원으로 쓰는 리스크&리턴형 근접 딜러(resourceType: 'hp'인 스킬 참고). 자기 체력을
+  // 깎아 큰 피해를 내거나 파티 전체를 강화하는 대신, 잘못 쓰면 스스로를 위험에 빠뜨림(HP_SKILL_MIN_REMAINING으로
+  // 자살은 방지되지만 그 다음 몹 반격에는 훨씬 취약해짐) - 성기사와 반대로 언데드에게 약함(죽음의 힘이
+  // 이미 죽어있는 상대에겐 안 통한다는 컨셉)
+  dark_knight: {
+    id: 'dark_knight', name: '흑기사', weaponTypes: ['sword', 'axe', 'flail'], statScaling: { atk: 'str' }, resourceType: 'stamina',
+    skills: [
+      { id: 'dark_strike', name: '암흑 일격', manaCost: 5, type: 'attack', power: 1.6 },
+      { id: 'dark_shield_bash', name: '어둠의 방패 강타', manaCost: 6, type: 'attack', power: 1.7, requiresShield: true },
+      { id: 'blood_strike', name: '유혈 강타', manaCost: 12, type: 'attack', power: 2.4, resourceType: 'hp' },
+      { id: 'dark_pact', name: '어둠의 계약', manaCost: 15, type: 'buff_atk_party', power: 1.4, resourceType: 'hp' },
+    ],
+    strongVs: [{ tag: 'humanoid', chance: 0.3, multiplier: 1.4 }],
+    weakVs: [{ tag: 'undead', chance: 0.2, multiplier: 0.75 }],
+  },
   // 도적은 나중에 여기 추가 (직업 겸업 시스템은 캐릭터 단계에서 구현)
 };

@@ -6,6 +6,8 @@ export const CLASS_ESSENCE_ITEM = {
   archer: 'essence_agility',
   mage: 'essence_arcane',
   priest: 'essence_holy',
+  paladin: 'essence_radiant',
+  dark_knight: 'essence_abyssal',
 };
 
 export const MAX_SKILL_TIER = 3;
