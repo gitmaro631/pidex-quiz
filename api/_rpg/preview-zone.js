@@ -59,7 +59,9 @@ export default async function handler(req, res) {
       }
 
       const existing = character.zonePreview;
-      const sameZoneExisting = existing && existing.zoneId === zoneId;
+      // 배포 전에 저장된 예전 형태(options 배열이 아니라 monsterIds 단일 조합)일 수도 있으니, 그런 경우는
+      // "같은 지역을 보고 있던 중"으로 치지 않고 새로 굴림(대비 안 하면 .options.map에서 그대로 터짐)
+      const sameZoneExisting = existing && existing.zoneId === zoneId && Array.isArray(existing.options);
 
       if (refresh) {
         if (!sameZoneExisting) { outcome = { error: 'no_preview_to_refresh' }; return null; }
