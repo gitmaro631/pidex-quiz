@@ -11,7 +11,7 @@ import { NPCS } from './data/rpg/npcs.js';
 import { QUESTS } from './data/rpg/quests.js';
 import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
-import { computeCharacterCombatStats, monsterDifficultyTier, COMBAT_MISS_PHRASES } from './rpg-combat.js';
+import { computeCharacterCombatStats, monsterDifficultyTier, COMBAT_MISS_PHRASES, effectiveStats } from './rpg-combat.js';
 import { MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster, PLAYER_TERRITORY_BONUS_MULT } from './data/rpg/mercenaries.js';
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
@@ -75,6 +75,34 @@ function itemStatsLabel(item) {
   return statsStr + setStr;
 }
 
+// 아이템 자체가 주는 보너스만 "+수치" 목록으로(장착 확인창에서 새 장비가 더하는 부분/기존 장비가
+// 빠지면서 없어지는 부분을 나란히 보여주는 데 씀) - itemStatsLabel과 같은 필드를 재사용
+function itemBonusParts(item) {
+  const parts = [];
+  if (item.atkBonus) parts.push(`공격력+${item.atkBonus}`);
+  if (item.defBonus) parts.push(`방어력+${item.defBonus}`);
+  if (item.hpBonus) parts.push(`최대체력+${item.hpBonus}`);
+  if (item.strBonus) parts.push(`힘+${item.strBonus}`);
+  if (item.agiBonus) parts.push(`민첩+${item.agiBonus}`);
+  if (item.intBonus) parts.push(`지능+${item.intBonus}`);
+  if (item.wisBonus) parts.push(`지혜+${item.wisBonus}`);
+  if (item.severeInjuryResist) parts.push(`중상방어+${Math.round(item.severeInjuryResist * 100)}%`);
+  if (item.doubleAttackChance) parts.push(`2연타 확률+${Math.round(item.doubleAttackChance * 100)}%`);
+  return parts;
+}
+
+// 장착 시 직업과 안 맞아서 붙는 패널티 경고(하드 블록인 방어구 제한과는 별개 - 그건 confirmDisabled로 처리됨).
+// 무기가 직업 숙련 무기가 아니면 명중/피해 패널티, 캐스터가 방패를 끼면 방어력 기여가 크게 깎임(rpg-combat.js 참고)
+function equipPenaltyWarning(item, classDef) {
+  if (item.type === 'weapon' && item.weaponType && !classDef.weaponTypes.includes(item.weaponType)) {
+    return '⚠️ 직업 비숙련 무기 - 명중 -4, 피해량 70%로 감소';
+  }
+  if (item.type === 'shield' && classDef.resourceType !== 'stamina') {
+    return '⚠️ 이 직업은 방패를 다루기 어려움 - 방어력 기여 60% 감소';
+  }
+  return null;
+}
+
 // 영지일 경계를 넘어 정산이 일어났을 때(adventure.js의 territoryNotice) 보여주는 공지 배너 -
 // "확인" 버튼 또는 배경(다른 부분) 클릭으로 닫힘
 function showTerritoryNotice(container, notice) {
@@ -111,7 +139,7 @@ function showSetInfo(setId) {
   alert(`${setDef.name}\n\n구성: ${pieceNames.join(' + ')}\n둘 다 착용시 세트 효과: ${bonusText || '없음'}`);
 }
 
-// 장착/해제 전후 전투 스탯 변화를 사람이 읽을 수 있는 문장으로
+// 장착/해제 전후 전투 스탯 변화를 사람이 읽을 수 있는 문장으로(토스트 알림용, 한 줄 요약)
 function statsDeltaMessage(before, after) {
   const lines = [];
   if (before.atk !== after.atk) lines.push(`공격력 ${before.atk}→${after.atk} (${after.atk > before.atk ? '+' : ''}${after.atk - before.atk})`);
@@ -119,6 +147,47 @@ function statsDeltaMessage(before, after) {
   if (before.maxHp !== after.maxHp) lines.push(`최대체력 ${before.maxHp}→${after.maxHp} (${after.maxHp > before.maxHp ? '+' : ''}${after.maxHp - before.maxHp})`);
   if (before.element !== after.element) lines.push(`공격 속성: ${ELEMENT_NAMES[before.element]} → ${ELEMENT_NAMES[after.element]}`);
   return lines.length ? lines.join(' · ') : '스탯 변화 없음';
+}
+
+// 착용 확인창용 - 자주 보게 되니 표 형태로 깔끔하게, 오르면 초록/+, 내리면 빨강/-만 표시(변화 없는 항목은 생략)
+const STAT_DELTA_LABELS = { atk: '공격력', def: '방어력', maxHp: '최대체력', attackBonus: '명중', ac: '회피(AC)' };
+function statsDeltaRowsHtml(before, after) {
+  const rows = Object.entries(STAT_DELTA_LABELS)
+    .filter(([key]) => before[key] !== after[key])
+    .map(([key, label]) => {
+      const diff = after[key] - before[key];
+      const cls = diff > 0 ? 'rpg-stat-up' : 'rpg-stat-down';
+      return `<div class="rpg-stat-delta-row"><span>${label}</span><span>${before[key]} → ${after[key]}</span><span class="${cls}">${diff > 0 ? '+' : ''}${diff}</span></div>`;
+    });
+  if (before.element !== after.element) {
+    rows.push(`<div class="rpg-stat-delta-row"><span>속성</span><span>${ELEMENT_NAMES[before.element]} → ${ELEMENT_NAMES[after.element]}</span><span></span></div>`);
+  }
+  return rows.length ? `<div class="rpg-stat-delta-table">${rows.join('')}</div>` : '<p class="rpg-hint">스탯 변화 없음</p>';
+}
+
+// 착용/구매처럼 되돌리기 애매한 행동 전에 조건 충족 여부·스탯 변화를 미리 보여주고, "확인"을 눌러야
+// 실제로 실행됨(취소하거나 바깥을 누르면 아무 일도 안 일어남) - showTerritoryNotice와 같은 오버레이 패턴
+function showConfirmOverlay(container, { title, bodyHtml, confirmLabel = '확인', confirmDisabled = false, onConfirm }) {
+  const overlay = document.createElement('div');
+  overlay.className = 'rpg-notice-overlay';
+  overlay.innerHTML = `
+    <div class="rpg-notice-box">
+      <h4>${title}</h4>
+      ${bodyHtml}
+      <div class="rpg-confirm-actions">
+        <button class="rpg-confirm-btn" ${confirmDisabled ? 'disabled' : ''}>${confirmLabel}</button>
+        <button class="rpg-cancel-btn">취소</button>
+      </div>
+    </div>
+  `;
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  overlay.querySelector('.rpg-cancel-btn').addEventListener('click', close);
+  overlay.querySelector('.rpg-confirm-btn').addEventListener('click', async () => {
+    close();
+    await onConfirm();
+  });
+  container.appendChild(overlay);
 }
 
 let character = null;
@@ -209,7 +278,6 @@ const ERROR_MESSAGES = {
   invalid_town: '알 수 없는 마을입니다.',
   already_there: '이미 그 마을에 있습니다.',
   no_preview_to_refresh: '먼저 지역에 들어가야 새로고침할 수 있습니다.',
-  refresh_on_cooldown: '새로고침은 1시간에 한 번만 가능합니다.',
   invalid_direction: '잘못된 요청입니다.',
   invalid_amount: '금액/수량을 확인해주세요.',
   choose_one_resource_type: '골드와 아이템은 한 번에 하나만 처리할 수 있습니다.',
@@ -513,10 +581,10 @@ async function enterZonePreview(content, container, zoneId) {
 }
 
 // 필드 진입 화면 - 서로 다른 랜덤 몹 구성 후보 여러 개를 한 번에 보여주고, 그중 하나를 골라 그 조합
-// 그대로 전투를 시작함("여러 조합 중에 골라서 들어간다"). 새로고침(턴1, 1시간마다)은 후보 전체를 다시 굴림
+// 그대로 전투를 시작함("여러 조합 중에 골라서 들어간다"). 새로고침은 골드를 써서 후보 전체를 다시 굴림
+// (다른 지역에 갔다와도 이 지역 미리보기는 그대로 유지됨 - 지역별로 따로 저장)
 function renderZonePreviewScreen(content, container, preview) {
   const zone = ZONES[preview.zoneId];
-  const canRefreshNow = Date.now() >= preview.canRefreshAt;
   content.innerHTML = `
     <p><button class="rpg-zone-back-btn">◀ 지역 목록</button></p>
     <h4>${zone.name}에 들어왔다</h4>
@@ -535,8 +603,7 @@ function renderZonePreviewScreen(content, container, preview) {
       `).join('')}
     </div>
     <p class="rpg-hint">
-      <button class="rpg-refresh-encounter-btn" data-zone="${preview.zoneId}" ${canRefreshNow ? '' : 'disabled'}>🔄 새로고침 (턴 1개)</button>
-      ${canRefreshNow ? '' : ' 1시간에 한 번만 가능해요'}
+      <button class="rpg-refresh-encounter-btn" data-zone="${preview.zoneId}" ${character.gold >= preview.refreshGoldCost ? '' : 'disabled'}>🔄 새로고침 (${preview.refreshGoldCost}골드)</button>
     </p>
     ${combatLogSpeedControlHtml()}
     <div class="rpg-combat-log"></div>
@@ -547,7 +614,7 @@ function renderZonePreviewScreen(content, container, preview) {
   content.querySelector('.rpg-refresh-encounter-btn').addEventListener('click', async () => {
     try {
       const r = await apiPost('preview-zone', { zoneId: preview.zoneId, refresh: true });
-      character.turnPoints = r.turnPoints;
+      character.gold = r.gold;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderZonePreviewScreen(content, container, r.preview);
     } catch (e) { showToast(friendlyError(e)); }
@@ -955,17 +1022,33 @@ function renderShopTab(content, container) {
     </div>
   `;
   content.querySelectorAll('.rpg-buy-btn').forEach((btn) => {
-    btn.addEventListener('click', async () => {
+    btn.addEventListener('click', () => {
       const item = ITEMS[btn.dataset.item];
       const qty = item.type === 'ammo' ? 10 : 1;
-      try {
-        const r = await apiPost('shop-buy', { itemId: btn.dataset.item, qty });
-        character.gold = r.gold;
-        container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-        showToast(qty > 1 ? `${item.name} ${qty}개 구매 완료` : '구매 완료');
-      } catch (e) {
-        showToast(friendlyError(e));
-      }
+      const totalPrice = item.shopPrice * qty;
+      const canAfford = character.gold >= totalPrice;
+      showConfirmOverlay(container, {
+        title: `${item.name}${qty > 1 ? ` x${qty}` : ''} 구매`,
+        bodyHtml: `
+          <div class="rpg-stat-delta-table">
+            <div class="rpg-stat-delta-row"><span>가격</span><span>${totalPrice}골드</span><span></span></div>
+            <div class="rpg-stat-delta-row"><span>보유 골드</span><span>${character.gold} → ${character.gold - totalPrice}</span><span class="${canAfford ? 'rpg-stat-up' : 'rpg-stat-down'}">${canAfford ? '' : '부족'}</span></div>
+          </div>
+          ${!canAfford ? '<p class="rpg-hint">⚠️ 골드가 부족합니다.</p>' : ''}
+        `,
+        confirmLabel: '구매',
+        confirmDisabled: !canAfford,
+        onConfirm: async () => {
+          try {
+            const r = await apiPost('shop-buy', { itemId: btn.dataset.item, qty });
+            character.gold = r.gold;
+            container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+            showToast(qty > 1 ? `${item.name} ${qty}개 구매 완료` : '구매 완료');
+          } catch (e) {
+            showToast(friendlyError(e));
+          }
+        },
+      });
     });
   });
   content.querySelector('.rpg-randombox-btn').addEventListener('click', async () => {
@@ -1182,15 +1265,57 @@ function renderInventoryTab(content, container) {
       }
     } catch (e) { showToast(friendlyError(e)); }
   }));
-  content.querySelectorAll('.rpg-inv-equip').forEach((btn) => btn.addEventListener('click', async () => {
-    try {
-      const before = computeCharacterCombatStats(character);
-      await apiPost('equip', { itemId: btn.dataset.item });
-      await loadCharacter();
-      const after = computeCharacterCombatStats(character);
-      renderInventoryTab(content, container);
-      showToast(`장착 완료 — ${statsDeltaMessage(before, after)}`);
-    } catch (e) { showToast(friendlyError(e)); }
+  const EQUIP_SLOT_BY_TYPE = { weapon: 'weapon', shield: 'shield', armor_top: 'armor_top', armor_bottom: 'armor_bottom', ring: 'ring', necklace: 'necklace' };
+  content.querySelectorAll('.rpg-inv-equip').forEach((btn) => btn.addEventListener('click', () => {
+    const itemId = btn.dataset.item;
+    const item = ITEMS[itemId];
+    const stats = effectiveStats(character);
+    const reqRows = [];
+    let reqOk = true;
+    if (item.strRequirement) {
+      const ok = stats.str >= item.strRequirement;
+      if (!ok) reqOk = false;
+      reqRows.push(`<div class="rpg-stat-delta-row"><span>요구 힘</span><span>${item.strRequirement} (현재 ${stats.str})</span><span>${ok ? '✅' : '❌'}</span></div>`);
+    }
+    if (item.wisRequirement) {
+      const ok = stats.wis >= item.wisRequirement;
+      if (!ok) reqOk = false;
+      reqRows.push(`<div class="rpg-stat-delta-row"><span>요구 지혜</span><span>${item.wisRequirement} (현재 ${stats.wis})</span><span>${ok ? '✅' : '❌'}</span></div>`);
+    }
+    const slot = EQUIP_SLOT_BY_TYPE[item.type];
+    const previousItemId = character.equipment[slot];
+    const previousItem = previousItemId ? ITEMS[previousItemId] : null;
+    const before = computeCharacterCombatStats(character);
+    const after = computeCharacterCombatStats({
+      ...character,
+      equipment: { ...character.equipment, [slot]: itemId, [`${slot}Durability`]: 100 },
+    });
+    const classDef = CLASSES[character.classMain];
+    const penaltyWarning = equipPenaltyWarning(item, classDef);
+    const addedParts = itemBonusParts(item);
+    const removedParts = previousItem ? itemBonusParts(previousItem) : [];
+    showConfirmOverlay(container, {
+      title: `${item.name} 장착`,
+      bodyHtml: `
+        ${reqRows.length ? `<div class="rpg-stat-delta-table">${reqRows.join('')}</div>` : ''}
+        ${addedParts.length ? `<p class="rpg-stat-up">추가: ${addedParts.join(', ')}</p>` : ''}
+        ${removedParts.length ? `<p class="rpg-stat-down">해제(${previousItem.name}): ${removedParts.join(', ')}</p>` : ''}
+        ${penaltyWarning ? `<p class="rpg-hint">${penaltyWarning}</p>` : ''}
+        ${statsDeltaRowsHtml(before, after)}
+        ${!reqOk ? '<p class="rpg-hint">⚠️ 요구치를 채우지 못해 장착할 수 없습니다.</p>' : ''}
+      `,
+      confirmLabel: '장착',
+      confirmDisabled: !reqOk,
+      onConfirm: async () => {
+        try {
+          await apiPost('equip', { itemId });
+          await loadCharacter();
+          const finalAfter = computeCharacterCombatStats(character);
+          renderInventoryTab(content, container);
+          showToast(`장착 완료 — ${statsDeltaMessage(before, finalAfter)}`);
+        } catch (e) { showToast(friendlyError(e)); }
+      },
+    });
   }));
   content.querySelectorAll('.rpg-inv-sell').forEach((btn) => btn.addEventListener('click', async () => {
     try {

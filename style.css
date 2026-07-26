@@ -1433,6 +1433,24 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
   padding: 8px 20px; font-size: 14px; cursor: pointer;
 }
 
+/* 착용/구매 확인창 - 자주 보는 화면이라 표처럼 깔끔하게: 항목명 / 전후 값 / 증감 3열 */
+.rpg-stat-delta-table { text-align: left; margin: 10px 0; }
+.rpg-stat-delta-row {
+  display: flex; justify-content: space-between; gap: 8px; font-size: 13px;
+  padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.rpg-stat-delta-row span:first-child { color: var(--muted); flex: 0 0 auto; }
+.rpg-stat-delta-row span:nth-child(2) { flex: 1; text-align: center; }
+.rpg-stat-up { color: #4ade80; font-weight: 600; }
+.rpg-stat-down { color: #f87171; font-weight: 600; }
+.rpg-confirm-actions { display: flex; gap: 8px; margin-top: 12px; }
+.rpg-confirm-btn, .rpg-cancel-btn {
+  flex: 1; border: none; border-radius: 8px; padding: 8px 0; font-size: 14px; cursor: pointer;
+}
+.rpg-confirm-btn { background: #6366f1; color: #fff; }
+.rpg-confirm-btn:disabled { background: #4b5563; color: rgba(255,255,255,0.6); cursor: not-allowed; }
+.rpg-cancel-btn { background: rgba(255,255,255,0.1); color: #fff; }
+
 .rpg-npc-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 .rpg-npc-card {
   background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px;

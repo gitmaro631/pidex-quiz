@@ -92,7 +92,7 @@ export default async function handler(req, res) {
       // 필드 미리보기(preview-zone.js)로 이미 본 몹 구성 후보들 중 유저가 고른 하나(optionIndex)를 그대로
       // 씀("보이는 게 곧 상대") - 미리보기가 없거나 인덱스가 잘못됐으면(미리보기 화면을 건너뛴 예전
       // 클라이언트 등) 안전하게 그 자리에서 새로 굴림
-      const zonePreview = character.zonePreview;
+      const zonePreview = (character.zonePreviews || {})[zoneId];
       const chosenOption = (zonePreview && zonePreview.zoneId === zoneId && zonePreview.options
         && zonePreview.options[optionIndex]) || null;
       const presetEncounter = chosenOption
@@ -267,7 +267,9 @@ export default async function handler(req, res) {
         equipment: wornEquipment,
         injuries,
         mercenaries: allUpdatedMercenaries,
-        zonePreview: null, // 이번 조우는 소비됨 - 다음에 이 지역을 다시 보면 무료로 새로 굴려짐
+        // 이번 조우는 소비됨 - 이 지역만 미리보기를 비움(다른 지역 미리보기는 그대로 유지),
+        // 다음에 이 지역을 다시 보면 무료로 새로 굴려짐
+        zonePreviews: { ...(character.zonePreviews || {}), [zoneId]: null },
         updatedAt: now,
       };
     });

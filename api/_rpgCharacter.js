@@ -57,7 +57,8 @@ export function defaultCharacter(slot, now = Date.now()) {
     identifiedItems: [], // 한 번 감정(확인)된 아이템id 목록 - 이후로는 항상 실제 스탯이 보임
     zoneClearCounts: {}, // 지역별 모험 승리 누적(레어 pity용 zoneKillCounts와 별개) - 100 이상이면 성 도전 가능
     lastCastleIncomeClaimDate: null, // 성주 일일 수입 정산일(YYYY-MM-DD) - claim-castle-income.js 참고
-    zonePreview: null, // 지금 미리보기 중인 지역의 몹 구성(preview-zone.js가 생성, adventure.js가 소비 후 비움)
+    zonePreviews: {}, // 지역별 미리보기 몹 구성({ [zoneId]: {options,...} }) - 처음 보는 지역은 무료,
+    // 이미 본 지역은 그대로 재사용(다른 지역 갔다와도 유지됨) - 마음에 안 들면 골드를 써서 새로고침(preview-zone.js)
     createdAt: now,
     updatedAt: now,
   };
