@@ -741,8 +741,11 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
   const isUnderleveled = (character.level || 1) < encounter.zone.tier * 3;
   const sharedInventory = character.inventory || []; // 파티 전원이 이 물자(화살/포션)를 공유
   // 몹 하나하나가 내 파티 대비 얼마나 위협적인지(전력비) - 위험한(붉은) 몹일수록 경험치를 더 줌,
-  // 너무 쉬운(회색) 몹은 경험치를 아주 조금만 줌(사냥터 미리보기의 몹 이름 색과 같은 기준, monsterDifficultyTier 참고)
+  // 너무 쉬운(회색) 몹은 경험치를 아주 조금만 줌(사냥터 미리보기의 몹 이름 색과 같은 기준, monsterDifficultyTier 참고).
+  // 몹 무리 전체의 합산 전력치로 계산해서, 같은 종류라도 여러 마리가 몰려나온 조우가 더 위험하게(더 붉게/더 많은 보상으로) 반영됨
   const partyPower = Math.max(1, computePartyPower(character));
+  const groupPower = monsters.reduce((sum, m) => sum + monsterPowerScore(m), 0);
+  const encounterXpMult = monsterDifficultyTier(groupPower / partyPower).xpMult;
 
   const party = [
     buildCombatant({ characterLike: { ...character, stance }, isSelf: true, formationRow: effectiveFormationRow(character), sharedInventory }),
@@ -831,9 +834,8 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
     log.push(`${monster.name}을(를) 쓰러뜨렸다.`);
     // 경험치와 골드 둘 다 같은 배율을 씀 - 일부러 저사양 장비로 몹을 상대적으로 위협적이게 만들어
     // 잡으면(전력비가 올라가 몹 이름이 붉게 보임) 보상도 더 커지는 리스크&리턴 구조가 골드에도 그대로 적용됨
-    const xpMult = monsterDifficultyTier(monsterPowerScore(monster) / partyPower).xpMult;
-    totalXp += Math.round(monster.xp * xpMult);
-    totalGold += Math.round(randInt(monster.goldMin, monster.goldMax) * xpMult);
+    totalXp += Math.round(monster.xp * encounterXpMult);
+    totalGold += Math.round(randInt(monster.goldMin, monster.goldMax) * encounterXpMult);
     loot.push(...rollLoot(monster));
     // 직업훈련소 결정 - 몹 종류 무관, 본인 직업에 맞는 결정이 일정 확률로 드랍
     const essenceItemId = CLASS_ESSENCE_ITEM[character.classMain];

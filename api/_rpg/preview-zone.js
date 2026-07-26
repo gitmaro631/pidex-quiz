@@ -22,26 +22,28 @@ function rollOptions(zoneId, killCount) {
   });
 }
 
-// 몹 이름 색깔로 난이도를 보여주기 위한 전력비 - 그 몹 한 마리의 전력치를 내 파티(본인+전투용병) 전력치로
-// 나눈 값(클수록 위험). computePartyPower/monsterPowerScore와 같은 가중치를 재사용해서 일관성 유지
+// 몹 이름 색깔로 난이도를 보여주기 위한 전력비 - 그 조합(옵션) 안의 몹 전원의 전력치 합을 내 파티
+// (본인+전투용병) 전력치로 나눈 값(클수록 위험). 한 마리씩 따로 계산하면 "몹이 여러 마리라 더 위험한"
+// 상황이 반영되지 않아서, 같은 조합에 속한 몹 이름은 전부 그 조합의 합산 전력비를 공유함
 function previewPayload(zonePreview, character, zone) {
   const partyPower = Math.max(1, computePartyPower(character));
   return {
     zoneId: zonePreview.zoneId,
     lastRefreshAt: zonePreview.lastRefreshAt,
     canRefreshAt: zonePreview.lastRefreshAt + REFRESH_COOLDOWN_MS,
-    options: zonePreview.options.map((opt) => ({
-      isRare: opt.isRare,
-      uniqueTier: opt.uniqueTier,
-      monsters: opt.monsterIds.map((id) => {
-        const def = MONSTERS[id];
-        const instance = buildMonsterInstance(id, zone, opt.uniqueTier);
-        return {
-          monsterId: id, name: def ? def.name : id, tags: def ? def.tags : [],
-          difficultyRatio: Math.round((monsterPowerScore(instance) / partyPower) * 1000) / 1000,
-        };
-      }),
-    })),
+    options: zonePreview.options.map((opt) => {
+      const instances = opt.monsterIds.map((id) => buildMonsterInstance(id, zone, opt.uniqueTier));
+      const groupPower = instances.reduce((sum, inst) => sum + monsterPowerScore(inst), 0);
+      const difficultyRatio = Math.round((groupPower / partyPower) * 1000) / 1000;
+      return {
+        isRare: opt.isRare,
+        uniqueTier: opt.uniqueTier,
+        monsters: opt.monsterIds.map((id) => {
+          const def = MONSTERS[id];
+          return { monsterId: id, name: def ? def.name : id, tags: def ? def.tags : [], difficultyRatio };
+        }),
+      };
+    }),
   };
 }
 
