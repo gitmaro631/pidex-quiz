@@ -387,10 +387,15 @@ const ARMOR_TIER_VARIANTS = {
   armor_rare: ['armor_rare', 'armor_light_rare', 'armor_cloth_rare'],
   armor_legendary: ['armor_legendary', 'armor_light_legendary', 'armor_cloth_legendary'],
 };
+// 가방은 등급이 오를수록 훨씬 희귀해야 하므로(각 등급 10칸 한도, data/rpg/items.js의 BAG_TIER_CAPS 참고)
+// 개별 몹 드랍표를 다 안 건드리고, 최상위 기존 등급(bag_dungeon) 드랍 중 낮은 확률로만 그보다
+// 한 단계 위인 bag_dimensional(5등급)로 대체되게 함
+const BAG_DIMENSIONAL_UPGRADE_CHANCE = 0.08;
 function rollLootItemId(itemId) {
   const variants = WEAPON_TIER_VARIANTS[itemId] || ARMOR_TIER_VARIANTS[itemId];
-  if (!variants) return itemId;
-  return variants[randInt(0, variants.length - 1)];
+  if (variants) return variants[randInt(0, variants.length - 1)];
+  if (itemId === 'bag_dungeon' && Math.random() < BAG_DIMENSIONAL_UPGRADE_CHANCE) return 'bag_dimensional';
+  return itemId;
 }
 
 function rollLoot(monster) {

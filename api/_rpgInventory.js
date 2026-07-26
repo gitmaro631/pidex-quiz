@@ -1,13 +1,21 @@
 // 인벤토리 배열({itemId, qty}[]) 조작 헬퍼 — adventure/shop/equip 엔드포인트가 공유
-import { ITEMS } from '../data/rpg/items.js';
+import { ITEMS, BAG_TIER_CAPS } from '../data/rpg/items.js';
 
 export const BASE_INVENTORY_CAPACITY = 20;
 export const BASE_WEIGHT_LIMIT = 30;
 export const WEIGHT_PER_STR = 4; // 힘 1당 들 수 있는 무게 +4
 
-// 슬롯 = 인벤토리 배열의 서로 다른 itemId 개수(같은 아이템은 qty로 쌓임, 슬롯 추가 소모 없음)
+// 슬롯 = 인벤토리 배열의 서로 다른 itemId 개수(같은 아이템은 qty로 쌓임, 슬롯 추가 소모 없음).
+// 가방은 등급별(bagTier)로 따로 누적되고(character.bagBonusByTier), 각 등급은 BAG_TIER_CAPS를 넘는
+// 기여를 못 함 - 낮은 등급 가방을 아무리 써도 한도 이상은 안 늘고, 다음 등급 가방이 있어야 더 늘어남
 export function capacityForCharacter(character) {
-  return BASE_INVENTORY_CAPACITY + (character.inventorySlotBonus || 0);
+  const bagBonusByTier = character.bagBonusByTier || {};
+  const bagTotal = Object.keys(BAG_TIER_CAPS).reduce((sum, tier) => {
+    return sum + Math.min(bagBonusByTier[tier] || 0, BAG_TIER_CAPS[tier]);
+  }, 0);
+  // inventorySlotBonus는 등급제 도입 전에 쓰던 필드 - 예전에 이미 늘려놓은 캐릭터의 용량이 갑자기
+  // 줄어들지 않도록 그대로 더해줌(신규 가방 사용은 전부 bagBonusByTier 쪽으로만 쌓임)
+  return BASE_INVENTORY_CAPACITY + bagTotal + (character.inventorySlotBonus || 0);
 }
 
 // 무게 제한 = 힘(str) 스탯에 비례 - 슬롯과 별개로 "얼마나 무거운 짐을 들 수 있는가"를 제한

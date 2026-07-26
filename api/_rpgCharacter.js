@@ -31,7 +31,8 @@ export function defaultCharacter(slot, now = Date.now()) {
       weaponDurability: 100, shieldDurability: 100, armor_topDurability: 100, armor_bottomDurability: 100,
     },
     inventory: [],
-    inventorySlotBonus: 0,
+    inventorySlotBonus: 0, // 등급제 도입 전 필드(하위호환용) - 신규 캐릭터는 항상 0, 새 가방은 bagBonusByTier로만 쌓임
+    bagBonusByTier: {}, // 가방 등급(1~5)별 누적 - 등급마다 최대 10칸(BAG_TIER_CAPS)까지만 반영됨
     currentTown: 'town1',
     gold: 0,
     turnPoints: turnCapForLevel(1),

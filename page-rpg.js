@@ -1,7 +1,7 @@
 import { currentAccessToken } from './pi-sdk.js';
 import { showToast } from './page-quiz.js';
 import { setupPullToRefresh } from './util-ptr.js';
-import { ITEMS, RARITY_ITEM_LEVEL, SET_BONUSES, ZONE_SET_ITEMS } from './data/rpg/items.js';
+import { ITEMS, RARITY_ITEM_LEVEL, SET_BONUSES, ZONE_SET_ITEMS, BAG_TIER_CAPS } from './data/rpg/items.js';
 import { ZONES } from './data/rpg/zones.js';
 import { CLASSES } from './data/rpg/classes.js';
 import { MONSTERS } from './data/rpg/monsters.js';
@@ -25,7 +25,9 @@ import { facilityProgress, MAX_MERCS_PER_FACILITY, BASELINE_MERC_LEVEL } from '.
 // (서버쪽 api/_rpgInventory.js와 반드시 같은 값/공식으로 유지할 것)
 const BASE_INVENTORY_CAPACITY = 20;
 function capacityForCharacter(character) {
-  return BASE_INVENTORY_CAPACITY + (character.inventorySlotBonus || 0);
+  const bagBonusByTier = character.bagBonusByTier || {};
+  const bagTotal = Object.keys(BAG_TIER_CAPS).reduce((sum, tier) => sum + Math.min(bagBonusByTier[tier] || 0, BAG_TIER_CAPS[tier]), 0);
+  return BASE_INVENTORY_CAPACITY + bagTotal + (character.inventorySlotBonus || 0);
 }
 const BASE_WEIGHT_LIMIT = 30;
 const WEIGHT_PER_STR = 4;
@@ -226,6 +228,7 @@ const ERROR_MESSAGES = {
   invalid_zone: '알 수 없는 지역입니다.',
   zone_locked: '이전 마을 최상위 사냥터의 성 도전 자격(100회 공략)을 먼저 채워야 합니다.',
   not_enough_gold: '골드가 부족합니다.',
+  bag_tier_maxed: '이 등급 가방은 이미 한도를 다 채웠습니다. 다음 등급 가방이 필요합니다.',
   not_purchasable: '구매할 수 없는 아이템입니다.',
   not_enough_items: '아이템 수량이 부족합니다.',
   item_not_owned: '보유하지 않은 아이템입니다.',
@@ -621,6 +624,7 @@ function renderZonePreviewScreen(content, container, preview) {
   });
   content.querySelectorAll('.rpg-encounter-option-btn').forEach((btn) => btn.addEventListener('click', async () => {
     log.innerHTML = `<div class="rpg-loading">전투 중...</div>`;
+    log.scrollIntoView({ behavior: 'smooth', block: 'start' }); // 전투 로그가 화면 아래에 있어도 자동으로 보이게
     try {
       const result = await apiPost('adventure', { zoneId: btn.dataset.zone, optionIndex: Number(btn.dataset.option) });
       await loadCharacter(); // 레벨업으로 maxHp 등이 바뀌었을 수 있어 서버 최신값으로 새로고침
@@ -1248,22 +1252,79 @@ function renderInventoryTab(content, container) {
       }).join('') : '<p class="rpg-hint">인벤토리가 비어있습니다.</p>'}
     </div>
   `;
-  content.querySelectorAll('.rpg-inv-use').forEach((btn) => btn.addEventListener('click', async () => {
-    try {
-      const r = await apiPost('use-item', { itemId: btn.dataset.item });
-      if (r.effect === 'potion') { character.currentHp = r.currentHp; character.currentMp = r.currentMp; }
-      if (r.effect === 'bandage') { character.injuries = r.injuries; }
-      await loadCharacter();
-      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-      renderInventoryTab(content, container);
-      if (r.effect === 'bag') {
-        showToast(`가방을 사용해 인벤토리가 +${r.slotBonus}칸 늘었습니다! (현재 ${capacityForCharacter(character)}칸)`);
-      } else if (r.effect === 'bandage') {
-        showToast(`${BODY_PART_NAMES[r.healedPart]} 부상을 붕대로 치료했습니다`);
+  content.querySelectorAll('.rpg-inv-use').forEach((btn) => btn.addEventListener('click', () => {
+    const itemId = btn.dataset.item;
+    const item = ITEMS[itemId];
+    const rows = [];
+    let confirmDisabled = false;
+
+    if (item.type === 'bag') {
+      const tier = item.bagTier;
+      const bagBonusByTier = character.bagBonusByTier || {};
+      const tierUsed = bagBonusByTier[tier] || 0;
+      const tierCap = BAG_TIER_CAPS[tier];
+      if (tierUsed >= tierCap) {
+        confirmDisabled = true;
+        const nextTierItem = Object.values(ITEMS).find((i) => i.type === 'bag' && i.bagTier === tier + 1);
+        rows.push(`<p class="rpg-hint">⚠️ ${item.name} 등급(${tier}등급)은 이미 한도(${tierCap}칸)를 다 채웠습니다.${nextTierItem ? ` 더 늘리려면 "${nextTierItem.name}"(${tier + 1}등급)이 필요합니다.` : ' 이게 최고 등급입니다.'}</p>`);
       } else {
-        showToast('사용했습니다');
+        const before = capacityForCharacter(character);
+        const after = before + item.slotBonus;
+        rows.push(`<div class="rpg-stat-delta-row"><span>인벤토리 칸</span><span>${before} → ${after}</span><span class="rpg-stat-up">+${item.slotBonus}</span></div>`);
+        rows.push(`<p class="rpg-hint">${tier}등급 진행도: ${tierUsed}/${tierCap}칸</p>`);
       }
-    } catch (e) { showToast(friendlyError(e)); }
+    } else if (item.cureInjury === 'mild') {
+      const injuries = character.injuries || {};
+      const mildPart = ['arm', 'leg'].find((p) => (injuries[p] || {}).severity === 1);
+      if (!mildPart) {
+        confirmDisabled = true;
+        rows.push('<p class="rpg-hint">⚠️ 치료할 경상이 없습니다.</p>');
+      } else {
+        rows.push(`<p>${BODY_PART_NAMES[mildPart]} 경상이 치료됩니다.</p>`);
+      }
+    } else {
+      const stats = computeCharacterCombatStats(character);
+      if (item.healPct) {
+        const beforeHp = character.currentHp;
+        const afterHp = Math.min(stats.maxHp, beforeHp + Math.round(stats.maxHp * item.healPct));
+        rows.push(`<div class="rpg-stat-delta-row"><span>체력</span><span>${beforeHp}/${stats.maxHp} → ${afterHp}/${stats.maxHp}</span><span class="rpg-stat-up">+${afterHp - beforeHp}</span></div>`);
+      }
+      if (item.restoreMpPct) {
+        const beforeMp = character.currentMp;
+        const afterMp = Math.min(stats.maxMp, beforeMp + Math.round(stats.maxMp * item.restoreMpPct));
+        rows.push(`<div class="rpg-stat-delta-row"><span>마나</span><span>${beforeMp}/${stats.maxMp} → ${afterMp}/${stats.maxMp}</span><span class="rpg-stat-up">+${afterMp - beforeMp}</span></div>`);
+      }
+      if (item.restoreStaminaPct) {
+        const beforeSt = character.currentStamina;
+        const afterSt = Math.min(stats.maxStamina, beforeSt + Math.round(stats.maxStamina * item.restoreStaminaPct));
+        rows.push(`<div class="rpg-stat-delta-row"><span>스테미나</span><span>${beforeSt}/${stats.maxStamina} → ${afterSt}/${stats.maxStamina}</span><span class="rpg-stat-up">+${afterSt - beforeSt}</span></div>`);
+      }
+      if (!rows.length) rows.push('<p class="rpg-hint">이 아이템은 즉시 사용 효과 미리보기가 없습니다.</p>');
+    }
+
+    showConfirmOverlay(container, {
+      title: `${item.name} 사용`,
+      bodyHtml: `<div class="rpg-stat-delta-table">${rows.join('')}</div>`,
+      confirmLabel: '사용',
+      confirmDisabled,
+      onConfirm: async () => {
+        try {
+          const r = await apiPost('use-item', { itemId });
+          if (r.effect === 'potion') { character.currentHp = r.currentHp; character.currentMp = r.currentMp; character.currentStamina = r.currentStamina; }
+          if (r.effect === 'bandage') { character.injuries = r.injuries; }
+          await loadCharacter();
+          container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+          renderInventoryTab(content, container);
+          if (r.effect === 'bag') {
+            showToast(`가방을 사용해 인벤토리가 +${r.slotBonus}칸 늘었습니다! (현재 ${capacityForCharacter(character)}칸)`);
+          } else if (r.effect === 'bandage') {
+            showToast(`${BODY_PART_NAMES[r.healedPart]} 부상을 붕대로 치료했습니다`);
+          } else {
+            showToast('사용했습니다');
+          }
+        } catch (e) { showToast(friendlyError(e)); }
+      },
+    });
   }));
   const EQUIP_SLOT_BY_TYPE = { weapon: 'weapon', shield: 'shield', armor_top: 'armor_top', armor_bottom: 'armor_bottom', ring: 'ring', necklace: 'necklace' };
   content.querySelectorAll('.rpg-inv-equip').forEach((btn) => btn.addEventListener('click', () => {
@@ -1639,7 +1700,7 @@ function renderCharacterTab(content, container) {
       <p>남은 스탯포인트: ${character.statPoints}</p>
       ${['str', 'int', 'agi', 'vit', 'wis'].map((s) => `
         <div class="rpg-stat-row">
-          <span>${s.toUpperCase()}: ${character.stats[s]}</span>
+          <span>${s.toUpperCase()}: ${character.stats[s] || 0}</span>
           ${character.statPoints > 0 ? `<button class="rpg-stat-btn" data-stat="${s}">+1</button>` : ''}
         </div>
       `).join('')}

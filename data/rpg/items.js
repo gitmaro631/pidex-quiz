@@ -19,11 +19,15 @@ export const ITEMS = {
   identify_scroll: { id: 'identify_scroll', name: '감정 스크롤', type: 'consumable', rarity: 'normal', identifyScroll: true, shopPrice: 40, weight: 0.2 }, // 미확인 아이템 즉시 감정
   repair_hammer: { id: 'repair_hammer', name: '수리 망치', type: 'consumable', rarity: 'normal', repairHammer: true, shopPrice: 30, weight: 1 }, // 셀프 수리 1회당 소모(수리스킬 필요)
 
-  // 가방 - 사용하면 즉시 소모되며 인벤토리 슬롯을 영구히 늘려줌(장착 아님)
-  bag_small: { id: 'bag_small', name: '작은 가방', type: 'bag', rarity: 'normal', slotBonus: 5, weight: 2 },
-  bag_medium: { id: 'bag_medium', name: '중간 가방', type: 'bag', rarity: 'uncommon', slotBonus: 10, weight: 3 },
-  bag_large: { id: 'bag_large', name: '큰 가방', type: 'bag', rarity: 'rare', slotBonus: 20, weight: 4 },
-  bag_dungeon: { id: 'bag_dungeon', name: '심연의 가방', type: 'bag', rarity: 'epic', slotBonus: 30, weight: 5 },
+  // 가방 - 사용하면 즉시 소모되며 인벤토리 슬롯을 영구히 늘려줌(장착 아님). 5개 등급(bagTier)으로
+  // 나뉘어 있고, 각 등급은 1개당 슬롯 1칸씩, 등급별로 최대 10칸(BAG_TIER_CAPS)까지만 늘릴 수 있음 -
+  // 최하위 등급 가방 10개를 써서 10칸을 다 채우면, 그 다음부터는 그 등급 가방을 더 써도 소용없고
+  // 다음 등급 가방으로 또 10칸을 늘려야 함(한도에 도달한 낮은 등급 가방은 마켓에서 다른 유저에게 팔 수 있음)
+  bag_small: { id: 'bag_small', name: '작은 가방', type: 'bag', rarity: 'normal', bagTier: 1, slotBonus: 1, weight: 2 },
+  bag_medium: { id: 'bag_medium', name: '중간 가방', type: 'bag', rarity: 'uncommon', bagTier: 2, slotBonus: 1, weight: 3 },
+  bag_large: { id: 'bag_large', name: '큰 가방', type: 'bag', rarity: 'rare', bagTier: 3, slotBonus: 1, weight: 4 },
+  bag_dungeon: { id: 'bag_dungeon', name: '심연의 가방', type: 'bag', rarity: 'epic', bagTier: 4, slotBonus: 1, weight: 5 },
+  bag_dimensional: { id: 'bag_dimensional', name: '차원의 가방', type: 'bag', rarity: 'legendary', bagTier: 5, slotBonus: 1, weight: 6 },
 
   // 시작 장비 (상점 구매용). armorClass: 경갑(light)/중갑(heavy) - 방어력은 낮아도 가벼운 경갑 vs 무겁지만 튼튼한 중갑
   // strRequirement: 이 힘(STR) 미만이면 착용 불가(장신구의 힘 보너스도 합산해서 판정) - 경갑도 소량 필요, 중갑은 훨씬 많이 필요
@@ -326,6 +330,10 @@ export const ITEMS = {
   // 랜덤박스 - 상점에서 골드로 직접 뽑기(박스 자체는 인벤토리에 안 쌓이고 즉시 결과만 지급)
   random_box: { id: 'random_box', name: '수상한 상자', type: 'randombox', rarity: 'normal', shopPrice: 150, weight: 0 },
 };
+
+// 가방 등급별 최대 누적 한도 - 그 등급 가방을 아무리 써도 이 수치를 넘는 기여는 못 함(캐릭터 전체
+// 인벤토리 한도는 각 등급의 min(누적치,한도)를 다 더한 값, api/_rpgInventory.js의 capacityForCharacter 참고)
+export const BAG_TIER_CAPS = { 1: 10, 2: 10, 3: 10, 4: 10, 5: 10 };
 
 // 세트 보너스 - 반지+목걸이(setId 동일) 둘 다 착용시 추가로 붙는 보너스. 지역(zoneId)별 세트를
 // 그 지역 유니크/레전더리 몹 전용 드랍으로 연결하는 데도 씀(rpg-combat.js의 rollSetItemDrop 참고)

@@ -4,8 +4,9 @@ import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
 import { removeItem, inventoryQty } from '../_rpgInventory.js';
-import { ITEMS } from '../../data/rpg/items.js';
+import { ITEMS, BAG_TIER_CAPS } from '../../data/rpg/items.js';
 import { computeCharacterCombatStats } from '../../rpg-combat.js';
+import { capacityForCharacter } from '../_rpgInventory.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -33,9 +34,18 @@ export default async function handler(req, res) {
       let patch = { inventory, updatedAt: now };
 
       if (isBag) {
-        const inventorySlotBonus = (character.inventorySlotBonus || 0) + item.slotBonus;
-        patch = { ...patch, inventorySlotBonus };
-        outcome = { itemId, effect: 'bag', slotBonus: item.slotBonus, inventorySlotBonus };
+        // 등급별로 따로 쌓이고, 그 등급의 한도(BAG_TIER_CAPS)에 이미 도달했으면 써도 효과가 없으니
+        // 아이템만 날리지 않게 아예 막음(1등급 가방 10개 다 쓰면 그 다음부턴 2등급 가방이 필요)
+        const bagBonusByTier = { ...(character.bagBonusByTier || {}) };
+        const tier = item.bagTier;
+        const cap = BAG_TIER_CAPS[tier] ?? Infinity;
+        if ((bagBonusByTier[tier] || 0) >= cap) { outcome = { error: 'bag_tier_maxed' }; return null; }
+        bagBonusByTier[tier] = (bagBonusByTier[tier] || 0) + item.slotBonus;
+        patch = { ...patch, bagBonusByTier };
+        outcome = {
+          itemId, effect: 'bag', slotBonus: item.slotBonus, bagBonusByTier,
+          capacity: capacityForCharacter({ ...character, bagBonusByTier }),
+        };
       } else if (isBandage) {
         const injuries = character.injuries || { arm: { severity: 0, turnsLeft: 0 }, leg: { severity: 0, turnsLeft: 0 } };
         const mildPart = ['arm', 'leg'].find((p) => (injuries[p] || {}).severity === 1);
