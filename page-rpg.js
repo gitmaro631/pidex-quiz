@@ -15,7 +15,7 @@ import { MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRIT
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
 import { CASTLE_CLEAR_REQUIREMENT } from './data/rpg/castle.js';
-import { computeCureCost } from './data/rpg/injuries.js';
+import { computeCureCost, REST_HEAL_TURN_COST_BY_SEVERITY } from './data/rpg/injuries.js';
 import { allowedFormationRows } from './rpg-combat.js';
 import { facilityProgress, MAX_MERCS_PER_FACILITY } from './data/rpg/facilities.js';
 
@@ -188,6 +188,8 @@ const ERROR_MESSAGES = {
   invalid_job: '알 수 없는 일자리입니다.',
   facility_full: '그 시설은 이미 인원이 가득 찼습니다 (최대 3명).',
   invalid_name: '이름은 1~12자로 입력해주세요.',
+  invalid_squire: '잘못된 종자 지정입니다.',
+  squire_already_absorbed: '이미 종자를 흡수한 용병입니다.',
   no_class_selected: '직업을 먼저 선택해야 합니다.',
   invalid_class: '알 수 없는 직업입니다.',
   class_already_chosen: '이미 직업을 선택했습니다.',
@@ -439,6 +441,12 @@ function renderAdventureTab(content, container) {
       }).join('')}
     </div>
     <p class="rpg-hint"><button class="rpg-castle-income-btn">성주 수입 수령</button></p>
+    <div class="rpg-facility-dashboard">
+      <h4>🛠️ 영지 근무 (전투 없이 턴 1개로 안전하게 시설에 기여, 용병보다 20% 더 효율적)</h4>
+      <p class="rpg-hint">
+        ${Object.values(TERRITORY_JOBS).map((job) => `<button class="rpg-work-territory-btn" data-job="${job.id}">${FACILITY_ICONS[job.id] || ''} ${job.name}</button>`).join('')}
+      </p>
+    </div>
     <div class="rpg-combat-log"></div>
   `;
   const log = content.querySelector('.rpg-combat-log');
@@ -465,6 +473,19 @@ function renderAdventureTab(content, container) {
       else showToast('현재 소유한 성이 없습니다.');
     } catch (e) { showToast(friendlyError(e)); }
   });
+  content.querySelectorAll('.rpg-work-territory-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('work-territory', { job: btn.dataset.job });
+      character.gold = r.gold;
+      character.turnPoints = r.turnPoints;
+      character.facilityLevels = r.facilityLevels;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      renderAdventureTab(content, container);
+      const levelMsg = r.leveledUp.length ? ` · 🎉 ${r.leveledUp[0].name} Lv.${r.leveledUp[0].level}!` : '';
+      showToast(`${TERRITORY_JOBS[r.job].name}에서 일했습니다${r.goldIncome ? ` (+${r.goldIncome}골드)` : ''}${levelMsg}`);
+      showTerritoryNotice(container, r.territoryNotice);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
   content.querySelectorAll('.rpg-zone-btn').forEach((btn) => {
     btn.addEventListener('click', async () => {
       log.innerHTML = `<div class="rpg-loading">전투 중...</div>`;
@@ -536,10 +557,14 @@ function cureRowHtml(name, part, injury, mercId) {
   const severityLabel = injury.severity === 2 ? '중상' : '경상';
   const mercAttr = mercId ? ` data-merc="${mercId}"` : '';
   const cost = computeCureCost(injury);
+  const restCost = REST_HEAL_TURN_COST_BY_SEVERITY[injury.severity] || 2;
   return `
     <div class="rpg-shop-row">
       <span>${name} - ${BODY_PART_NAMES[part]} ${severityLabel} (남은 ${injury.turnsLeft}턴)</span>
-      <button class="rpg-cure-btn" data-part="${part}"${mercAttr}>치료 (${cost}골드)</button>
+      <span>
+        <button class="rpg-cure-btn" data-part="${part}"${mercAttr}>치료 (${cost}골드)</button>
+        <button class="rpg-rest-heal-btn" data-part="${part}"${mercAttr}>영지에서 쉬기 (턴 ${restCost}개)</button>
+      </span>
     </div>
   `;
 }
@@ -735,6 +760,22 @@ function renderTownTab(content, container) {
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
       showToast(`${BODY_PART_NAMES[r.part]} 부상을 치료했습니다 (${r.cost}골드)`);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-rest-heal-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const mercId = btn.dataset.merc || null;
+    try {
+      const r = await apiPost('rest-heal', mercId ? { part: btn.dataset.part, mercId } : { part: btn.dataset.part });
+      character.turnPoints = r.turnPoints;
+      if (mercId) {
+        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
+        if (merc) merc.injuries = r.injuries;
+      } else {
+        character.injuries = r.injuries;
+      }
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      renderTownTab(content, container);
+      showToast(`${BODY_PART_NAMES[r.part]} 부상이 나았습니다 (턴 ${r.cost}개 소모)`);
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelector('.rpg-board-post-btn').addEventListener('click', async () => {
@@ -1146,7 +1187,23 @@ function mercenaryCardHtml(m) {
           }).join('')}
         </p>
       `}
+      ${squireSectionHtml(m)}
     </div>
+  `;
+}
+
+// 종자 흡수 UI - 이미 흡수했으면 결과만 표시, 아직이면 흡수 가능한 다른 용병들을 후보 버튼으로 나열
+function squireSectionHtml(host) {
+  if (host.classSub) {
+    const subCls = CLASSES[host.classSub];
+    return `<p class="rpg-hint">🧬 종자: ${subCls ? subCls.name : host.classSub} 직업 스킬(50% 위력)+스탯 일부(10%) 흡수함</p>`;
+  }
+  const candidates = (character.mercenaries || []).filter((mm) => mm.id !== host.id && mm.classMain !== host.classMain);
+  if (!candidates.length) return '';
+  return `
+    <p class="rpg-hint">🧬 종자로 흡수(1회만, 되돌릴 수 없음):
+      ${candidates.map((c) => `<button class="rpg-squire-btn" data-host="${host.id}" data-squire="${c.id}">${c.name}(${(CLASSES[c.classMain] || {}).name || c.classMain})</button>`).join('')}
+    </p>
   `;
 }
 function partySectionHtml() {
@@ -1266,6 +1323,18 @@ function renderTerritoryTab(content, container) {
       if (merc) merc.name = r.name;
       rerender();
       showToast('용병 이름을 변경했습니다');
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-squire-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const squire = (character.mercenaries || []).find((m) => m.id === btn.dataset.squire);
+    if (!confirm(`${squire ? squire.name : '이 용병'}을(를) 종자로 흡수하면 독립된 용병으로는 다시 못 씁니다(되돌릴 수 없음). 계속할까요?`)) return;
+    try {
+      const r = await apiPost('squire-mercenary', { hostMercId: btn.dataset.host, squireMercId: btn.dataset.squire });
+      character.mercenaries = (character.mercenaries || []).filter((m) => m.id !== btn.dataset.squire);
+      const host = character.mercenaries.find((m) => m.id === r.hostMercId);
+      if (host) { host.classSub = r.classSub; host.squireStatBonus = r.squireStatBonus; host.hireCostBonus = r.hireCostBonus; }
+      rerender();
+      showToast(`${(CLASSES[r.classSub] || {}).name || r.classSub} 종자를 흡수했습니다!`);
     } catch (e) { showToast(friendlyError(e)); }
   }));
 }

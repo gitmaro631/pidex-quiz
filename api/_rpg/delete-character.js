@@ -36,7 +36,8 @@ export default async function handler(req, res) {
     const equipmentValue = equipSlots.reduce((sum, s) => sum + (equipment[s] ? npcSellPrice(equipment[s]) : 0), 0);
     const mercValue = (character.mercenaries || []).reduce((sum, m) => {
       const template = MERCENARY_TEMPLATES[m.templateId];
-      return sum + (template ? Math.round(template.hireCost / 2) : 0);
+      const baseValue = template ? Math.round(template.hireCost / 2) : 0;
+      return sum + baseValue + (m.hireCostBonus || 0); // 종자 흡수로 오른 고용가치도 그대로 반영
     }, 0);
     const totalValue = (character.gold || 0) + inventoryValue + equipmentValue + mercValue;
     const refund = Math.floor(totalValue * REFUND_PCT / 100);

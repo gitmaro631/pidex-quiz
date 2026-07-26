@@ -11,6 +11,7 @@ import { elementalMultiplier } from './data/rpg/elements.js';
 import { CLASS_ESSENCE_ITEM, TIER_POWER_MULT } from './data/rpg/training.js';
 import { ENHANCE_ATK_PER_LEVEL, ENHANCE_DEF_PER_LEVEL, RARE_MONSTER_STONE_DROP_CHANCE } from './data/rpg/enhancement.js';
 import { facilityBonusMultiplier } from './data/rpg/facilities.js';
+import { SQUIRE_SKILL_POWER_MULT } from './data/rpg/mercenaries.js';
 
 // 반지+목걸이가 같은 세트(setId)면 세트 보너스를 반환, 아니면 null
 function matchedSetBonus(ringItem, necklaceItem) {
@@ -52,6 +53,7 @@ const OFF_CLASS_WEAPON_DAMAGE_MULT = 0.7;
 const OFF_CLASS_WEAPON_MISS_CHANCE = 0.2;
 // 용병의 멘탈(공포저항) - 전열에서 피격당할 때마다 낮은 확률로 멘탈이 나가서 후열로 숨음(그 전투 한정, 일시적)
 const MORALE_BREAK_BASE_CHANCE = 0.25;
+const PLAYER_BASE_MENTAL_RESIST = 50; // 유저 캐릭터 전용 스탯이 따로 없어 용병 평균값(50~65)대로 기본값 사용
 const BASE_INJURY_CHANCE = 0.08;
 const WEAK_AFFINITY_INJURY_BONUS = 0.12; // 상성이 안 좋으면 다칠 확률이 더 높아짐
 const BASE_DODGE_CHANCE = 0.08; // 다리가 온전할 때만 정상적으로 회피 시도 가능
@@ -165,8 +167,13 @@ export function computeCharacterCombatStats(character) {
   const level = character.level || 1;
   const mainCls = CLASSES[character.classMain] || CLASSES.warrior;
   const subCls = character.classSub ? CLASSES[character.classSub] : null;
-  // 겸업(부직업)을 고르면 부직업 스킬까지 함께 사용 가능 - 본업 정체성(무기타입/스탯보정)은 그대로 유지
-  const skills = subCls ? [...mainCls.skills, ...subCls.skills] : mainCls.skills;
+  // 겸업(부직업)을 고르면 부직업 스킬까지 함께 사용 가능 - 본업 정체성(무기타입/스탯보정)은 그대로 유지.
+  // 용병이 종자 흡수로 얻은 부직업(character.squireStatBonus 존재로 판별)은 스킬 위력이 50%로 깎임
+  // (skillEffectivePower 참고) - 플레이어 본인의 정식 부직업은 페널티 없이 100% 그대로 사용
+  const isSquireSubclass = !!character.squireStatBonus;
+  const skills = subCls
+    ? [...mainCls.skills, ...subCls.skills.map((s) => (isSquireSubclass ? { ...s, squireSkill: true } : s))]
+    : mainCls.skills;
   const classDef = { ...mainCls, skills };
   const scalingStat = stats[mainCls.statScaling.atk] ?? stats.str; // str/agi/int 등 직업별 주스탯
 
@@ -222,13 +229,15 @@ export function computeCharacterCombatStats(character) {
   // 영지 시설(훈련소/방벽) 레벨 보너스 - character에만 있는 필드라 용병에게는 자연히 적용 안 됨(배율 1)
   const facilityAtkMult = facilityBonusMultiplier(character, 'training');
   const facilityDefMult = facilityBonusMultiplier(character, 'ramparts');
+  // 종자로 흡수한 용병의 스탯 일부(흡수 시점에 고정된 값) - squire-mercenary.js가 부여
+  const squireBonus = character.squireStatBonus || {};
   return {
-    maxHp: BASE_HP + level * HP_PER_LEVEL + Math.round(stats.vit * level * VIT_HP_PER_LEVEL) + gearHpBonus + accessoryHpBonus,
+    maxHp: BASE_HP + level * HP_PER_LEVEL + Math.round(stats.vit * level * VIT_HP_PER_LEVEL) + gearHpBonus + accessoryHpBonus + (squireBonus.maxHp || 0),
     maxMp: BASE_MP + level * MP_PER_LEVEL + Math.round(scalingStat * level * MAGIC_STAT_MP_PER_LEVEL),
     // 향후 스테미나 소모 스킬/행동에 대비한 자원(현재는 회복 대상으로만 사용)
     maxStamina: BASE_STAMINA + level * STAMINA_PER_LEVEL + Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL),
-    atk: Math.round((scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus) * facilityAtkMult),
-    def: Math.round((stats.vit + gearDefBonus + accessoryDefBonus) * facilityDefMult),
+    atk: Math.round((scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus) * facilityAtkMult) + (squireBonus.atk || 0),
+    def: Math.round((stats.vit + gearDefBonus + accessoryDefBonus) * facilityDefMult) + (squireBonus.def || 0),
     element: weaponBroken ? 'none' : ((weaponItem && weaponItem.element) || 'none'), // 무기 파손시 속성공격도 사라짐
     weaponType: (weaponItem && weaponItem.weaponType) || null,
     hasShield: !!(shieldItem && !shieldBroken), // 방패 스킬(방패 강타 등) 사용 조건
@@ -345,14 +354,16 @@ function rollLoot(monster) {
 }
 
 const RANGED_WEAPON_TYPES = ['bow', 'staff']; // 원거리 무기 - 자동 진형 판정시 후열로 분류(활=사격, 지팡이=마법)
+// 사거리가 긴 근접무기 - 전열이 아니라 중열에서도 상대 전열을 때릴 수 있음(창=길이, 사슬도리깨=휘둘러서 닿음)
+const EXTENDED_REACH_WEAPON_TYPES = ['spear', 'flail'];
 export const FORMATION_ROWS = ['front', 'mid', 'back']; // 몹 반격 우선순위도 이 순서(전열이 있으면 전열, 없으면 중열, 그다음 후열)
 
 // 이 캐릭터/용병이 지금 선택할 수 있는 진형 목록 - 활/마법(원거리) 직업은 1~3열 전부 자유,
-// 창을 든 전사는 창의 사거리를 인정해 중열까지, 그 외 근접은 전열 고정
+// 창/사슬도리깨를 든 전사는 사거리를 인정해 중열까지, 그 외 근접은 전열 고정
 export function allowedFormationRows(characterLike) {
   const cls = CLASSES[characterLike.classMain];
   if (cls && cls.weaponTypes.some((t) => RANGED_WEAPON_TYPES.includes(t))) return FORMATION_ROWS;
-  if (computeCharacterCombatStats(characterLike).weaponType === 'spear') return ['front', 'mid'];
+  if (EXTENDED_REACH_WEAPON_TYPES.includes(computeCharacterCombatStats(characterLike).weaponType)) return ['front', 'mid'];
   return ['front'];
 }
 export function canChooseFormationRow(characterLike) {
@@ -404,7 +415,8 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }
     arrowsUsed: 0,
     accessoryElementDefense,
     doubleAttackChance,
-    mentalResist: characterLike.mentalResist, // undefined면(본인) 멘탈 붕괴 로직 자체를 건너뜀
+    // 본인도 용병과 동일하게 공포에 밀려날 수 있음(유저 캐릭터 전용 필드가 없으니 기본값 사용)
+    mentalResist: isSelf ? (characterLike.mentalResist ?? PLAYER_BASE_MENTAL_RESIST) : characterLike.mentalResist,
     // 스킬 훈련(skillLevels)은 본인 전용 - 용병은 훈련소 대상이 아니라 항상 자기 스킬을 자유롭게 씀
     skillLevels: isSelf ? (characterLike.skillLevels || {}) : null,
     injurySeverity: {
@@ -430,9 +442,11 @@ function isSkillUsable(actor, skill) {
   if (actor.isSelf) return (actor.skillLevels && actor.skillLevels[skill.id] > 0);
   return true; // 용병은 훈련 시스템 대상이 아니라 항상 사용 가능
 }
-// 훈련 단계(1~3)에 따라 위력이 세짐 - 본인만 해당, 용병은 항상 기본 위력
+// 훈련 단계(1~3)에 따라 위력이 세짐 - 본인만 해당, 용병은 항상 기본 위력.
+// squireSkill(종자 흡수로 얻은 스킬)이면 위력이 SQUIRE_SKILL_POWER_MULT(50%)로 깎임
 function skillEffectivePower(actor, skill) {
-  if (!actor.isSelf) return skill.power;
+  const squireMult = skill.squireSkill ? SQUIRE_SKILL_POWER_MULT : 1;
+  if (!actor.isSelf) return skill.power * squireMult;
   const tier = (actor.skillLevels && actor.skillLevels[skill.id]) || 0;
   return skill.power * (TIER_POWER_MULT[tier] || 1);
 }
@@ -528,10 +542,11 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
 
   // 맞으면 멘탈(공포저항)이 낮을수록 한 칸 뒤로 물러날 확률이 있음(전열->중열->후열, 전투 중 일시적,
   // 다음 모험에서는 다시 기본 진형으로 돌아옴). 앞이 뚫리면 그만큼 뒤(궁수 등)가 위험해짐. 성직자의
-  // "평정심"으로 멘탈저항이 일시적으로 오를 수 있음(partyBuffs.mentalBonus). 이미 후열이면 더 물러날 곳이 없음
+  // "평정심"으로 멘탈저항이 일시적으로 오를 수 있음(partyBuffs.mentalBonus). 이미 후열이면 더 물러날 곳이 없음.
+  // 공포로 인한 후퇴는 무기 사거리(allowedRows)와 무관하게 후열까지 밀릴 수 있음 - 근접무기가 사거리 밖으로
+  // 밀려나면 공격을 못 하게 되는 게 의도된 "최악의 경우"(performAttack 쪽 weaponReachRows 체크 참고)
   const rowIdx = FORMATION_ROWS.indexOf(target.formationRow);
-  const maxAllowedRowIdx = Math.max(...target.allowedRows.map((r) => FORMATION_ROWS.indexOf(r)));
-  if (typeof target.mentalResist === 'number' && rowIdx >= 0 && rowIdx < maxAllowedRowIdx && target.hp > 0) {
+  if (typeof target.mentalResist === 'number' && rowIdx >= 0 && rowIdx < FORMATION_ROWS.length - 1 && target.hp > 0) {
     const effectiveMentalResist = Math.min(100, target.mentalResist + partyBuffs.mentalBonus);
     const breakChance = MORALE_BREAK_BASE_CHANCE * (1 - effectiveMentalResist / 100);
     if (Math.random() < breakChance) {
@@ -793,6 +808,17 @@ export function resolveCombat({ character, zoneId, stance }) {
           if (potionResult.kind === 'hp') actor.hp = Math.min(actor.combatStats.maxHp, actor.hp + potionResult.amount);
           if (potionResult.kind === 'mp') actor.mp = Math.min(actor.combatStats.maxMp, actor.mp + potionResult.amount);
           if (potionResult.kind === 'stamina') actor.stamina = Math.min(actor.combatStats.maxStamina, actor.stamina + potionResult.amount);
+        }
+
+        // 무기 사거리가 안 닿는 위치면 아무 행동도 못 함 - 활/지팡이(원거리)는 위치 무관 항상 가능,
+        // 창/사슬도리깨는 사거리가 있어 전열/중열까지 가능, 그 외 근접(검/도끼 등)은 전열이어야만 가능.
+        // 공포에 밀려났거나(진형 붕괴) 원래 자리가 아니게 된 경우 전부 해당 - 이번 라운드는 몸빵만 하다가 넘어감
+        const weaponReachRows = RANGED_WEAPON_TYPES.includes(actor.combatStats.weaponType)
+          ? FORMATION_ROWS
+          : EXTENDED_REACH_WEAPON_TYPES.includes(actor.combatStats.weaponType) ? ['front', 'mid'] : ['front'];
+        if (!weaponReachRows.includes(actor.formationRow)) {
+          log.push(`${actor.label}이(가) 전열에서 밀려나 있어 이번 턴은 공격하지 못했다!`);
+          continue;
         }
 
         const target = pickMonsterByStance(actor.stance);

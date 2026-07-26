@@ -3,7 +3,7 @@ export const CLASSES = {
   warrior: {
     // resourceType: 'stamina' - 물리 직업은 스킬을 스테미나로 씀(마나 아님). 필드명은 그대로 manaCost지만
     // 실제로 어느 자원 풀에서 빠지는지는 이 resourceType이 결정함(rpg-combat.js 참고)
-    id: 'warrior', name: '전사', weaponTypes: ['sword', 'spear', 'axe'], statScaling: { atk: 'str' }, resourceType: 'stamina',
+    id: 'warrior', name: '전사', weaponTypes: ['sword', 'spear', 'axe', 'flail'], statScaling: { atk: 'str' }, resourceType: 'stamina',
     skills: [
       { id: 'power_strike', name: '강타', manaCost: 5, type: 'attack', power: 1.6 },
       { id: 'whirlwind', name: '회전베기', manaCost: 8, type: 'attack_all', power: 1.1 },

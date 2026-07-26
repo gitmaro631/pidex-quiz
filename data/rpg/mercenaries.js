@@ -56,6 +56,16 @@ export const FOOD_CONSUMPTION_PER_DAY_PER_WORKER = 1; // 농장을 제외한 영
 export const GOLD_PER_MISSING_FOOD = 3; // 식량이 부족하면 부족분 1당 이 골드를 대신 지출(비상 식량 구매)
 export const WAGE_PER_MERC_PER_DAY = 2; // 영지에 배치된 용병 1명당 영지 1일당 상주 급여(고용비/모험 보수와 별개)
 
+// 종자 흡수 - 다른 용병을 "종자"로 붙이면 그 용병은 사라지고(되돌릴 수 없음, 1회만 가능),
+// 흡수한 쪽이 종자의 직업을 부직업처럼 얻음(스킬 50% 위력) + 스탯 일부(10%, 흡수 시점 고정)를 받고
+// 고용가치도 살짝 오름(캐릭터 삭제시 자산환산에 반영)
+export const SQUIRE_SKILL_POWER_MULT = 0.5;
+export const SQUIRE_STAT_BONUS_PCT = 0.10;
+export const SQUIRE_HIRE_COST_BONUS_PCT = 0.5;
+
+// 유저 캐릭터 본인도 영지 시설에 배치 가능(character.territoryJob) - 용병보다 기여도가 약간 더 높음
+export const PLAYER_TERRITORY_BONUS_MULT = 1.2;
+
 export const DAILY_ROSTER_SIZE = 2; // 선술집이 하루에 노출하는 용병 수(템플릿이 늘어나도 이 수만큼만 보임)
 
 function simpleHash(str) {

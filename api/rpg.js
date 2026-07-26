@@ -46,6 +46,9 @@ import trainRepairSkill from './_rpg/train-repair-skill.js';
 import selfRepairEquipment from './_rpg/self-repair-equipment.js';
 import deleteCharacter from './_rpg/delete-character.js';
 import renameMercenary from './_rpg/rename-mercenary.js';
+import squireMercenary from './_rpg/squire-mercenary.js';
+import workTerritory from './_rpg/work-territory.js';
+import restHeal from './_rpg/rest-heal.js';
 
 const ROUTES = {
   character, adventure,
@@ -77,6 +80,9 @@ const ROUTES = {
   'self-repair-equipment': selfRepairEquipment,
   'delete-character': deleteCharacter,
   'rename-mercenary': renameMercenary,
+  'squire-mercenary': squireMercenary,
+  'work-territory': workTerritory,
+  'rest-heal': restHeal,
 };
 
 export default async function handler(req, res) {

@@ -30,6 +30,8 @@ export const ITEMS = {
   weapon_basic_sword: { id: 'weapon_basic_sword', name: '낡은 장검', type: 'weapon', weaponType: 'sword', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 4 },
   weapon_basic_spear: { id: 'weapon_basic_spear', name: '낡은 창', type: 'weapon', weaponType: 'spear', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 5 },
   weapon_basic_axe: { id: 'weapon_basic_axe', name: '낡은 도끼', type: 'weapon', weaponType: 'axe', rarity: 'normal', atkBonus: 4, shopPrice: 50, weight: 6 },
+  // 사슬로 연결된 무기 - 창처럼 사거리가 있어 중열에서도 상대 전열을 공격 가능(rpg-combat.js EXTENDED_REACH_WEAPON_TYPES)
+  weapon_basic_flail: { id: 'weapon_basic_flail', name: '낡은 사슬도리깨', type: 'weapon', weaponType: 'flail', rarity: 'normal', atkBonus: 4, shopPrice: 55, weight: 6 },
   weapon_basic_bow: { id: 'weapon_basic_bow', name: '낡은 활', type: 'weapon', weaponType: 'bow', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 3 },
   weapon_basic_dagger: { id: 'weapon_basic_dagger', name: '낡은 단도', type: 'weapon', weaponType: 'dagger', rarity: 'normal', atkBonus: 2, shopPrice: 40, weight: 2 }, // 궁수의 보조무기 - 화살이 떨어지면 이걸로 근접전
   weapon_basic_staff: { id: 'weapon_basic_staff', name: '낡은 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 3 },
