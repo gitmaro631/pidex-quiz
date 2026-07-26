@@ -1,6 +1,7 @@
-// 사냥터 진입 미리보기 - 지역을 고르면 몹 구성을 먼저 보여주고, 그 구성 그대로 전투를 시작함
-// ("보이는 게 곧 싸울 상대"). 처음 보는 건 무료, 마음에 안 들어서 새로고침(다시 굴리기)하려면
-// 턴포인트 1을 쓰고 실시간 1시간에 한 번만 가능함. adventure.js가 이 미리보기를 그대로 소비함.
+// 사냥터 진입 미리보기 - 지역을 고르면 여러 개(OPTION_COUNT개)의 몹 구성 후보를 한 번에 보여주고,
+// 그중 유저가 고른 조합 그대로 전투를 시작함("여러 조합 중에 골라서 들어간다"). 처음 보는 건 무료,
+// 마음에 안 들어서 전체를 다시 굴리려면(새로고침) 턴포인트 1을 쓰고 실시간 1시간에 한 번만 가능함.
+// adventure.js가 optionIndex로 그중 하나를 골라 그대로 소비함.
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
@@ -12,18 +13,28 @@ import { CASTLE_CLEAR_REQUIREMENT } from '../../data/rpg/castle.js';
 import { isAdminUsername } from '../_rpgAdmin.js';
 
 const REFRESH_COOLDOWN_MS = 60 * 60 * 1000; // 실시간 1시간
+const OPTION_COUNT = 5; // 한 번에 보여줄 랜덤 조합 후보 수
+
+function rollOptions(zoneId, killCount) {
+  return Array.from({ length: OPTION_COUNT }, () => {
+    const encounter = rollEncounter(zoneId, killCount);
+    return { monsterIds: encounter.monsterIds, isRare: encounter.isRare, uniqueTier: encounter.uniqueTier };
+  });
+}
 
 function previewPayload(zonePreview) {
   return {
     zoneId: zonePreview.zoneId,
-    isRare: zonePreview.isRare,
-    uniqueTier: zonePreview.uniqueTier,
     lastRefreshAt: zonePreview.lastRefreshAt,
     canRefreshAt: zonePreview.lastRefreshAt + REFRESH_COOLDOWN_MS,
-    monsters: zonePreview.monsterIds.map((id) => {
-      const def = MONSTERS[id];
-      return { monsterId: id, name: def ? def.name : id, tags: def ? def.tags : [] };
-    }),
+    options: zonePreview.options.map((opt) => ({
+      isRare: opt.isRare,
+      uniqueTier: opt.uniqueTier,
+      monsters: opt.monsterIds.map((id) => {
+        const def = MONSTERS[id];
+        return { monsterId: id, name: def ? def.name : id, tags: def ? def.tags : [] };
+      }),
+    })),
   };
 }
 
@@ -57,9 +68,8 @@ export default async function handler(req, res) {
         const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now);
         if (!isAdmin && turns < 1) { outcome = { error: 'not_enough_turns' }; return null; }
 
-        const encounter = rollEncounter(zoneId, (character.zoneKillCounts || {})[zoneId] || 0);
         const nextZonePreview = {
-          zoneId, monsterIds: encounter.monsterIds, isRare: encounter.isRare, uniqueTier: encounter.uniqueTier, lastRefreshAt: now,
+          zoneId, options: rollOptions(zoneId, (character.zoneKillCounts || {})[zoneId] || 0), lastRefreshAt: now,
         };
         const nextTurns = isAdmin ? turns : turns - 1;
         outcome = { preview: previewPayload(nextZonePreview), turnPoints: nextTurns };
@@ -68,12 +78,11 @@ export default async function handler(req, res) {
         };
       }
 
-      // 새로고침이 아니면: 같은 지역을 이미 보고 있었으면 그대로 재사용(공짜), 아니면 새로 무료로 하나 굴려줌
+      // 새로고침이 아니면: 같은 지역을 이미 보고 있었으면 그대로 재사용(공짜), 아니면 새로 무료로 후보들을 굴려줌
       if (sameZoneExisting) { outcome = { preview: previewPayload(existing), turnPoints: character.turnPoints }; return null; }
 
-      const encounter = rollEncounter(zoneId, (character.zoneKillCounts || {})[zoneId] || 0);
       const nextZonePreview = {
-        zoneId, monsterIds: encounter.monsterIds, isRare: encounter.isRare, uniqueTier: encounter.uniqueTier, lastRefreshAt: now,
+        zoneId, options: rollOptions(zoneId, (character.zoneKillCounts || {})[zoneId] || 0), lastRefreshAt: now,
       };
       outcome = { preview: previewPayload(nextZonePreview), turnPoints: character.turnPoints };
       return { ...character, zonePreview: nextZonePreview, updatedAt: now };

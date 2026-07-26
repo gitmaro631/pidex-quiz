@@ -308,6 +308,21 @@ export const ITEMS = {
   ring_priestset: { id: 'ring_priestset', name: '대주교의 반지', type: 'ring', rarity: 'epic', wisBonus: 3, defBonus: 3, weight: 0.2 },
   weapon_priestset: { id: 'weapon_priestset', name: '대주교의 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'epic', atkBonus: 16, weight: 4 },
 
+  // 성기사 세트 - 중갑이라 다른 직업도 착용 자체는 가능하지만(직업 하드락 없음), 힘 요구치+방패 조합이
+  // 성기사/전사류 근접탱커에게 특히 유용하게 설계됨
+  armor_top_paladinset: { id: 'armor_top_paladinset', name: '성전의 흉갑', type: 'armor_top', rarity: 'epic', armorClass: 'heavy', defBonus: 11, hpBonus: 42, weight: 14, strRequirement: 15 },
+  armor_bottom_paladinset: { id: 'armor_bottom_paladinset', name: '성전의 각반', type: 'armor_bottom', rarity: 'epic', armorClass: 'heavy', defBonus: 7, hpBonus: 28, weight: 10, strRequirement: 15 },
+  necklace_paladinset: { id: 'necklace_paladinset', name: '성전의 목걸이', type: 'necklace', rarity: 'epic', hpBonus: 30, defBonus: 4, weight: 0.3 },
+  ring_paladinset: { id: 'ring_paladinset', name: '성전의 반지', type: 'ring', rarity: 'epic', atkBonus: 5, severeInjuryResist: 0.1, weight: 0.2 },
+  shield_paladinset: { id: 'shield_paladinset', name: '성전의 방패', type: 'shield', rarity: 'epic', defBonus: 10, hpBonus: 25, weight: 11, strRequirement: 15 },
+
+  // 흑기사 세트 - 방어보단 공격/속도 위주로 몰아서, 체력을 자원으로 쓰는 흑기사 스킬과 궁합이 좋게 설계됨
+  armor_top_darkknightset: { id: 'armor_top_darkknightset', name: '심연기사의 흉갑', type: 'armor_top', rarity: 'epic', armorClass: 'heavy', defBonus: 9, hpBonus: 32, weight: 13, strRequirement: 15 },
+  armor_bottom_darkknightset: { id: 'armor_bottom_darkknightset', name: '심연기사의 각반', type: 'armor_bottom', rarity: 'epic', armorClass: 'heavy', defBonus: 6, hpBonus: 22, weight: 9, strRequirement: 15 },
+  necklace_darkknightset: { id: 'necklace_darkknightset', name: '심연기사의 목걸이', type: 'necklace', rarity: 'epic', atkBonus: 7, hpBonus: 20, weight: 0.3 },
+  ring_darkknightset: { id: 'ring_darkknightset', name: '심연기사의 반지', type: 'ring', rarity: 'epic', atkBonus: 8, weight: 0.2 },
+  weapon_darkknightset: { id: 'weapon_darkknightset', name: '심연기사의 대검', type: 'weapon', weaponType: 'sword', rarity: 'epic', atkBonus: 20, element: 'dark', weight: 6 },
+
   // 랜덤박스 - 상점에서 골드로 직접 뽑기(박스 자체는 인벤토리에 안 쌓이고 즉시 결과만 지급)
   random_box: { id: 'random_box', name: '수상한 상자', type: 'randombox', rarity: 'normal', shopPrice: 150, weight: 0 },
 };
@@ -361,6 +376,18 @@ export const FULL_SET_DEFS = {
     pieces: ['armor_top_priestset', 'armor_bottom_priestset', 'necklace_priestset', 'ring_priestset'],
     altSlotPieces: ['weapon_priestset'],
     bonus: { wisBonus: 5, severeInjuryResist: 0.15 },
+  },
+  paladin_set: {
+    name: '성전의 세트', classId: 'paladin',
+    pieces: ['armor_top_paladinset', 'armor_bottom_paladinset', 'necklace_paladinset', 'ring_paladinset'],
+    altSlotPieces: ['shield_paladinset'],
+    bonus: { hpBonus: 40, elementDefense: 'dark' },
+  },
+  dark_knight_set: {
+    name: '심연기사 세트', classId: 'dark_knight',
+    pieces: ['armor_top_darkknightset', 'armor_bottom_darkknightset', 'necklace_darkknightset', 'ring_darkknightset'],
+    altSlotPieces: ['weapon_darkknightset'],
+    bonus: { atkBonus: 12, doubleAttackChance: 0.06 },
   },
 };
 

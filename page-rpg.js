@@ -506,18 +506,25 @@ async function enterZonePreview(content, container, zoneId) {
   }
 }
 
-// 필드 진입 화면 - 몹 구성을 보여주고, 새로고침(턴1, 1시간마다) 또는 몹 클릭으로 바로 전투 시작(스크롤 없이)
+// 필드 진입 화면 - 서로 다른 랜덤 몹 구성 후보 여러 개를 한 번에 보여주고, 그중 하나를 골라 그 조합
+// 그대로 전투를 시작함("여러 조합 중에 골라서 들어간다"). 새로고침(턴1, 1시간마다)은 후보 전체를 다시 굴림
 function renderZonePreviewScreen(content, container, preview) {
   const zone = ZONES[preview.zoneId];
   const canRefreshNow = Date.now() >= preview.canRefreshAt;
   content.innerHTML = `
     <p><button class="rpg-zone-back-btn">◀ 지역 목록</button></p>
-    <h4>${zone.name}에 들어왔다${preview.isRare ? ' — 심상치 않은 기운이 느껴진다!' : ''}</h4>
-    <div class="rpg-encounter-list">
-      ${preview.monsters.map((m) => `
-        <button class="rpg-encounter-monster-btn" data-zone="${preview.zoneId}">
-          <span class="rpg-encounter-icon">${MONSTER_TAG_ICONS[(m.tags || [])[0]] || '❓'}</span>
-          <span class="rpg-encounter-name">${m.name}</span>
+    <h4>${zone.name}에 들어왔다</h4>
+    <p class="rpg-hint">마주칠 수 있는 조합 중 하나를 골라 들어가세요.</p>
+    <div class="rpg-encounter-option-list">
+      ${preview.options.map((opt, idx) => `
+        <button class="rpg-encounter-option-btn" data-zone="${preview.zoneId}" data-option="${idx}">
+          ${opt.isRare ? '<span class="rpg-encounter-rare-tag">⚠️ 희귀</span>' : ''}
+          <div class="rpg-encounter-option-monsters">
+            ${opt.monsters.map((m) => `
+              <span class="rpg-encounter-icon">${MONSTER_TAG_ICONS[(m.tags || [])[0]] || '❓'}</span>
+              <span class="rpg-encounter-name">${m.name}</span>
+            `).join(' · ')}
+          </div>
         </button>
       `).join('')}
     </div>
@@ -537,10 +544,10 @@ function renderZonePreviewScreen(content, container, preview) {
       renderZonePreviewScreen(content, container, r.preview);
     } catch (e) { showToast(friendlyError(e)); }
   });
-  content.querySelectorAll('.rpg-encounter-monster-btn').forEach((btn) => btn.addEventListener('click', async () => {
+  content.querySelectorAll('.rpg-encounter-option-btn').forEach((btn) => btn.addEventListener('click', async () => {
     log.innerHTML = `<div class="rpg-loading">전투 중...</div>`;
     try {
-      const result = await apiPost('adventure', { zoneId: btn.dataset.zone });
+      const result = await apiPost('adventure', { zoneId: btn.dataset.zone, optionIndex: Number(btn.dataset.option) });
       await loadCharacter(); // 레벨업으로 maxHp 등이 바뀌었을 수 있어 서버 최신값으로 새로고침
 
       await playCombatLog(log, result.log);

@@ -38,7 +38,7 @@ function decayInjuries(prevInjuries, freshInjuries) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { accessToken, slot, zoneId } = req.body;
+  const { accessToken, slot, zoneId, optionIndex } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
@@ -89,11 +89,14 @@ export default async function handler(req, res) {
         }
       }
 
-      // 필드 미리보기(preview-zone.js)로 이미 본 몹 구성이 있으면 그대로 씀("보이는 게 곧 상대") -
-      // 없으면(미리보기 화면을 건너뛴 예전 클라이언트 등) 안전하게 그 자리에서 새로 굴림
+      // 필드 미리보기(preview-zone.js)로 이미 본 몹 구성 후보들 중 유저가 고른 하나(optionIndex)를 그대로
+      // 씀("보이는 게 곧 상대") - 미리보기가 없거나 인덱스가 잘못됐으면(미리보기 화면을 건너뛴 예전
+      // 클라이언트 등) 안전하게 그 자리에서 새로 굴림
       const zonePreview = character.zonePreview;
-      const presetEncounter = (zonePreview && zonePreview.zoneId === zoneId)
-        ? { zone, monsterIds: zonePreview.monsterIds, isRare: zonePreview.isRare, uniqueTier: zonePreview.uniqueTier }
+      const chosenOption = (zonePreview && zonePreview.zoneId === zoneId && zonePreview.options
+        && zonePreview.options[optionIndex]) || null;
+      const presetEncounter = chosenOption
+        ? { zone, monsterIds: chosenOption.monsterIds, isRare: chosenOption.isRare, uniqueTier: chosenOption.uniqueTier }
         : null;
       const combatResult = resolveCombat({ character: { ...character, mercenaries }, zoneId, stance: character.stance, presetEncounter });
       combatResult.log.unshift(...wageMessages);
