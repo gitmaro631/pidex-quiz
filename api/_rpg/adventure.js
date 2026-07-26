@@ -11,6 +11,8 @@ import { checkNewLoreUnlocks } from '../../rpg-lore.js';
 import { LORE_ENTRIES } from '../../data/rpg/lore.js';
 import { isAdminUsername } from '../_rpgAdmin.js';
 import { CASTLE_CLEAR_REQUIREMENT } from '../../data/rpg/castle.js';
+import { facilityBonusMultiplier } from '../../data/rpg/facilities.js';
+import { territoryDaysElapsed, settleTerritoryDays } from '../../rpg-territory.js';
 
 const EQUIP_SLOT_LABELS = { weapon: '무기', shield: '방패', armor_top: '상의', armor_bottom: '하의' };
 
@@ -147,6 +149,27 @@ export default async function handler(req, res) {
       const injuries = decayInjuries(character.injuries, combatResult.newInjuries);
       const progression = applyXpGain(character, combatResult.xpGain);
 
+      // 개간지(시설) 레벨만큼 전투 골드획득에 % 보너스
+      const bonusedGoldGain = Math.floor(combatResult.goldGain * facilityBonusMultiplier(character, 'clearing'));
+
+      // 영지일 경계 판정 - 지금까지 쓴 누적 턴(관리자도 포함, 통계용)이 이번 모험의 턴소모만큼 늘어났고,
+      // 그로 인해 "영지일"이 하루 이상 지났으면 영지 경제(시설레벨/식량/골드/용병 상주급여)를 정산함
+      const nextTotalTurnsSpent = (character.totalTurnsSpent || 0) + turnCost;
+      const daysNow = territoryDaysElapsed(nextTotalTurnsSpent, progression.level);
+      const daysSinceCheckpoint = daysNow - (character.territoryDayCheckpoint || 0);
+      const territorySettlement = settleTerritoryDays(character, daysSinceCheckpoint);
+      let territoryNotice = null;
+      if (territorySettlement) {
+        territoryNotice = {
+          daysProcessed: territorySettlement.daysProcessed,
+          goldIncome: territorySettlement.goldIncome,
+          wagePaid: territorySettlement.wagePaid,
+          foodEmergencyCost: territorySettlement.foodEmergencyCost,
+          goldDelta: territorySettlement.goldDelta,
+          leveledUp: territorySettlement.leveledUp,
+        };
+      }
+
       // 용병 결과 반영 - 각자 체력/마나/부상/내구도/경험치를 본인과 동일한 방식으로 처리.
       // 용병 레벨은 본인 레벨을 넘지 못함(주인공이 파티의 성장 한계) - 넘으면 경험치도 그 시점에서 멈춤
       const updatedMercenaries = mercenaries.map((merc) => {
@@ -183,13 +206,15 @@ export default async function handler(req, res) {
       const allUpdatedMercenaries = [...updatedMercenaries, ...updatedRestingMercs];
 
       const nextTurns = isAdmin ? turns : turns - turnCost;
+      const territoryGoldDelta = territorySettlement ? territorySettlement.goldDelta : 0;
+      const finalGold = Math.max(0, gold + bonusedGoldGain - combatResult.goldLost + territoryGoldDelta);
       outcome = {
         newLore: newLoreEntries,
         log: combatResult.log,
         victory: combatResult.victory,
         isRareEncounter: combatResult.isRareEncounter,
         xpGain: combatResult.xpGain,
-        goldGain: combatResult.goldGain,
+        goldGain: bonusedGoldGain,
         loot: combatResult.loot,
         turnPoints: nextTurns,
         turnPointsCap: turnCapForLevel(progression.level),
@@ -205,17 +230,23 @@ export default async function handler(req, res) {
         injuries,
         mercenaries: allUpdatedMercenaries,
         wagePaid: totalWage,
-        gold: gold + combatResult.goldGain - combatResult.goldLost,
+        gold: finalGold,
+        territoryNotice,
       };
 
       return {
         ...character,
-        gold: gold + combatResult.goldGain - combatResult.goldLost,
+        gold: finalGold,
         level: progression.level,
         xp: progression.xp,
         statPoints: progression.statPoints,
         turnPoints: nextTurns,
         turnPointsUpdatedAt: now,
+        totalTurnsSpent: nextTotalTurnsSpent,
+        territoryDayCheckpoint: daysNow,
+        facilityDays: territorySettlement ? territorySettlement.nextFacilityDays : character.facilityDays,
+        facilityLevels: territorySettlement ? territorySettlement.nextFacilityLevels : character.facilityLevels,
+        foodStock: territorySettlement ? territorySettlement.nextFoodStock : character.foodStock,
         currentHp: combatResult.finalHp,
         currentMp: combatResult.finalMp,
         currentStamina: combatResult.finalStamina,

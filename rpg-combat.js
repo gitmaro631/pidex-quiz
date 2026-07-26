@@ -10,6 +10,7 @@ import { CLASSES } from './data/rpg/classes.js';
 import { elementalMultiplier } from './data/rpg/elements.js';
 import { CLASS_ESSENCE_ITEM, TIER_POWER_MULT } from './data/rpg/training.js';
 import { ENHANCE_ATK_PER_LEVEL, ENHANCE_DEF_PER_LEVEL, RARE_MONSTER_STONE_DROP_CHANCE } from './data/rpg/enhancement.js';
+import { facilityBonusMultiplier } from './data/rpg/facilities.js';
 
 // 반지+목걸이가 같은 세트(setId)면 세트 보너스를 반환, 아니면 null
 function matchedSetBonus(ringItem, necklaceItem) {
@@ -218,13 +219,16 @@ export function computeCharacterCombatStats(character) {
 
   // VIT는 레벨과 곱해져서 반영됨 - 레벨이 낮을 땐 VIT를 아무리 투자해도 체력 증가폭이 작고,
   // 레벨이 오를수록 VIT 투자분이 누적돼서 체력 성장폭이 커짐(비율 성장)
+  // 영지 시설(훈련소/방벽) 레벨 보너스 - character에만 있는 필드라 용병에게는 자연히 적용 안 됨(배율 1)
+  const facilityAtkMult = facilityBonusMultiplier(character, 'training');
+  const facilityDefMult = facilityBonusMultiplier(character, 'ramparts');
   return {
     maxHp: BASE_HP + level * HP_PER_LEVEL + Math.round(stats.vit * level * VIT_HP_PER_LEVEL) + gearHpBonus + accessoryHpBonus,
     maxMp: BASE_MP + level * MP_PER_LEVEL + Math.round(scalingStat * level * MAGIC_STAT_MP_PER_LEVEL),
     // 향후 스테미나 소모 스킬/행동에 대비한 자원(현재는 회복 대상으로만 사용)
     maxStamina: BASE_STAMINA + level * STAMINA_PER_LEVEL + Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL),
-    atk: scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus,
-    def: stats.vit + gearDefBonus + accessoryDefBonus,
+    atk: Math.round((scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus) * facilityAtkMult),
+    def: Math.round((stats.vit + gearDefBonus + accessoryDefBonus) * facilityDefMult),
     element: weaponBroken ? 'none' : ((weaponItem && weaponItem.element) || 'none'), // 무기 파손시 속성공격도 사라짐
     weaponType: (weaponItem && weaponItem.weaponType) || null,
     hasShield: !!(shieldItem && !shieldBroken), // 방패 스킬(방패 강타 등) 사용 조건

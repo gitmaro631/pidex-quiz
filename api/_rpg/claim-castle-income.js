@@ -7,6 +7,7 @@ import { tryAddItem } from '../_rpgInventory.js';
 import { ZONES } from '../../data/rpg/zones.js';
 import { CLASS_ESSENCE_ITEM } from '../../data/rpg/training.js';
 import { GOLD_INCOME_PER_TIER, MATERIAL_BONUS_MIN_TIER, MATERIAL_BONUS_QTY, castleDocPath } from '../../data/rpg/castle.js';
+import { facilityBonusMultiplier } from '../../data/rpg/facilities.js';
 
 function todayDateKey() {
   return new Date().toISOString().slice(0, 10);
@@ -58,6 +59,7 @@ export default async function handler(req, res) {
         }
       }
 
+      income = Math.floor(income * facilityBonusMultiplier(character, 'clearing'));
       const now = Date.now();
       outcome = { gold: (character.gold || 0) + income, income, ownedZones, materialsGranted, alreadyClaimed: false };
       return { ...character, gold: (character.gold || 0) + income, inventory, lastCastleIncomeClaimDate: today, updatedAt: now };

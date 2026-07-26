@@ -1,11 +1,11 @@
 // RPG 턴 포인트 회복/상한 계산 — 크론 없이 조회 시점에 지연 계산
-export const TURN_REGEN_MS = 6 * 60 * 1000; // 6분당 1턴 (시간당 10턴)
-export const RANKING_BONUS_TURNS = 30;
+export const TURN_REGEN_MS = 60 * 60 * 1000; // 1시간당 1턴
+export const RANKING_BONUS_TURNS = 30; // 실제 시간 기준 하루 1회(claim-daily-bonus.js) - 영지의 "턴소모 기반 하루"와는 별개
 export const RANKING_BONUS_RANK_CUTOFF = 100;
 
 export function turnCapForLevel(level) {
   const lvl = Math.max(1, Number(level) || 1);
-  return 10 + Math.floor((lvl - 1) / 10);
+  return 10 + Math.floor(lvl / 5); // 5레벨마다 +1 (레벨5=11, 레벨10=12, ...)
 }
 
 // turnPoints/turnPointsUpdatedAt(ms)는 마지막으로 "실제 소모"가 일어난 시점 기준 저장값.

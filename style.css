@@ -1323,6 +1323,34 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
 .rpg-subclass-select { margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border); }
 .rpg-equipment { margin-top: 6px; padding-top: 10px; border-top: 1px solid var(--border); }
 
+.rpg-facility-dashboard {
+  background: linear-gradient(180deg, rgba(99,102,241,0.12), rgba(255,255,255,0.03));
+  border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px;
+}
+.rpg-facility-row { margin: 8px 0; }
+.rpg-facility-head { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+.rpg-merc-job-btn {
+  background: #6366f1; color: #fff; border: none; border-radius: 6px;
+  padding: 5px 10px; font-size: 12px; cursor: pointer; margin: 2px 4px 2px 0;
+}
+.rpg-merc-job-btn:disabled { background: #4b5563; color: rgba(255,255,255,0.7); cursor: not-allowed; }
+.rpg-rename-merc-btn { background: none; border: none; cursor: pointer; font-size: 12px; padding: 0 2px; }
+
+.rpg-notice-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.rpg-notice-box {
+  background: #1f2333; border: 1px solid var(--border); border-radius: 14px;
+  padding: 20px; max-width: 340px; width: 100%; color: #fff; text-align: center;
+}
+.rpg-notice-box h4 { margin: 0 0 10px; }
+.rpg-notice-box p { margin: 8px 0; font-size: 14px; }
+.rpg-notice-close {
+  margin-top: 10px; background: #6366f1; color: #fff; border: none; border-radius: 8px;
+  padding: 8px 20px; font-size: 14px; cursor: pointer;
+}
+
 .rpg-npc-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 .rpg-npc-card {
   background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px;

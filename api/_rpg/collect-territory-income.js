@@ -1,12 +1,9 @@
-// 영지에서 일하는(assignment:'territory') 용병들의 수입 정산 - 턴포인트 지연계산과 같은 방식으로,
-// 마지막 정산 이후 흐른 시간 x (일자리별 시간당 산출 합계)로 계산해 골드 지급.
-// 일자리 종류가 늘어나도(재료 산출 등) 이 파일은 손댈 필요 없이 TERRITORY_JOBS만 확장하면 됨
+// 영지 현황 조회 - 실제 정산(시설레벨/식량/골드/급여)은 이제 매 모험(adventure.js)마다
+// "영지일" 경계를 넘을 때 자동으로 처리됨(rpg-territory.js 참고). 이 엔드포인트는 그 결과를
+// 조회만 하는 용도로 남겨둠(정산 로직 중복 없음)
 import { verifyPiUser } from '../_verifyPiUser.js';
-import { withFirestoreTransaction } from '../_firestore.js';
+import { firestoreGetDoc } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
-import { TERRITORY_JOBS } from '../../data/rpg/mercenaries.js';
-
-const HOUR_MS = 60 * 60 * 1000;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -15,26 +12,14 @@ export default async function handler(req, res) {
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
 
-  let outcome = null;
   try {
-    const docPath = characterDocPath(username, slot);
-    await withFirestoreTransaction(docPath, (current) => {
-      const character = current || defaultCharacter(slot);
-      const now = Date.now();
-      const lastCollectAt = character.lastTerritoryCollectAt || character.createdAt || now;
-      const workingMercs = (character.mercenaries || []).filter((m) => m.assignment === 'territory' && !m.hospitalized);
-      const goldPerHour = workingMercs.reduce((sum, m) => sum + ((TERRITORY_JOBS[m.job] || {}).goldPerHour || 0), 0);
-
-      const elapsedHours = Math.max(0, (now - lastCollectAt) / HOUR_MS);
-      const income = Math.floor(elapsedHours * goldPerHour);
-      if (income <= 0) { outcome = { income: 0, gold: character.gold || 0 }; return null; }
-
-      outcome = { income, gold: (character.gold || 0) + income };
-      return { ...character, gold: (character.gold || 0) + income, lastTerritoryCollectAt: now, updatedAt: now };
+    const character = (await firestoreGetDoc(characterDocPath(username, slot))) || defaultCharacter(slot);
+    return res.status(200).json({
+      gold: character.gold || 0,
+      foodStock: character.foodStock || 0,
+      facilityDays: character.facilityDays || {},
+      facilityLevels: character.facilityLevels || {},
     });
-
-    if (outcome && outcome.error) return res.status(400).json({ error: outcome.error });
-    return res.status(200).json(outcome);
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }

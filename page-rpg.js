@@ -17,6 +17,7 @@ import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_
 import { CASTLE_CLEAR_REQUIREMENT } from './data/rpg/castle.js';
 import { computeCureCost } from './data/rpg/injuries.js';
 import { allowedFormationRows } from './rpg-combat.js';
+import { facilityProgress, MAX_MERCS_PER_FACILITY } from './data/rpg/facilities.js';
 
 // api/ 아래 파일은 Vercel이 서버 함수 전용으로 취급해서 브라우저가 직접 fetch 못 함(404) -
 // 그래서 api/_rpgInventory.js를 import하는 대신, 이 로직들을 그대로 복제해서 씀
@@ -71,6 +72,32 @@ function itemStatsLabel(item) {
   const statsStr = parts.length ? ` (${parts.join(', ')})` : '';
   const setStr = item.setId ? ` <button class="rpg-set-info-btn" data-set="${item.setId}">🧩${SET_BONUSES[item.setId].name}</button>` : '';
   return statsStr + setStr;
+}
+
+// 영지일 경계를 넘어 정산이 일어났을 때(adventure.js의 territoryNotice) 보여주는 공지 배너 -
+// "확인" 버튼 또는 배경(다른 부분) 클릭으로 닫힘
+function showTerritoryNotice(container, notice) {
+  if (!notice) return;
+  const lines = [];
+  if (notice.goldIncome > 0) lines.push(`🌾 개간지 수입 +${notice.goldIncome}골드`);
+  if (notice.wagePaid > 0) lines.push(`👥 용병 상주 급여 -${notice.wagePaid}골드`);
+  if (notice.foodEmergencyCost > 0) lines.push(`🍚 식량 부족으로 비상 구매 -${notice.foodEmergencyCost}골드`);
+  const levelLines = (notice.leveledUp || []).map((l) => `🎉 ${FACILITY_ICONS[l.jobId] || ''} ${l.name}이(가) Lv.${l.level}(으)로 성장했습니다!`);
+  const overlay = document.createElement('div');
+  overlay.className = 'rpg-notice-overlay';
+  overlay.innerHTML = `
+    <div class="rpg-notice-box">
+      <h4>🏯 영지 정산 (${notice.daysProcessed}일 경과)</h4>
+      ${lines.length ? `<p>${lines.join('<br>')}</p>` : '<p class="rpg-hint">이번엔 골드 변동이 없었어요.</p>'}
+      ${levelLines.length ? `<p>${levelLines.join('<br>')}</p>` : ''}
+      <p class="rpg-hint">순변동: ${notice.goldDelta >= 0 ? '+' : ''}${notice.goldDelta}골드</p>
+      <button class="rpg-notice-close">확인</button>
+    </div>
+  `;
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  overlay.querySelector('.rpg-notice-close').addEventListener('click', close);
+  container.appendChild(overlay);
 }
 
 // 세트 아이템 클릭시(🧩버튼) 이 세트가 반지+목걸이 뭐로 구성되는지, 세트 효과가 뭔지 보여줌
@@ -158,6 +185,9 @@ const ERROR_MESSAGES = {
   invalid_mercenary: '잘못된 용병 요청입니다.',
   invalid_formation: '잘못된 진형 값입니다.',
   formation_not_allowed: '이 직업/무기로는 그 위치를 선택할 수 없습니다.',
+  invalid_job: '알 수 없는 일자리입니다.',
+  facility_full: '그 시설은 이미 인원이 가득 찼습니다 (최대 3명).',
+  invalid_name: '이름은 1~12자로 입력해주세요.',
   no_class_selected: '직업을 먼저 선택해야 합니다.',
   invalid_class: '알 수 없는 직업입니다.',
   class_already_chosen: '이미 직업을 선택했습니다.',
@@ -281,10 +311,10 @@ async function renderCharacterSelect(container) {
   }));
   container.querySelectorAll('.rpg-slot-delete-btn').forEach((btn) => btn.addEventListener('click', async () => {
     const slot = Number(btn.dataset.slot);
-    if (!confirm(`슬롯 ${slot} 캐릭터를 정말 삭제할까요? 장비/인벤토리/골드/용병이 전부 사라지고 되돌릴 수 없습니다.`)) return;
+    if (!confirm(`슬롯 ${slot} 캐릭터를 정말 삭제할까요? 저장상자 내용물은 그대로 사라지고, 나머지 자산(골드/장비/인벤토리/용병)의 절반은 골드로 환산되어 마지막에 있던 마을의 이송상자로 들어갑니다. 되돌릴 수 없습니다.`)) return;
     try {
-      await apiPostRaw('delete-character', { slot });
-      showToast('캐릭터를 삭제했습니다');
+      const r = await apiPostRaw('delete-character', { slot });
+      showToast(r.refund > 0 ? `캐릭터를 삭제했습니다. ${(TOWNS[r.refundTown] || {}).name || r.refundTown} 이송상자에 ${r.refund}골드가 들어갔습니다.` : '캐릭터를 삭제했습니다');
       renderCharacterSelect(container);
     } catch (e) {
       showToast(friendlyError(e));
@@ -452,6 +482,7 @@ function renderAdventureTab(content, container) {
           ${loreUnlockHtml(result.newLore)}
         `);
         container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+        showTerritoryNotice(container, result.territoryNotice);
       } catch (e) {
         log.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div>`;
       }
@@ -1054,14 +1085,48 @@ function formationSectionHtml(characterLike, mercId) {
 
 // ── 파티(고용한 용병) 섹션 - 캐릭터 탭에서 사용 ─────────
 // 전투부대(active, 최대 MAX_MERCENARIES명)는 모험에 동행하고, 영지(territory)는 남아서 일을 함
+// ── 영지 현황판 - 시설(개간지/훈련소/방벽/농장) 레벨과 다음 레벨까지 진행률을 한눈에 보여줌 ──
+const FACILITY_ICONS = { clearing: '🌾', training: '⚔️', ramparts: '🛡️', farm: '🌱' };
+function facilityDashboardHtml() {
+  const days = character.facilityDays || {};
+  const territoryMercs = (character.mercenaries || []).filter((m) => m.assignment === 'territory' && !m.hospitalized);
+  const rows = Object.keys(TERRITORY_JOBS).map((jobId) => {
+    const job = TERRITORY_JOBS[jobId];
+    const progress = facilityProgress(days[jobId] || 0);
+    const pct = Math.min(100, Math.round((progress.daysIntoLevel / progress.daysForNextLevel) * 100));
+    const workerCount = territoryMercs.filter((m) => m.job === jobId).length;
+    const bonusLabel = job.bonusPctPerLevel
+      ? `${jobId === 'farm' ? '식량생산' : job.statKey === 'gold' ? '골드' : job.statKey === 'atk' ? '공격력' : '방어력'} +${(job.bonusPctPerLevel * progress.level).toFixed(1)}%`
+      : '';
+    return `
+      <div class="rpg-facility-row">
+        <div class="rpg-facility-head">
+          <span>${FACILITY_ICONS[jobId] || '🏛️'} ${job.name} Lv.${progress.level}</span>
+          <span class="rpg-hint">${workerCount}/${MAX_MERCS_PER_FACILITY}명 · ${bonusLabel}</span>
+        </div>
+        <div class="rank-bar-wrap"><div class="rank-bar" style="width:${pct}%"></div></div>
+        <div class="rank-bar-pct">${progress.daysIntoLevel.toFixed(1)} / ${progress.daysForNextLevel}일</div>
+      </div>
+    `;
+  }).join('');
+  return `
+    <div class="rpg-facility-dashboard">
+      <h4>🏯 영지 현황판</h4>
+      <p class="rpg-hint">🍚 식량 재고: ${(character.foodStock || 0).toFixed(1)} (농장 외 근무자 1명당 영지 1일에 1 소비, 부족하면 골드로 대신 지출됨)</p>
+      ${rows}
+    </div>
+  `;
+}
+
 function mercenaryCardHtml(m) {
   const cls = CLASSES[m.classMain];
   const injured = ['arm', 'leg'].filter((p) => (m.injuries && m.injuries[p] && m.injuries[p].severity) > 0);
   const otherAssignment = m.assignment === 'active' ? 'territory' : 'active';
   const otherLabel = m.assignment === 'active' ? '영지로 보내기' : '전투부대로 편입';
+  const territoryMercs = (character.mercenaries || []).filter((mm) => mm.assignment === 'territory' && !mm.hospitalized);
   return `
     <div class="rpg-npc-card">
-      <div class="rpg-class-name">${m.name} (Lv.${m.level} ${cls ? cls.name : m.classMain})${m.hospitalized ? ' — 입원 중 🏥' : ''}</div>
+      <div class="rpg-class-name">${m.name} (Lv.${m.level} ${cls ? cls.name : m.classMain})${m.hospitalized ? ' — 입원 중 🏥' : ''} <button class="rpg-rename-merc-btn" data-merc="${m.id}">✏️</button></div>
       <p class="rpg-hint">HP ${m.currentHp} · 보수 ${m.wagePerAdventure}골드/모험 ${injured.length ? `· 부상: ${injured.map((p) => BODY_PART_NAMES[p]).join(', ')}` : ''} ${m.assignment === 'territory' ? `· ${(TERRITORY_JOBS[m.job] || {}).name || '휴식'} 중` : ''}</p>
       ${injured.length && !m.hospitalized ? `<p><button class="rpg-admit-merc-btn" data-merc="${m.id}">병원에 입원시키기 (10골드, 서서히 회복)</button></p>` : ''}
       ${m.hospitalized ? `<p class="rpg-hint">입원 중에는 모험에 동행하지 않고 보수도 나가지 않아요. 완쾌하면 자동으로 퇴원해요.</p>` : ''}
@@ -1072,7 +1137,15 @@ function mercenaryCardHtml(m) {
       ${m.assignment === 'active' ? `
         ${formationSectionHtml(m, m.id)}
         ${potionRulesEditorHtml(m.id)}
-      ` : ''}
+      ` : `
+        <p>일자리:
+          ${Object.values(TERRITORY_JOBS).map((job) => {
+            const countInJob = territoryMercs.filter((mm) => mm.job === job.id && mm.id !== m.id).length;
+            const full = countInJob >= MAX_MERCS_PER_FACILITY && m.job !== job.id;
+            return `<button class="rpg-merc-job-btn" data-merc="${m.id}" data-job="${job.id}" ${m.job === job.id ? 'disabled' : ''} ${full ? 'disabled' : ''}>${FACILITY_ICONS[job.id] || ''} ${job.name}${m.job === job.id ? ' ✓' : full ? ' (가득참)' : ''}</button>`;
+          }).join('')}
+        </p>
+      `}
     </div>
   `;
 }
@@ -1081,13 +1154,14 @@ function partySectionHtml() {
   const active = mercenaries.filter((m) => m.assignment === 'active');
   const territory = mercenaries.filter((m) => m.assignment !== 'active');
   if (!mercenaries.length) {
-    return `<div class="rpg-party"><h4>파티 / 영지</h4><p class="rpg-hint">아직 고용한 용병이 없어요. 마을 선술집에서 용병을 고용해보세요.</p></div>`;
+    return `<div class="rpg-party">${facilityDashboardHtml()}<h4>파티 / 영지</h4><p class="rpg-hint">아직 고용한 용병이 없어요. 마을 선술집에서 용병을 고용해보세요.</p></div>`;
   }
   return `
     <div class="rpg-party">
+      ${facilityDashboardHtml()}
       <h4>전투부대 (${active.length}/${MAX_MERCENARIES})</h4>
       ${active.length ? active.map(mercenaryCardHtml).join('') : '<p class="rpg-hint">동행 중인 용병이 없어요.</p>'}
-      <h4>영지 (${territory.length}/${MAX_TERRITORY_MERCENARIES}) <button class="rpg-collect-territory-btn">수입 수확하기</button></h4>
+      <h4>영지 (${territory.length}/${MAX_TERRITORY_MERCENARIES})</h4>
       ${territory.length ? territory.map(mercenaryCardHtml).join('') : '<p class="rpg-hint">영지에서 쉬고 있는 용병이 없어요.</p>'}
     </div>
   `;
@@ -1169,20 +1243,31 @@ function renderTerritoryTab(content, container) {
     try {
       const r = await apiPost('set-mercenary-assignment', { mercId: btn.dataset.merc, assignment: btn.dataset.assignment });
       const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
-      if (merc) { merc.assignment = r.assignment; merc.job = r.assignment === 'territory' ? 'clearing' : null; }
+      if (merc) { merc.assignment = r.assignment; merc.job = r.job; }
       rerender();
       showToast(r.assignment === 'active' ? '전투부대로 편입했습니다' : '영지로 보냈습니다');
     } catch (e) { showToast(friendlyError(e)); }
   }));
-  const collectBtn = content.querySelector('.rpg-collect-territory-btn');
-  if (collectBtn) collectBtn.addEventListener('click', async () => {
+  content.querySelectorAll('.rpg-merc-job-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
-      const r = await apiPost('collect-territory-income', {});
-      character.gold = r.gold;
-      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-      showToast(r.income > 0 ? `영지 수입 ${r.income}골드를 수확했습니다` : '아직 정산할 수입이 없어요');
+      const r = await apiPost('set-mercenary-assignment', { mercId: btn.dataset.merc, assignment: 'territory', job: btn.dataset.job });
+      const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
+      if (merc) merc.job = r.job;
+      rerender();
+      showToast(`${TERRITORY_JOBS[r.job].name}에 배치했습니다`);
     } catch (e) { showToast(friendlyError(e)); }
-  });
+  }));
+  content.querySelectorAll('.rpg-rename-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const merc = (character.mercenaries || []).find((m) => m.id === btn.dataset.merc);
+    const nextName = prompt('용병의 새 이름을 입력하세요 (최대 12자)', merc ? merc.name : '');
+    if (!nextName || !nextName.trim()) return;
+    try {
+      const r = await apiPost('rename-mercenary', { mercId: btn.dataset.merc, name: nextName.trim() });
+      if (merc) merc.name = r.name;
+      rerender();
+      showToast('용병 이름을 변경했습니다');
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
 }
 
 // ── 부상 상태 요약(캐릭터 탭에서 사용) ─────────────────
