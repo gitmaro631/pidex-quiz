@@ -4,13 +4,14 @@ import { setupPullToRefresh } from './util-ptr.js';
 import { ITEMS, RARITY_ITEM_LEVEL, SET_BONUSES, ZONE_SET_ITEMS } from './data/rpg/items.js';
 import { ZONES } from './data/rpg/zones.js';
 import { CLASSES } from './data/rpg/classes.js';
+import { MONSTERS } from './data/rpg/monsters.js';
 import { xpToNextLevel, SUB_CLASS_UNLOCK_LEVEL } from './rpg-progression.js';
 import { TOWNS } from './data/rpg/towns.js';
 import { NPCS } from './data/rpg/npcs.js';
 import { QUESTS } from './data/rpg/quests.js';
 import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
-import { computeCharacterCombatStats } from './rpg-combat.js';
+import { computeCharacterCombatStats, monsterDifficultyTier, COMBAT_MISS_PHRASES } from './rpg-combat.js';
 import { MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster, PLAYER_TERRITORY_BONUS_MULT } from './data/rpg/mercenaries.js';
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
@@ -420,6 +421,11 @@ function renderMain(container) {
 
 // ── 모험 탭 - 지역 목록(현재 마을 소속 + 던전)만 보여줌. 마을 이동은 마을 탭에서 ─────
 const MONSTER_TAG_ICONS = { beast: '🐾', humanoid: '🗡️', undead: '💀', demon: '😈' };
+// 몹 전력비(difficultyRatio, preview-zone.js가 계산)를 색으로 - rpg-combat.js의 MONSTER_DIFFICULTY_TIERS와
+// 같은 기준을 그대로 재사용(경험치/골드 배율도 이 기준과 일치함)
+function monsterDifficultyColor(ratio) {
+  return monsterDifficultyTier(ratio ?? 0).color;
+}
 
 function renderAdventureTab(content, container) {
   const townName = (TOWNS[character.currentTown] || {}).name || character.currentTown || '없음(던전)';
@@ -522,7 +528,7 @@ function renderZonePreviewScreen(content, container, preview) {
           <div class="rpg-encounter-option-monsters">
             ${opt.monsters.map((m) => `
               <span class="rpg-encounter-icon">${MONSTER_TAG_ICONS[(m.tags || [])[0]] || '❓'}</span>
-              <span class="rpg-encounter-name">${m.name}</span>
+              <span class="rpg-encounter-name" style="color: ${monsterDifficultyColor(m.difficultyRatio)}">${m.name}</span>
             `).join(' · ')}
           </div>
         </button>
@@ -532,9 +538,11 @@ function renderZonePreviewScreen(content, container, preview) {
       <button class="rpg-refresh-encounter-btn" data-zone="${preview.zoneId}" ${canRefreshNow ? '' : 'disabled'}>🔄 새로고침 (턴 1개)</button>
       ${canRefreshNow ? '' : ' 1시간에 한 번만 가능해요'}
     </p>
+    ${combatLogSpeedControlHtml()}
     <div class="rpg-combat-log"></div>
   `;
   const log = content.querySelector('.rpg-combat-log');
+  wireCombatLogSpeedControl(content);
   content.querySelector('.rpg-zone-back-btn').addEventListener('click', () => renderAdventureTab(content, container));
   content.querySelector('.rpg-refresh-encounter-btn').addEventListener('click', async () => {
     try {
@@ -567,16 +575,62 @@ function renderZonePreviewScreen(content, container, preview) {
   }));
 }
 
+// 전투 로그에서 강타/특수기/치명타/추가타처럼 눈에 띄어야 할 메시지를 구분하기 위한 키워드 모음.
+// 로그가 구조화된 데이터가 아니라 문장이라, 직업/몹 스킬 이름을 전부 모아서 문장에 포함되는지로 판별함
+const ALL_SKILL_NAMES = [
+  ...Object.values(CLASSES).flatMap((c) => c.skills.map((s) => s.name)),
+  ...Object.values(MONSTERS).flatMap((m) => (m.skills || []).map((s) => s.name)),
+];
+// 5가지로 구분: 치명타(빨강) > 추가타(보라) > 스킬/강타(청록) > 회복(초록) > 빗나감/회피(회색)
+// - 겹치면 앞쪽(치명타 등)이 우선, CSS에서도 같은 순서로 선언해 우선순위를 맞춤
+function classifyCombatLogLine(line) {
+  const classes = [];
+  if (line.includes('💥치명타')) classes.push('rpg-log-crit');
+  if (line.includes('(추가타!)')) classes.push('rpg-log-extra');
+  if (ALL_SKILL_NAMES.some((name) => line.includes(name))) classes.push('rpg-log-skill');
+  if (line.includes('회복했다')) classes.push('rpg-log-heal');
+  if (COMBAT_MISS_PHRASES.some((phrase) => line.includes(phrase))) classes.push('rpg-log-miss');
+  return classes;
+}
+
+// 전투 메시지 재생 속도 - 기기(브라우저)에 저장해서 다음 전투에도 그대로 유지됨. 기본값은 "천천히"
+const COMBAT_LOG_SPEED_KEY = 'rpg_combat_log_speed';
+const COMBAT_LOG_SPEEDS = { slow: { label: '느리게', mult: 2 }, normal: { label: '보통', mult: 1 }, fast: { label: '빠르게', mult: 0.5 } };
+function getCombatLogSpeed() {
+  const saved = localStorage.getItem(COMBAT_LOG_SPEED_KEY);
+  return COMBAT_LOG_SPEEDS[saved] ? saved : 'slow';
+}
+function combatLogSpeedControlHtml() {
+  const current = getCombatLogSpeed();
+  return `
+    <div class="rpg-log-speed-control">
+      <span class="rpg-hint">전투 메시지 속도:</span>
+      ${Object.entries(COMBAT_LOG_SPEEDS).map(([key, def]) => `
+        <button class="rpg-log-speed-btn${key === current ? ' rpg-log-speed-btn-active' : ''}" data-speed="${key}">${def.label}</button>
+      `).join('')}
+    </div>
+  `;
+}
+function wireCombatLogSpeedControl(root) {
+  root.querySelectorAll('.rpg-log-speed-btn').forEach((btn) => btn.addEventListener('click', () => {
+    localStorage.setItem(COMBAT_LOG_SPEED_KEY, btn.dataset.speed);
+    root.querySelectorAll('.rpg-log-speed-btn').forEach((b) => b.classList.toggle('rpg-log-speed-btn-active', b === btn));
+  }));
+}
+
 // 전투 로그를 한 번에 쏟아내지 않고 한 줄씩 순차 출력 - 결과를 바로 던지는 대신 진행 과정을
 // 보는 느낌을 주기 위함(전열 붕괴/위험수위 경고 등의 긴장감이 이 페이싱으로 살아남).
-// 줄 수가 많은(레전더리급 장기전) 전투는 한 줄당 지연을 줄여 전체 재생시간을 비슷하게 맞춤
+// 줄 수가 많은(레전더리급 장기전) 전투는 한 줄당 지연을 줄여 전체 재생시간을 비슷하게 맞추되,
+// 그 위에 유저가 고른 속도 배율(기본 "느리게")을 곱해서 최종 지연을 정함
 async function playCombatLog(logEl, lines) {
   logEl.innerHTML = '<div class="rpg-log-lines"></div>';
   const linesEl = logEl.querySelector('.rpg-log-lines');
-  const delay = Math.max(80, Math.min(350, 3000 / Math.max(lines.length, 1)));
+  const speedMult = COMBAT_LOG_SPEEDS[getCombatLogSpeed()].mult;
+  const delay = Math.max(80, Math.min(350, 3000 / Math.max(lines.length, 1))) * speedMult;
   for (const line of lines) {
     const p = document.createElement('p');
     p.textContent = line;
+    classifyCombatLogLine(line).forEach((cls) => p.classList.add(cls));
     linesEl.appendChild(p);
     linesEl.scrollTop = linesEl.scrollHeight;
     await new Promise((resolve) => setTimeout(resolve, delay));

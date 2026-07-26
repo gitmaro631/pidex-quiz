@@ -8,7 +8,7 @@ import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacte
 import { computeCurrentTurns } from '../_rpgTurns.js';
 import { ZONES } from '../../data/rpg/zones.js';
 import { MONSTERS } from '../../data/rpg/monsters.js';
-import { rollEncounter } from '../../rpg-combat.js';
+import { rollEncounter, buildMonsterInstance, monsterPowerScore, computePartyPower } from '../../rpg-combat.js';
 import { CASTLE_CLEAR_REQUIREMENT } from '../../data/rpg/castle.js';
 import { isAdminUsername } from '../_rpgAdmin.js';
 
@@ -22,7 +22,10 @@ function rollOptions(zoneId, killCount) {
   });
 }
 
-function previewPayload(zonePreview) {
+// 몹 이름 색깔로 난이도를 보여주기 위한 전력비 - 그 몹 한 마리의 전력치를 내 파티(본인+전투용병) 전력치로
+// 나눈 값(클수록 위험). computePartyPower/monsterPowerScore와 같은 가중치를 재사용해서 일관성 유지
+function previewPayload(zonePreview, character, zone) {
+  const partyPower = Math.max(1, computePartyPower(character));
   return {
     zoneId: zonePreview.zoneId,
     lastRefreshAt: zonePreview.lastRefreshAt,
@@ -32,7 +35,11 @@ function previewPayload(zonePreview) {
       uniqueTier: opt.uniqueTier,
       monsters: opt.monsterIds.map((id) => {
         const def = MONSTERS[id];
-        return { monsterId: id, name: def ? def.name : id, tags: def ? def.tags : [] };
+        const instance = buildMonsterInstance(id, zone, opt.uniqueTier);
+        return {
+          monsterId: id, name: def ? def.name : id, tags: def ? def.tags : [],
+          difficultyRatio: Math.round((monsterPowerScore(instance) / partyPower) * 1000) / 1000,
+        };
       }),
     })),
   };
@@ -74,19 +81,19 @@ export default async function handler(req, res) {
           zoneId, options: rollOptions(zoneId, (character.zoneKillCounts || {})[zoneId] || 0), lastRefreshAt: now,
         };
         const nextTurns = isAdmin ? turns : turns - 1;
-        outcome = { preview: previewPayload(nextZonePreview), turnPoints: nextTurns };
+        outcome = { preview: previewPayload(nextZonePreview, character, zone), turnPoints: nextTurns };
         return {
           ...character, zonePreview: nextZonePreview, turnPoints: nextTurns, turnPointsUpdatedAt: now, updatedAt: now,
         };
       }
 
       // 새로고침이 아니면: 같은 지역을 이미 보고 있었으면 그대로 재사용(공짜), 아니면 새로 무료로 후보들을 굴려줌
-      if (sameZoneExisting) { outcome = { preview: previewPayload(existing), turnPoints: character.turnPoints }; return null; }
+      if (sameZoneExisting) { outcome = { preview: previewPayload(existing, character, zone), turnPoints: character.turnPoints }; return null; }
 
       const nextZonePreview = {
         zoneId, options: rollOptions(zoneId, (character.zoneKillCounts || {})[zoneId] || 0), lastRefreshAt: now,
       };
-      outcome = { preview: previewPayload(nextZonePreview), turnPoints: character.turnPoints };
+      outcome = { preview: previewPayload(nextZonePreview, character, zone), turnPoints: character.turnPoints };
       return { ...character, zonePreview: nextZonePreview, updatedAt: now };
     });
 

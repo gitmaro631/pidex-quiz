@@ -1340,6 +1340,21 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
 .rpg-encounter-option-monsters { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; font-size: 13px; }
 .rpg-encounter-option-monsters .rpg-encounter-icon { font-size: 16px; }
 .rpg-encounter-rare-tag { font-size: 12px; color: #facc15; font-weight: 600; }
+
+.rpg-log-speed-control { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+.rpg-log-speed-btn {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25); border-radius: 6px;
+  padding: 4px 10px; font-size: 12px; color: #fff; cursor: pointer;
+}
+.rpg-log-speed-btn-active { background: #6366f1; border-color: #6366f1; font-weight: 600; }
+
+/* 전투 로그 강조 - 5단계로 구분: 회피/빗나감(회색) < 회복(초록) < 스킬/강타(청록) < 추가타(보라) < 치명타(빨강+굵게).
+   한 줄에 여러 개 겹치면 뒤에 선언된(치명타) 색이 우선 적용됨(특이도 동일, 선언 순서로 우선순위) */
+.rpg-log-lines .rpg-log-miss { color: #9ca3af; }
+.rpg-log-lines .rpg-log-heal { color: #4ade80; }
+.rpg-log-lines .rpg-log-skill { color: #22d3ee; }
+.rpg-log-lines .rpg-log-extra { color: #a78bfa; font-weight: 600; }
+.rpg-log-lines .rpg-log-crit { color: #f87171; font-weight: 700; }
 .rpg-refresh-encounter-btn {
   background: #6366f1; color: #fff; border: none; border-radius: 6px;
   padding: 6px 12px; font-size: 13px; cursor: pointer;

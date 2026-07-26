@@ -102,6 +102,8 @@ const ATTACK_MISS_LINES = ['빗나갔다', '허공을 갈랐다', '아슬아슬�
 const MONSTER_HIT_INTROS = ['강타했다', '물어뜯었다', '베어냈다', '덮쳤다', '내리찍었다'];
 const MONSTER_CRIT_INTROS = ['치명적으로 급소를 강타했다', '방어를 완전히 무너뜨렸다'];
 const MONSTER_MISS_LINES = ['공격을 가까스로 피했다', '아슬아슬하게 회피했다', '몸을 굴려 피했다', '방어로 막아냈다'];
+// 클라이언트(page-rpg.js)가 전투 로그 메시지 종류를 색으로 구분할 때 재사용 - 빗나감 문구 전체
+export const COMBAT_MISS_PHRASES = [...ATTACK_MISS_LINES, ...MONSTER_MISS_LINES];
 
 function randRange(min, max) {
   return Math.random() * (max - min) + min;
@@ -139,7 +141,7 @@ export function rollEncounter(zoneId, killCount) {
   return { zone, monsterIds, isRare: false, uniqueTier: 1 };
 }
 
-function buildMonsterInstance(monsterId, zone, uniqueTier = 1) {
+export function buildMonsterInstance(monsterId, zone, uniqueTier = 1) {
   const def = MONSTERS[monsterId];
   const variance = randRange(zone.varianceMin, zone.varianceMax);
   const statMult = UNIQUE_TIER_STAT_MULT[uniqueTier] || 1;
@@ -303,8 +305,30 @@ export function computePartyPower(character) {
   ];
   return members.reduce((sum, m) => {
     const stats = computeCharacterCombatStats(m);
-    return sum + stats.atk * 2 + stats.def * 3 + stats.maxHp / 5;
+    return sum + monsterPowerScore(stats);
   }, 0);
+}
+
+// computePartyPower와 같은 가중치로 몹 한 마리(또는 캐릭터 전투스탯)의 "전력치"를 계산 - 사냥터
+// 미리보기 화면에서 몹 이름 색깔로 난이도를 표시하는 데 씀(preview-zone.js 참고)
+export function monsterPowerScore(stats) {
+  return stats.atk * 2 + stats.def * 3 + stats.maxHp / 5;
+}
+
+// 몹 전력치/내 파티 전력치 비율(difficultyRatio) 구간별 표시색+경험치 배율. 미리보기 화면의 몹 이름
+// 색깔과 실제 처치시 받는 경험치 보너스가 같은 기준을 쓰도록 여기 한 곳에서만 정의함(클라이언트도
+// 이 배열을 그대로 import해서 색을 결정 - page-rpg.js 참고). 위험한(붉은) 몹일수록 경험치를 더 줌
+// 색은 회색(안전)→빨강(위험) 두 극단만 고정하고, 중간 3단계는 게임 아이템 등급색 관례(일반=회색,
+// 고급=초록, 희귀=파랑, 영웅=보라)를 그대로 가져와서 한눈에 단계가 갈리도록 함
+export const MONSTER_DIFFICULTY_TIERS = [
+  { maxRatio: 0.15, color: '#7a7f9a', xpMult: 0.25 }, // 회색 - 매우 쉬움(앱 전역에서 쓰는 --muted 힌트 텍스트 색과 동일)
+  { maxRatio: 0.3, color: '#22c55e', xpMult: 1.0 }, // 고급(초록) - 쉬움(기본)
+  { maxRatio: 0.5, color: '#3b82f6', xpMult: 1.3 }, // 희귀(파랑) - 보통
+  { maxRatio: 0.8, color: '#9333ea', xpMult: 1.6 }, // 영웅(보라) - 위험
+  { maxRatio: Infinity, color: '#ef4444', xpMult: 2.0 }, // 빨강 - 매우 위험
+];
+export function monsterDifficultyTier(ratio) {
+  return MONSTER_DIFFICULTY_TIERS.find((t) => ratio <= t.maxRatio) || MONSTER_DIFFICULTY_TIERS[MONSTER_DIFFICULTY_TIERS.length - 1];
 }
 
 // 전투 1회를 치른 뒤 장착중인 무기/방어구에 마모를 적용 - 내구도가 낮을수록 조기 파손 확률이 높아짐
@@ -716,6 +740,9 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
   const monsters = encounter.monsterIds.map((id) => buildMonsterInstance(id, encounter.zone, encounter.uniqueTier));
   const isUnderleveled = (character.level || 1) < encounter.zone.tier * 3;
   const sharedInventory = character.inventory || []; // 파티 전원이 이 물자(화살/포션)를 공유
+  // 몹 하나하나가 내 파티 대비 얼마나 위협적인지(전력비) - 위험한(붉은) 몹일수록 경험치를 더 줌,
+  // 너무 쉬운(회색) 몹은 경험치를 아주 조금만 줌(사냥터 미리보기의 몹 이름 색과 같은 기준, monsterDifficultyTier 참고)
+  const partyPower = Math.max(1, computePartyPower(character));
 
   const party = [
     buildCombatant({ characterLike: { ...character, stance }, isSelf: true, formationRow: effectiveFormationRow(character), sharedInventory }),
@@ -802,8 +829,11 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
   };
   const handleMonsterDeath = (monster) => {
     log.push(`${monster.name}을(를) 쓰러뜨렸다.`);
-    totalXp += monster.xp;
-    totalGold += randInt(monster.goldMin, monster.goldMax);
+    // 경험치와 골드 둘 다 같은 배율을 씀 - 일부러 저사양 장비로 몹을 상대적으로 위협적이게 만들어
+    // 잡으면(전력비가 올라가 몹 이름이 붉게 보임) 보상도 더 커지는 리스크&리턴 구조가 골드에도 그대로 적용됨
+    const xpMult = monsterDifficultyTier(monsterPowerScore(monster) / partyPower).xpMult;
+    totalXp += Math.round(monster.xp * xpMult);
+    totalGold += Math.round(randInt(monster.goldMin, monster.goldMax) * xpMult);
     loot.push(...rollLoot(monster));
     // 직업훈련소 결정 - 몹 종류 무관, 본인 직업에 맞는 결정이 일정 확률로 드랍
     const essenceItemId = CLASS_ESSENCE_ITEM[character.classMain];
