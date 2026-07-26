@@ -10,6 +10,7 @@ import { applyXpGain } from '../../rpg-progression.js';
 import { checkNewLoreUnlocks } from '../../rpg-lore.js';
 import { LORE_ENTRIES } from '../../data/rpg/lore.js';
 import { isAdminUsername } from '../_rpgAdmin.js';
+import { CASTLE_CLEAR_REQUIREMENT } from '../../data/rpg/castle.js';
 
 const EQUIP_SLOT_LABELS = { weapon: '무기', shield: '방패', armor_top: '상의', armor_bottom: '하의' };
 
@@ -54,7 +55,14 @@ export default async function handler(req, res) {
       const now = Date.now();
       const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now);
 
-      if (!isAdmin && turns < 1) { outcome = { error: 'not_enough_turns' }; return null; }
+      // 마을을 넘어가는 이동(다른 마을 소속 지역 진입)은 턴포인트 1을 추가로 소모함 - 마을 내
+      // 이동/텔레포트 스크롤은 여전히 무료, 마을 간 이동만 비용이 붙음
+      const travelingBetweenTowns = zone.town && character.currentTown && zone.town !== character.currentTown;
+      const turnCost = 1 + (travelingBetweenTowns ? 1 : 0);
+      if (!isAdmin && turns < turnCost) { outcome = { error: 'not_enough_turns' }; return null; }
+      if (zone.unlockZoneId && ((character.zoneClearCounts || {})[zone.unlockZoneId] || 0) < CASTLE_CLEAR_REQUIREMENT) {
+        outcome = { error: 'zone_locked' }; return null;
+      }
       const inventory = [...(character.inventory || [])];
       if (zone.requiresTorch) {
         const torchQty = (inventory.find((e) => e.itemId === 'torch') || {}).qty || 0;
@@ -81,6 +89,9 @@ export default async function handler(req, res) {
 
       const combatResult = resolveCombat({ character: { ...character, mercenaries }, zoneId, stance: character.stance });
       combatResult.log.unshift(...wageMessages);
+      if (travelingBetweenTowns) {
+        combatResult.log.unshift(`${(TOWNS[zone.town] || {}).name || zone.town}(으)로 이동했다. (턴포인트 1 추가 소모)`);
+      }
 
       const overflowedLoot = [];
       const overweightLoot = [];
@@ -171,7 +182,7 @@ export default async function handler(req, res) {
       });
       const allUpdatedMercenaries = [...updatedMercenaries, ...updatedRestingMercs];
 
-      const nextTurns = isAdmin ? turns : turns - 1;
+      const nextTurns = isAdmin ? turns : turns - turnCost;
       outcome = {
         newLore: newLoreEntries,
         log: combatResult.log,

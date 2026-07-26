@@ -6,6 +6,13 @@ export const ITEMS = {
   mp_potion_small: { id: 'mp_potion_small', name: '마나 물약(소)', type: 'consumable', rarity: 'normal', restoreMpPct: 0.3, shopPrice: 20, weight: 0.5 },
   antidote: { id: 'antidote', name: '해독제', type: 'consumable', rarity: 'normal', cureStatus: 'poison', shopPrice: 15, weight: 0.5 },
   stamina_potion_small: { id: 'stamina_potion_small', name: '스테미나 물약(소)', type: 'consumable', rarity: 'normal', restoreStaminaPct: 0.3, shopPrice: 20, weight: 0.5 },
+  // 마을 등급이 오르면 상점에 더 나은 물약도 풀림(minTownTier 없으면 tier1부터 판매)
+  hp_potion_medium: { id: 'hp_potion_medium', name: '체력 물약(중)', type: 'consumable', rarity: 'normal', healPct: 0.5, shopPrice: 45, weight: 0.6, minTownTier: 2 },
+  mp_potion_medium: { id: 'mp_potion_medium', name: '마나 물약(중)', type: 'consumable', rarity: 'normal', restoreMpPct: 0.5, shopPrice: 45, weight: 0.6, minTownTier: 2 },
+  stamina_potion_medium: { id: 'stamina_potion_medium', name: '스테미나 물약(중)', type: 'consumable', rarity: 'normal', restoreStaminaPct: 0.5, shopPrice: 45, weight: 0.6, minTownTier: 2 },
+  hp_potion_large: { id: 'hp_potion_large', name: '체력 물약(대)', type: 'consumable', rarity: 'normal', healPct: 0.75, shopPrice: 90, weight: 0.8, minTownTier: 4 },
+  mp_potion_large: { id: 'mp_potion_large', name: '마나 물약(대)', type: 'consumable', rarity: 'normal', restoreMpPct: 0.75, shopPrice: 90, weight: 0.8, minTownTier: 4 },
+  stamina_potion_large: { id: 'stamina_potion_large', name: '스테미나 물약(대)', type: 'consumable', rarity: 'normal', restoreStaminaPct: 0.75, shopPrice: 90, weight: 0.8, minTownTier: 4 },
   torch: { id: 'torch', name: '횃불', type: 'consumable', rarity: 'normal', shopPrice: 30, weight: 1 },
   arrow: { id: 'arrow', name: '화살', type: 'ammo', rarity: 'normal', shopPrice: 2, weight: 0.1 }, // 상점에서 10개 묶음으로 구매됨(개당 가격)
   bandage: { id: 'bandage', name: '붕대', type: 'consumable', rarity: 'normal', cureInjury: 'mild', shopPrice: 25, weight: 0.3 }, // 경상만 치료, 중상은 의사에게
@@ -55,6 +62,21 @@ export const ITEMS = {
   miner_pick: { id: 'miner_pick', name: '광부의 곡괭이', type: 'material', rarity: 'uncommon', weight: 3 },
   bone_fragment: { id: 'bone_fragment', name: '뼛조각', type: 'material', rarity: 'normal', weight: 0.5 },
   wraith_essence: { id: 'wraith_essence', name: '망령의 정수', type: 'material', rarity: 'uncommon', weight: 0.2 },
+  // 산악 마을(town3) 재료
+  goat_horn: { id: 'goat_horn', name: '산악 염소 뿔', type: 'material', rarity: 'normal', weight: 0.5 },
+  bandit_dagger: { id: 'bandit_dagger', name: '산적의 단검', type: 'material', rarity: 'normal', weight: 0.5 },
+  wyvern_talon: { id: 'wyvern_talon', name: '와이번 발톱', type: 'material', rarity: 'normal', weight: 0.5 },
+  ambusher_hood: { id: 'ambusher_hood', name: '매복자의 두건', type: 'material', rarity: 'normal', weight: 0.3 },
+  // 화산지대(town4) 재료
+  salamander_scale: { id: 'salamander_scale', name: '화염 도마뱀 비늘', type: 'material', rarity: 'normal', weight: 0.5 },
+  cultist_talisman: { id: 'cultist_talisman', name: '광신도의 부적', type: 'material', rarity: 'normal', weight: 0.3 },
+  bat_wing: { id: 'bat_wing', name: '유황 박쥐 날개', type: 'material', rarity: 'normal', weight: 0.3 },
+  driver_whip: { id: 'driver_whip', name: '감시병의 채찍', type: 'material', rarity: 'normal', weight: 0.7 },
+  // 고대유적(town5) 재료
+  guardian_shard: { id: 'guardian_shard', name: '수호병의 파편', type: 'material', rarity: 'normal', weight: 0.7 },
+  cursed_rosary: { id: 'cursed_rosary', name: '저주받은 묵주', type: 'material', rarity: 'normal', weight: 0.3 },
+  abyss_essence: { id: 'abyss_essence', name: '심연의 정수', type: 'material', rarity: 'normal', weight: 0.2 },
+  assassin_blade_shard: { id: 'assassin_blade_shard', name: '암살자의 칼조각', type: 'material', rarity: 'normal', weight: 0.4 },
 
   // 직업훈련소 결정 - 몹을 잡으면 내 직업에 맞는 게 일정 확률로 드랍(몹 종류 무관). 스킬을 배우거나
   // 단계를 올릴 때 소모됨(data/rpg/training.js 참고)
@@ -72,6 +94,12 @@ export const ITEMS = {
   swamp_lord_core: { id: 'swamp_lord_core', name: '늪지 군주의 핵', type: 'material', rarity: 'rare', weight: 1 },
   wyrm_scale: { id: 'wyrm_scale', name: '와이번 비늘', type: 'material', rarity: 'epic', weight: 1.5 },
   guardian_core: { id: 'guardian_core', name: '수호자의 핵', type: 'material', rarity: 'legendary', weight: 1 },
+  captain_emblem: { id: 'captain_emblem', name: '두목의 인장', type: 'material', rarity: 'rare', weight: 1 },
+  griffin_feather: { id: 'griffin_feather', name: '그리폰의 깃털', type: 'material', rarity: 'epic', weight: 1 },
+  ifrit_horn: { id: 'ifrit_horn', name: '이프리트의 뿔', type: 'material', rarity: 'epic', weight: 1.5 },
+  fiend_brand: { id: 'fiend_brand', name: '마인의 낙인', type: 'material', rarity: 'legendary', weight: 1 },
+  high_priest_relic: { id: 'high_priest_relic', name: '대신관의 유물', type: 'material', rarity: 'legendary', weight: 1 },
+  abyss_lord_seal: { id: 'abyss_lord_seal', name: '심연 군주의 봉인', type: 'material', rarity: 'legendary', weight: 1.5 },
 
   // 레어몹 드랍 장비 — weaponType 없음(무속성 만능이라 임시 처리, 등급 세분화는 나중 콘텐츠 단계에서)
   weapon_uncommon: { id: 'weapon_uncommon', name: '단련된 장검', type: 'weapon', weaponType: 'sword', rarity: 'uncommon', atkBonus: 8, weight: 4 },

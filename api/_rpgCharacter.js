@@ -72,7 +72,7 @@ export function createMercenaryInstance(templateId, now = Date.now()) {
   const template = MERCENARY_TEMPLATES[templateId];
   if (!template) return null;
   const cls = CLASSES[template.classMain];
-  const isMelee = cls.weaponTypes.some((t) => t !== 'bow'); // 근접 무기 위주 직업이면 기본 전열
+  const isMelee = !cls.weaponTypes.includes('bow'); // 근접 무기 위주 직업이면 기본 전열
   const weaponId = template.classMain === 'archer' ? 'weapon_basic_bow' : 'weapon_basic_sword';
   const armorTopId = 'armor_basic'; // 요구 힘 5로 기본 스탯(5)에서 바로 착용 가능
 

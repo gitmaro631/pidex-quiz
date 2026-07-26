@@ -3,6 +3,7 @@ import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
 import { tryAddItem } from '../_rpgInventory.js';
 import { ITEMS } from '../../data/rpg/items.js';
+import { TOWNS } from '../../data/rpg/towns.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -20,6 +21,8 @@ export default async function handler(req, res) {
     const docPath = characterDocPath(username, slot);
     await withFirestoreTransaction(docPath, (current) => {
       const character = current || defaultCharacter(slot);
+      const townTier = (TOWNS[character.currentTown] || {}).tier || 1;
+      if ((item.minTownTier || 1) > townTier) { outcome = { error: 'not_purchasable' }; return null; }
       const cost = item.shopPrice * buyQty;
       if ((character.gold || 0) < cost) { outcome = { error: 'not_enough_gold' }; return null; }
 

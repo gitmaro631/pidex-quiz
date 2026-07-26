@@ -81,4 +81,85 @@ export const NPCS = {
     dialogue: ['장비를 갈아끼우면 강화 단계가 초기화되니 신중하게 정하게.'],
     questIds: [],
   },
+
+  // ── 산악 마을(town3) ──
+  npc_guide_3: {
+    id: 'npc_guide_3', name: '산악 길잡이', townId: 'town3',
+    dialogue: ['이 위로는 산적떼가 자리를 잡았어. 무리 지어 다니는 놈들이니 조심하게.'],
+    questIds: [],
+  },
+  npc_doctor_3: {
+    id: 'npc_doctor_3', name: '마을 의사', townId: 'town3', role: 'doctor',
+    dialogue: ['산에서 구른 상처는 쉽게 덧나니 미루지 말게.'],
+    questIds: [],
+  },
+  npc_tavern_3: {
+    id: 'npc_tavern_3', name: '선술집 주인', townId: 'town3', role: 'tavern',
+    dialogue: ['여기까지 온 용병들은 다들 한가락 하는 이들이지.'],
+    questIds: [],
+  },
+  npc_trainer_3: {
+    id: 'npc_trainer_3', name: '직업 교관', townId: 'town3', role: 'trainer',
+    dialogue: ['산길을 오르내리다 보면 스킬 없이는 명이 짧아지네.'],
+    questIds: [],
+  },
+  npc_blacksmith_3: {
+    id: 'npc_blacksmith_3', name: '대장장이', townId: 'town3', role: 'blacksmith',
+    dialogue: ['산적 두목이 좋은 강화석을 흘리고 다니더군.'],
+    questIds: [],
+  },
+
+  // ── 화산지대(town4) ──
+  npc_guide_4: {
+    id: 'npc_guide_4', name: '화산 감시인', townId: 'town4',
+    dialogue: ['용암 지대는 열기만으로도 지치니 물약을 넉넉히 챙기게.', '유황 동굴 안쪽에서 뭔가 심상찮은 놈을 봤다는 얘기가 있네.'],
+    questIds: [],
+  },
+  npc_doctor_4: {
+    id: 'npc_doctor_4', name: '마을 의사', townId: 'town4', role: 'doctor',
+    dialogue: ['화상은 방치하면 덧나기 쉬우니 바로 오게.'],
+    questIds: [],
+  },
+  npc_tavern_4: {
+    id: 'npc_tavern_4', name: '선술집 주인', townId: 'town4', role: 'tavern',
+    dialogue: ['여기 용병들은 불구덩이에서도 안 죽는 놈들만 살아남았지.'],
+    questIds: [],
+  },
+  npc_trainer_4: {
+    id: 'npc_trainer_4', name: '직업 교관', townId: 'town4', role: 'trainer',
+    dialogue: ['화산지대 몹들은 만만치 않아. 스킬 단계부터 올리고 가게.'],
+    questIds: [],
+  },
+  npc_blacksmith_4: {
+    id: 'npc_blacksmith_4', name: '대장장이', townId: 'town4', role: 'blacksmith',
+    dialogue: ['이 화로면 뭐든 세게 두들겨줄 수 있지.'],
+    questIds: [],
+  },
+
+  // ── 고대유적(town5) ──
+  npc_guide_5: {
+    id: 'npc_guide_5', name: '유적 학자', townId: 'town5',
+    dialogue: ['이 신전은 아주 오래전에 봉인된 곳이라네.', '심연 회랑 안쪽에서 무언가가 아직도 깨어나지 않았다는 게 다행이지...'],
+    questIds: [],
+  },
+  npc_doctor_5: {
+    id: 'npc_doctor_5', name: '마을 의사', townId: 'town5', role: 'doctor',
+    dialogue: ['이 근방에서 다치는 이들은 대부분 심각하더군. 참지 말고 오게.'],
+    questIds: [],
+  },
+  npc_tavern_5: {
+    id: 'npc_tavern_5', name: '선술집 주인', townId: 'town5', role: 'tavern',
+    dialogue: ['여기까지 살아 돌아온 용병이라면 믿을 만하지.'],
+    questIds: [],
+  },
+  npc_trainer_5: {
+    id: 'npc_trainer_5', name: '직업 교관', townId: 'town5', role: 'trainer',
+    dialogue: ['이 앞부터는 스킬 없이 맨몸으로 버틸 수 있는 곳이 아니야.'],
+    questIds: [],
+  },
+  npc_blacksmith_5: {
+    id: 'npc_blacksmith_5', name: '대장장이', townId: 'town5', role: 'blacksmith',
+    dialogue: ['전설급 장비도 여기서라면 더 강하게 벼려줄 수 있네.'],
+    questIds: [],
+  },
 };

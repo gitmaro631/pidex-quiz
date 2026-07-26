@@ -1,9 +1,11 @@
-// 진형(전열/후열) 설정 - mercId 없으면 본인, 있으면 그 용병 대상. null이면 자동(장착무기 기준)으로 되돌림
+// 진형(전열/중열/후열) 설정 - mercId 없으면 본인, 있으면 그 용병 대상. null이면 자동(장착무기 기준)으로 되돌림.
+// 활/마법(원거리) 직업은 1~3열 자유, 창을 든 전사는 중열까지, 그 외 근접은 전열 고정 - allowedFormationRows 참고
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
+import { FORMATION_ROWS, allowedFormationRows } from '../../rpg-combat.js';
 
-const VALID_ROWS = ['front', 'back', null];
+const VALID_ROWS = [...FORMATION_ROWS, null];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -23,10 +25,16 @@ export default async function handler(req, res) {
         const mercenaries = character.mercenaries || [];
         const idx = mercenaries.findIndex((m) => m.id === mercId);
         if (idx === -1) { outcome = { error: 'mercenary_not_found' }; return null; }
+        if (formationRow && !allowedFormationRows(mercenaries[idx]).includes(formationRow)) {
+          outcome = { error: 'formation_not_allowed' }; return null;
+        }
         const nextMercenaries = [...mercenaries];
         nextMercenaries[idx] = { ...nextMercenaries[idx], formationRow: formationRow ?? null };
         outcome = { mercId, formationRow: formationRow ?? null };
         return { ...character, mercenaries: nextMercenaries, updatedAt: now };
+      }
+      if (formationRow && !allowedFormationRows(character).includes(formationRow)) {
+        outcome = { error: 'formation_not_allowed' }; return null;
       }
       outcome = { formationRow: formationRow ?? null };
       return { ...character, formationRow: formationRow ?? null, updatedAt: now };

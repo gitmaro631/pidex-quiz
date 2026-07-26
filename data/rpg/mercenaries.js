@@ -1,15 +1,25 @@
-// 선술집에서 고용 가능한 용병 템플릿 - 본인 직업과 "상호보완적"인 직업만 고용 가능
-// (근접 직업 캐릭터는 원거리/마법 용병을, 원거리 캐릭터는 근접 용병을 고용) - hire-mercenary.js가 검증
+import { TOWNS } from './towns.js';
+
+// 선술집에서 고용 가능한 용병 템플릿 - 파티 구성은 플레이어 자유(같은 역할로만 채워도 됨)
 // mentalResist(0~100) - 공포 저항력. 전열에서 피격당할 때마다 이 수치가 낮을수록 "멘탈이 나가서"
 // 후열로 도망칠 확률이 높아짐(rpg-combat.js의 MORALE_BREAK_BASE_CHANCE 참고, 전투 중 일시적 상태)
+// minTownTier - 이 등급 이상 마을에서만 로테이션에 등장(town1은 tier1, town5는 tier5) - towns.js 참고
 export const MERCENARY_TEMPLATES = {
   merc_archer_1: {
     id: 'merc_archer_1', name: '노련한 궁수 리안', classMain: 'archer',
-    baseLevel: 5, hireCost: 150, wagePerAdventure: 8, mentalResist: 55,
+    baseLevel: 5, hireCost: 150, wagePerAdventure: 8, mentalResist: 55, minTownTier: 1,
   },
   merc_warrior_1: {
     id: 'merc_warrior_1', name: '용맹한 전사 그레타', classMain: 'warrior',
-    baseLevel: 5, hireCost: 150, wagePerAdventure: 8, mentalResist: 65,
+    baseLevel: 5, hireCost: 150, wagePerAdventure: 8, mentalResist: 65, minTownTier: 1,
+  },
+  merc_mage_1: {
+    id: 'merc_mage_1', name: '노련한 마법사 셀리아', classMain: 'mage',
+    baseLevel: 15, hireCost: 400, wagePerAdventure: 18, mentalResist: 50, minTownTier: 3,
+  },
+  merc_priest_1: {
+    id: 'merc_priest_1', name: '노련한 성직자 도렌', classMain: 'priest',
+    baseLevel: 15, hireCost: 400, wagePerAdventure: 18, mentalResist: 60, minTownTier: 3,
   },
 };
 
@@ -32,11 +42,13 @@ function simpleHash(str) {
   return h;
 }
 
-// 마을별 선술집 용병 구성 - 날짜(UTC, claim-daily-bonus.js와 동일한 date-key 규칙)가 바뀌면 갱신됨.
-// 서버(hire-mercenary.js 검증)/클라이언트(tavernHireHtml 표시) 양쪽에서 이 함수 하나로 동일하게 계산
+// 마을별 선술집 용병 구성 - 그 마을 등급(tier) 이하 템플릿만 로테이션 대상, 날짜(UTC, claim-daily-bonus.js와
+// 동일한 date-key 규칙)가 바뀌면 갱신됨. 서버(hire-mercenary.js 검증)/클라이언트(tavernHireHtml 표시)
+// 양쪽에서 이 함수 하나로 동일하게 계산
 export function dailyTavernRoster(townId, now = Date.now()) {
+  const townTier = (TOWNS[townId] || {}).tier || 1;
   const dateKey = new Date(now).toISOString().slice(0, 10);
-  const allIds = Object.keys(MERCENARY_TEMPLATES);
+  const allIds = Object.values(MERCENARY_TEMPLATES).filter((t) => (t.minTownTier || 1) <= townTier).map((t) => t.id);
   const seed = simpleHash(`${dateKey}:${townId}`);
   const shuffled = [...allIds].sort((a, b) => simpleHash(`${seed}:${a}`) - simpleHash(`${seed}:${b}`));
   return shuffled.slice(0, Math.min(DAILY_ROSTER_SIZE, shuffled.length));

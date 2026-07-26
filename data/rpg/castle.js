@@ -5,9 +5,9 @@
 export const CASTLE_CLEAR_REQUIREMENT = 100;
 export const CASTLE_ROLL_VARIANCE = [0.85, 1.15]; // 전력치에 곱해지는 판정 시 무작위 범위(양쪽 다 적용)
 
-export const GOLD_INCOME_PER_TIER = 150; // 성주 일일 수입 = 지역 tier x 이 값
+export const GOLD_INCOME_PER_TIER = 200; // 성주 일일 수입 = 지역 tier x 이 값 (지역이 11단계까지 늘어나며 함께 상향)
 export const MATERIAL_BONUS_MIN_TIER = 3; // 이 tier 이상 지역의 성주는 결정/강화석도 추가로 받음
-export const MATERIAL_BONUS_QTY = 2;
+export const MATERIAL_BONUS_QTY = 3;
 
 export function castleDocPath(zoneId) {
   return `rpg_castles/${zoneId}`;

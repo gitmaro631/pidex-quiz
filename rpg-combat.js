@@ -336,16 +336,34 @@ function rollLoot(monster) {
 }
 
 const RANGED_WEAPON_TYPES = ['bow', 'staff']; // 원거리 무기 - 자동 진형 판정시 후열로 분류(활=사격, 지팡이=마법)
-// 진형이 명시적으로 지정 안 돼있으면 장착 무기로 자동 결정(활/지팡이=후열, 그 외=전열)
+export const FORMATION_ROWS = ['front', 'mid', 'back']; // 몹 반격 우선순위도 이 순서(전열이 있으면 전열, 없으면 중열, 그다음 후열)
+
+// 이 캐릭터/용병이 지금 선택할 수 있는 진형 목록 - 활/마법(원거리) 직업은 1~3열 전부 자유,
+// 창을 든 전사는 창의 사거리를 인정해 중열까지, 그 외 근접은 전열 고정
+export function allowedFormationRows(characterLike) {
+  const cls = CLASSES[characterLike.classMain];
+  if (cls && cls.weaponTypes.some((t) => RANGED_WEAPON_TYPES.includes(t))) return FORMATION_ROWS;
+  if (computeCharacterCombatStats(characterLike).weaponType === 'spear') return ['front', 'mid'];
+  return ['front'];
+}
+export function canChooseFormationRow(characterLike) {
+  return allowedFormationRows(characterLike).length > 1;
+}
+// 진형이 명시적으로 지정 안 돼있으면 장착 무기로 자동 결정(활/지팡이=후열, 그 외=전열).
+// 허용되지 않는 열이 저장돼있으면(직업/무기가 바뀌었거나 과거 데이터) 무시하고 자동으로 되돌림
 export function effectiveFormationRow(characterLike) {
-  if (characterLike.formationRow) return characterLike.formationRow;
-  return RANGED_WEAPON_TYPES.includes(computeCharacterCombatStats(characterLike).weaponType) ? 'back' : 'front';
+  const allowed = allowedFormationRows(characterLike);
+  if (allowed.length === 1) return allowed[0];
+  if (characterLike.formationRow && allowed.includes(characterLike.formationRow)) return characterLike.formationRow;
+  const autoRow = RANGED_WEAPON_TYPES.includes(computeCharacterCombatStats(characterLike).weaponType) ? 'back' : 'front';
+  return allowed.includes(autoRow) ? autoRow : allowed[allowed.length - 1];
 }
 
 // 파티원 1명(본인 또는 용병)의 전투용 런타임 상태를 구성 - characterLike는 character 또는
 // character.mercenaries[i] (둘 다 stats/level/classMain/equipment/injuries 구조가 동일함)
 function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }) {
   const combatStats = computeCharacterCombatStats(characterLike);
+  const allowedRows = allowedFormationRows(characterLike);
   const equipment = characterLike.equipment || {};
   const ringItem = equipment.ring ? ITEMS[equipment.ring] : null;
   const necklaceItem = equipment.necklace ? ITEMS[equipment.necklace] : null;
@@ -368,6 +386,7 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }
     potionRules: characterLike.potionRules || [],
     stance: characterLike.stance || 'stable',
     formationRow,
+    allowedRows,
     hp: typeof characterLike.currentHp === 'number' ? characterLike.currentHp : combatStats.maxHp,
     mp: typeof characterLike.currentMp === 'number' ? characterLike.currentMp : combatStats.maxMp,
     stamina: typeof characterLike.currentStamina === 'number' ? characterLike.currentStamina : combatStats.maxStamina,
@@ -471,7 +490,7 @@ function performAttack({ actor, monster, otherMonsters, sharedInventory, log, is
 }
 
 // 몹의 반격 1회 처리 - target(파티원 한 명)이 대상. 카이팅 중이면 아예 호출되지 않음(resolveCombat에서 스킵)
-function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit, partyBuffs }) {
+function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit, partyBuffs, party }) {
   const combatStats = target.combatStats;
   const dodgeChance = Math.min(MAX_DODGE_CHANCE, BASE_DODGE_CHANCE + combatStats.agi * AGI_DODGE_PER_POINT)
     * (target.injurySeverity.leg ? INJURY_DODGE_MULT[target.injurySeverity.leg] : 1);
@@ -492,16 +511,25 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
     target.hp -= poisonDamage;
     log.push(`${target.label}이(가) 중독됐다! ${poisonDamage} 피해.`);
   }
+  // 위험 수위(체력 25% 이하)에 처음 진입한 순간만 경고 - 매 공격마다 반복하지 않게 1회성 플래그로 관리
+  if (!target.lowHpWarned && target.hp > 0 && target.hp / combatStats.maxHp <= 0.25) {
+    target.lowHpWarned = true;
+    log.push(`🩸 ${target.label}의 체력이 위험 수위에 이르렀다!`);
+  }
 
-  // 용병이 전열에서 맞으면 멘탈(공포저항)이 낮을수록 후열로 도망칠 확률이 있음 - 전투 중 일시적,
-  // 다음 모험에서는 다시 기본 진형으로 돌아옴. 앞이 뚫리면 그만큼 뒤(궁수 등)가 위험해짐. 성직자의
-  // "평정심"으로 멘탈저항이 일시적으로 오를 수 있음(partyBuffs.mentalBonus)
-  if (typeof target.mentalResist === 'number' && target.formationRow === 'front' && target.hp > 0) {
+  // 맞으면 멘탈(공포저항)이 낮을수록 한 칸 뒤로 물러날 확률이 있음(전열->중열->후열, 전투 중 일시적,
+  // 다음 모험에서는 다시 기본 진형으로 돌아옴). 앞이 뚫리면 그만큼 뒤(궁수 등)가 위험해짐. 성직자의
+  // "평정심"으로 멘탈저항이 일시적으로 오를 수 있음(partyBuffs.mentalBonus). 이미 후열이면 더 물러날 곳이 없음
+  const rowIdx = FORMATION_ROWS.indexOf(target.formationRow);
+  const maxAllowedRowIdx = Math.max(...target.allowedRows.map((r) => FORMATION_ROWS.indexOf(r)));
+  if (typeof target.mentalResist === 'number' && rowIdx >= 0 && rowIdx < maxAllowedRowIdx && target.hp > 0) {
     const effectiveMentalResist = Math.min(100, target.mentalResist + partyBuffs.mentalBonus);
     const breakChance = MORALE_BREAK_BASE_CHANCE * (1 - effectiveMentalResist / 100);
     if (Math.random() < breakChance) {
-      target.formationRow = 'back';
+      target.formationRow = FORMATION_ROWS[rowIdx + 1];
       log.push(`${target.label}이(가) 공포에 질려 뒤로 물러났다! 진형이 무너졌다.`);
+      const frontStillHeld = party.some((p) => p.alive && p.hp > 0 && p.formationRow === 'front');
+      if (!frontStillHeld) log.push('⚠️ 전열이 완전히 무너졌다! 몹들이 후열까지 노리기 시작한다...');
     }
   }
 
@@ -634,8 +662,7 @@ export function resolveCombat({ character, zoneId, stance }) {
   const aliveMonsters = () => monsters.filter((m) => m.hp > 0);
   const pickMonsterTarget = () => {
     const alive = alivePartyMembers();
-    const front = alive.filter((p) => p.formationRow === 'front');
-    const pool = front.length ? front : alive;
+    const pool = FORMATION_ROWS.map((row) => alive.filter((p) => p.formationRow === row)).find((rowMembers) => rowMembers.length) || alive;
     return pool[randInt(0, pool.length - 1)];
   };
   // 파티원의 공격 대상 - 스탠스가 타겟 우선순위를 결정함. 안정형(stable)은 체력이 가장 낮은 몹부터
@@ -734,7 +761,7 @@ export function resolveCombat({ character, zoneId, stance }) {
           continue;
         }
         const target = pickMonsterTarget();
-        if (target) performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit: null, partyBuffs });
+        if (target) performMonsterAttack({ monster, target, log, isUnderleveled, affinityFromLastHit: null, partyBuffs, party });
       }
     }
   }

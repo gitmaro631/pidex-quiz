@@ -1,15 +1,8 @@
-// 선술집에서 용병 고용 - 본인 직업과 상호보완적인 직업(근접<->원거리)만 고용 가능, 최대 인원 제한 있음
+// 선술집에서 용병 고용 - 파티 구성은 플레이어 자유(오늘 로테이션에 있고 아직 안 고용했으면 가능), 최대 인원 제한 있음
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot, createMercenaryInstance } from '../_rpgCharacter.js';
 import { MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, dailyTavernRoster } from '../../data/rpg/mercenaries.js';
-import { CLASSES } from '../../data/rpg/classes.js';
-
-// 근접(전열) 직업인지 - 무기 라인업에 활이 아닌 무기가 하나라도 있으면 근접 계열로 판정
-function isMeleeClass(classId) {
-  const cls = CLASSES[classId];
-  return !!cls && cls.weaponTypes.some((t) => t !== 'bow');
-}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -35,11 +28,6 @@ export default async function handler(req, res) {
       // 전투 동행(active) 최대 2명 + 영지에서 일하는(territory) 잉여 인원 최대 4명 - 총원 제한
       const mercenaries = character.mercenaries || [];
       if (mercenaries.length >= MAX_MERCENARIES + MAX_TERRITORY_MERCENARIES) { outcome = { error: 'party_full' }; return null; }
-
-      // 상호보완적 직업만 고용 가능 - 본인이 근접이면 원거리(마법 포함)를, 원거리면 근접을
-      const selfMelee = isMeleeClass(character.classMain);
-      const mercMelee = isMeleeClass(template.classMain);
-      if (selfMelee === mercMelee) { outcome = { error: 'incompatible_class' }; return null; }
 
       if ((character.gold || 0) < template.hireCost) { outcome = { error: 'not_enough_gold' }; return null; }
 

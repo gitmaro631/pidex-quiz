@@ -16,11 +16,7 @@ import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
 import { CASTLE_CLEAR_REQUIREMENT } from './data/rpg/castle.js';
 import { computeCureCost } from './data/rpg/injuries.js';
-
-function isMeleeClass(classId) {
-  const cls = CLASSES[classId];
-  return !!cls && cls.weaponTypes.some((t) => t !== 'bow');
-}
+import { allowedFormationRows } from './rpg-combat.js';
 
 // api/ 아래 파일은 Vercel이 서버 함수 전용으로 취급해서 브라우저가 직접 fetch 못 함(404) -
 // 그래서 api/_rpgInventory.js를 import하는 대신, 이 로직들을 그대로 복제해서 씀
@@ -131,6 +127,7 @@ const ERROR_MESSAGES = {
   not_enough_turns: '턴포인트가 부족합니다.',
   no_torch: '횃불이 없습니다. 상점에서 구매하세요.',
   invalid_zone: '알 수 없는 지역입니다.',
+  zone_locked: '이전 마을 최상위 사냥터의 성 도전 자격(100회 공략)을 먼저 채워야 합니다.',
   not_enough_gold: '골드가 부족합니다.',
   not_purchasable: '구매할 수 없는 아이템입니다.',
   not_enough_items: '아이템 수량이 부족합니다.',
@@ -156,11 +153,11 @@ const ERROR_MESSAGES = {
   already_hospitalized: '이미 입원 중입니다.',
   not_in_today_roster: '오늘 선술집에 없는 용병입니다. 목록이 갱신됐을 수 있어요.',
   party_full: '파티가 가득 찼습니다.',
-  incompatible_class: '본인 직업과 상호보완적인 직업(근접↔원거리)만 고용할 수 있습니다.',
   unknown_mercenary: '알 수 없는 용병입니다.',
   mercenary_not_found: '고용하지 않은 용병입니다.',
   invalid_mercenary: '잘못된 용병 요청입니다.',
   invalid_formation: '잘못된 진형 값입니다.',
+  formation_not_allowed: '이 직업/무기로는 그 위치를 선택할 수 없습니다.',
   no_class_selected: '직업을 먼저 선택해야 합니다.',
   invalid_class: '알 수 없는 직업입니다.',
   class_already_chosen: '이미 직업을 선택했습니다.',
@@ -353,6 +350,7 @@ function renderMain(container) {
         <button class="rpg-tab" data-tab="shop">상점</button>
         <button class="rpg-tab" data-tab="market">마켓</button>
         <button class="rpg-tab" data-tab="storage">창고</button>
+        <button class="rpg-tab" data-tab="territory">영지</button>
         <button class="rpg-tab" data-tab="inventory">인벤토리</button>
         <button class="rpg-tab" data-tab="character">캐릭터</button>
       </div>
@@ -381,22 +379,29 @@ function renderMain(container) {
   else if (activeTab === 'shop') renderShopTab(content, container);
   else if (activeTab === 'market') renderMarketTab(content, container);
   else if (activeTab === 'storage') renderStorageTab(content, container);
+  else if (activeTab === 'territory') renderTerritoryTab(content, container);
   else if (activeTab === 'inventory') renderInventoryTab(content, container);
   else if (activeTab === 'character') renderCharacterTab(content, container);
 }
 
 // ── 모험 탭 ─────────────────────────────────────────
 function renderAdventureTab(content, container) {
+  const townName = (TOWNS[character.currentTown] || {}).name || character.currentTown || '없음(던전)';
   content.innerHTML = `
+    <p class="rpg-hint">현재 위치: ${townName} — 다른 마을 소속 지역에 들어가면 그 마을로 자동 이동해요.</p>
     <div class="rpg-zone-list">
       ${Object.values(ZONES).map((z) => {
         const clears = (character.zoneClearCounts || {})[z.id] || 0;
         const eligible = clears >= CASTLE_CLEAR_REQUIREMENT;
+        const zoneTownName = z.town ? ((TOWNS[z.town] || {}).name || z.town) : '던전(마을 없음)';
+        const unlockClears = z.unlockZoneId ? ((character.zoneClearCounts || {})[z.unlockZoneId] || 0) : null;
+        const locked = z.unlockZoneId && unlockClears < CASTLE_CLEAR_REQUIREMENT;
         return `
         <div class="rpg-zone-block">
-          <button class="rpg-zone-btn" data-zone="${z.id}">
-            <div class="rpg-zone-name">${z.name}</div>
-            <div class="rpg-zone-tier">Tier ${z.tier}${z.requiresTorch ? ' · 횃불 필요' : ''}</div>
+          <button class="rpg-zone-btn" data-zone="${z.id}" ${locked ? 'disabled' : ''}>
+            <div class="rpg-zone-name">${z.name}${locked ? ' 🔒' : ''}</div>
+            <div class="rpg-zone-tier">Tier ${z.tier} · ${zoneTownName} 소속${z.requiresTorch ? ' · 횃불 필요' : ''}</div>
+            ${locked ? `<div class="rpg-zone-tier">${ZONES[z.unlockZoneId].name} ${unlockClears}/${CASTLE_CLEAR_REQUIREMENT}회 공략 후 해금</div>` : ''}
           </button>
           ${eligible ? `<p class="rpg-hint"><button class="rpg-castle-challenge-btn" data-zone="${z.id}">성 도전하기</button></p>` : ''}
         </div>
@@ -437,21 +442,37 @@ function renderAdventureTab(content, container) {
         const result = await apiPost('adventure', { zoneId: btn.dataset.zone });
         await loadCharacter(); // 레벨업으로 maxHp 등이 바뀌었을 수 있어 서버 최신값으로 새로고침
 
-        log.innerHTML = `
-          <div class="rpg-log-lines">${result.log.map((l) => `<p>${l}</p>`).join('')}</div>
+        await playCombatLog(log, result.log);
+        log.insertAdjacentHTML('beforeend', `
           <div class="rpg-log-summary">
             ${result.victory ? '승리' : '패배'} · 경험치 +${result.xpGain} · 골드 +${result.goldGain}
             ${result.levelsGained ? ` · <b>레벨업! Lv.${result.level}</b>` : ''}
             ${result.loot.length ? `<br>획득: ${result.loot.map((d) => `${(ITEMS[d.itemId] || {}).name || d.itemId} x${d.qty}`).join(', ')}` : ''}
           </div>
           ${loreUnlockHtml(result.newLore)}
-        `;
+        `);
         container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       } catch (e) {
         log.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div>`;
       }
     });
   });
+}
+
+// 전투 로그를 한 번에 쏟아내지 않고 한 줄씩 순차 출력 - 결과를 바로 던지는 대신 진행 과정을
+// 보는 느낌을 주기 위함(전열 붕괴/위험수위 경고 등의 긴장감이 이 페이싱으로 살아남).
+// 줄 수가 많은(레전더리급 장기전) 전투는 한 줄당 지연을 줄여 전체 재생시간을 비슷하게 맞춤
+async function playCombatLog(logEl, lines) {
+  logEl.innerHTML = '<div class="rpg-log-lines"></div>';
+  const linesEl = logEl.querySelector('.rpg-log-lines');
+  const delay = Math.max(80, Math.min(350, 3000 / Math.max(lines.length, 1)));
+  for (const line of lines) {
+    const p = document.createElement('p');
+    p.textContent = line;
+    linesEl.appendChild(p);
+    linesEl.scrollTop = linesEl.scrollHeight;
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
 }
 
 // ── 새로 언락된 탐험일지(로어) 알림 ───────────────────
@@ -567,17 +588,16 @@ function blacksmithHtml() {
   `;
 }
 
-// ── 선술집 NPC - 용병 고용 UI(본인 직업과 상호보완적인 직업만 고용 가능) ─────
+// ── 선술집 NPC - 용병 고용 UI(파티 구성은 플레이어 자유 - 오늘 로테이션 + 미고용 용병만 필터) ─────
 function tavernHireHtml() {
   const mercenaries = character.mercenaries || [];
   const totalCap = MAX_MERCENARIES + MAX_TERRITORY_MERCENARIES;
   if (mercenaries.length >= totalCap) return `<p class="rpg-hint">더 이상 용병을 고용할 수 없습니다 (${mercenaries.length}/${totalCap}).</p>`;
   if (!character.classMain) return `<p class="rpg-hint">직업을 먼저 선택해야 용병을 고용할 수 있어요.</p>`;
-  const selfMelee = isMeleeClass(character.classMain);
   const hiredTemplateIds = new Set(mercenaries.map((m) => m.templateId));
   const todayRoster = new Set(dailyTavernRoster(character.currentTown || 'town1'));
   const options = Object.values(MERCENARY_TEMPLATES)
-    .filter((t) => todayRoster.has(t.id) && isMeleeClass(t.classMain) !== selfMelee && !hiredTemplateIds.has(t.id));
+    .filter((t) => todayRoster.has(t.id) && !hiredTemplateIds.has(t.id));
   if (!options.length) return `<p class="rpg-hint">오늘은 고용 가능한 용병이 없네요. 내일 다시 들러보세요.</p>`;
   return options.map((t) => {
     const cls = CLASSES[t.classMain];
@@ -702,7 +722,8 @@ function renderTownTab(content, container) {
 
 // ── 상점 탭(구매 + 뽑기) ──────────────────────────────
 function renderShopTab(content, container) {
-  const shopItems = Object.values(ITEMS).filter((i) => i.shopPrice && i.type !== 'randombox');
+  const townTier = (TOWNS[character.currentTown] || {}).tier || 1;
+  const shopItems = Object.values(ITEMS).filter((i) => i.shopPrice && i.type !== 'randombox' && (i.minTownTier || 1) <= townTier);
   content.innerHTML = `
     <h4>상점</h4>
     <div class="rpg-shop-list">
@@ -1001,11 +1022,34 @@ function renderInventoryTab(content, container) {
   }));
 }
 
-// 진형을 '자동'으로 두면 장착 무기로 결정됨(활=후열, 그 외=전열) - 표시용
+// 진형을 '자동'으로 두면 장착 무기로 결정됨(활/지팡이=후열, 그 외=전열) - 표시용
 function equipmentSectionEffectiveRow(characterLike = character) {
   const weaponId = characterLike.equipment && characterLike.equipment.weapon;
   const weapon = weaponId ? ITEMS[weaponId] : null;
   return weapon && ['bow', 'staff'].includes(weapon.weaponType) ? '후열' : '전열';
+}
+
+const FORMATION_ROW_LABELS = { front: '전열', mid: '중열', back: '후열' };
+
+// 진형 선택 UI(전열/중열/후열 중 허용된 열만 버튼 표시 + 자동) - 활/마법은 1~3열 전부,
+// 창을 든 전사는 전열/중열, 그 외 근접은 전열 고정이라 버튼 없이 안내문만 표시
+// - mercId가 있으면 그 용병 대상, 없으면 본인 대상
+function formationSectionHtml(characterLike, mercId) {
+  const currentLabel = characterLike.formationRow
+    ? FORMATION_ROW_LABELS[characterLike.formationRow]
+    : `자동(${equipmentSectionEffectiveRow(characterLike)})`;
+  const mercAttr = mercId ? ` data-merc="${mercId}"` : '';
+  const allowed = allowedFormationRows(characterLike);
+  if (allowed.length === 1) {
+    return `<p>진형: ${FORMATION_ROW_LABELS[allowed[0]]} 고정(근접 직업)</p>`;
+  }
+  return `
+    <p>진형:
+      ${allowed.map((row) => `<button class="rpg-formation-btn" data-formation="${row}"${mercAttr}>${FORMATION_ROW_LABELS[row]}</button>`).join('')}
+      <button class="rpg-formation-btn" data-formation=""${mercAttr}>자동</button>
+      (현재: ${currentLabel})
+    </p>
+  `;
 }
 
 // ── 파티(고용한 용병) 섹션 - 캐릭터 탭에서 사용 ─────────
@@ -1026,12 +1070,7 @@ function mercenaryCardHtml(m) {
         <button class="rpg-dismiss-merc-btn" data-merc="${m.id}">해고</button>
       </p>
       ${m.assignment === 'active' ? `
-        <p>진형:
-          <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="front">전열</button>
-          <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="back">후열</button>
-          <button class="rpg-formation-btn" data-merc="${m.id}" data-formation="">자동</button>
-          (현재: ${m.formationRow === 'front' ? '전열' : m.formationRow === 'back' ? '후열' : `자동(${equipmentSectionEffectiveRow(m)})`})
-        </p>
+        ${formationSectionHtml(m, m.id)}
         ${potionRulesEditorHtml(m.id)}
       ` : ''}
     </div>
@@ -1039,9 +1078,11 @@ function mercenaryCardHtml(m) {
 }
 function partySectionHtml() {
   const mercenaries = character.mercenaries || [];
-  if (!mercenaries.length) return '';
   const active = mercenaries.filter((m) => m.assignment === 'active');
   const territory = mercenaries.filter((m) => m.assignment !== 'active');
+  if (!mercenaries.length) {
+    return `<div class="rpg-party"><h4>파티 / 영지</h4><p class="rpg-hint">아직 고용한 용병이 없어요. 마을 선술집에서 용병을 고용해보세요.</p></div>`;
+  }
   return `
     <div class="rpg-party">
       <h4>전투부대 (${active.length}/${MAX_MERCENARIES})</h4>
@@ -1050,6 +1091,98 @@ function partySectionHtml() {
       ${territory.length ? territory.map(mercenaryCardHtml).join('') : '<p class="rpg-hint">영지에서 쉬고 있는 용병이 없어요.</p>'}
     </div>
   `;
+}
+
+// 여러 탭(캐릭터/영지)에서 공용으로 쓰는 용병 진형 버튼 핸들러 - rerender만 탭별로 다름
+function wireFormationButtons(content, rerender) {
+  content.querySelectorAll('.rpg-formation-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const mercId = btn.dataset.merc || null;
+    const formationRow = btn.dataset.formation || null;
+    try {
+      await apiPost('set-formation', mercId ? { mercId, formationRow } : { formationRow });
+      if (mercId) {
+        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
+        if (merc) merc.formationRow = formationRow;
+      } else {
+        character.formationRow = formationRow;
+      }
+      rerender();
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+}
+
+// 여러 탭(캐릭터/영지)에서 공용으로 쓰는 포션 자동사용 규칙 저장 핸들러
+function wirePotionSaveButtons(content) {
+  content.querySelectorAll('.rpg-potion-save-btn').forEach((saveBtn) => saveBtn.addEventListener('click', async () => {
+    const mercId = saveBtn.dataset.merc || null;
+    const rulesContainer = saveBtn.closest('.rpg-potion-rules');
+    const rows = rulesContainer.querySelectorAll('.rpg-potion-rule-row');
+    const potionRules = [];
+    rows.forEach((row) => {
+      const checkbox = row.querySelector('.rpg-potion-enable');
+      if (!checkbox.checked) return;
+      potionRules.push({
+        itemId: row.dataset.item,
+        thresholdPct: Number(row.querySelector('.rpg-potion-threshold').value) || 50,
+        maxPerBattle: Number(row.querySelector('.rpg-potion-max').value) || 1,
+      });
+    });
+    try {
+      await apiPost('set-potion-rules', mercId ? { potionRules, mercId } : { potionRules });
+      if (mercId) {
+        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
+        if (merc) merc.potionRules = potionRules;
+      } else {
+        character.potionRules = potionRules;
+      }
+      showToast('포션 자동사용 설정을 저장했습니다');
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+}
+
+// ── 영지 탭 - 고용한 용병 관리(전투부대/영지 배치, 진형, 해고, 입원, 포션 규칙) ──
+function renderTerritoryTab(content, container) {
+  content.innerHTML = partySectionHtml();
+  const rerender = () => renderTerritoryTab(content, container);
+  wireFormationButtons(content, rerender);
+  wirePotionSaveButtons(content);
+  content.querySelectorAll('.rpg-dismiss-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      await apiPost('dismiss-mercenary', { mercId: btn.dataset.merc });
+      character.mercenaries = (character.mercenaries || []).filter((m) => m.id !== btn.dataset.merc);
+      rerender();
+      showToast('용병을 해고했습니다');
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-admit-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('admit-mercenary', { mercId: btn.dataset.merc });
+      character.gold = r.gold;
+      const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
+      if (merc) merc.hospitalized = true;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      rerender();
+      showToast(`병원에 입원시켰습니다 (${r.cost}골드)`);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-assignment-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('set-mercenary-assignment', { mercId: btn.dataset.merc, assignment: btn.dataset.assignment });
+      const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
+      if (merc) { merc.assignment = r.assignment; merc.job = r.assignment === 'territory' ? 'clearing' : null; }
+      rerender();
+      showToast(r.assignment === 'active' ? '전투부대로 편입했습니다' : '영지로 보냈습니다');
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  const collectBtn = content.querySelector('.rpg-collect-territory-btn');
+  if (collectBtn) collectBtn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('collect-territory-income', {});
+      character.gold = r.gold;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      showToast(r.income > 0 ? `영지 수입 ${r.income}골드를 수확했습니다` : '아직 정산할 수입이 없어요');
+    } catch (e) { showToast(friendlyError(e)); }
+  });
 }
 
 // ── 부상 상태 요약(캐릭터 탭에서 사용) ─────────────────
@@ -1079,12 +1212,7 @@ function renderCharacterTab(content, container) {
         <button class="rpg-stance-btn" data-stance="aggressive">공격형(강한 몹부터)</button>
         (현재: ${character.stance === 'aggressive' ? '공격형' : '안정형'})
       </p>
-      <p>진형:
-        <button class="rpg-formation-btn" data-formation="front">전열</button>
-        <button class="rpg-formation-btn" data-formation="back">후열</button>
-        <button class="rpg-formation-btn" data-formation="">자동</button>
-        (현재: ${character.formationRow === 'front' ? '전열' : character.formationRow === 'back' ? '후열' : `자동(${equipmentSectionEffectiveRow()})`})
-      </p>
+      ${formationSectionHtml(character)}
       ${injuriesSummaryHtml()}
     </div>
     <div class="rpg-stats">
@@ -1099,7 +1227,6 @@ function renderCharacterTab(content, container) {
     ${equipmentSectionHtml()}
     ${subclassSectionHtml()}
     ${potionRulesEditorHtml()}
-    ${partySectionHtml()}
     ${journalHtml()}
   `;
   content.querySelectorAll('.rpg-stance-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -1109,57 +1236,8 @@ function renderCharacterTab(content, container) {
       renderCharacterTab(content, container);
     } catch (e) { showToast(friendlyError(e)); }
   }));
-  content.querySelectorAll('.rpg-formation-btn').forEach((btn) => btn.addEventListener('click', async () => {
-    const mercId = btn.dataset.merc || null;
-    const formationRow = btn.dataset.formation || null;
-    try {
-      await apiPost('set-formation', mercId ? { mercId, formationRow } : { formationRow });
-      if (mercId) {
-        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
-        if (merc) merc.formationRow = formationRow;
-      } else {
-        character.formationRow = formationRow;
-      }
-      renderCharacterTab(content, container);
-    } catch (e) { showToast(friendlyError(e)); }
-  }));
-  content.querySelectorAll('.rpg-dismiss-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
-    try {
-      await apiPost('dismiss-mercenary', { mercId: btn.dataset.merc });
-      character.mercenaries = (character.mercenaries || []).filter((m) => m.id !== btn.dataset.merc);
-      renderCharacterTab(content, container);
-      showToast('용병을 해고했습니다');
-    } catch (e) { showToast(friendlyError(e)); }
-  }));
-  content.querySelectorAll('.rpg-admit-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
-    try {
-      const r = await apiPost('admit-mercenary', { mercId: btn.dataset.merc });
-      character.gold = r.gold;
-      const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
-      if (merc) merc.hospitalized = true;
-      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-      renderCharacterTab(content, container);
-      showToast(`병원에 입원시켰습니다 (${r.cost}골드)`);
-    } catch (e) { showToast(friendlyError(e)); }
-  }));
-  content.querySelectorAll('.rpg-assignment-btn').forEach((btn) => btn.addEventListener('click', async () => {
-    try {
-      const r = await apiPost('set-mercenary-assignment', { mercId: btn.dataset.merc, assignment: btn.dataset.assignment });
-      const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
-      if (merc) { merc.assignment = r.assignment; merc.job = r.assignment === 'territory' ? 'clearing' : null; }
-      renderCharacterTab(content, container);
-      showToast(r.assignment === 'active' ? '전투부대로 편입했습니다' : '영지로 보냈습니다');
-    } catch (e) { showToast(friendlyError(e)); }
-  }));
-  const collectBtn = content.querySelector('.rpg-collect-territory-btn');
-  if (collectBtn) collectBtn.addEventListener('click', async () => {
-    try {
-      const r = await apiPost('collect-territory-income', {});
-      character.gold = r.gold;
-      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-      showToast(r.income > 0 ? `영지 수입 ${r.income}골드를 수확했습니다` : '아직 정산할 수입이 없어요');
-    } catch (e) { showToast(friendlyError(e)); }
-  });
+  wireFormationButtons(content, () => renderCharacterTab(content, container));
+  wirePotionSaveButtons(content);
   content.querySelectorAll('.rpg-stat-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
       const r = await apiPost('allocate-stat', { stat: btn.dataset.stat, amount: 1 });
