@@ -100,10 +100,12 @@ export default async function handler(req, res) {
       brokenNow.forEach((s) => combatResult.log.push(`${EQUIP_SLOT_LABELS[s] || s}이(가) 파손되었습니다! 수리가 필요해요.`));
 
       // 죽으면(패배) 아이템은 그대로 유지한 채 마지막으로 있었던 마을로 돌아감 - 부활 자체는 무료지만
-      // 다시 사냥터까지 가려면 소모품을 또 써야 하니 결과적으로 골드 소모를 유도함
+      // 소지금의 10%를 잃고(resolveCombat이 계산한 goldLost), 다시 사냥터까지 가려면 소모품을
+      // 또 써야 하니 결과적으로 골드 소모를 유도함
       const nextTown = zone.town || character.currentTown || 'town1';
       if (!combatResult.victory) {
         const townName = (TOWNS[nextTown] || {}).name || nextTown;
+        if (combatResult.goldLost > 0) combatResult.log.push(`정신을 잃은 사이 골드 ${combatResult.goldLost}를 도둑맞았다...`);
         combatResult.log.push(`정신을 차려보니 ${townName}이었다.`);
       }
 
@@ -192,12 +194,12 @@ export default async function handler(req, res) {
         injuries,
         mercenaries: allUpdatedMercenaries,
         wagePaid: totalWage,
-        gold: gold + combatResult.goldGain,
+        gold: gold + combatResult.goldGain - combatResult.goldLost,
       };
 
       return {
         ...character,
-        gold: gold + combatResult.goldGain,
+        gold: gold + combatResult.goldGain - combatResult.goldLost,
         level: progression.level,
         xp: progression.xp,
         statPoints: progression.statPoints,

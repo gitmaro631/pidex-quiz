@@ -33,6 +33,8 @@ const MAX_ROUNDS_PER_ENCOUNTER = 40;
 // 패배해서 마을로 돌아오면 무료로 부활은 하지만 완전 회복은 아님 - 최대치의 이 비율만큼만 채워진 채로
 // 돌아옴(그래야 "졌다"는 느낌이 남고, 바로 다시 나가기 전에 회복할 동기가 생김)
 const DEFEAT_REVIVE_PCT = 0.3;
+// 패배하면 소지금(모험 시작 시점 기준)의 이 비율만큼 잃음 - adventure.js가 이 값으로 실제 골드를 차감함
+const DEFEAT_GOLD_LOSS_PCT = 0.1;
 const BASE_HP = 40;
 const HP_PER_LEVEL = 6;
 const VIT_HP_PER_LEVEL = 0.5; // VIT 1당, 레벨 1당 최대체력 +0.5 - 레벨이 오를수록 VIT 효과가 누적돼 커짐
@@ -751,11 +753,14 @@ export function resolveCombat({ character, zoneId, stance }) {
   const selfFinalHp = victory ? Math.max(0, selfCombatant.hp) : Math.round(selfCombatant.combatStats.maxHp * DEFEAT_REVIVE_PCT);
   const selfFinalMp = victory ? Math.max(0, selfCombatant.mp) : Math.round(selfCombatant.combatStats.maxMp * DEFEAT_REVIVE_PCT);
   const selfFinalStamina = victory ? Math.max(0, selfCombatant.stamina) : Math.round(selfCombatant.combatStats.maxStamina * DEFEAT_REVIVE_PCT);
+  // 패배시 소지금의 10%를 잃음 - 실제 차감은 adventure.js가 처리(여기선 액수만 계산해서 알려줌)
+  const goldLost = victory ? 0 : Math.floor((character.gold || 0) * DEFEAT_GOLD_LOSS_PCT);
 
   return {
     log, victory, isRareEncounter: encounter.isRare, zoneId,
     xpGain: victory ? totalXp : Math.floor(totalXp * 0.3),
     goldGain: victory ? totalGold : Math.floor(totalGold * 0.3),
+    goldLost,
     loot: victory ? loot : [],
     killedMonsterIds,
     finalHp: selfFinalHp, finalMp: selfFinalMp, finalStamina: selfFinalStamina,

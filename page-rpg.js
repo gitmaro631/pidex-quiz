@@ -397,9 +397,7 @@ function renderAdventureTab(content, container) {
             <div class="rpg-zone-name">${z.name}</div>
             <div class="rpg-zone-tier">Tier ${z.tier}${z.requiresTorch ? ' · 횃불 필요' : ''}</div>
           </button>
-          <p class="rpg-hint">성 도전 자격: ${Math.min(clears, CASTLE_CLEAR_REQUIREMENT)}/${CASTLE_CLEAR_REQUIREMENT}회 공략
-            ${eligible ? `<button class="rpg-castle-challenge-btn" data-zone="${z.id}">성 도전하기</button>` : ''}
-          </p>
+          ${eligible ? `<p class="rpg-hint"><button class="rpg-castle-challenge-btn" data-zone="${z.id}">성 도전하기</button></p>` : ''}
         </div>
       `;
       }).join('')}
