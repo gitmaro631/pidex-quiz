@@ -64,11 +64,14 @@ export const TERRITORY_JOBS = {
   farm: { id: 'farm', name: '농장', goldPerDay: 0, statKey: 'food', bonusPctPerLevel: 2 },
   // 병원 - 레벨마다 부상 치료 비용/시간이 줄어듦(의사/붕대 골드비용, 영지에서 쉬기 턴비용, 입원비 전부 해당)
   hospital: { id: 'hospital', name: '병원', goldPerDay: 0, statKey: 'healCostReduction', bonusPctPerLevel: 4 },
-  // 사기진작소 - 레벨마다 본인(유저 캐릭터)의 멘탈저항(공포로 후열로 밀려날 확률을 낮추는 수치)이
-  // 고정치로 올라감(facilities.js의 moraleResistBonus 참고, 다른 시설처럼 %배율이 아니라 flat 가산).
-  // 다른 시설과 동일하게 용병 배치나 턴 소모로 레벨업하지만, 효과 자체는 본인 전투에만 적용됨(전사자를
-  // 계속 지휘하는 지휘관 개념 - 훈련소/방벽과 같은 원칙)
+  // 사기진작소 - 레벨마다 멘탈저항(공포로 후열로 밀려날 확률을 낮추는 수치)이 고정치로 올라감
+  // (facilities.js의 moraleResistBonus 참고, 다른 시설처럼 %배율이 아니라 flat 가산). 훈련소/방벽과
+  // 같은 원칙으로 본인+고용한 용병 전원에게 적용됨
   morale: { id: 'morale', name: '사기진작소', goldPerDay: 0, statKey: 'mentalResist', bonusPctPerLevel: 3 },
+  // 연공실 - 레벨마다 최대 마나/스테미나가 %만큼 늘어남. 성기사(스태미나+마나 혼합)·마법사·성직자처럼
+  // 마나 의존도가 높은 직업이나, 체력 대신 스테미나로 스킬을 쓰는 물리 직업 전부에게 도움이 됨.
+  // 훈련소/방벽과 같은 원칙(본인+용병 전원 적용, computeCharacterCombatStats 참고)
+  sanctum: { id: 'sanctum', name: '연공실', goldPerDay: 0, statKey: 'mp', bonusPctPerLevel: 2 },
 };
 
 export const SPECIALTY_BONUS_MULT = 1.5; // territorySpecialty가 맞는 시설에 배치하면 기여 속도 50% 추가

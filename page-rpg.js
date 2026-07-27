@@ -1456,7 +1456,7 @@ function formationSectionHtml(characterLike, mercId) {
 // ── 파티(고용한 용병) 섹션 - 캐릭터 탭에서 사용 ─────────
 // 전투부대(active, 최대 MAX_MERCENARIES명)는 모험에 동행하고, 영지(territory)는 남아서 일을 함
 // ── 영지 현황판 - 시설(개간지/훈련소/방벽/농장) 레벨과 다음 레벨까지 진행률을 한눈에 보여줌 ──
-const FACILITY_ICONS = { clearing: '🌾', training: '⚔️', ramparts: '🛡️', farm: '🌱', hospital: '🏥', morale: '📯' };
+const FACILITY_ICONS = { clearing: '🌾', training: '⚔️', ramparts: '🛡️', farm: '🌱', hospital: '🏥', morale: '📯', sanctum: '🔮' };
 
 // api/_rpgTurns.js와 반드시 같은 공식 유지 - 서버 전용 파일이라 브라우저가 직접 못 불러와서 복제해서 씀
 function turnCapForLevelClient(level) {
@@ -1495,7 +1495,7 @@ function facilityDashboardHtml() {
     const progress = facilityProgress(days[jobId] || 0);
     const pct = Math.min(100, Math.round((progress.daysIntoLevel / progress.daysForNextLevel) * 100));
     const workerCount = territoryMercs.filter((m) => m.job === jobId).length;
-    const STAT_KEY_LABELS = { gold: '골드', atk: '공격력', def: '방어력', food: '식량생산', healCostReduction: '치료비/턴 절감', mentalResist: '멘탈저항' };
+    const STAT_KEY_LABELS = { gold: '골드', atk: '공격력', def: '방어력', food: '식량생산', healCostReduction: '치료비/턴 절감', mentalResist: '멘탈저항', mp: '최대 마나/스테미나' };
     const flatBonusStats = ['mentalResist']; // %가 아니라 고정치로 붙는 보너스(사기진작소 등)
     const bonusAmount = job.bonusPctPerLevel * progress.level;
     const bonusLabel = job.bonusPctPerLevel

@@ -259,9 +259,11 @@ export function computeCharacterCombatStats(character) {
 
   // VIT는 레벨과 곱해져서 반영됨 - 레벨이 낮을 땐 VIT를 아무리 투자해도 체력 증가폭이 작고,
   // 레벨이 오를수록 VIT 투자분이 누적돼서 체력 성장폭이 커짐(비율 성장)
-  // 영지 시설(훈련소/방벽) 레벨 보너스 - character에만 있는 필드라 용병에게는 자연히 적용 안 됨(배율 1)
+  // 영지 시설(훈련소/방벽/연공실) 레벨 보너스 - 용병도 buildCombatant에서 본대의 facilityLevels를
+  // 물려받아 이 함수를 타므로 본인과 동일하게 적용됨
   const facilityAtkMult = facilityBonusMultiplier(character, 'training');
   const facilityDefMult = facilityBonusMultiplier(character, 'ramparts');
+  const facilityResourceMult = facilityBonusMultiplier(character, 'sanctum');
   // 종자로 흡수한 용병의 스탯 일부(흡수 시점에 고정된 값) - squire-mercenary.js가 부여
   const squireBonus = character.squireStatBonus || {};
   const finalAtk = Math.round((scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus) * facilityAtkMult) + (squireBonus.atk || 0);
@@ -272,9 +274,9 @@ export function computeCharacterCombatStats(character) {
   const ac = 10 + Math.floor(level / 3) + Math.min(8, Math.floor(finalDef / 8)) + Math.min(5, Math.floor(stats.agi / 8));
   return {
     maxHp: BASE_HP + level * HP_PER_LEVEL + Math.round(stats.vit * level * VIT_HP_PER_LEVEL) + gearHpBonus + accessoryHpBonus + (squireBonus.maxHp || 0),
-    maxMp: BASE_MP + level * MP_PER_LEVEL + Math.round(scalingStat * level * MAGIC_STAT_MP_PER_LEVEL),
+    maxMp: Math.round((BASE_MP + level * MP_PER_LEVEL + Math.round(scalingStat * level * MAGIC_STAT_MP_PER_LEVEL)) * facilityResourceMult),
     // 향후 스테미나 소모 스킬/행동에 대비한 자원(현재는 회복 대상으로만 사용)
-    maxStamina: BASE_STAMINA + level * STAMINA_PER_LEVEL + Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL),
+    maxStamina: Math.round((BASE_STAMINA + level * STAMINA_PER_LEVEL + Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL)) * facilityResourceMult),
     atk: finalAtk,
     def: finalDef,
     attackBonus,
