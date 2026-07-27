@@ -55,3 +55,10 @@ export function hospitalCostMultiplier(character) {
   const level = ((character && character.facilityLevels) || {}).hospital || 0;
   return Math.max(0.2, 1 - (TERRITORY_JOBS.hospital.bonusPctPerLevel * level) / 100);
 }
+
+// 사기진작소 전용 - %배율이 아니라 멘탈저항(mentalResist, 0~100)에 고정치로 더해지는 보너스.
+// 본인 전투에서 전열이 공격당했을 때 공포로 후열로 밀려날 확률을 낮추는 데 쓰임(rpg-combat.js 참고)
+export function moraleResistBonus(character) {
+  const level = ((character && character.facilityLevels) || {}).morale || 0;
+  return TERRITORY_JOBS.morale.bonusPctPerLevel * level;
+}

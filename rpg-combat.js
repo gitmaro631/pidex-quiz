@@ -10,7 +10,7 @@ import { CLASSES } from './data/rpg/classes.js';
 import { elementalMultiplier } from './data/rpg/elements.js';
 import { CLASS_ESSENCE_ITEM, TIER_POWER_MULT } from './data/rpg/training.js';
 import { ENHANCE_ATK_PER_LEVEL, ENHANCE_DEF_PER_LEVEL, RARE_MONSTER_STONE_DROP_CHANCE } from './data/rpg/enhancement.js';
-import { facilityBonusMultiplier } from './data/rpg/facilities.js';
+import { facilityBonusMultiplier, moraleResistBonus } from './data/rpg/facilities.js';
 import { SQUIRE_SKILL_POWER_MULT } from './data/rpg/mercenaries.js';
 
 // 반지+목걸이가 같은 세트(setId)면 세트 보너스를 반환, 아니면 null
@@ -301,7 +301,9 @@ export function computeCharacterCombatStats(character) {
 export function computePartyPower(character) {
   const members = [
     character,
-    ...(character.mercenaries || []).filter((m) => m.assignment === 'active' && !m.hospitalized),
+    // 용병도 영지 시설(훈련소/방벽) 혜택을 받아야 하니 본대의 facilityLevels를 물려받게 함
+    ...(character.mercenaries || []).filter((m) => m.assignment === 'active' && !m.hospitalized)
+      .map((m) => ({ ...m, facilityLevels: character.facilityLevels })),
   ];
   return members.reduce((sum, m) => {
     const stats = computeCharacterCombatStats(m);
@@ -436,8 +438,11 @@ export function effectiveFormationRow(characterLike) {
 
 // 파티원 1명(본인 또는 용병)의 전투용 런타임 상태를 구성 - characterLike는 character 또는
 // character.mercenaries[i] (둘 다 stats/level/classMain/equipment/injuries 구조가 동일함)
-function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }) {
-  const combatStats = computeCharacterCombatStats(characterLike);
+function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory, ownerCharacter }) {
+  // 영지 시설(훈련소/방벽 등)은 본인뿐 아니라 그 캐릭터가 고용한 용병 전원에게도 적용됨 - 용병 객체엔
+  // facilityLevels가 없으니 본대(ownerCharacter)의 것을 그대로 물려받게 함(본인은 이미 갖고 있어 그대로 둠)
+  const statsSource = isSelf ? characterLike : { ...characterLike, facilityLevels: (ownerCharacter || characterLike).facilityLevels };
+  const combatStats = computeCharacterCombatStats(statsSource);
   const allowedRows = allowedFormationRows(characterLike);
   const equipment = characterLike.equipment || {};
   const ringItem = equipment.ring ? ITEMS[equipment.ring] : null;
@@ -469,8 +474,10 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory }
     arrowsUsed: 0,
     accessoryElementDefense,
     doubleAttackChance,
-    // 본인도 용병과 동일하게 공포에 밀려날 수 있음(유저 캐릭터 전용 필드가 없으니 기본값 사용)
-    mentalResist: isSelf ? (characterLike.mentalResist ?? PLAYER_BASE_MENTAL_RESIST) : characterLike.mentalResist,
+    // 본인도 용병과 동일하게 공포에 밀려날 수 있음(유저 캐릭터 전용 필드가 없으니 기본값 사용).
+    // 사기진작소 보너스는 본인/용병 구분 없이 그 캐릭터가 배치한 시설이니 파티 전원에게 적용됨
+    mentalResist: Math.min(100, (isSelf ? (characterLike.mentalResist ?? PLAYER_BASE_MENTAL_RESIST) : characterLike.mentalResist)
+      + moraleResistBonus(ownerCharacter)),
     // 스킬 훈련(skillLevels)은 본인 전용 - 용병은 훈련소 대상이 아니라 항상 자기 스킬을 자유롭게 씀
     skillLevels: isSelf ? (characterLike.skillLevels || {}) : null,
     injurySeverity: {
@@ -753,9 +760,9 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
   const encounterXpMult = monsterDifficultyTier(groupPower / partyPower).xpMult;
 
   const party = [
-    buildCombatant({ characterLike: { ...character, stance }, isSelf: true, formationRow: effectiveFormationRow(character), sharedInventory }),
+    buildCombatant({ characterLike: { ...character, stance }, isSelf: true, formationRow: effectiveFormationRow(character), sharedInventory, ownerCharacter: character }),
     ...(character.mercenaries || []).map((merc) => buildCombatant({
-      characterLike: merc, isSelf: false, formationRow: effectiveFormationRow(merc), sharedInventory,
+      characterLike: merc, isSelf: false, formationRow: effectiveFormationRow(merc), sharedInventory, ownerCharacter: character,
     })),
   ];
 
