@@ -557,6 +557,7 @@ function renderAdventureTab(content, container) {
       const r = await apiPost('work-territory', { job: btn.dataset.job });
       character.gold = r.gold;
       character.turnPoints = r.turnPoints;
+      character.facilityDays = r.facilityDays;
       character.facilityLevels = r.facilityLevels;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderAdventureTab(content, container);

@@ -63,6 +63,7 @@ export default async function handler(req, res) {
       outcome = {
         job, goldIncome, gold: finalGold,
         turnPoints: nextTurns, turnPointsCap: turnCapForLevel(character.level),
+        facilityDays: finalFacilityDays,
         facilityLevels: finalFacilityLevels,
         leveledUp: newLevel > prevLevel ? [{ jobId: job, name: TERRITORY_JOBS[job].name, level: newLevel }] : [],
         territoryNotice: territorySettlement ? {
