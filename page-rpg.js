@@ -628,12 +628,17 @@ function renderZonePreviewScreen(content, container, preview) {
   });
   content.querySelectorAll('.rpg-encounter-option-btn').forEach((btn) => btn.addEventListener('click', async () => {
     log.innerHTML = `<div class="rpg-loading">전투 중...</div>`;
-    log.scrollIntoView({ behavior: 'smooth', block: 'start' }); // 전투 로그가 화면 아래에 있어도 자동으로 보이게
     try {
       const result = await apiPost('adventure', { zoneId: btn.dataset.zone, optionIndex: Number(btn.dataset.option) });
       await loadCharacter(); // 레벨업으로 maxHp 등이 바뀌었을 수 있어 서버 최신값으로 새로고침
 
+      // 다른 탭으로 넘어가면 content.innerHTML이 통째로 바뀌면서 log가 화면에서 떨어져 나감(에러는
+      // 안 나지만 안 보이는 곳에서 계속 재생되다가 나중에 엉뚱한 화면에 팝업이 뜨는 등 어색해짐) -
+      // 그런 경우 여기서 조용히 멈춤(캐릭터 상태 자체는 이미 loadCharacter로 반영이 끝난 뒤라 안전함)
+      if (!log.isConnected) return;
+
       await playCombatLog(log, result.log);
+      if (!log.isConnected) return;
       log.insertAdjacentHTML('beforeend', `
         <div class="rpg-log-summary">
           ${result.victory ? '승리' : '패배'} · 경험치 +${result.xpGain} · 골드 +${result.goldGain}
@@ -645,7 +650,7 @@ function renderZonePreviewScreen(content, container, preview) {
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       showTerritoryNotice(container, result.territoryNotice);
     } catch (e) {
-      log.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div>`;
+      if (log.isConnected) log.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div>`;
     }
   }));
 }
@@ -670,7 +675,7 @@ function classifyCombatLogLine(line) {
 
 // 전투 메시지 재생 속도 - 기기(브라우저)에 저장해서 다음 전투에도 그대로 유지됨. 기본값은 "천천히"
 const COMBAT_LOG_SPEED_KEY = 'rpg_combat_log_speed';
-const COMBAT_LOG_SPEEDS = { slow: { label: '느리게', mult: 2 }, normal: { label: '보통', mult: 1 }, fast: { label: '빠르게', mult: 0.5 } };
+const COMBAT_LOG_SPEEDS = { slow: { label: '느리게', mult: 3 }, normal: { label: '보통', mult: 1.5 }, fast: { label: '빠르게', mult: 0.8 } };
 function getCombatLogSpeed() {
   const saved = localStorage.getItem(COMBAT_LOG_SPEED_KEY);
   return COMBAT_LOG_SPEEDS[saved] ? saved : 'slow';
@@ -700,9 +705,13 @@ function wireCombatLogSpeedControl(root) {
 async function playCombatLog(logEl, lines) {
   logEl.innerHTML = '<div class="rpg-log-lines"></div>';
   const linesEl = logEl.querySelector('.rpg-log-lines');
+  // 실제 줄이 들어가기 시작하는 지금 시점에 화면으로 끌어옴 - 버튼 클릭 시점엔 아직 "전투 중..." 표시만
+  // 있어서 위치가 안 잡혀있었을 수 있음(레이아웃이 자리잡은 뒤 스크롤되게 requestAnimationFrame으로 한 틱 미룸)
+  requestAnimationFrame(() => logEl.scrollIntoView({ behavior: 'smooth', block: 'start' }));
   const speedMult = COMBAT_LOG_SPEEDS[getCombatLogSpeed()].mult;
-  const delay = Math.max(80, Math.min(350, 3000 / Math.max(lines.length, 1))) * speedMult;
+  const delay = Math.max(300, Math.min(1200, 6000 / Math.max(lines.length, 1))) * speedMult;
   for (const line of lines) {
+    if (!logEl.isConnected) return; // 재생 도중 다른 탭으로 넘어갔으면 조용히 멈춤
     const p = document.createElement('p');
     p.textContent = line;
     classifyCombatLogLine(line).forEach((cls) => p.classList.add(cls));
