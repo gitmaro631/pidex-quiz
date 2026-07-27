@@ -12,13 +12,16 @@ import { QUESTS } from './data/rpg/quests.js';
 import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
 import { computeCharacterCombatStats, monsterDifficultyTier, COMBAT_MISS_PHRASES, effectiveStats } from './rpg-combat.js';
-import { MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster, PLAYER_TERRITORY_BONUS_MULT } from './data/rpg/mercenaries.js';
+import {
+  MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster, PLAYER_TERRITORY_BONUS_MULT,
+  FOOD_PER_DAY_PER_FARMER, FOOD_CONSUMPTION_PER_DAY_PER_WORKER, GOLD_PER_MISSING_FOOD, WAGE_PER_MERC_PER_DAY,
+} from './data/rpg/mercenaries.js';
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
 import { CASTLE_CLEAR_REQUIREMENT } from './data/rpg/castle.js';
 import { computeCureCost, REST_HEAL_TURN_COST_BY_SEVERITY } from './data/rpg/injuries.js';
 import { allowedFormationRows } from './rpg-combat.js';
-import { facilityProgress, MAX_MERCS_PER_FACILITY, BASELINE_MERC_LEVEL } from './data/rpg/facilities.js';
+import { facilityProgress, facilityAccrualRate, facilityBonusMultiplier, MAX_MERCS_PER_FACILITY, BASELINE_MERC_LEVEL } from './data/rpg/facilities.js';
 
 // api/ 아래 파일은 Vercel이 서버 함수 전용으로 취급해서 브라우저가 직접 fetch 못 함(404) -
 // 그래서 api/_rpgInventory.js를 import하는 대신, 이 로직들을 그대로 복제해서 씀
@@ -1487,6 +1490,44 @@ function workTerritoryCardHtml(jobId) {
     </button>
   `;
 }
+// 영지 경제 요약 - "지금 이대로 영지일이 하루 지나면 어떻게 되는지"를 rpg-territory.js의
+// settleTerritoryDays와 똑같은 공식으로 미리 계산해서 보여줌(실제 정산은 그대로 서버에서 일어나고,
+// 이건 화면 미리보기일 뿐). 골드 수입/지출, 식량 수급, 순변동, 부족 시 경고를 한눈에 보여줌
+function territoryEconomySummaryHtml() {
+  const workingMercs = (character.mercenaries || []).filter((m) => m.assignment === 'territory' && !m.hospitalized);
+  const farmWorkers = workingMercs.filter((m) => m.job === 'farm');
+  const otherWorkers = workingMercs.filter((m) => m.job !== 'farm');
+  const clearingWorkers = workingMercs.filter((m) => m.job === 'clearing');
+
+  const farmProduced = facilityAccrualRate(farmWorkers, 'farm') * FOOD_PER_DAY_PER_FARMER * facilityBonusMultiplier(character, 'farm');
+  const foodAfterProduction = (character.foodStock || 0) + farmProduced;
+  const neededFood = otherWorkers.length * FOOD_CONSUMPTION_PER_DAY_PER_WORKER;
+  const foodDeficit = Math.max(0, neededFood - foodAfterProduction);
+  const foodEmergencyCost = Math.round(foodDeficit * GOLD_PER_MISSING_FOOD);
+
+  const goldIncome = Math.floor(clearingWorkers.length * TERRITORY_JOBS.clearing.goldPerDay * facilityBonusMultiplier(character, 'clearing'));
+  const wagePaid = Math.round(workingMercs.length * WAGE_PER_MERC_PER_DAY);
+  const goldDelta = goldIncome - wagePaid - foodEmergencyCost;
+
+  const warnings = [];
+  if (foodDeficit > 0) warnings.push(`⚠️ 식량이 하루 ${foodDeficit.toFixed(1)}만큼 부족해서 골드로 대신 사고 있어요(-${foodEmergencyCost}골드/일). 농장에 용병을 더 배치하세요.`);
+  if (goldDelta < 0) warnings.push(`⚠️ 영지 운영이 매일 ${Math.abs(goldDelta)}골드 적자예요.`);
+  if (!workingMercs.length) warnings.push('영지에 배치된 용병이 없어요. 전투 동행이 필요 없는 용병은 영지로 보내 시설을 키워보세요.');
+
+  return `
+    <div class="rpg-territory-economy">
+      <h4>영지 경제 (하루 기준 예상치)</h4>
+      <div class="rpg-stat-delta-table">
+        <div class="rpg-stat-delta-row"><span>골드 수입</span><span>개간지</span><span class="rpg-stat-up">+${goldIncome}</span></div>
+        <div class="rpg-stat-delta-row"><span>골드 지출</span><span>용병 상주 급여</span><span class="rpg-stat-down">-${wagePaid}</span></div>
+        ${foodEmergencyCost > 0 ? `<div class="rpg-stat-delta-row"><span>골드 지출</span><span>식량 비상구매</span><span class="rpg-stat-down">-${foodEmergencyCost}</span></div>` : ''}
+        <div class="rpg-stat-delta-row"><span>순변동</span><span></span><span class="${goldDelta >= 0 ? 'rpg-stat-up' : 'rpg-stat-down'}">${goldDelta >= 0 ? '+' : ''}${goldDelta}/일</span></div>
+        <div class="rpg-stat-delta-row"><span>식량</span><span>생산 ${farmProduced.toFixed(1)} / 소비 ${neededFood.toFixed(1)}</span><span>재고 ${(character.foodStock || 0).toFixed(1)}</span></div>
+      </div>
+      ${warnings.length ? `<p class="rpg-hint">${warnings.join('<br>')}</p>` : ''}
+    </div>
+  `;
+}
 function facilityDashboardHtml() {
   const days = character.facilityDays || {};
   const territoryMercs = (character.mercenaries || []).filter((m) => m.assignment === 'territory' && !m.hospitalized);
@@ -1572,10 +1613,11 @@ function partySectionHtml() {
   const active = mercenaries.filter((m) => m.assignment === 'active');
   const territory = mercenaries.filter((m) => m.assignment !== 'active');
   if (!mercenaries.length) {
-    return `<div class="rpg-party">${facilityDashboardHtml()}<h4>파티 / 영지</h4><p class="rpg-hint">아직 고용한 용병이 없어요. 마을 선술집에서 용병을 고용해보세요.</p></div>`;
+    return `<div class="rpg-party">${territoryEconomySummaryHtml()}${facilityDashboardHtml()}<h4>파티 / 영지</h4><p class="rpg-hint">아직 고용한 용병이 없어요. 마을 선술집에서 용병을 고용해보세요.</p></div>`;
   }
   return `
     <div class="rpg-party">
+      ${territoryEconomySummaryHtml()}
       ${facilityDashboardHtml()}
       <h4>전투부대 (${active.length}/${MAX_MERCENARIES})</h4>
       ${active.length ? active.map(mercenaryCardHtml).join('') : '<p class="rpg-hint">동행 중인 용병이 없어요.</p>'}
