@@ -1,5 +1,7 @@
 // 아이템 정의 — 1차 버전(전투/드랍이 참조하는 최소 세트). 상점/인벤토리 단계에서 대폭 확장 예정.
 // rarity: normal | uncommon | rare | epic | legendary
+import { CRAFTED_ITEMS } from './crafted-items.js';
+
 export const ITEMS = {
   // 소모품 (weight: 인벤토리 무게 제한 계산용 - _rpgInventory.js weightLimitForCharacter 참고)
   hp_potion_small: { id: 'hp_potion_small', name: '체력 물약(소)', type: 'consumable', rarity: 'normal', healPct: 0.3, shopPrice: 20, weight: 0.5 },
@@ -330,6 +332,7 @@ export const ITEMS = {
   // 랜덤박스 - 상점에서 골드로 직접 뽑기(박스 자체는 인벤토리에 안 쌓이고 즉시 결과만 지급)
   random_box: { id: 'random_box', name: '수상한 상자', type: 'randombox', rarity: 'normal', shopPrice: 150, weight: 0 },
 };
+Object.assign(ITEMS, CRAFTED_ITEMS); // 대장간 "제작" 결과물(지역 재료 테마 장비) 병합 - data/rpg/crafted-items.js
 
 // 가방 등급별 최대 누적 한도 - 그 등급 가방을 아무리 써도 이 수치를 넘는 기여는 못 함(캐릭터 전체
 // 인벤토리 한도는 각 등급의 min(누적치,한도)를 다 더한 값, api/_rpgInventory.js의 capacityForCharacter 참고)

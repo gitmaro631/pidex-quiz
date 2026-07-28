@@ -57,6 +57,7 @@ import browseGoldListings from './_rpg/browse-gold-listings.js';
 import castleStatus from './_rpg/castle-status.js';
 import refreshCastleDefense from './_rpg/refresh-castle-defense.js';
 import setPinnedItems from './_rpg/set-pinned-items.js';
+import craftEquipment from './_rpg/craft-equipment.js';
 
 const ROUTES = {
   character, adventure,
@@ -100,6 +101,7 @@ const ROUTES = {
   'castle-status': castleStatus,
   'refresh-castle-defense': refreshCastleDefense,
   'set-pinned-items': setPinnedItems,
+  'craft-equipment': craftEquipment,
 };
 
 export default async function handler(req, res) {

@@ -23,6 +23,7 @@ import { CASTLE_CLEAR_REQUIREMENT, GOLD_INCOME_PER_TIER, MATERIAL_BONUS_MIN_TIER
 import { computeCureCost, REST_HEAL_TURN_COST_BY_SEVERITY, HP_REST_HEAL_FULL_TURNS } from './data/rpg/injuries.js';
 import { allowedFormationRows } from './rpg-combat.js';
 import { facilityProgress, facilityAccrualRate, facilityBonusMultiplier, MAX_MERCS_PER_FACILITY, BASELINE_MERC_LEVEL } from './data/rpg/facilities.js';
+import { CRAFT_RECIPES } from './data/rpg/craft-recipes.js';
 
 // api/ 아래 파일은 Vercel이 서버 함수 전용으로 취급해서 브라우저가 직접 fetch 못 함(404) -
 // 그래서 api/_rpgInventory.js를 import하는 대신, 이 로직들을 그대로 복제해서 씀
@@ -311,6 +312,8 @@ const ERROR_MESSAGES = {
   castle_not_found: '아직 아무도 차지하지 않은 성입니다.',
   not_castle_owner: '이 성의 성주만 방어력을 갱신할 수 있습니다.',
   not_enough_material: '재료가 부족합니다.',
+  invalid_recipe: '알 수 없는 제작 레시피입니다.',
+  wrong_town: '이 레시피는 재료가 나오는 지역이 속한 마을에서만 제작할 수 있습니다.',
   no_mild_injury: '붕대로 치료할 수 있는 경상이 없습니다.',
   no_injury: '치료할 부상이 없습니다.',
   no_hp_missing: '이미 체력이 가득 찼습니다.',
@@ -1064,7 +1067,31 @@ function blacksmithHtml() {
       <span>수리스킬 ${repairSkill}/${MAX_REPAIR_SKILL_LEVEL}단계 — ${capLabel}</span>
       ${maxedSkill ? '' : `<button class="rpg-train-repair-skill-btn">${repairSkill === 0 ? '배우기' : '단계 올리기'} (${nextSkillCost}골드)</button>`}
     </div>
+    <h5>장비 제작 (이 마을 사냥터 재료로 제작 - "코어" 재료는 그 지역 레어몹 전용, 더 좋은 결과물)</h5>
+    ${craftSectionHtml()}
   `;
+}
+
+// 지역 재료로 테마 장비를 만드는 제작 목록 - 지금 있는 마을(currentTown)에 속한 지역 레시피만 표시
+function craftSectionHtml() {
+  const recipes = Object.entries(CRAFT_RECIPES).filter(([, r]) => r.town === character.currentTown || r.town === null);
+  if (!recipes.length) return '<p class="rpg-hint">이 마을에서 제작 가능한 장비가 없어요.</p>';
+  const inventory = character.inventory || [];
+  const sorted = recipes.sort(([, a], [, b]) => a.tier - b.tier || (a.tierKey === 'core' ? 1 : 0) - (b.tierKey === 'core' ? 1 : 0));
+  return sorted.map(([key, r]) => {
+    const item = ITEMS[r.resultItemId];
+    const matItem = ITEMS[r.materialId];
+    const have = (inventory.find((e) => e.itemId === r.materialId) || {}).qty || 0;
+    const enoughMat = have >= r.materialQty;
+    const enoughGold = (character.gold || 0) >= r.gold;
+    return `
+      <div class="rpg-shop-row">
+        <span>${r.zoneName} ${r.tierKey === 'core' ? '(코어)' : ''} — ${item.name}${itemStatsLabel(item)}<br>
+          <span class="rpg-hint">재료: ${matItem.name} ${have}/${r.materialQty}개 · ${r.gold}골드</span></span>
+        <button class="rpg-craft-btn" data-recipe="${key}" ${enoughMat && enoughGold ? '' : 'disabled'}>제작</button>
+      </div>
+    `;
+  }).join('');
 }
 
 // ── 선술집 NPC - 용병 고용 UI(파티 구성은 플레이어 자유 - 오늘 로테이션 + 미고용 용병만 필터) ─────
@@ -1201,6 +1228,16 @@ function renderTownTab(content, container) {
       showToast(`수리스킬 ${r.level}단계로 훈련했습니다!`);
     } catch (e) { showToast(friendlyError(e)); }
   });
+  content.querySelectorAll('.rpg-craft-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('craft-equipment', { recipeKey: btn.dataset.recipe });
+      character.gold = r.gold;
+      await loadCharacter();
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      renderTownTab(content, container);
+      showToast(`${ITEMS[r.crafted].name}을(를) 제작했습니다!`);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
   content.querySelectorAll('.rpg-cure-btn').forEach((btn) => btn.addEventListener('click', async () => {
     const mercId = btn.dataset.merc || null;
     try {
