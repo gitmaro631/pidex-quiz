@@ -19,7 +19,7 @@ import {
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
 import { CASTLE_CLEAR_REQUIREMENT } from './data/rpg/castle.js';
-import { computeCureCost, REST_HEAL_TURN_COST_BY_SEVERITY } from './data/rpg/injuries.js';
+import { computeCureCost, REST_HEAL_TURN_COST_BY_SEVERITY, HP_REST_HEAL_FULL_TURNS } from './data/rpg/injuries.js';
 import { allowedFormationRows } from './rpg-combat.js';
 import { facilityProgress, facilityAccrualRate, facilityBonusMultiplier, MAX_MERCS_PER_FACILITY, BASELINE_MERC_LEVEL } from './data/rpg/facilities.js';
 
@@ -252,6 +252,7 @@ const ERROR_MESSAGES = {
   not_enough_material: '재료가 부족합니다.',
   no_mild_injury: '붕대로 치료할 수 있는 경상이 없습니다.',
   no_injury: '치료할 부상이 없습니다.',
+  no_hp_missing: '이미 체력이 가득 찼습니다.',
   already_hospitalized: '이미 입원 중입니다.',
   not_in_today_roster: '오늘 선술집에 없는 용병입니다. 목록이 갱신됐을 수 있어요.',
   party_full: '파티가 가득 찼습니다.',
@@ -762,17 +763,36 @@ function cureRowHtml(name, part, injury, mercId) {
     </div>
   `;
 }
+// 체력(HP) 자체 회복 - 부상과 무관하게 깎인 체력을 턴을 써서 채움(부상 치료보다 턴 소모 적음).
+// 항상 표시(용병을 고용해야만 보이는 게 아니라 본인 것도 상시 표시), 체력이 꽉 찼으면 숨김
+function hpRestRowHtml(name, mercId, currentHp, maxHp) {
+  if (currentHp >= maxHp) return '';
+  const missingPct = (maxHp - currentHp) / maxHp;
+  const hospitalMult = Math.max(0.2, 1 - (TERRITORY_JOBS.hospital.bonusPctPerLevel * ((character.facilityLevels || {}).hospital || 0)) / 100);
+  const restCost = Math.max(1, Math.round(missingPct * HP_REST_HEAL_FULL_TURNS * hospitalMult));
+  const mercAttr = mercId ? ` data-merc="${mercId}"` : '';
+  return `
+    <div class="rpg-shop-row">
+      <span>${name} - 체력 ${currentHp}/${maxHp}</span>
+      <span><button class="rpg-rest-heal-btn" data-part="hp"${mercAttr}>영지에서 쉬며 체력 회복 (턴 ${restCost}개)</button></span>
+    </div>
+  `;
+}
 function doctorCureHtml() {
   const rows = [];
   const injuries = character.injuries || {};
   ['arm', 'leg'].filter((p) => (injuries[p] || {}).severity > 0)
     .forEach((part) => rows.push(cureRowHtml('나', part, injuries[part], null)));
+  const selfStats = computeCharacterCombatStats(character);
+  rows.push(hpRestRowHtml('나', null, character.currentHp, selfStats.maxHp));
   (character.mercenaries || []).forEach((m) => {
     const mInjuries = m.injuries || {};
     ['arm', 'leg'].filter((p) => (mInjuries[p] || {}).severity > 0)
       .forEach((part) => rows.push(cureRowHtml(m.name, part, mInjuries[part], m.id)));
+    const mStats = computeCharacterCombatStats(m);
+    rows.push(hpRestRowHtml(m.name, m.id, m.currentHp, mStats.maxHp));
   });
-  if (!rows.length) return `<p class="rpg-hint">지금은 다친 사람이 없네요.</p>`;
+  if (!rows.length) return `<p class="rpg-hint">지금은 다친 사람도, 체력이 깎인 사람도 없네요.</p>`;
   return rows.join('');
 }
 
@@ -993,7 +1013,14 @@ function renderTownTab(content, container) {
     try {
       const r = await apiPost('rest-heal', mercId ? { part: btn.dataset.part, mercId } : { part: btn.dataset.part });
       character.turnPoints = r.turnPoints;
-      if (mercId) {
+      if (r.part === 'hp') {
+        if (mercId) {
+          const merc = (character.mercenaries || []).find((m) => m.id === mercId);
+          if (merc) merc.currentHp = r.currentHp;
+        } else {
+          character.currentHp = r.currentHp;
+        }
+      } else if (mercId) {
         const merc = (character.mercenaries || []).find((m) => m.id === mercId);
         if (merc) merc.injuries = r.injuries;
       } else {
@@ -1001,7 +1028,7 @@ function renderTownTab(content, container) {
       }
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
-      showToast(`${BODY_PART_NAMES[r.part]} 부상이 나았습니다 (턴 ${r.cost}개 소모)`);
+      showToast(r.part === 'hp' ? `체력을 회복했습니다 (턴 ${r.cost}개 소모)` : `${BODY_PART_NAMES[r.part]} 부상이 나았습니다 (턴 ${r.cost}개 소모)`);
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelector('.rpg-board-post-btn').addEventListener('click', async () => {
