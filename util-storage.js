@@ -21,7 +21,20 @@ const KEYS = {
   LEADERBOARD_VIEW_TIME: 'lb_view_time',
   MINER_CORRECT_COUNT:   'miner_correct',
   SESSION:               'quiz_session',
+  RPG_QUIZ_REFILL_PROGRESS: 'rpg_quiz_refill_progress',
 };
+
+// RPG 턴이 다 떨어졌을 때 "퀴즈 몇 문제 풀면 회복" 진행도 - 문제를 풀 때마다 1씩 늘고,
+// 턴 회복을 실제로 받으면 0으로 리셋됨(claim-quiz-turn-refill.js 성공 시 resetQuizRefillProgress 호출)
+export function getQuizRefillProgress() {
+  return parseInt(localStorage.getItem(KEYS.RPG_QUIZ_REFILL_PROGRESS) ?? '0', 10);
+}
+export function incrementQuizRefillProgress() {
+  localStorage.setItem(KEYS.RPG_QUIZ_REFILL_PROGRESS, String(getQuizRefillProgress() + 1));
+}
+export function resetQuizRefillProgress() {
+  localStorage.setItem(KEYS.RPG_QUIZ_REFILL_PROGRESS, '0');
+}
 
 export const LIVES_SURVEY_MILESTONE = 4;
 
@@ -142,6 +155,7 @@ export function recordAnswer(correct) {
   const { correct: c, seen: s } = getStats();
   localStorage.setItem(KEYS.TOTAL_CORRECT, String(c + (correct ? 1 : 0)));
   localStorage.setItem(KEYS.TOTAL_SEEN,    String(s + 1));
+  incrementQuizRefillProgress();
 }
 
 // ── 답변한 문제 ID 추적 ───────────────────────────────

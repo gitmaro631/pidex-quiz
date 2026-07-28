@@ -3,7 +3,7 @@
 // 같은 계정의 다른 캐릭터가 나중에 그 마을에서 찾아갈 수 있음. 저장상자(개인창고, 마을별)는
 // 이송상자와 달리 그대로 통째로 사라짐(내용물 복구 안 됨) - 클라이언트에서 확인창을 띄움
 import { verifyPiUser } from '../_verifyPiUser.js';
-import { firestoreDeleteDoc, firestoreGetDoc, withFirestoreTransaction } from '../_firestore.js';
+import { firestoreDeleteDoc, firestoreGetDoc, withFirestoreTransaction, encodeFirestorePathSegment } from '../_firestore.js';
 import { characterDocPath, isValidSlot } from '../_rpgCharacter.js';
 import { MERCENARY_TEMPLATES } from '../../data/rpg/mercenaries.js';
 import { npcSellPrice } from '../../data/rpg/items.js';
@@ -12,10 +12,10 @@ import { TOWNS } from '../../data/rpg/towns.js';
 const REFUND_PCT = 50; // 총자산 골드환산액 중 이 비율만 이송상자로 환급됨(나머지는 소멸)
 
 function accountStorageDocPath(username, townId) {
-  return `rpg_account_storage/${encodeURIComponent(username)}__${townId}`;
+  return `rpg_account_storage/${encodeFirestorePathSegment(username)}__${townId}`;
 }
 function characterStorageDocPath(username, slot, townId) {
-  return `rpg_character_storage/${encodeURIComponent(username)}__${slot}__${townId}`;
+  return `rpg_character_storage/${encodeFirestorePathSegment(username)}__${slot}__${townId}`;
 }
 
 export default async function handler(req, res) {

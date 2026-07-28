@@ -2,14 +2,14 @@
 // 예: 캐릭1이 마을2에서 입금 -> 나중에 캐릭2가 마을2에 방문해서 출금.
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { withMultiDocTransaction } from '../_firestore.js';
-import { firestoreGetDoc } from '../_firestore.js';
+import { firestoreGetDoc, encodeFirestorePathSegment } from '../_firestore.js';
 import { characterDocPath, isValidSlot } from '../_rpgCharacter.js';
 import { addItem, removeItem, inventoryQty, capacityForCharacter } from '../_rpgInventory.js';
 import { TOWNS } from '../../data/rpg/towns.js';
 import { ITEMS } from '../../data/rpg/items.js';
 
 function accountStorageDocPath(username, townId) {
-  return `rpg_account_storage/${encodeURIComponent(username)}__${townId}`;
+  return `rpg_account_storage/${encodeFirestorePathSegment(username)}__${townId}`;
 }
 
 export default async function handler(req, res) {

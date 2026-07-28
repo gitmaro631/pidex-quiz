@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       }
 
       const now = Date.now();
-      const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now);
+      const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now, character.surveyBonusUnlocked);
       if (!isAdmin && turns < 1) { outcome = { error: 'not_enough_turns' }; return null; }
       const nextTurns = isAdmin ? turns : turns - 1;
 

@@ -27,11 +27,11 @@ export default async function handler(req, res) {
     await withFirestoreTransaction(docPath, (current) => {
       const character = current || defaultCharacter(slot);
       const now = Date.now();
-      const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now);
+      const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now, character.surveyBonusUnlocked);
       if (!isAdmin && turns < 1) { outcome = { error: 'not_enough_turns' }; return null; }
 
       // 이 턴 하나의 기여분 - "레벨/기준레벨" 비율을 하루 기준(turnCapForLevel)으로 나눠 1턴어치만 반영
-      const dayFraction = 1 / turnCapForLevel(character.level);
+      const dayFraction = 1 / turnCapForLevel(character.level, character.surveyBonusUnlocked);
       const contribution = (character.level / BASELINE_MERC_LEVEL) * PLAYER_TERRITORY_BONUS_MULT * dayFraction;
 
       const nextFacilityDays = { ...(character.facilityDays || {}) };
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
 
       outcome = {
         job, goldIncome, gold: finalGold,
-        turnPoints: nextTurns, turnPointsCap: turnCapForLevel(character.level),
+        turnPoints: nextTurns, turnPointsCap: turnCapForLevel(character.level, character.surveyBonusUnlocked),
         facilityDays: finalFacilityDays,
         facilityLevels: finalFacilityLevels,
         leveledUp: newLevel > prevLevel ? [{ jobId: job, name: TERRITORY_JOBS[job].name, level: newLevel }] : [],

@@ -2,14 +2,10 @@
 // 어느 캐릭터가 보너스를 받을지는 클라이언트가 slot으로 지정
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { firestoreListCollection, withMultiDocTransaction } from '../_firestore.js';
-import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
+import { characterDocPath, accountDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
 import { computeCurrentTurns, turnCapForLevel, RANKING_BONUS_TURNS, RANKING_BONUS_RANK_CUTOFF } from '../_rpgTurns.js';
 
 const QUIZ_LEADERBOARD_MODES = ['miner', 'pioneer', 'validator'];
-
-function accountDocPath(username) {
-  return `rpg_accounts/${encodeURIComponent(username)}`;
-}
 
 function todayKeyUTC() {
   return new Date().toISOString().slice(0, 10);
@@ -52,7 +48,7 @@ export default async function handler(req, res) {
       const character = docs[charPath] || defaultCharacter(slot);
 
       if (account.lastRankingBonusDate === today) {
-        const currentTurns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level);
+        const currentTurns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, Date.now(), character.surveyBonusUnlocked);
         outcome = { granted: false, alreadyClaimedToday: true, turnPoints: currentTurns };
         return {};
       }
@@ -60,13 +56,13 @@ export default async function handler(req, res) {
       const qualifies = await qualifiesForRankingBonus(username);
       const bonus = qualifies ? RANKING_BONUS_TURNS : 0;
       const now = Date.now();
-      const base = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now);
+      const base = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now, character.surveyBonusUnlocked);
 
       outcome = {
         granted: qualifies,
         bonusTurns: bonus,
         turnPoints: base + bonus,
-        turnPointsCap: turnCapForLevel(character.level),
+        turnPointsCap: turnCapForLevel(character.level, character.surveyBonusUnlocked),
       };
 
       return {

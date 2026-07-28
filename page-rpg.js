@@ -1,6 +1,7 @@
 import { currentAccessToken } from './pi-sdk.js';
 import { showToast } from './page-quiz.js';
 import { setupPullToRefresh } from './util-ptr.js';
+import { getQuizRefillProgress, resetQuizRefillProgress } from './util-storage.js';
 import { ITEMS, RARITY_ITEM_LEVEL, SET_BONUSES, ZONE_SET_ITEMS, BAG_TIER_CAPS } from './data/rpg/items.js';
 import { ZONES } from './data/rpg/zones.js';
 import { CLASSES } from './data/rpg/classes.js';
@@ -232,6 +233,9 @@ const ERROR_MESSAGES = {
   zone_locked: '이전 마을 최상위 사냥터의 성 도전 자격(100회 공략)을 먼저 채워야 합니다.',
   not_enough_gold: '골드가 부족합니다.',
   bag_tier_maxed: '이 등급 가방은 이미 한도를 다 채웠습니다. 다음 등급 가방이 필요합니다.',
+  refill_on_cooldown: '턴 회복은 1시간에 한 번만 가능합니다.',
+  not_enough_quiz_answers: '퀴즈를 더 풀어야 턴을 채울 수 있습니다.',
+  turns_not_empty: '턴이 아직 남아있어서 채울 필요가 없습니다.',
   not_purchasable: '구매할 수 없는 아이템입니다.',
   not_enough_items: '아이템 수량이 부족합니다.',
   item_not_owned: '보유하지 않은 아이템입니다.',
@@ -332,7 +336,49 @@ export async function renderRpgPage(container, _username) {
     return;
   }
 
+  maybeShowSurveyLapsedNotice(container);
+  maybeShowQuizRefillNotice(container);
   renderMain(container);
+}
+
+// 설문 문항이 추가/변경돼서 턴 상한 보너스가 해제됐을 때 한 번 안내(character.js가 이 전환을 감지한
+// 첫 응답에만 surveyBonusLapsed:true를 내려줌 - 그 다음부턴 자연히 다시 안 뜸)
+const QUIZ_TURN_REFILL_REQUIRED = 3; // claim-quiz-turn-refill.js의 REQUIRED_QUIZ_ANSWERS와 맞출 것
+function maybeShowSurveyLapsedNotice(container) {
+  if (!character.surveyBonusLapsed) return;
+  showConfirmOverlay(container, {
+    title: '📋 설문조사가 변경됐어요',
+    bodyHtml: '<p>설문 문항이 추가되거나 바뀌어서 턴 상한 보너스가 해제됐습니다. 설문을 다시 완료하면 보너스가 돌아와요.</p>',
+    confirmLabel: '확인',
+    onConfirm: () => {},
+  });
+}
+
+// 턴이 다 떨어졌을 때 - 1시간에 한 번, 퀴즈 몇 문제를 풀면 턴을 가득 채울 수 있다는 걸 안내(진행도는
+// util-storage.js가 퀴즈 답할 때마다 세는 로컬 카운터). 쿨다운/자격 여부는 서버가 최종 판정함
+function maybeShowQuizRefillNotice(container) {
+  if ((character.turnPoints || 0) > 0) return;
+  const progress = Math.min(getQuizRefillProgress(), QUIZ_TURN_REFILL_REQUIRED);
+  const ready = progress >= QUIZ_TURN_REFILL_REQUIRED;
+  showConfirmOverlay(container, {
+    title: '⏳ 턴이 다 떨어졌어요',
+    bodyHtml: `
+      <p>1시간에 한 번, 퀴즈를 ${QUIZ_TURN_REFILL_REQUIRED}문제 풀면 턴을 가득 채울 수 있어요.</p>
+      <p class="rpg-hint">지금까지 ${progress}/${QUIZ_TURN_REFILL_REQUIRED}문제 풀었어요.</p>
+    `,
+    confirmLabel: ready ? '턴 채우기' : '확인',
+    onConfirm: async () => {
+      if (!ready) return;
+      try {
+        const r = await apiPost('claim-quiz-turn-refill', { quizAnswersSolved: progress });
+        character.turnPoints = r.turnPoints;
+        resetQuizRefillProgress();
+        const bar = container.querySelector('.rpg-statusbar');
+        if (bar) bar.outerHTML = statusBarHtml();
+        showToast('턴을 가득 채웠습니다!');
+      } catch (e) { showToast(friendlyError(e)); }
+    },
+  });
 }
 
 // ── 캐릭터 선택 화면 (계정당 최대 3캐릭) ──────────────
@@ -1499,7 +1545,8 @@ const FACILITY_ICONS = { clearing: '🌾', training: '⚔️', ramparts: '🛡�
 
 // api/_rpgTurns.js와 반드시 같은 공식 유지 - 서버 전용 파일이라 브라우저가 직접 못 불러와서 복제해서 씀
 function turnCapForLevelClient(level) {
-  return 10 + Math.floor((level || 1) / 5);
+  const base = 10 + (character.surveyBonusUnlocked ? 20 : 0);
+  return base + Math.floor((level || 1) / 5);
 }
 
 // "영지 근무" 버튼 밑에 보여줄 "다음 레벨까지 턴 몇 개 남았는지" - work-territory.js의 기여 공식과 동일하게 계산

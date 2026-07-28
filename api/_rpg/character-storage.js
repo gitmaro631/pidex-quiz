@@ -1,13 +1,13 @@
 // 캐릭터 전용 저장상자 - 마을마다 하나, 그 캐릭터만 접근 가능(다른 캐릭터와 공유 안 됨). 아이템 전용(골드는 이송상자에서).
 import { verifyPiUser } from '../_verifyPiUser.js';
-import { firestoreGetDoc, withMultiDocTransaction } from '../_firestore.js';
+import { firestoreGetDoc, withMultiDocTransaction, encodeFirestorePathSegment } from '../_firestore.js';
 import { characterDocPath, isValidSlot } from '../_rpgCharacter.js';
 import { addItem, removeItem, inventoryQty, capacityForCharacter } from '../_rpgInventory.js';
 import { TOWNS } from '../../data/rpg/towns.js';
 import { ITEMS } from '../../data/rpg/items.js';
 
 function characterStorageDocPath(username, slot, townId) {
-  return `rpg_character_storage/${encodeURIComponent(username)}__${slot}__${townId}`;
+  return `rpg_character_storage/${encodeFirestorePathSegment(username)}__${slot}__${townId}`;
 }
 
 export default async function handler(req, res) {

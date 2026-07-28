@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     await withFirestoreTransaction(docPath, (current) => {
       const character = current || defaultCharacter(slot);
       const now = Date.now();
-      const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now);
+      const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now, character.surveyBonusUnlocked);
 
       let mercenaries = character.mercenaries || [];
       let mercIdx = -1;

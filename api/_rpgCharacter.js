@@ -2,6 +2,7 @@ import { turnCapForLevel } from './_rpgTurns.js';
 import { computeCharacterCombatStats } from '../rpg-combat.js';
 import { MERCENARY_TEMPLATES, randomMercName } from '../data/rpg/mercenaries.js';
 import { CLASSES } from '../data/rpg/classes.js';
+import { encodeFirestorePathSegment } from './_firestore.js';
 
 export const MAX_CHARACTER_SLOTS = 3;
 
@@ -12,7 +13,13 @@ export function isValidSlot(slot) {
 
 // 계정(username)당 최대 3캐릭 - 슬롯별로 완전히 독립된 문서
 export function characterDocPath(username, slot) {
-  return `rpg_characters/${encodeURIComponent(username)}__${slot}`;
+  return `rpg_characters/${encodeFirestorePathSegment(username)}__${slot}`;
+}
+
+// 캐릭터 슬롯과 무관하게 "계정" 단위로 저장하는 문서(일일 랭킹 보너스, 설문 완료 보너스 등 - 캐릭터별로
+// 따로 받으면 3캐릭 만들어서 악용 가능하므로 계정 단위로 한 번만 기록)
+export function accountDocPath(username) {
+  return `rpg_accounts/${encodeFirestorePathSegment(username)}`;
 }
 
 export function defaultCharacter(slot, now = Date.now()) {
@@ -60,6 +67,8 @@ export function defaultCharacter(slot, now = Date.now()) {
     lastCastleIncomeClaimDate: null, // 성주 일일 수입 정산일(YYYY-MM-DD) - claim-castle-income.js 참고
     zonePreviews: {}, // 지역별 미리보기 몹 구성({ [zoneId]: {options,...} }) - 처음 보는 지역은 무료,
     // 이미 본 지역은 그대로 재사용(다른 지역 갔다와도 유지됨) - 마음에 안 들면 골드를 써서 새로고침(preview-zone.js)
+    surveyBonusUnlocked: false, // 설문조사 전부 완료 시 턴 상한 보너스(character.js가 주기적으로 갱신)
+    surveyBonusCheckedAt: 0,
     createdAt: now,
     updatedAt: now,
   };

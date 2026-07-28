@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     await withFirestoreTransaction(docPath, (current) => {
       const character = current || defaultCharacter(slot);
       const now = Date.now();
-      const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now);
+      const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now, character.surveyBonusUnlocked);
 
       // 마을을 넘어가는 이동(다른 마을 소속 지역 진입)은 턴포인트 1을 추가로 소모함 - 마을 내
       // 이동/텔레포트 스크롤은 여전히 무료, 마을 간 이동만 비용이 붙음
@@ -225,7 +225,7 @@ export default async function handler(req, res) {
         goldGain: bonusedGoldGain,
         loot: combatResult.loot,
         turnPoints: nextTurns,
-        turnPointsCap: turnCapForLevel(progression.level),
+        turnPointsCap: turnCapForLevel(progression.level, character.surveyBonusUnlocked),
         currentHp: combatResult.finalHp,
         currentMp: combatResult.finalMp,
         currentStamina: combatResult.finalStamina,

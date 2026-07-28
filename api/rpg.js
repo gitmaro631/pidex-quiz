@@ -50,6 +50,7 @@ import workTerritory from './_rpg/work-territory.js';
 import restHeal from './_rpg/rest-heal.js';
 import previewZone from './_rpg/preview-zone.js';
 import travelTown from './_rpg/travel-town.js';
+import claimQuizTurnRefill from './_rpg/claim-quiz-turn-refill.js';
 
 const ROUTES = {
   character, adventure,
@@ -86,6 +87,7 @@ const ROUTES = {
   'rest-heal': restHeal,
   'preview-zone': previewZone,
   'travel-town': travelTown,
+  'claim-quiz-turn-refill': claimQuizTurnRefill,
 };
 
 export default async function handler(req, res) {

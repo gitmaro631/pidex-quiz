@@ -6,6 +6,14 @@ function b64url(input) {
   return Buffer.from(input).toString('base64url');
 }
 
+// 문서 경로 조각(유저명/uid 등)을 URL에 안전하게 넣기 위한 인코딩. encodeURIComponent는 RFC2396
+// "mark" 문자(! ' ( ) *)는 그대로 남겨두는데, 그중 '*'가 들어간 값이 실제로 문제를 일으킨 적이
+// 있어서(과거 인시던트) 이 문자들까지 전부 퍼센트 인코딩하는 MDN 권장 패턴을 씀. 유저가 직접
+// 제공하는 문자열(username, uid)로 Firestore 문서 경로를 만들 때는 항상 이 함수를 거칠 것
+export function encodeFirestorePathSegment(str) {
+  return encodeURIComponent(str).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+}
+
 async function getFirestoreAccessToken() {
   const keyB64 = process.env.FIRESTORE_SA_KEY_B64;
   if (!keyB64) throw new Error('FIRESTORE_SA_KEY_B64 not configured');
