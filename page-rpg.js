@@ -632,12 +632,6 @@ function renderAdventureTab(content, container) {
       }).join('')}
     </div>
     <p class="rpg-hint"><button class="rpg-castle-income-btn">성주 수입 수령</button></p>
-    <div class="rpg-facility-dashboard">
-      <h4>🛠️ 영지 근무 (전투 없이 턴 1개로 안전하게 시설에 기여, 용병보다 20% 더 효율적)</h4>
-      <div class="rpg-work-territory-list">
-        ${Object.keys(TERRITORY_JOBS).map((jobId) => workTerritoryCardHtml(jobId)).join('')}
-      </div>
-    </div>
   `;
   content.querySelectorAll('.rpg-castle-challenge-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
@@ -662,20 +656,6 @@ function renderAdventureTab(content, container) {
       else showToast('현재 소유한 성이 없습니다.');
     } catch (e) { showToast(friendlyError(e)); }
   });
-  content.querySelectorAll('.rpg-work-territory-card').forEach((btn) => btn.addEventListener('click', async () => {
-    try {
-      const r = await apiPost('work-territory', { job: btn.dataset.job });
-      character.gold = r.gold;
-      character.turnPoints = r.turnPoints;
-      character.facilityDays = r.facilityDays;
-      character.facilityLevels = r.facilityLevels;
-      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-      renderAdventureTab(content, container);
-      const levelMsg = r.leveledUp.length ? ` · 🎉 ${r.leveledUp[0].name} Lv.${r.leveledUp[0].level}!` : '';
-      showToast(`${TERRITORY_JOBS[r.job].name}에서 일했습니다${r.goldIncome ? ` (+${r.goldIncome}골드)` : ''}${levelMsg}`);
-      showTerritoryNotice(container, r.territoryNotice);
-    } catch (e) { showToast(friendlyError(e)); }
-  }));
   content.querySelectorAll('.rpg-zone-btn').forEach((btn) => {
     btn.addEventListener('click', () => enterZonePreview(content, container, btn.dataset.zone));
   });
@@ -952,20 +932,42 @@ function questRowHtml(questId) {
   `;
 }
 
-// ── 의사 NPC 치료 UI(경상/중상 관계없이 즉시 완치, 비용은 남은 회복턴에 비례) ─────
-// 본인뿐 아니라 고용한 용병들의 부상도 여기서 같이 치료 가능(mercId 데이터속성으로 구분)
+// ── 의사 NPC 치료 UI(경상/중상 관계없이 즉시 완치, 비용은 남은 회복턴에 비례, 골드 지불) ─────
+// 본인뿐 아니라 고용한 용병들의 부상도 여기서 같이 치료 가능(mercId 데이터속성으로 구분).
+// 턴을 소모해 쉬면서 회복하는 쪽(무료, 느림)은 영지 탭 쪽 담당(territoryRestRowHtml/territoryHpRestRowHtml 참고)
 function cureRowHtml(name, part, injury, mercId) {
   const severityLabel = injury.severity === 2 ? '중상' : '경상';
   const mercAttr = mercId ? ` data-merc="${mercId}"` : '';
   const cost = computeCureCost(injury);
+  return `
+    <div class="rpg-shop-row">
+      <span>${name} - ${BODY_PART_NAMES[part]} ${severityLabel} (남은 ${injury.turnsLeft}턴)</span>
+      <span><button class="rpg-cure-btn" data-part="${part}"${mercAttr}>치료 (${cost}골드)</button></span>
+    </div>
+  `;
+}
+function doctorCureHtml() {
+  const rows = [];
+  const injuries = character.injuries || {};
+  ['arm', 'leg'].filter((p) => (injuries[p] || {}).severity > 0)
+    .forEach((part) => rows.push(cureRowHtml('나', part, injuries[part], null)));
+  (character.mercenaries || []).forEach((m) => {
+    const mInjuries = m.injuries || {};
+    ['arm', 'leg'].filter((p) => (mInjuries[p] || {}).severity > 0)
+      .forEach((part) => rows.push(cureRowHtml(m.name, part, mInjuries[part], m.id)));
+  });
+  if (!rows.length) return `<p class="rpg-hint">지금은 다친 사람이 없네요. (체력만 깎였다면 영지 탭에서 쉬며 회복하세요)</p>`;
+  return rows.join('');
+}
+// ── 영지 탭 - 턴 소모로 쉬며 회복(부상/체력 무관하게 무료지만 느림, 골드 지불 즉시완치는 마을 의사 담당) ──
+function territoryRestRowHtml(name, part, injury, mercId) {
+  const severityLabel = injury.severity === 2 ? '중상' : '경상';
+  const mercAttr = mercId ? ` data-merc="${mercId}"` : '';
   const restCost = REST_HEAL_TURN_COST_BY_SEVERITY[injury.severity] || 2;
   return `
     <div class="rpg-shop-row">
       <span>${name} - ${BODY_PART_NAMES[part]} ${severityLabel} (남은 ${injury.turnsLeft}턴)</span>
-      <span>
-        <button class="rpg-cure-btn" data-part="${part}"${mercAttr}>치료 (${cost}골드)</button>
-        <button class="rpg-rest-heal-btn" data-part="${part}"${mercAttr}>영지에서 쉬기 (턴 ${restCost}개)</button>
-      </span>
+      <span><button class="rpg-rest-heal-btn" data-part="${part}"${mercAttr}>영지에서 쉬기 (턴 ${restCost}개)</button></span>
     </div>
   `;
 }
@@ -984,22 +986,23 @@ function hpRestRowHtml(name, mercId, currentHp, maxHp) {
     </div>
   `;
 }
-function doctorCureHtml() {
+function territoryRestHtml() {
   const rows = [];
   const injuries = character.injuries || {};
   ['arm', 'leg'].filter((p) => (injuries[p] || {}).severity > 0)
-    .forEach((part) => rows.push(cureRowHtml('나', part, injuries[part], null)));
+    .forEach((part) => rows.push(territoryRestRowHtml('나', part, injuries[part], null)));
   const selfStats = computeCharacterCombatStats(character);
   rows.push(hpRestRowHtml('나', null, character.currentHp, selfStats.maxHp));
   (character.mercenaries || []).forEach((m) => {
     const mInjuries = m.injuries || {};
     ['arm', 'leg'].filter((p) => (mInjuries[p] || {}).severity > 0)
-      .forEach((part) => rows.push(cureRowHtml(m.name, part, mInjuries[part], m.id)));
+      .forEach((part) => rows.push(territoryRestRowHtml(m.name, part, mInjuries[part], m.id)));
     const mStats = computeCharacterCombatStats(m);
     rows.push(hpRestRowHtml(m.name, m.id, m.currentHp, mStats.maxHp));
   });
-  if (!rows.length) return `<p class="rpg-hint">지금은 다친 사람도, 체력이 깎인 사람도 없네요.</p>`;
-  return rows.join('');
+  const nonEmptyRows = rows.filter(Boolean);
+  if (!nonEmptyRows.length) return `<div class="rpg-territory-rest"><h4>🛌 휴식 (턴 소모)</h4><p class="rpg-hint">지금은 다친 사람도, 체력이 깎인 사람도 없네요.</p></div>`;
+  return `<div class="rpg-territory-rest"><h4>🛌 휴식 (턴 소모)</h4>${nonEmptyRows.join('')}</div>`;
 }
 
 // ── 직업 교관 NPC - 스킬 훈련 UI. 미습득 스킬은 전투에서 안 나가니 먼저 배워야 함 ─────
@@ -1212,29 +1215,6 @@ function renderTownTab(content, container) {
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
       showToast(`${BODY_PART_NAMES[r.part]} 부상을 치료했습니다 (${r.cost}골드)`);
-    } catch (e) { showToast(friendlyError(e)); }
-  }));
-  content.querySelectorAll('.rpg-rest-heal-btn').forEach((btn) => btn.addEventListener('click', async () => {
-    const mercId = btn.dataset.merc || null;
-    try {
-      const r = await apiPost('rest-heal', mercId ? { part: btn.dataset.part, mercId } : { part: btn.dataset.part });
-      character.turnPoints = r.turnPoints;
-      if (r.part === 'hp') {
-        if (mercId) {
-          const merc = (character.mercenaries || []).find((m) => m.id === mercId);
-          if (merc) merc.currentHp = r.currentHp;
-        } else {
-          character.currentHp = r.currentHp;
-        }
-      } else if (mercId) {
-        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
-        if (merc) merc.injuries = r.injuries;
-      } else {
-        character.injuries = r.injuries;
-      }
-      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-      renderTownTab(content, container);
-      showToast(r.part === 'hp' ? `체력을 회복했습니다 (턴 ${r.cost}개 소모)` : `${BODY_PART_NAMES[r.part]} 부상이 나았습니다 (턴 ${r.cost}개 소모)`);
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelector('.rpg-board-post-btn').addEventListener('click', async () => {
@@ -2032,17 +2012,31 @@ function squireSectionHtml(host) {
     </p>
   `;
 }
+// 영지 근무 섹션 - 전투 없이 턴 1개로 시설에 기여(용병보다 20% 더 효율적). 예전엔 모험 탭에 있었는데
+// "영지" 이름이 붙은 기능은 다 영지 탭에 모아두는 게 맞아서 이리로 옮김
+function workTerritorySectionHtml() {
+  return `
+    <div class="rpg-facility-dashboard">
+      <h4>🛠️ 영지 근무 (전투 없이 턴 1개로 안전하게 시설에 기여, 용병보다 20% 더 효율적)</h4>
+      <div class="rpg-work-territory-list">
+        ${Object.keys(TERRITORY_JOBS).map((jobId) => workTerritoryCardHtml(jobId)).join('')}
+      </div>
+    </div>
+  `;
+}
 function partySectionHtml() {
   const mercenaries = character.mercenaries || [];
   const active = mercenaries.filter((m) => m.assignment === 'active');
   const territory = mercenaries.filter((m) => m.assignment !== 'active');
   if (!mercenaries.length) {
-    return `<div class="rpg-party">${territoryEconomySummaryHtml()}${facilityDashboardHtml()}<h4>파티 / 영지</h4><p class="rpg-hint">아직 고용한 용병이 없어요. 마을 선술집에서 용병을 고용해보세요.</p></div>`;
+    return `<div class="rpg-party">${territoryEconomySummaryHtml()}${facilityDashboardHtml()}${workTerritorySectionHtml()}${territoryRestHtml()}<h4>파티 / 영지</h4><p class="rpg-hint">아직 고용한 용병이 없어요. 마을 선술집에서 용병을 고용해보세요.</p></div>`;
   }
   return `
     <div class="rpg-party">
       ${territoryEconomySummaryHtml()}
       ${facilityDashboardHtml()}
+      ${workTerritorySectionHtml()}
+      ${territoryRestHtml()}
       <h4>전투부대 (${active.length}/${MAX_MERCENARIES})</h4>
       ${active.length ? active.map(mercenaryCardHtml).join('') : '<p class="rpg-hint">동행 중인 용병이 없어요.</p>'}
       <h4>영지 (${territory.length}/${MAX_TERRITORY_MERCENARIES})</h4>
@@ -2069,11 +2063,53 @@ function wireFormationButtons(content, rerender) {
   }));
 }
 
+// 턴 소모로 쉬며 회복(부상/체력) 버튼 공용 핸들러 - 영지 탭/성 화면에서 공유(rerender만 다름)
+function wireRestHealButtons(content, container, rerender) {
+  content.querySelectorAll('.rpg-rest-heal-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const mercId = btn.dataset.merc || null;
+    try {
+      const r = await apiPost('rest-heal', mercId ? { part: btn.dataset.part, mercId } : { part: btn.dataset.part });
+      character.turnPoints = r.turnPoints;
+      if (r.part === 'hp') {
+        if (mercId) {
+          const merc = (character.mercenaries || []).find((m) => m.id === mercId);
+          if (merc) merc.currentHp = r.currentHp;
+        } else {
+          character.currentHp = r.currentHp;
+        }
+      } else if (mercId) {
+        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
+        if (merc) merc.injuries = r.injuries;
+      } else {
+        character.injuries = r.injuries;
+      }
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      showToast(r.part === 'hp' ? `체력을 회복했습니다 (턴 ${r.cost}개 소모)` : `${BODY_PART_NAMES[r.part]} 부상이 나았습니다 (턴 ${r.cost}개 소모)`);
+      rerender();
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+}
+
 // ── 영지 탭 - 고용한 용병 관리(전투부대/영지 배치, 진형, 해고, 입원) ──
 function renderTerritoryTab(content, container) {
   content.innerHTML = partySectionHtml();
   const rerender = () => renderTerritoryTab(content, container);
   wireFormationButtons(content, rerender);
+  wireRestHealButtons(content, container, rerender);
+  content.querySelectorAll('.rpg-work-territory-card').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('work-territory', { job: btn.dataset.job });
+      character.gold = r.gold;
+      character.turnPoints = r.turnPoints;
+      character.facilityDays = r.facilityDays;
+      character.facilityLevels = r.facilityLevels;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      rerender();
+      const levelMsg = r.leveledUp.length ? ` · 🎉 ${r.leveledUp[0].name} Lv.${r.leveledUp[0].level}!` : '';
+      showToast(`${TERRITORY_JOBS[r.job].name}에서 일했습니다${r.goldIncome ? ` (+${r.goldIncome}골드)` : ''}${levelMsg}`);
+      showTerritoryNotice(container, r.territoryNotice);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
   content.querySelectorAll('.rpg-merc-unequip-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
       await apiPost('unequip', { equipSlot: btn.dataset.slot, mercId: btn.dataset.merc });
