@@ -56,6 +56,7 @@ import cancelGoldListing from './_rpg/cancel-gold-listing.js';
 import browseGoldListings from './_rpg/browse-gold-listings.js';
 import castleStatus from './_rpg/castle-status.js';
 import refreshCastleDefense from './_rpg/refresh-castle-defense.js';
+import setPinnedItems from './_rpg/set-pinned-items.js';
 
 const ROUTES = {
   character, adventure,
@@ -98,6 +99,7 @@ const ROUTES = {
   'browse-gold-listings': browseGoldListings,
   'castle-status': castleStatus,
   'refresh-castle-defense': refreshCastleDefense,
+  'set-pinned-items': setPinnedItems,
 };
 
 export default async function handler(req, res) {

@@ -69,6 +69,7 @@ export function defaultCharacter(slot, now = Date.now()) {
     // 이미 본 지역은 그대로 재사용(다른 지역 갔다와도 유지됨) - 마음에 안 들면 골드를 써서 새로고침(preview-zone.js)
     surveyBonusUnlocked: false, // 설문조사 전부 완료 시 턴 상한 보너스(character.js가 주기적으로 갱신)
     surveyBonusCheckedAt: 0,
+    pinnedItemIds: [], // 인벤토리 화면에서 상단고정한 아이템id 목록(앞쪽일수록 상단) - set-pinned-items.js가 갱신
     createdAt: now,
     updatedAt: now,
   };

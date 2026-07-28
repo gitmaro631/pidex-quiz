@@ -1383,6 +1383,10 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
   background: #6366f1; color: #fff; border: none; border-radius: 6px;
   padding: 5px 10px; font-size: 12px; cursor: pointer;
 }
+.rpg-recommend-btn, .rpg-merc-recommend-btn {
+  background: #16a34a; color: #fff; border: none; border-radius: 6px;
+  padding: 3px 9px; font-size: 11px; cursor: pointer;
+}
 .rpg-inv-equip-target {
   background: rgba(255,255,255,0.08); border: 1px solid var(--border); border-radius: 6px;
   color: #fff; font-size: 12px; padding: 4px 6px;
@@ -1391,6 +1395,24 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
   background: #6366f1; color: #fff; border: none; border-radius: 6px;
   padding: 2px 8px; font-size: 11px; cursor: pointer;
 }
+.rpg-inv-toolbar { margin-bottom: 8px; }
+.rpg-inv-toolbar select {
+  background: rgba(255,255,255,0.08); border: 1px solid var(--border); border-radius: 6px;
+  color: #fff; font-size: 12px; padding: 4px 6px;
+}
+.rpg-inv-pin {
+  background: rgba(255,255,255,0.1); color: #fff; border: 1px solid var(--border); border-radius: 6px;
+  padding: 5px 10px; font-size: 12px; cursor: pointer;
+}
+.rpg-inv-pin-active { background: #f59e0b; border-color: #f59e0b; color: #1f1300; }
+.rpg-inv-pagination {
+  display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;
+}
+.rpg-inv-page-prev, .rpg-inv-page-next {
+  background: #6366f1; color: #fff; border: none; border-radius: 6px;
+  padding: 5px 12px; font-size: 12px; cursor: pointer;
+}
+.rpg-inv-page-prev:disabled, .rpg-inv-page-next:disabled { background: #4b5563; color: rgba(255,255,255,0.6); cursor: not-allowed; }
 
 .rpg-class-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
 .rpg-class-card, .rpg-subclass-card, .rpg-slot-btn {

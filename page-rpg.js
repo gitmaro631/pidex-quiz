@@ -233,6 +233,19 @@ let character = null;
 let activeSlot = null;
 let activeTab = 'adventure';
 let myUsername = null;
+// 인벤토리 탭 - 페이지네이션(10개씩, 화면 전용) + 상단고정(핀) 상태(character.pinnedItemIds로 영속화 -
+// loadCharacter가 로드 시 동기화, set-pinned-items.js가 저장). 앞쪽일수록 상단, 마지막으로 누른 게 맨 앞
+const INVENTORY_PAGE_SIZE = 10;
+let inventoryPage = 0;
+let pinnedItemIds = [];
+// 고정(핀)된 아이템은 항상 최상단 유지 - 정렬 모드는 그 아래 나머지 아이템들에만 적용됨
+const INVENTORY_SORT_MODES = {
+  default: { label: '기본순', types: null },
+  armor: { label: '방어구 우선', types: ['armor_top', 'armor_bottom', 'shield'] },
+  weapon: { label: '무기 우선', types: ['weapon'] },
+  consumable: { label: '소모품 우선', types: ['consumable', 'bag'] },
+};
+let inventorySortMode = 'default';
 
 // RPG API는 서버리스 함수 개수 제한(Vercel Hobby 12개) 때문에 api/rpg.js 하나로 통합돼있음 -
 // action 필드로 내부 라우팅됨(api/_rpg/*.js, api/rpg.js 참고)
@@ -353,6 +366,7 @@ function friendlyError(err) {
 
 async function loadCharacter() {
   character = await apiPost('character', {});
+  pinnedItemIds = character.pinnedItemIds || []; // 서버에 저장된 상단고정 순서를 화면 상태와 동기화
   return character;
 }
 
@@ -1547,14 +1561,44 @@ function renderInventoryTab(content, container) {
   const capacity = capacityForCharacter(character);
   const weight = inventoryWeight(inventory);
   const weightLimit = weightLimitForCharacter(character);
+
+  // 고정된 아이템을 먼저(pinnedItemIds 순서 - 앞쪽일수록 상단), 나머지는 선택된 정렬 모드 적용
+  const pinnedSet = new Set(pinnedItemIds);
+  const pinnedEntries = pinnedItemIds.map((id) => inventory.find((e) => e.itemId === id)).filter(Boolean);
+  const restEntries = inventory.filter((e) => !pinnedSet.has(e.itemId));
+  const sortCfg = INVENTORY_SORT_MODES[inventorySortMode];
+  let sortedRest = restEntries;
+  if (sortCfg && sortCfg.types) {
+    const priority = [];
+    const others = [];
+    restEntries.forEach((e) => {
+      const t = (ITEMS[e.itemId] || {}).type;
+      (sortCfg.types.includes(t) ? priority : others).push(e);
+    });
+    sortedRest = [...priority, ...others];
+  }
+  const sortedInventory = [...pinnedEntries, ...sortedRest];
+  const totalPages = Math.max(1, Math.ceil(sortedInventory.length / INVENTORY_PAGE_SIZE));
+  inventoryPage = Math.min(Math.max(0, inventoryPage), totalPages - 1);
+  const pageEntries = sortedInventory.slice(inventoryPage * INVENTORY_PAGE_SIZE, (inventoryPage + 1) * INVENTORY_PAGE_SIZE);
+
   content.innerHTML = `
     <p class="rpg-hint">인벤토리 (${inventory.length}/${capacity}칸, 무게 ${weight.toFixed(1)}/${weightLimit})</p>
+    <div class="rpg-inv-toolbar">
+      <label class="rpg-hint">정렬:
+        <select class="rpg-inv-sort-select">
+          ${Object.entries(INVENTORY_SORT_MODES).map(([key, cfg]) => `<option value="${key}" ${inventorySortMode === key ? 'selected' : ''}>${cfg.label}</option>`).join('')}
+        </select>
+      </label>
+    </div>
     <div class="rpg-inventory-list">
-      ${inventory.length ? inventory.map((entry) => {
+      ${pageEntries.length ? pageEntries.map((entry) => {
         const item = ITEMS[entry.itemId] || { name: entry.itemId };
+        const isPinned = pinnedSet.has(entry.itemId);
         const actions = [];
         const equippable = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
         const mercEquippable = MERC_EQUIP_SLOTS.includes(item.type);
+        actions.push(`<button class="rpg-inv-pin ${isPinned ? 'rpg-inv-pin-active' : ''}" data-item="${entry.itemId}">${isPinned ? '📌 고정됨' : '📌 상단고정'}</button>`);
         if (item.type === 'consumable' || item.type === 'bag') actions.push(`<button class="rpg-inv-use" data-item="${entry.itemId}">사용</button>`);
         if (mercEquippable && (character.mercenaries || []).length) {
           // 무기/방패/상하의는 본인 또는 용병 중 골라서 장착 - 반지/목걸이는 용병 슬롯이 없어 본인 전용(장착 버튼만)
@@ -1581,7 +1625,40 @@ function renderInventoryTab(content, container) {
         `;
       }).join('') : '<p class="rpg-hint">인벤토리가 비어있습니다.</p>'}
     </div>
+    ${sortedInventory.length ? `
+      <div class="rpg-inv-pagination">
+        <button class="rpg-inv-page-prev" ${inventoryPage === 0 ? 'disabled' : ''}>◀ 이전</button>
+        <span class="rpg-hint">${inventoryPage + 1} / ${totalPages} 페이지</span>
+        <button class="rpg-inv-page-next" ${inventoryPage >= totalPages - 1 ? 'disabled' : ''}>다음 ▶</button>
+      </div>
+    ` : ''}
   `;
+  content.querySelector('.rpg-inv-sort-select')?.addEventListener('change', (e) => {
+    inventorySortMode = e.target.value;
+    inventoryPage = 0;
+    renderInventoryTab(content, container);
+  });
+  content.querySelector('.rpg-inv-page-prev')?.addEventListener('click', () => {
+    inventoryPage -= 1;
+    renderInventoryTab(content, container);
+  });
+  content.querySelector('.rpg-inv-page-next')?.addEventListener('click', () => {
+    inventoryPage += 1;
+    renderInventoryTab(content, container);
+  });
+  content.querySelectorAll('.rpg-inv-pin').forEach((btn) => btn.addEventListener('click', async () => {
+    const itemId = btn.dataset.item;
+    if (pinnedItemIds.includes(itemId)) {
+      pinnedItemIds = pinnedItemIds.filter((id) => id !== itemId);
+    } else {
+      // 최종적으로 누른 아이템이 맨 상단으로 오도록 배열 맨 앞에 추가
+      pinnedItemIds = [itemId, ...pinnedItemIds.filter((id) => id !== itemId)];
+      inventoryPage = 0; // 방금 고정한 아이템을 바로 볼 수 있게 첫 페이지로 이동
+    }
+    character.pinnedItemIds = pinnedItemIds;
+    renderInventoryTab(content, container);
+    try { await apiPost('set-pinned-items', { pinnedItemIds }); } catch (e) { showToast(friendlyError(e)); }
+  }));
   content.querySelectorAll('.rpg-inv-use').forEach((btn) => btn.addEventListener('click', () => {
     const itemId = btn.dataset.item;
     const item = ITEMS[itemId];
@@ -1903,7 +1980,7 @@ function mercEquipmentRowHtml(m) {
       ${MERC_EQUIP_SLOTS.map((slot) => {
         const itemId = m.equipment && m.equipment[slot];
         const item = itemId ? ITEMS[itemId] : null;
-        return `${EQUIP_SLOT_LABELS[slot]} ${item ? `${item.name}${itemStatsLabel(item)}` : '없음'}${item ? ` <button class="rpg-merc-unequip-btn" data-merc="${m.id}" data-slot="${slot}">해제</button>` : ''}`;
+        return `${EQUIP_SLOT_LABELS[slot]} ${item ? `${item.name}${itemStatsLabel(item)}` : '없음'} <button class="rpg-merc-recommend-btn" data-merc="${m.id}" data-slot="${slot}">✨추천</button>${item ? ` <button class="rpg-merc-unequip-btn" data-merc="${m.id}" data-slot="${slot}">해제</button>` : ''}`;
       }).join(' · ')}
     </p>
   `;
@@ -2004,6 +2081,11 @@ function renderTerritoryTab(content, container) {
       rerender();
       showToast('용병 장비를 해제했습니다');
     } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-merc-recommend-btn').forEach((btn) => btn.addEventListener('click', () => {
+    const merc = (character.mercenaries || []).find((m) => m.id === btn.dataset.merc);
+    if (!merc) return;
+    showRecommendOverlay(container, merc, btn.dataset.slot, merc.id, rerender);
   }));
   content.querySelectorAll('.rpg-dismiss-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
@@ -2138,6 +2220,9 @@ function renderCharacterTab(content, container) {
       showToast(`해제 완료 — ${statsDeltaMessage(before, after)}`);
     } catch (e) { showToast(friendlyError(e)); }
   }));
+  content.querySelectorAll('.rpg-recommend-btn').forEach((btn) => btn.addEventListener('click', () => {
+    showRecommendOverlay(container, character, btn.dataset.slot, null, () => renderCharacterTab(content, container));
+  }));
 
   content.querySelectorAll('.rpg-self-repair-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
@@ -2172,6 +2257,75 @@ function renderCharacterTab(content, container) {
   }));
 }
 
+// ── 슬롯별 "추천" — 착용 중인 장비와 가방 속 같은 부위 아이템들을 전부 착용 시뮬레이션해서
+// 종합 전투력(공격력+방어력+최대체력/10)이 가장 높아지는 걸 골라줌. 요구스탯/직업 방어구제한을
+// 못 채우는 아이템은 애초에 후보에서 제외(어차피 서버가 막을 조합이라 추천 의미가 없음)
+function gearScore(stats) { return stats.atk + stats.def + Math.round(stats.maxHp / 10); }
+function canEquipItemOn(targetChar, item) {
+  const cls = CLASSES[targetChar.classMain] || CLASSES.warrior;
+  if (['armor_top', 'armor_bottom'].includes(item.type) && item.armorClass) {
+    if (cls.armorRestriction && !cls.armorRestriction.includes(item.armorClass)) return false;
+  }
+  if (['armor_top', 'armor_bottom', 'weapon', 'shield'].includes(item.type) && (item.strRequirement || item.wisRequirement)) {
+    const stats = effectiveStats(targetChar);
+    if (item.strRequirement && stats.str < item.strRequirement) return false;
+    if (item.wisRequirement && stats.wis < item.wisRequirement) return false;
+  }
+  return true;
+}
+function findBestItemForSlot(targetChar, slot) {
+  const baseline = computeCharacterCombatStats(targetChar);
+  const currentItemId = (targetChar.equipment || {})[slot];
+  let bestScore = gearScore(baseline);
+  let best = null;
+  for (const entry of (character.inventory || [])) { // 가방은 항상 계정(character) 공용
+    const item = ITEMS[entry.itemId];
+    if (!item || item.type !== slot || entry.itemId === currentItemId) continue;
+    if (!canEquipItemOn(targetChar, item)) continue;
+    const candidateStats = computeCharacterCombatStats({
+      ...targetChar,
+      equipment: { ...targetChar.equipment, [slot]: entry.itemId, [`${slot}Durability`]: 100 },
+    });
+    const score = gearScore(candidateStats);
+    if (score > bestScore) { bestScore = score; best = { itemId: entry.itemId, item, stats: candidateStats }; }
+  }
+  return { baseline, best };
+}
+// mercId가 있으면 그 용병에게, 없으면 본인에게 추천 - 바꾸거나(교체) 취소할 수 있는 확인창으로 보여줌
+function showRecommendOverlay(container, targetChar, slot, mercId, rerender) {
+  const { baseline, best } = findBestItemForSlot(targetChar, slot);
+  const currentItemId = (targetChar.equipment || {})[slot];
+  const currentItem = currentItemId ? ITEMS[currentItemId] : null;
+  if (!best) {
+    showAlertOverlay(container, {
+      title: `${EQUIP_SLOT_LABELS[slot]} 추천`,
+      bodyHtml: `<p>가방에서 지금보다 더 나은 ${EQUIP_SLOT_LABELS[slot]}을(를) 찾지 못했습니다. 지금 착용 중인 ${currentItem ? currentItem.name : '(없음)'}이(가) 최선이에요.</p>`,
+    });
+    return;
+  }
+  const removedParts = currentItem ? itemBonusParts(currentItem) : [];
+  const addedParts = itemBonusParts(best.item);
+  showConfirmOverlay(container, {
+    title: `${EQUIP_SLOT_LABELS[slot]} 추천 — ${best.item.name}`,
+    bodyHtml: `
+      <p class="rpg-hint">현재: ${currentItem ? `${currentItem.name}${itemStatsLabel(currentItem)}` : '없음'}</p>
+      <p class="rpg-hint">추천: ${best.item.name}${itemStatsLabel(best.item)}</p>
+      ${addedParts.length ? `<p class="rpg-stat-up">추가: ${addedParts.join(', ')}</p>` : ''}
+      ${removedParts.length ? `<p class="rpg-stat-down">해제(${currentItem.name}): ${removedParts.join(', ')}</p>` : ''}
+      ${statsDeltaRowsHtml(baseline, best.stats)}
+    `,
+    confirmLabel: '이 아이템으로 교체',
+    onConfirm: async () => {
+      try {
+        await apiPost('equip', mercId ? { itemId: best.itemId, mercId } : { itemId: best.itemId });
+        await loadCharacter();
+        showToast(`${EQUIP_SLOT_LABELS[slot]}을(를) ${best.item.name}(으)로 교체했습니다`);
+        rerender();
+      } catch (e) { showToast(friendlyError(e)); }
+    },
+  });
+}
+
 // ── 장비창 — 착용 중인 장비를 슬롯별로 한눈에 보여줌 ──
 const EQUIP_SLOT_LABELS = { weapon: '무기', shield: '방패', armor_top: '상의', armor_bottom: '하의', ring: '반지', necklace: '목걸이' };
 const DURABILITY_TRACKED_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
@@ -2203,6 +2357,7 @@ function equipmentSectionHtml() {
           <div class="rpg-shop-row">
             <span>${EQUIP_SLOT_LABELS[slot]}: ${item ? `${item.name}${enhanceLabel}${itemStatsLabel(item)}${durabilityLabel}` : '없음'}</span>
             <span>
+              <button class="rpg-recommend-btn" data-slot="${slot}">✨추천</button>
               ${item ? `<button class="rpg-unequip-btn" data-slot="${slot}">해제</button>` : ''}
               ${canSelfRepair ? `<button class="rpg-self-repair-btn" data-slot="${slot}">직접 수리(망치 1개, ${selfRepairCost}골드)</button>` : ''}
               ${nextEnhanceCost ? `<button class="rpg-enhance-btn" data-slot="${slot}">강화(${nextEnhanceCost.stones}개 결정, ${nextEnhanceCost.gold}골드)</button>` : ''}
