@@ -30,9 +30,12 @@ export default async function handler(req, res) {
       const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now, character.surveyBonusUnlocked);
       if (!isAdmin && turns < 1) { outcome = { error: 'not_enough_turns' }; return null; }
 
-      // 이 턴 하나의 기여분 - "레벨/기준레벨" 비율을 하루 기준(turnCapForLevel)으로 나눠 1턴어치만 반영
+      // 이 턴 하나의 기여분 - "레벨/기준레벨" 비율을 하루 기준(turnCapForLevel)으로 나눠 1턴어치만 반영.
+      // 레벨1~4는 기준레벨(5)로 취급해서 기여도 하한을 둠 - 안 그러면 저레벨일 때 기여가 너무 작아서
+      // 시설 첫 레벨업에만 턴 수백~수천개가 필요해지는 문제가 있었음
+      const effLevel = Math.max(character.level, BASELINE_MERC_LEVEL);
       const dayFraction = 1 / turnCapForLevel(character.level, character.surveyBonusUnlocked);
-      const contribution = (character.level / BASELINE_MERC_LEVEL) * PLAYER_TERRITORY_BONUS_MULT * dayFraction;
+      const contribution = (effLevel / BASELINE_MERC_LEVEL) * PLAYER_TERRITORY_BONUS_MULT * dayFraction;
 
       const nextFacilityDays = { ...(character.facilityDays || {}) };
       nextFacilityDays[job] = (nextFacilityDays[job] || 0) + contribution;

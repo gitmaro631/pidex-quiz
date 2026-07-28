@@ -1857,10 +1857,12 @@ function turnCapForLevelClient(level) {
 }
 
 // "영지 근무" 버튼 밑에 보여줄 "다음 레벨까지 턴 몇 개 남았는지" - work-territory.js의 기여 공식과 동일하게 계산
+// (레벨1~4는 기준레벨(5)로 취급하는 하한도 서버와 동일하게 반영)
 function turnsNeededForNextFacilityLevel(jobId) {
   const progress = facilityProgress((character.facilityDays || {})[jobId] || 0);
   const remainingDays = progress.daysForNextLevel - progress.daysIntoLevel;
-  const contributionPerTurn = (character.level / BASELINE_MERC_LEVEL) * PLAYER_TERRITORY_BONUS_MULT / turnCapForLevelClient(character.level);
+  const effLevel = Math.max(character.level, BASELINE_MERC_LEVEL);
+  const contributionPerTurn = (effLevel / BASELINE_MERC_LEVEL) * PLAYER_TERRITORY_BONUS_MULT / turnCapForLevelClient(character.level);
   return Math.max(1, Math.ceil(remainingDays / contributionPerTurn));
 }
 

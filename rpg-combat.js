@@ -55,7 +55,7 @@ const OFF_CLASS_WEAPON_ATTACK_PENALTY = 4; // D&D식 명중굴림(1d20+공격보
 // 자유롭지 않아 방패를 제대로 못 다루므로 방패의 방어력 기여분이 이만큼만 반영됨(회피/AC 저하로 체감)
 const OFF_CLASS_SHIELD_DEF_MULT = 0.4;
 // 용병의 멘탈(공포저항) - 전열에서 피격당할 때마다 낮은 확률로 멘탈이 나가서 후열로 숨음(그 전투 한정, 일시적)
-const MORALE_BREAK_BASE_CHANCE = 0.25;
+const MORALE_BREAK_BASE_CHANCE = 0.13; // 예전엔 0.25 - 근접딜러가 밀려나 그 라운드 공격을 못하는 스노우볼이 너무 잦다는 피드백으로 완화
 const PLAYER_BASE_MENTAL_RESIST = 50; // 유저 캐릭터 전용 스탯이 따로 없어 용병 평균값(50~65)대로 기본값 사용
 const BASE_INJURY_CHANCE = 0.08;
 const WEAK_AFFINITY_INJURY_BONUS = 0.12; // 상성이 안 좋으면 다칠 확률이 더 높아짐
@@ -635,8 +635,12 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   // "평정심"으로 멘탈저항이 일시적으로 오를 수 있음(partyBuffs.mentalBonus). 이미 후열이면 더 물러날 곳이 없음.
   // 공포로 인한 후퇴는 무기 사거리(allowedRows)와 무관하게 후열까지 밀릴 수 있음 - 근접무기가 사거리 밖으로
   // 밀려나면 공격을 못 하게 되는 게 의도된 "최악의 경우"(performAttack 쪽 weaponReachRows 체크 참고)
+  // 파티원이 본인 혼자(용병 없음)면 밀려나 봤자 뒤를 봐줄 사람이 없어서 그냥 "이번 라운드 통째로
+  // 공격 못 함"이 되어버림 - 다른 파티원을 지켜주는 전술적 트레이드오프가 없는 솔로 플레이에서는
+  // 공포 후퇴를 아예 적용하지 않음(초보 사냥터에서 특히 체감 난이도가 과했다는 피드백으로 추가)
+  const soloParty = party.filter((p) => p.alive).length <= 1;
   const rowIdx = FORMATION_ROWS.indexOf(target.formationRow);
-  if (typeof target.mentalResist === 'number' && rowIdx >= 0 && rowIdx < FORMATION_ROWS.length - 1 && target.hp > 0) {
+  if (!soloParty && typeof target.mentalResist === 'number' && rowIdx >= 0 && rowIdx < FORMATION_ROWS.length - 1 && target.hp > 0) {
     const effectiveMentalResist = Math.min(100, target.mentalResist + partyBuffs.mentalBonus);
     const breakChance = MORALE_BREAK_BASE_CHANCE * (1 - effectiveMentalResist / 100);
     if (Math.random() < breakChance) {

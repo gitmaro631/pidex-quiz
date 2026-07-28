@@ -5,12 +5,14 @@
 import { TERRITORY_JOBS, MERCENARY_TEMPLATES, SPECIALTY_BONUS_MULT } from './mercenaries.js';
 
 // 레벨 1개 올리는 데 필요한 "구간당" 배치 영지일 - 레벨5 용병 1명 상주 기준
-export const FACILITY_DAYS_PER_LEVEL = 7;
+// (예전엔 7이었는데, 저레벨 캐릭터의 영지 근무 기여도가 낮은 것과 겹쳐 초반 첫 레벨업에만 턴 수백~수천개가
+// 필요했다는 피드백으로 5로 낮춤 - work-territory.js의 레벨 하한 조정과 함께 적용)
+export const FACILITY_DAYS_PER_LEVEL = 5;
 // 레벨이 오를수록 요구 영지일이 배율로 불어남(지수 성장) - 예전엔 레벨에 비례해서만 늘었는데(삼각수),
 // 그 정도로는 무한정 업그레이드가 결국 감당 가능한 범위였음. 이제는 한 레벨 한 레벨이 기하급수적으로
-// 비싸져서, 상한을 따로 두지 않아도 실제로 도달 가능한 레벨이 사실상 자연스럽게 막힘(무적화 방지) -
-// 레벨30이면 대략 FACILITY_DAYS_PER_LEVEL의 800배 넘는 영지일이 필요해짐
-export const FACILITY_LEVEL_GROWTH = 1.25;
+// 비싸져서, 상한을 따로 두지 않아도 실제로 도달 가능한 레벨이 사실상 자연스럽게 막힘(무적화 방지).
+// 1.25였다가 초반 체감 난이도가 너무 과하다는 피드백으로 1.15로 완화
+export const FACILITY_LEVEL_GROWTH = 1.15;
 // 용병 레벨이 시설 성장 속도에 그대로 비례함(레벨5=1배 기준) - 레벨10 용병은 레벨1 용병보다 10배 빠르게 적립
 export const BASELINE_MERC_LEVEL = 5;
 export const MAX_MERCS_PER_FACILITY = 3; // 한 시설(일자리)에 동시에 배치 가능한 용병 수 제한
