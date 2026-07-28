@@ -1,4 +1,4 @@
-import { currentAccessToken } from './pi-sdk.js';
+import { currentAccessToken, createGoldPurchasePayment } from './pi-sdk.js';
 import { showToast } from './page-quiz.js';
 import { setupPullToRefresh } from './util-ptr.js';
 import { getQuizRefillProgress, resetQuizRefillProgress } from './util-storage.js';
@@ -19,7 +19,7 @@ import {
 } from './data/rpg/mercenaries.js';
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
-import { CASTLE_CLEAR_REQUIREMENT } from './data/rpg/castle.js';
+import { CASTLE_CLEAR_REQUIREMENT, GOLD_INCOME_PER_TIER, MATERIAL_BONUS_MIN_TIER, MATERIAL_BONUS_QTY } from './data/rpg/castle.js';
 import { computeCureCost, REST_HEAL_TURN_COST_BY_SEVERITY, HP_REST_HEAL_FULL_TURNS } from './data/rpg/injuries.js';
 import { allowedFormationRows } from './rpg-combat.js';
 import { facilityProgress, facilityAccrualRate, facilityBonusMultiplier, MAX_MERCS_PER_FACILITY, BASELINE_MERC_LEVEL } from './data/rpg/facilities.js';
@@ -196,9 +196,43 @@ function showConfirmOverlay(container, { title, bodyHtml, confirmLabel = '확인
   container.appendChild(overlay);
 }
 
+// 확인 버튼 하나만 있는 안내창(선택지 없음) - 확인 버튼 또는 바깥 영역 클릭으로 닫힘.
+// 가방 정리 안내처럼 "행동 자체를 막는" 상황에 씀(닫아도 원래 하려던 행동은 그대로 취소된 상태)
+function showAlertOverlay(container, { title, bodyHtml, confirmLabel = '확인' }) {
+  const overlay = document.createElement('div');
+  overlay.className = 'rpg-notice-overlay';
+  overlay.innerHTML = `
+    <div class="rpg-notice-box">
+      <h4>${title}</h4>
+      ${bodyHtml}
+      <div class="rpg-confirm-actions">
+        <button class="rpg-confirm-btn">${confirmLabel}</button>
+      </div>
+    </div>
+  `;
+  const close = () => overlay.remove();
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  overlay.querySelector('.rpg-confirm-btn').addEventListener('click', close);
+  container.appendChild(overlay);
+}
+
+// 가방이 칸/무게 한도를 넘어 사냥·마을이동·구매 등이 막혔을 때 공용으로 쓰는 에러 처리 -
+// inventory_over_capacity만 안내창으로, 나머지는 기존처럼 토스트로 보여줌
+function handleActionError(container, e) {
+  if (e.message === 'inventory_over_capacity') {
+    showAlertOverlay(container, {
+      title: '가방을 정리해주세요',
+      bodyHtml: '<p>가방이 칸 또는 무게 한도를 넘었습니다. 인벤토리 탭에서 아이템을 팔거나(NPC판매) 상자에 맡겨 한도 아래로 정리해야 사냥·마을이동·구매를 계속할 수 있어요.</p>',
+    });
+    return;
+  }
+  showToast(friendlyError(e));
+}
+
 let character = null;
 let activeSlot = null;
 let activeTab = 'adventure';
+let myUsername = null;
 
 // RPG API는 서버리스 함수 개수 제한(Vercel Hobby 12개) 때문에 api/rpg.js 하나로 통합돼있음 -
 // action 필드로 내부 라우팅됨(api/_rpg/*.js, api/rpg.js 참고)
@@ -232,6 +266,14 @@ const ERROR_MESSAGES = {
   invalid_zone: '알 수 없는 지역입니다.',
   zone_locked: '이전 마을 최상위 사냥터의 성 도전 자격(100회 공략)을 먼저 채워야 합니다.',
   not_enough_gold: '골드가 부족합니다.',
+  invalid_gold_amount: '판매할 골드 수량을 확인하세요(최소 100).',
+  invalid_price: '희망 테스트파이 가격을 확인하세요.',
+  too_many_listings: '이미 등록한 판매가 너무 많습니다(최대 5개). 먼저 취소하거나 판매를 기다려주세요.',
+  listing_not_found: '해당 판매 등록을 찾을 수 없습니다.',
+  not_your_listing: '본인이 등록한 판매만 취소할 수 있습니다.',
+  listing_not_cancellable: '이미 팔렸거나 취소된 등록입니다.',
+  listing_unavailable: '이미 다른 사람이 구매를 진행 중이거나 팔린 등록입니다.',
+  cannot_buy_own_listing: '본인이 등록한 판매는 구매할 수 없습니다.',
   bag_tier_maxed: '이 등급 가방은 이미 한도를 다 채웠습니다. 다음 등급 가방이 필요합니다.',
   refill_on_cooldown: '턴 회복은 1시간에 한 번만 가능합니다.',
   not_enough_quiz_answers: '퀴즈를 더 풀어야 턴을 채울 수 있습니다.',
@@ -253,6 +295,8 @@ const ERROR_MESSAGES = {
   max_tier_reached: '이미 최고 단계입니다.',
   not_enough_clears: '아직 그 지역 성에 도전할 자격이 되지 않습니다 (100회 공략 필요).',
   already_owner: '이미 이 성을 차지하고 있습니다.',
+  castle_not_found: '아직 아무도 차지하지 않은 성입니다.',
+  not_castle_owner: '이 성의 성주만 방어력을 갱신할 수 있습니다.',
   not_enough_material: '재료가 부족합니다.',
   no_mild_injury: '붕대로 치료할 수 있는 경상이 없습니다.',
   no_injury: '치료할 부상이 없습니다.',
@@ -300,6 +344,7 @@ const ERROR_MESSAGES = {
   quest_already_done: '이미 완료한 퀘스트입니다.',
   quest_condition_not_met: '아직 퀘스트 조건을 만족하지 못했습니다.',
   invalid_message: '메시지를 확인해주세요 (150자 이내).',
+  inventory_over_capacity: '가방이 칸/무게 한도를 넘었습니다. 정리 후 다시 시도하세요.',
 };
 
 function friendlyError(err) {
@@ -312,6 +357,7 @@ async function loadCharacter() {
 }
 
 export async function renderRpgPage(container, _username) {
+  if (_username) myUsername = _username;
   setupPullToRefresh(container, () => renderRpgPage(container));
   container.innerHTML = `<div class="rpg-loading">불러오는 중...</div>`;
 
@@ -634,11 +680,102 @@ async function enterZonePreview(content, container, zoneId) {
   }
 }
 
+// 성 화면 - "성 입장" 버튼을 눌러야 들어오는 별도 메뉴. 여기서 보상/현재 성주/도전·방어력갱신을 다 보여줌
+async function renderCastleScreen(content, container, zoneId) {
+  content.innerHTML = `<div class="rpg-loading">성에 입장하는 중...</div>`;
+  let castleInfo;
+  try {
+    castleInfo = await apiPost('castle-status', { zoneId });
+  } catch (e) {
+    content.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div>`;
+    return;
+  }
+
+  const zone = ZONES[zoneId];
+  const dailyGold = zone.tier * GOLD_INCOME_PER_TIER;
+  const materialNote = zone.tier >= MATERIAL_BONUS_MIN_TIER ? ` + 결정·강화석 각 ${MATERIAL_BONUS_QTY}개` : '';
+  const castle = castleInfo.castle;
+  const isMine = castle && castle.ownerUsername === myUsername && castle.ownerSlot === activeSlot;
+
+  let statusLine;
+  let actionBtn;
+  if (!castle) {
+    statusLine = '지금 비어있는 성입니다 - 도전하면 바로 차지합니다.';
+    actionBtn = `<button class="rpg-castle-challenge-btn" data-zone="${zoneId}">🏰 성 도전하기</button>`;
+  } else if (isMine) {
+    statusLine = `현재 성주: 나 (방어전력 ${Math.round(castle.defensePower || 0)})`;
+    actionBtn = `<button class="rpg-castle-refresh-btn" data-zone="${zoneId}">🔄 방어력 갱신(현재 장비/용병 기준)</button>`;
+  } else {
+    statusLine = `현재 성주: ${castle.ownerName || castle.ownerUsername} (방어전력 ${Math.round(castle.defensePower || 0)})`;
+    actionBtn = `<button class="rpg-castle-challenge-btn" data-zone="${zoneId}">🏰 성 도전하기</button>`;
+  }
+
+  // 야전의무실 - 부상 치료는 안 되고(휴게소는 보류), 턴을 써서 순수 체력만 회복. 본인+용병 전부 대상
+  const selfStats = computeCharacterCombatStats(character);
+  const infirmaryRows = [
+    hpRestRowHtml('나', null, character.currentHp, selfStats.maxHp),
+    ...(character.mercenaries || []).map((m) => hpRestRowHtml(m.name, m.id, m.currentHp, computeCharacterCombatStats(m).maxHp)),
+  ].filter(Boolean).join('');
+
+  content.innerHTML = `
+    <p><button class="rpg-castle-back-btn">◀ 사냥터로</button></p>
+    <div class="rpg-castle-section">
+      <h4>🏰 ${zone.name}의 성</h4>
+      <p class="rpg-hint">성주 보상: 매일 골드 +${dailyGold}${materialNote}</p>
+      <p class="rpg-hint">${statusLine}</p>
+      <p>${actionBtn}</p>
+    </div>
+    <div class="rpg-castle-section">
+      <h4>🩺 야전의무실</h4>
+      <p class="rpg-hint">턴을 소모해 체력만 회복합니다(부상 치료는 안 돼요 - 마을 의사나 영지에서 처리하세요).</p>
+      ${infirmaryRows || '<p class="rpg-hint">지금은 체력이 깎인 사람이 없어요.</p>'}
+    </div>
+  `;
+  content.querySelector('.rpg-castle-back-btn').addEventListener('click', () => enterZonePreview(content, container, zoneId));
+  content.querySelectorAll('.rpg-rest-heal-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    const mercId = btn.dataset.merc || null;
+    try {
+      const r = await apiPost('rest-heal', mercId ? { part: 'hp', mercId } : { part: 'hp' });
+      character.turnPoints = r.turnPoints;
+      if (mercId) {
+        const merc = (character.mercenaries || []).find((m) => m.id === mercId);
+        if (merc) merc.currentHp = r.currentHp;
+      } else {
+        character.currentHp = r.currentHp;
+      }
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      showToast(`체력을 회복했습니다 (턴 ${r.cost}개 소모)`);
+      renderCastleScreen(content, container, zoneId);
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+
+  const castleChallengeBtn = content.querySelector('.rpg-castle-challenge-btn');
+  if (castleChallengeBtn) castleChallengeBtn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('claim-castle', { zoneId });
+      if (r.wasEmpty) showToast(`${ZONES[r.zoneId].name}의 성이 비어있어 바로 차지했습니다!`);
+      else if (r.won) showToast(`${r.previousOwnerName}을(를) 꺾고 ${ZONES[r.zoneId].name}의 성을 차지했습니다! (${r.challengerRoll} vs ${r.defenderRoll})`);
+      else showToast(`도전 실패... (${r.challengerRoll} vs ${r.defenderRoll})`);
+      renderCastleScreen(content, container, zoneId);
+    } catch (e) { showToast(friendlyError(e)); }
+  });
+  const castleRefreshBtn = content.querySelector('.rpg-castle-refresh-btn');
+  if (castleRefreshBtn) castleRefreshBtn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('refresh-castle-defense', { zoneId });
+      showToast(`방어전력을 ${r.previousDefensePower} → ${r.defensePower}(으)로 갱신했습니다`);
+      renderCastleScreen(content, container, zoneId);
+    } catch (e) { showToast(friendlyError(e)); }
+  });
+}
+
 // 필드 진입 화면 - 서로 다른 랜덤 몹 구성 후보 여러 개를 한 번에 보여주고, 그중 하나를 골라 그 조합
 // 그대로 전투를 시작함("여러 조합 중에 골라서 들어간다"). 새로고침은 골드를 써서 후보 전체를 다시 굴림
 // (다른 지역에 갔다와도 이 지역 미리보기는 그대로 유지됨 - 지역별로 따로 저장)
 function renderZonePreviewScreen(content, container, preview) {
   const zone = ZONES[preview.zoneId];
+  const clears = (character.zoneClearCounts || {})[preview.zoneId] || 0;
+  const castleEligible = clears >= CASTLE_CLEAR_REQUIREMENT;
   content.innerHTML = `
     <p><button class="rpg-zone-back-btn">◀ 지역 목록</button></p>
     <h4>${zone.name}에 들어왔다</h4>
@@ -661,10 +798,13 @@ function renderZonePreviewScreen(content, container, preview) {
     </p>
     ${combatLogSpeedControlHtml()}
     <div class="rpg-combat-log"></div>
+    ${castleEligible ? `<p><button class="rpg-castle-enter-btn" data-zone="${preview.zoneId}">🏰 성 입장</button></p>` : ''}
   `;
   const log = content.querySelector('.rpg-combat-log');
   wireCombatLogSpeedControl(content);
   content.querySelector('.rpg-zone-back-btn').addEventListener('click', () => renderAdventureTab(content, container));
+  const castleEnterBtn = content.querySelector('.rpg-castle-enter-btn');
+  if (castleEnterBtn) castleEnterBtn.addEventListener('click', () => renderCastleScreen(content, container, preview.zoneId));
   content.querySelector('.rpg-refresh-encounter-btn').addEventListener('click', async () => {
     try {
       const r = await apiPost('preview-zone', { zoneId: preview.zoneId, refresh: true });
@@ -697,7 +837,12 @@ function renderZonePreviewScreen(content, container, preview) {
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       showTerritoryNotice(container, result.territoryNotice);
     } catch (e) {
-      if (log.isConnected) log.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div>`;
+      if (e.message === 'inventory_over_capacity') {
+        if (log.isConnected) log.innerHTML = '';
+        handleActionError(container, e);
+      } else if (log.isConnected) {
+        log.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div>`;
+      }
     }
   }));
 }
@@ -749,12 +894,14 @@ function wireCombatLogSpeedControl(root) {
 // 보는 느낌을 주기 위함(전열 붕괴/위험수위 경고 등의 긴장감이 이 페이싱으로 살아남).
 // 줄 수가 많은(레전더리급 장기전) 전투는 한 줄당 지연을 줄여 전체 재생시간을 비슷하게 맞추되,
 // 그 위에 유저가 고른 속도 배율(기본 "느리게")을 곱해서 최종 지연을 정함
+// 근본 해결책: 내부 스크롤 박스로 "최신 줄"을 따라가게 하는 대신, 전투 시작 시 화면을 딱 한 번만
+// 로그 상단으로 스크롤해두고(.rpg-combat-log에 min-height로 아래 공간을 미리 확보해둔 상태) 그 뒤로는
+// 스크롤 위치를 전혀 건드리지 않음 - 줄이 위에서부터 차례로 쌓이기만 하고 화면이 안 움직이니 느긋하게 볼 수 있음
 async function playCombatLog(logEl, lines) {
   logEl.innerHTML = '<div class="rpg-log-lines"></div>';
   const linesEl = logEl.querySelector('.rpg-log-lines');
-  // 실제 줄이 들어가기 시작하는 지금 시점에 화면으로 끌어옴 - 버튼 클릭 시점엔 아직 "전투 중..." 표시만
-  // 있어서 위치가 안 잡혀있었을 수 있음(레이아웃이 자리잡은 뒤 스크롤되게 requestAnimationFrame으로 한 틱 미룸)
-  requestAnimationFrame(() => logEl.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  // 레이아웃이 자리잡은 뒤 스크롤되게 requestAnimationFrame으로 한 틱 미룸 - 이후로는 다시 스크롤하지 않음
+  await new Promise((resolve) => requestAnimationFrame(() => { logEl.scrollIntoView({ behavior: 'smooth', block: 'start' }); resolve(); }));
   const speedMult = COMBAT_LOG_SPEEDS[getCombatLogSpeed()].mult;
   const delay = Math.max(300, Math.min(1200, 6000 / Math.max(lines.length, 1))) * speedMult;
   for (const line of lines) {
@@ -763,7 +910,6 @@ async function playCombatLog(logEl, lines) {
     p.textContent = line;
     classifyCombatLogLine(line).forEach((cls) => p.classList.add(cls));
     linesEl.appendChild(p);
-    linesEl.scrollTop = linesEl.scrollHeight;
     await new Promise((resolve) => setTimeout(resolve, delay));
   }
 }
@@ -983,7 +1129,7 @@ function renderTownTab(content, container) {
       renderTownTab(content, container);
       showToast(`${destTown.name}(으)로 이동했습니다`);
       showTerritoryNotice(container, r.territoryNotice);
-    } catch (e) { showToast(friendlyError(e)); }
+    } catch (e) { handleActionError(container, e); }
   }));
   content.querySelectorAll('.rpg-quest-claim-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
@@ -1160,8 +1306,96 @@ function renderMarketTab(content, container) {
     <div class="rpg-market-list-form">
       <p class="rpg-hint">인벤토리 탭에서 아이템의 "마켓등록" 버튼으로 판매를 등록하세요.</p>
     </div>
+    <h4>골드 경매장</h4>
+    <p class="rpg-hint">⚠️ 여기서 쓰이는 π(파이)는 <b>실제 화폐 가치가 없는 테스트넷 "테스트파이"</b>입니다. 진짜 돈이 아닙니다.</p>
+    <div class="rpg-gold-listing-form">
+      <input type="number" class="rpg-gold-list-amount" placeholder="판매할 골드(최소 100)" min="100">
+      <input type="number" class="rpg-gold-list-price" placeholder="희망 테스트파이(π)" min="0.01" step="0.01">
+      <button class="rpg-gold-list-submit">등록</button>
+    </div>
+    <p class="rpg-hint">등록 수수료: 판매 골드의 0.1%(최소 1골드), 등록 즉시 차감되며 취소해도 환불되지 않습니다.</p>
+    <div class="rpg-gold-listing-list"><div class="rpg-loading">불러오는 중...</div></div>
   `;
   loadMarketListings(content, container);
+  loadGoldListings(content, container);
+
+  content.querySelector('.rpg-gold-list-submit').addEventListener('click', async () => {
+    const amountEl = content.querySelector('.rpg-gold-list-amount');
+    const priceEl = content.querySelector('.rpg-gold-list-price');
+    const goldAmount = Number(amountEl.value);
+    const priceTestPi = Number(priceEl.value);
+    if (!goldAmount || goldAmount < 100) { showToast('판매할 골드를 100 이상 입력하세요'); return; }
+    if (!priceTestPi || priceTestPi <= 0) { showToast('희망 테스트파이 가격을 입력하세요'); return; }
+    try {
+      const r = await apiPost('create-gold-listing', { goldAmount, priceTestPi });
+      character.gold = Math.max(0, (character.gold || 0) - goldAmount - (r.listing.feeGold || 0));
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+      amountEl.value = ''; priceEl.value = '';
+      showToast(`골드 ${goldAmount}개를 ${priceTestPi}π(테스트)에 등록했습니다 (수수료 ${r.listing.feeGold}골드)`);
+      loadGoldListings(content, container);
+    } catch (e) { showToast(friendlyError(e)); }
+  });
+}
+
+// 골드 경매장 목록 - 내 리스팅은 "취소", 남의 리스팅은 "테스트파이로 구매"
+async function loadGoldListings(content, container) {
+  const listEl = content.querySelector('.rpg-gold-listing-list');
+  try {
+    const r = await apiPost('browse-gold-listings', {});
+    if (!r.listings.length) { listEl.innerHTML = '<p class="rpg-hint">등록된 골드 판매가 없어요.</p>'; return; }
+    listEl.innerHTML = r.listings.map((l) => {
+      const isMine = l.sellerUsername === myUsername && l.sellerSlot === activeSlot;
+      return `
+        <div class="rpg-shop-row">
+          <span>골드 ${l.goldAmount}개 — ${l.priceTestPi}π(테스트) ${isMine ? '<b>(내 등록)</b>' : `· ${l.sellerUsername}`}</span>
+          <span>
+            ${isMine
+              ? `<button class="rpg-gold-cancel-btn" data-listing="${l.id}">취소</button>`
+              : `<button class="rpg-gold-buy-btn" data-listing="${l.id}">테스트파이로 구매</button>`}
+          </span>
+        </div>
+      `;
+    }).join('');
+
+    listEl.querySelectorAll('.rpg-gold-cancel-btn').forEach((btn) => btn.addEventListener('click', async () => {
+      try {
+        const r = await apiPost('cancel-gold-listing', { listingId: btn.dataset.listing });
+        character.gold = r.gold;
+        container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+        showToast('등록을 취소하고 골드를 환불받았습니다(수수료는 환불 안 됨)');
+        loadGoldListings(content, container);
+      } catch (e) { showToast(friendlyError(e)); }
+    }));
+
+    listEl.querySelectorAll('.rpg-gold-buy-btn').forEach((btn) => btn.addEventListener('click', () => {
+      const listing = r.listings.find((l) => l.id === btn.dataset.listing);
+      if (!listing) return;
+      showConfirmOverlay(container, {
+        title: '골드 구매',
+        bodyHtml: `
+          <div class="rpg-stat-delta-table">
+            <div class="rpg-stat-delta-row"><span>골드</span><span>${listing.goldAmount}개</span><span></span></div>
+            <div class="rpg-stat-delta-row"><span>가격</span><span>${listing.priceTestPi}π</span><span></span></div>
+          </div>
+          <p class="rpg-hint">⚠️ π(파이)는 실제 화폐 가치가 없는 <b>테스트넷 "테스트파이"</b>입니다. Pi 지갑에서 결제를 진행합니다.</p>
+        `,
+        confirmLabel: '테스트파이로 결제',
+        onConfirm: async () => {
+          try {
+            await createGoldPurchasePayment(listing, activeSlot, currentAccessToken);
+            showToast(`골드 ${listing.goldAmount}개를 구매했습니다!`);
+            await loadCharacter();
+            container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
+            loadGoldListings(content, container);
+          } catch (e) {
+            showToast(friendlyError(e));
+          }
+        },
+      });
+    }));
+  } catch {
+    listEl.innerHTML = '<p class="rpg-hint">불러오지 못했습니다.</p>';
+  }
 }
 
 // ── 창고 탭(이송상자/저장상자) ────────────────────────
@@ -1320,7 +1554,17 @@ function renderInventoryTab(content, container) {
         const item = ITEMS[entry.itemId] || { name: entry.itemId };
         const actions = [];
         const equippable = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
+        const mercEquippable = MERC_EQUIP_SLOTS.includes(item.type);
         if (item.type === 'consumable' || item.type === 'bag') actions.push(`<button class="rpg-inv-use" data-item="${entry.itemId}">사용</button>`);
+        if (mercEquippable && (character.mercenaries || []).length) {
+          // 무기/방패/상하의는 본인 또는 용병 중 골라서 장착 - 반지/목걸이는 용병 슬롯이 없어 본인 전용(장착 버튼만)
+          actions.push(`
+            <select class="rpg-inv-equip-target" data-item="${entry.itemId}">
+              <option value="">나에게</option>
+              ${(character.mercenaries || []).map((m) => `<option value="${m.id}">${m.name}에게</option>`).join('')}
+            </select>
+          `);
+        }
         if (equippable.includes(item.type)) actions.push(`<button class="rpg-inv-equip" data-item="${entry.itemId}">장착</button>`);
         if (!isItemIdentified(item)) {
           actions.push(`<button class="rpg-inv-identify" data-item="${entry.itemId}">감정하기</button>`);
@@ -1416,7 +1660,12 @@ function renderInventoryTab(content, container) {
   content.querySelectorAll('.rpg-inv-equip').forEach((btn) => btn.addEventListener('click', () => {
     const itemId = btn.dataset.item;
     const item = ITEMS[itemId];
-    const stats = effectiveStats(character);
+    // 반지/목걸이는 대상 선택 select가 없음(용병 슬롯 자체가 없어서) - 그 외 슬롯은 select에서 고른 대상(나/용병)
+    const targetSelect = content.querySelector(`.rpg-inv-equip-target[data-item="${itemId}"]`);
+    const mercId = targetSelect ? targetSelect.value : '';
+    const targetChar = mercId ? (character.mercenaries || []).find((m) => m.id === mercId) : character;
+    if (mercId && !targetChar) return;
+    const stats = effectiveStats(targetChar);
     const reqRows = [];
     let reqOk = true;
     if (item.strRequirement) {
@@ -1430,19 +1679,19 @@ function renderInventoryTab(content, container) {
       reqRows.push(`<div class="rpg-stat-delta-row"><span>요구 지혜</span><span>${item.wisRequirement} (현재 ${stats.wis})</span><span>${ok ? '✅' : '❌'}</span></div>`);
     }
     const slot = EQUIP_SLOT_BY_TYPE[item.type];
-    const previousItemId = character.equipment[slot];
+    const previousItemId = targetChar.equipment[slot];
     const previousItem = previousItemId ? ITEMS[previousItemId] : null;
-    const before = computeCharacterCombatStats(character);
+    const before = computeCharacterCombatStats(targetChar);
     const after = computeCharacterCombatStats({
-      ...character,
-      equipment: { ...character.equipment, [slot]: itemId, [`${slot}Durability`]: 100 },
+      ...targetChar,
+      equipment: { ...targetChar.equipment, [slot]: itemId, [`${slot}Durability`]: 100 },
     });
-    const classDef = CLASSES[character.classMain];
+    const classDef = CLASSES[targetChar.classMain];
     const penaltyWarning = equipPenaltyWarning(item, classDef);
     const addedParts = itemBonusParts(item);
     const removedParts = previousItem ? itemBonusParts(previousItem) : [];
     showConfirmOverlay(container, {
-      title: `${item.name} 장착`,
+      title: `${item.name} 장착${mercId ? ` — ${targetChar.name}` : ''}`,
       bodyHtml: `
         ${reqRows.length ? `<div class="rpg-stat-delta-table">${reqRows.join('')}</div>` : ''}
         ${addedParts.length ? `<p class="rpg-stat-up">추가: ${addedParts.join(', ')}</p>` : ''}
@@ -1455,11 +1704,12 @@ function renderInventoryTab(content, container) {
       confirmDisabled: !reqOk,
       onConfirm: async () => {
         try {
-          await apiPost('equip', { itemId });
+          await apiPost('equip', mercId ? { itemId, mercId } : { itemId });
           await loadCharacter();
-          const finalAfter = computeCharacterCombatStats(character);
+          const finalTarget = mercId ? (character.mercenaries || []).find((m) => m.id === mercId) : character;
+          const finalAfter = computeCharacterCombatStats(finalTarget);
           renderInventoryTab(content, container);
-          showToast(`장착 완료 — ${statsDeltaMessage(before, finalAfter)}`);
+          showToast(`장착 완료${mercId ? ` (${targetChar.name})` : ''} — ${statsDeltaMessage(before, finalAfter)}`);
         } catch (e) { showToast(friendlyError(e)); }
       },
     });
@@ -1545,7 +1795,7 @@ const FACILITY_ICONS = { clearing: '🌾', training: '⚔️', ramparts: '🛡�
 
 // api/_rpgTurns.js와 반드시 같은 공식 유지 - 서버 전용 파일이라 브라우저가 직접 못 불러와서 복제해서 씀
 function turnCapForLevelClient(level) {
-  const base = 10 + (character.surveyBonusUnlocked ? 20 : 0);
+  const base = 30 + (character.surveyBonusUnlocked ? 20 : 0);
   return base + Math.floor((level || 1) / 5);
 }
 
@@ -1645,6 +1895,19 @@ function facilityDashboardHtml() {
   `;
 }
 
+// 용병 장비 슬롯(무기/방패/상하의만 - 반지/목걸이 없음, api/_rpg/equip.js의 MERC_EQUIPPABLE_TYPES와 동일)
+const MERC_EQUIP_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
+function mercEquipmentRowHtml(m) {
+  return `
+    <p class="rpg-hint rpg-merc-equipment">장비:
+      ${MERC_EQUIP_SLOTS.map((slot) => {
+        const itemId = m.equipment && m.equipment[slot];
+        const item = itemId ? ITEMS[itemId] : null;
+        return `${EQUIP_SLOT_LABELS[slot]} ${item ? `${item.name}${itemStatsLabel(item)}` : '없음'}${item ? ` <button class="rpg-merc-unequip-btn" data-merc="${m.id}" data-slot="${slot}">해제</button>` : ''}`;
+      }).join(' · ')}
+    </p>
+  `;
+}
 function mercenaryCardHtml(m) {
   const cls = CLASSES[m.classMain];
   const injured = ['arm', 'leg'].filter((p) => (m.injuries && m.injuries[p] && m.injuries[p].severity) > 0);
@@ -1655,6 +1918,7 @@ function mercenaryCardHtml(m) {
     <div class="rpg-npc-card">
       <div class="rpg-class-name">${m.name} (Lv.${m.level} ${cls ? cls.name : m.classMain})${m.hospitalized ? ' — 입원 중 🏥' : ''} <button class="rpg-rename-merc-btn" data-merc="${m.id}">✏️</button></div>
       <p class="rpg-hint">HP ${m.currentHp} · 보수 ${m.wagePerAdventure}골드/모험 ${injured.length ? `· 부상: ${injured.map((p) => BODY_PART_NAMES[p]).join(', ')}` : ''} ${m.assignment === 'territory' ? `· ${(TERRITORY_JOBS[m.job] || {}).name || '휴식'} 중` : ''}</p>
+      ${mercEquipmentRowHtml(m)}
       ${injured.length && !m.hospitalized ? `<p><button class="rpg-admit-merc-btn" data-merc="${m.id}">병원에 입원시키기 (10골드, 서서히 회복)</button></p>` : ''}
       ${m.hospitalized ? `<p class="rpg-hint">입원 중에는 모험에 동행하지 않고 보수도 나가지 않아요. 완쾌하면 자동으로 퇴원해요.</p>` : ''}
       <p>
@@ -1733,12 +1997,22 @@ function renderTerritoryTab(content, container) {
   content.innerHTML = partySectionHtml();
   const rerender = () => renderTerritoryTab(content, container);
   wireFormationButtons(content, rerender);
+  content.querySelectorAll('.rpg-merc-unequip-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      await apiPost('unequip', { equipSlot: btn.dataset.slot, mercId: btn.dataset.merc });
+      await loadCharacter();
+      rerender();
+      showToast('용병 장비를 해제했습니다');
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
   content.querySelectorAll('.rpg-dismiss-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
-      await apiPost('dismiss-mercenary', { mercId: btn.dataset.merc });
+      const r = await apiPost('dismiss-mercenary', { mercId: btn.dataset.merc });
       character.mercenaries = (character.mercenaries || []).filter((m) => m.id !== btn.dataset.merc);
+      character.gold = r.gold;
+      container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       rerender();
-      showToast('용병을 해고했습니다');
+      showToast(r.refund > 0 ? `용병을 해고했습니다 (골드 ${r.refund} 환급)` : '용병을 해고했습니다');
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-admit-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {

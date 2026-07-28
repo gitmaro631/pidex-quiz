@@ -4,6 +4,7 @@ import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
 import { computeCurrentTurns } from '../_rpgTurns.js';
+import { isOverCapacity } from '../_rpgInventory.js';
 import { TOWNS } from '../../data/rpg/towns.js';
 import { ZONES } from '../../data/rpg/zones.js';
 import { CASTLE_CLEAR_REQUIREMENT } from '../../data/rpg/castle.js';
@@ -25,6 +26,8 @@ export default async function handler(req, res) {
     await withFirestoreTransaction(docPath, (current) => {
       const character = current || defaultCharacter(slot);
       if (character.currentTown === townId) { outcome = { error: 'already_there' }; return null; }
+      // 용병 해고로 반납된 장비 등으로 가방이 칸/무게 한도를 넘었으면 정리하기 전까진 이동을 막음(관리자 제외)
+      if (!isAdmin && isOverCapacity(character)) { outcome = { error: 'inventory_over_capacity' }; return null; }
 
       const gateZone = Object.values(ZONES).find((z) => z.town === townId);
       const gateZoneId = gateZone && gateZone.unlockZoneId;

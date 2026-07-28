@@ -33,6 +33,9 @@ export default async function handler(req, res) {
 
       const now = Date.now();
       const instance = createMercenaryInstance(templateId, now);
+      // 고용 시점의 누적 턴소모량을 기록 - 해고할 때 "얼마나 오래 데리고 있었는지"를 턴 기준으로 계산해서
+      // 골드로 환급하는 데 씀(dismiss-mercenary.js 참고, 이 프로젝트는 실시간이 아니라 턴 소모 기준 시간)
+      instance.turnsSpentAtHire = character.totalTurnsSpent || 0;
       // 전투 자리(최대 MAX_MERCENARIES)가 남아있으면 바로 전투 동행, 아니면 영지에서 일 시작
       const activeCount = mercenaries.filter((m) => m.assignment === 'active').length;
       if (activeCount < MAX_MERCENARIES) { instance.assignment = 'active'; instance.job = null; }

@@ -51,6 +51,11 @@ import restHeal from './_rpg/rest-heal.js';
 import previewZone from './_rpg/preview-zone.js';
 import travelTown from './_rpg/travel-town.js';
 import claimQuizTurnRefill from './_rpg/claim-quiz-turn-refill.js';
+import createGoldListing from './_rpg/create-gold-listing.js';
+import cancelGoldListing from './_rpg/cancel-gold-listing.js';
+import browseGoldListings from './_rpg/browse-gold-listings.js';
+import castleStatus from './_rpg/castle-status.js';
+import refreshCastleDefense from './_rpg/refresh-castle-defense.js';
 
 const ROUTES = {
   character, adventure,
@@ -88,6 +93,11 @@ const ROUTES = {
   'preview-zone': previewZone,
   'travel-town': travelTown,
   'claim-quiz-turn-refill': claimQuizTurnRefill,
+  'create-gold-listing': createGoldListing,
+  'cancel-gold-listing': cancelGoldListing,
+  'browse-gold-listings': browseGoldListings,
+  'castle-status': castleStatus,
+  'refresh-castle-defense': refreshCastleDefense,
 };
 
 export default async function handler(req, res) {

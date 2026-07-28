@@ -41,13 +41,16 @@ async function signInFirebase(accessToken) {
   }
 }
 
-async function serverApprove(paymentId) {
+async function serverApprove(paymentId, extra = {}) {
   const res = await fetch('/api/payments/approve', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ paymentId }),
+    body: JSON.stringify({ paymentId, ...extra }),
   });
-  if (!res.ok) throw new Error(`approve failed: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || `approve failed: ${res.status}`);
+  }
 }
 
 async function serverComplete(paymentId, txid, username) {
@@ -129,6 +132,38 @@ export function createSubscriptionPayment() {
       {
         onReadyForServerApproval: async (paymentId) => {
           try { await serverApprove(paymentId); } catch (err) { reject(err); }
+        },
+        onReadyForServerCompletion: async (paymentId, txid) => {
+          try {
+            await serverComplete(paymentId, txid, currentUser?.username);
+            resolve({ paymentId, txid });
+          } catch (err) { reject(err); }
+        },
+        onCancel: () => reject(new Error('cancelled')),
+        onError: (err) => reject(err),
+      }
+    );
+  });
+}
+
+// 골드 경매장 구매 결제 - 반드시 테스트파이(Pi.init sandbox:true)로만 이뤄짐. 실제 골드 지급은
+// 클라이언트가 아니라 api/payments/complete.js가 Pi 서버로부터 완료를 확인받은 뒤에만 처리함
+export function createGoldPurchasePayment(listing, slot, accessToken) {
+  if (typeof Pi === 'undefined') {
+    return Promise.reject(new Error('Pi SDK를 찾을 수 없어요. Pi Browser에서 실행해주세요.'));
+  }
+  return new Promise((resolve, reject) => {
+    Pi.createPayment(
+      {
+        amount: listing.priceTestPi,
+        memo: `[테스트파이] 골드 ${listing.goldAmount}개 구매`,
+        metadata: { app: 'quizpi', type: 'gold_purchase', listingId: listing.id },
+      },
+      {
+        onReadyForServerApproval: async (paymentId) => {
+          try {
+            await serverApprove(paymentId, { listingId: listing.id, accessToken, slot });
+          } catch (err) { reject(err); }
         },
         onReadyForServerCompletion: async (paymentId, txid) => {
           try {

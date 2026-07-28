@@ -65,3 +65,10 @@ export function inventoryQty(inventory, itemId) {
   const entry = (inventory || []).find((e) => e.itemId === itemId);
   return entry ? entry.qty : 0;
 }
+
+// 용병 해고로 장비를 강제 반납(addItem을 capacity 무시하고 호출)하는 등으로 칸/무게가 한도를 넘어설 수
+// 있음 - 그 상태에서는 사냥(adventure.js)과 마을 이동(travel-town.js)을 막아서 정리를 유도함
+export function isOverCapacity(character) {
+  const inventory = character.inventory || [];
+  return inventory.length > capacityForCharacter(character) || inventoryWeight(inventory) > weightLimitForCharacter(character);
+}

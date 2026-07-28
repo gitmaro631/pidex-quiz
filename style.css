@@ -1366,8 +1366,9 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
 }
 .rpg-travel-town-btn:disabled { background: #4b5563; color: rgba(255,255,255,0.7); cursor: not-allowed; }
 
-.rpg-combat-log { background: rgba(0,0,0,0.25); border-radius: 10px; padding: 12px; font-size: 13px; }
-.rpg-log-lines { max-height: 260px; overflow-y: auto; }
+.rpg-combat-log { background: rgba(0,0,0,0.25); border-radius: 10px; padding: 12px; font-size: 13px; min-height: 60vh; }
+/* 내부에 별도 스크롤 박스를 두지 않음 - 전투 시작 시 페이지를 한 번만 맨 위로 스크롤해두고, 그 뒤로는
+   화면(스크롤 위치)을 건드리지 않은 채 아래로 자연스럽게 채워나가서 느긋하게 지켜볼 수 있게 함 */
 .rpg-log-lines p { margin: 2px 0; }
 .rpg-log-summary { margin-top: 8px; font-weight: 600; color: #fbbf24; }
 
@@ -1381,6 +1382,14 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
 .rpg-stance-btn, .rpg-stat-btn, .rpg-unequip-btn, .rpg-quest-claim-btn {
   background: #6366f1; color: #fff; border: none; border-radius: 6px;
   padding: 5px 10px; font-size: 12px; cursor: pointer;
+}
+.rpg-inv-equip-target {
+  background: rgba(255,255,255,0.08); border: 1px solid var(--border); border-radius: 6px;
+  color: #fff; font-size: 12px; padding: 4px 6px;
+}
+.rpg-merc-unequip-btn {
+  background: #6366f1; color: #fff; border: none; border-radius: 6px;
+  padding: 2px 8px; font-size: 11px; cursor: pointer;
 }
 
 .rpg-class-cards { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
@@ -1400,6 +1409,11 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
   padding: 12px 14px; margin-bottom: 14px;
 }
 .rpg-territory-economy h4 { margin: 0 0 8px; }
+.rpg-castle-section {
+  background: linear-gradient(180deg, rgba(250,204,21,0.1), rgba(255,255,255,0.03));
+  border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-top: 14px;
+}
+.rpg-castle-section h4 { margin: 0 0 8px; }
 .rpg-facility-row { margin: 8px 0; }
 .rpg-facility-head { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
 .rpg-merc-job-btn {
@@ -1436,6 +1450,13 @@ textarea.trk-input { resize: vertical; min-height: 72px; font-family: inherit; }
 .rpg-notice-close {
   margin-top: 10px; background: #6366f1; color: #fff; border: none; border-radius: 8px;
   padding: 8px 20px; font-size: 14px; cursor: pointer;
+}
+
+/* 골드 경매장 - 판매 등록 폼(입력 2개 + 버튼) */
+.rpg-gold-listing-form { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.rpg-gold-listing-form input {
+  flex: 1; min-width: 120px; background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 10px; color: #fff; font-size: 13px;
 }
 
 /* 착용/구매 확인창 - 자주 보는 화면이라 표처럼 깔끔하게: 항목명 / 전후 값 / 증감 3열 */

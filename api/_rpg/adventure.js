@@ -2,7 +2,7 @@ import { verifyPiUser } from '../_verifyPiUser.js';
 import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
 import { computeCurrentTurns, turnCapForLevel } from '../_rpgTurns.js';
-import { removeItem, tryAddItem } from '../_rpgInventory.js';
+import { removeItem, tryAddItem, isOverCapacity } from '../_rpgInventory.js';
 import { ZONES } from '../../data/rpg/zones.js';
 import { TOWNS } from '../../data/rpg/towns.js';
 import { resolveCombat, applyEquipmentWear } from '../../rpg-combat.js';
@@ -42,7 +42,7 @@ export default async function handler(req, res) {
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
-  const isAdmin = isAdminUsername(username); // 관리자는 테스트 편의를 위해 턴포인트 한도 없음
+  const isAdmin = isAdminUsername(username); // 관리자는 테스트 편의를 위해 턴포인트 한도/가방 용량 제한 없음
 
   const zone = ZONES[zoneId];
   if (!zone) return res.status(400).json({ error: 'invalid zoneId' });
@@ -54,6 +54,8 @@ export default async function handler(req, res) {
     const docPath = characterDocPath(username, slot);
     await withFirestoreTransaction(docPath, (current) => {
       const character = current || defaultCharacter(slot);
+      // 용병 해고로 반납된 장비 등으로 가방이 칸/무게 한도를 넘었으면 정리하기 전까진 사냥을 막음(관리자 제외)
+      if (!isAdmin && isOverCapacity(character)) { outcome = { error: 'inventory_over_capacity' }; return null; }
       const now = Date.now();
       const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now, character.surveyBonusUnlocked);
 

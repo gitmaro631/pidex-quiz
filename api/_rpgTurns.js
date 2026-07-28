@@ -9,7 +9,7 @@ export const SURVEY_BONUS_TURN_CAP_ADD = 20;
 
 export function turnCapForLevel(level, surveyBonusUnlocked = false) {
   const lvl = Math.max(1, Number(level) || 1);
-  const base = 10 + (surveyBonusUnlocked ? SURVEY_BONUS_TURN_CAP_ADD : 0);
+  const base = 30 + (surveyBonusUnlocked ? SURVEY_BONUS_TURN_CAP_ADD : 0); // 순수 기본값 30(설문 무관), 완료자는 +20 더
   return base + Math.floor(lvl / 5); // 5레벨마다 +1
 }
 

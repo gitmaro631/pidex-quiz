@@ -36,6 +36,11 @@ export const MERCENARY_TEMPLATES = {
   },
 };
 
+// 해고 시 고용비 환급이 0으로 줄어드는 데 걸리는 턴수 - 고용 직후(실수로 잘못 고용 등) 바로 무르면
+// 거의 다 돌려받고, 데리고 있을수록 환급이 선형으로 줄어듦(hire-mercenary.js가 고용 시점의
+// 누적 턴소모량을 turnsSpentAtHire로 저장해두고, dismiss-mercenary.js가 이 값으로 경과 턴을 계산)
+export const DISMISS_REFUND_DECAY_TURNS = 40;
+
 // 고용 시 자동으로 붙는 랜덤 이름(나중에 사용자가 원하면 rename-mercenary.js로 직접 바꿀 수 있음)
 export const MERC_RANDOM_NAMES = [
   '리안', '그레타', '셀리아', '도렌', '하윤', '유진', '란', '조엘',
