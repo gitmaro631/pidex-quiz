@@ -2005,6 +2005,29 @@ function mercEquipmentRowHtml(m) {
     </p>
   `;
 }
+function mercCombatSettingsHtml(m) {
+  const template = MERCENARY_TEMPLATES[m.templateId] || {};
+  const stance = m.stance === 'aggressive' ? 'aggressive' : 'stable';
+  const stanceRow = `
+    <p>타겟 우선순위:
+      <button class="rpg-merc-stance-btn" data-merc="${m.id}" data-stance="stable" ${stance === 'stable' ? 'disabled' : ''}>약한 몹부터</button>
+      <button class="rpg-merc-stance-btn" data-merc="${m.id}" data-stance="aggressive" ${stance === 'aggressive' ? 'disabled' : ''}>쎈 몹부터</button>
+      (현재: ${stance === 'aggressive' ? '쎈 몹부터' : '약한 몹부터'})
+    </p>
+  `;
+  if (template.fixedCombatRole) {
+    return `${stanceRow}<p class="rpg-hint">전투 역할: 서포트 고정 🔒 (힐러 컨셉 용병이라 항상 방어/힐을 우선함)</p>`;
+  }
+  const combatRole = m.combatRole === 'support' ? 'support' : 'fight';
+  return `
+    ${stanceRow}
+    <p>전투 역할:
+      <button class="rpg-merc-role-btn" data-merc="${m.id}" data-role="fight" ${combatRole === 'fight' ? 'disabled' : ''}>버티기(계속 공격)</button>
+      <button class="rpg-merc-role-btn" data-merc="${m.id}" data-role="support" ${combatRole === 'support' ? 'disabled' : ''}>서포트(방어/힐 우선)</button>
+      (현재: ${combatRole === 'support' ? '서포트' : '버티기'})
+    </p>
+  `;
+}
 function mercenaryCardHtml(m) {
   const cls = CLASSES[m.classMain];
   const injured = ['arm', 'leg'].filter((p) => (m.injuries && m.injuries[p] && m.injuries[p].severity) > 0);
@@ -2024,6 +2047,7 @@ function mercenaryCardHtml(m) {
       </p>
       ${m.assignment === 'active' ? `
         ${formationSectionHtml(m, m.id)}
+        ${mercCombatSettingsHtml(m)}
       ` : `
         <p>일자리:
           ${Object.values(TERRITORY_JOBS).map((job) => {
@@ -2191,6 +2215,24 @@ function renderTerritoryTab(content, container) {
       if (merc) { merc.assignment = r.assignment; merc.job = r.job; }
       rerender();
       showToast(r.assignment === 'active' ? '전투부대로 편입했습니다' : '영지로 보냈습니다');
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-merc-stance-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('set-mercenary-combat-settings', { mercId: btn.dataset.merc, stance: btn.dataset.stance });
+      const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
+      if (merc) merc.stance = r.stance;
+      rerender();
+      showToast(r.stance === 'aggressive' ? '쎈 몹부터 노리도록 바꿨습니다' : '약한 몹부터 노리도록 바꿨습니다');
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-merc-role-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('set-mercenary-combat-settings', { mercId: btn.dataset.merc, combatRole: btn.dataset.role });
+      const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
+      if (merc) merc.combatRole = r.combatRole;
+      rerender();
+      showToast(r.combatRole === 'support' ? '서포트 역할로 바꿨습니다' : '버티기 역할로 바꿨습니다');
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-merc-job-btn').forEach((btn) => btn.addEventListener('click', async () => {

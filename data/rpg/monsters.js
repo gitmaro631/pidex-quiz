@@ -7,34 +7,35 @@
 export const MONSTERS = {
   slime: {
     id: 'slime', name: '슬라임', element: 'none', tags: ['beast'], rare: false,
-    // 예전엔 hp18/atk3 - 레벨1 맨몸 캐릭터가 groupSizeMax 3인 초원에서 승률 10%대까지 떨어지는
-    // 문제가 실측(시뮬레이션)으로 확인돼서 초원 3종 전부 하향(체력 대략 40~45%, 공격력 30~35% 감소)
-    baseStats: { hp: 10, atk: 2, def: 0 },
+    // 원래 hp18/atk3 -> 실측 승률 10%대라 hp10/atk2까지 내렸다가, 이번엔 실서버 400판 검증에서
+    // 승률 98%로 오히려 너무 쉬워진 게 확인돼서 하향폭을 절반만 남기고 되돌림(원본과 1차 하향의 중간)
+    baseStats: { hp: 14, atk: 3, def: 0 },
     xp: 3, goldMin: 1, goldMax: 3,
+    // 장비 드랍률 3%→12%까지 올렸다가 승률이 너무 쉬워져서 8%로 다시 낮춤
     dropTable: [
       { itemId: 'slime_jelly', chance: 0.5, qtyMin: 1, qtyMax: 2 },
       { itemId: 'bag_small', chance: 0.08, qtyMin: 1, qtyMax: 1 },
-      { itemId: 'weapon_uncommon', chance: 0.03, qtyMin: 1, qtyMax: 1 },
+      { itemId: 'weapon_uncommon', chance: 0.08, qtyMin: 1, qtyMax: 1 },
     ],
   },
   field_rat: {
     id: 'field_rat', name: '들쥐', element: 'none', tags: ['beast'], rare: false,
-    baseStats: { hp: 8, atk: 2, def: 0 },
+    baseStats: { hp: 11, atk: 3, def: 0 },
     xp: 3, goldMin: 1, goldMax: 2,
     dropTable: [
       { itemId: 'rat_tail', chance: 0.4, qtyMin: 1, qtyMax: 1 },
       { itemId: 'bag_small', chance: 0.08, qtyMin: 1, qtyMax: 1 },
-      { itemId: 'armor_uncommon', chance: 0.03, qtyMin: 1, qtyMax: 1 },
+      { itemId: 'armor_uncommon', chance: 0.08, qtyMin: 1, qtyMax: 1 },
     ],
   },
   wolf_pup: {
     id: 'wolf_pup', name: '새끼 늑대', element: 'none', tags: ['beast'], rare: false,
-    baseStats: { hp: 12, atk: 3, def: 0 },
+    baseStats: { hp: 17, atk: 4, def: 0 },
     xp: 4, goldMin: 2, goldMax: 4,
     dropTable: [
       { itemId: 'wolf_pelt', chance: 0.35, qtyMin: 1, qtyMax: 1 },
       { itemId: 'bag_small', chance: 0.08, qtyMin: 1, qtyMax: 1 },
-      { itemId: 'weapon_uncommon', chance: 0.03, qtyMin: 1, qtyMax: 1 },
+      { itemId: 'weapon_uncommon', chance: 0.08, qtyMin: 1, qtyMax: 1 },
     ],
   },
   giant_slime: {

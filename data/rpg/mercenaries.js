@@ -20,6 +20,8 @@ export const MERCENARY_TEMPLATES = {
   merc_priest_1: {
     id: 'merc_priest_1', name: '떠돌이 성직자', classMain: 'priest',
     baseLevel: 15, hireCost: 400, wagePerAdventure: 18, mentalResist: 60, minTownTier: 3,
+    // 컨셉상 순수 힐러 - combatRole 선택지를 무시하고 전투에서 항상 서포트로 취급(rpg-combat.js resolveCombat 참고)
+    fixedCombatRole: 'support',
   },
   // 영지 시설 업그레이드 특화 용병 - 다른 용병과 똑같이 전투에도 데려갈 수 있고 전투로 레벨업함
   // (classMain에 따라 공/방이 정해짐). 차이는 territorySpecialty에 맞는 시설에 배치하면
@@ -28,6 +30,8 @@ export const MERCENARY_TEMPLATES = {
     id: 'merc_doctor_1', name: '떠돌이 군의관', classMain: 'priest',
     baseLevel: 8, hireCost: 250, wagePerAdventure: 12, mentalResist: 55, minTownTier: 2,
     territorySpecialty: 'hospital',
+    // 컨셉상 순수 힐러 - combatRole 선택지를 무시하고 전투에서 항상 서포트로 취급(rpg-combat.js resolveCombat 참고)
+    fixedCombatRole: 'support',
   },
   merc_engineer_1: {
     id: 'merc_engineer_1', name: '떠돌이 배관공', classMain: 'warrior',

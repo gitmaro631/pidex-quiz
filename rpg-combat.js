@@ -11,7 +11,7 @@ import { elementalMultiplier } from './data/rpg/elements.js';
 import { CLASS_ESSENCE_ITEM, TIER_POWER_MULT } from './data/rpg/training.js';
 import { ENHANCE_ATK_PER_LEVEL, ENHANCE_DEF_PER_LEVEL, RARE_MONSTER_STONE_DROP_CHANCE } from './data/rpg/enhancement.js';
 import { facilityBonusMultiplier, moraleResistBonus, improvisedAttackBonus } from './data/rpg/facilities.js';
-import { SQUIRE_SKILL_POWER_MULT } from './data/rpg/mercenaries.js';
+import { SQUIRE_SKILL_POWER_MULT, MERCENARY_TEMPLATES } from './data/rpg/mercenaries.js';
 
 // 반지+목걸이가 같은 세트(setId)면 세트 보너스를 반환, 아니면 null
 function matchedSetBonus(ringItem, necklaceItem) {
@@ -70,6 +70,11 @@ const MORALE_BREAK_BASE_CHANCE = 0.13; // 예전엔 0.25 - 근접딜러가 밀�
 const PLAYER_BASE_MENTAL_RESIST = 50; // 유저 캐릭터 전용 스탯이 따로 없어 용병 평균값(50~65)대로 기본값 사용
 // 성기사/흑기사는 신념형 직업이라 멘탈이 원래 흔들리지 않음 - 공포로 인한 진형 후퇴 판정 자체를 항상 통과(0% 밀림)
 const CLASS_MENTAL_RESIST_OVERRIDE = { paladin: 100, dark_knight: 100 };
+// 힐/저주/파티버프가 없는 서포트 역할 용병(전사/궁수 등)이 쓰는 자기 전용 방어 버프의 지속시간/세기
+const SELF_DEF_BUFF_ROUNDS = 3;
+const SELF_DEF_BUFF_AC_BONUS = 3;
+// 체력이 이 비율 이하로 떨어지면 무조건(확률 판정 없이) 맨 뒷열로 후퇴함 - 기존 "위험 수위" 경고 로그와 같은 기준선
+const DANGER_RETREAT_HP_PCT = 0.25;
 // 밀려난 칸 수(rowsOut)당 명중/피해 페널티 - 더 이상 "공격 불가"로 아예 막지 않는 대신, 밀린 만큼
 // 조금씩 불리해짐(전열→후열처럼 두 칸 밀리면 페널티가 누적으로 더 세짐 - selectAttackWeapon 참고)
 const PUSHED_ATTACK_ROLL_PENALTY_PER_ROW = 2;
@@ -94,8 +99,9 @@ const DIRECT_SEVERE_BASE_CHANCE = 0.02;
 const DIRECT_SEVERE_WEAK_AFFINITY_BONUS = 0.03;
 const DIRECT_SEVERE_UNDERLEVEL_BONUS = 0.03;
 const UNDERLEVEL_ZONE_MULTIPLIER = 3;
-// 직업훈련소 결정 - 몹 종류 무관, 내(본인) 직업에 맞는 결정이 킬당 이 확률로 하나씩 드랍됨
-const ESSENCE_DROP_CHANCE = 0.2;
+// 직업훈련소 결정 - 몹 종류 무관, 내(본인) 직업에 맞는 결정이 킬당 이 확률로 하나씩 드랍됨.
+// 20%는 너무 자주 나온다는 피드백으로 5%로 낮춤(스킬 1단계 배우는 데 결정 3개 필요 - 대략 킬 60회당 3개꼴)
+const ESSENCE_DROP_CHANCE = 0.05;
 // 그 지역 유니크(2단계)/레전더리(3단계) 몹 전용 - 세트 아이템(반지/목걸이 중 하나)이 이 확률로 드랍
 const SET_ITEM_DROP_CHANCE = 0.08;
 // 5피스 풀세트(지역 무관) 조각 드랍 확률 - 아무 지역이든 유니크/레전더리몹이면 발동, 훨씬 희귀함
@@ -500,6 +506,9 @@ function buildCombatant({ characterLike, isSelf, formationRow, ownerCharacter })
     label: isSelf ? '나' : characterLike.name,
     combatStats,
     stance: characterLike.stance || 'stable',
+    // 유저 본인은 role 분기 대상이 아님(항상 기존처럼 utility 스킬 우선) - 용병만 fight/support로 갈림.
+    // resolveCombat이 fixedCombatRole(힐러 컨셉 용병)을 이미 반영해서 넘겨줌
+    combatRole: isSelf ? null : (characterLike.combatRole || 'fight'),
     formationRow,
     allowedRows,
     hp: typeof characterLike.currentHp === 'number' ? characterLike.currentHp : combatStats.maxHp,
@@ -670,7 +679,8 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   // 성직자의 "마법 방어막" 버프(defMult>1)는 이제 데미지 감소 대신 AC 상승으로 반영됨
   const legPenalty = target.injurySeverity.leg ? (LEG_INJURY_AC_PENALTY[target.injurySeverity.leg] || 0) : 0;
   const defBuffAcBonus = Math.round((partyBuffs.defMult - 1) * 10);
-  const targetAC = combatStats.ac + defBuffAcBonus - legPenalty;
+  const selfDefBonus = target.selfDefRounds > 0 ? (target.selfDefBonus || 0) : 0;
+  const targetAC = combatStats.ac + defBuffAcBonus + selfDefBonus - legPenalty;
   const naturalRoll = randInt(1, 20);
   const isCrit = naturalRoll === 20;
   const isFumble = naturalRoll === 1;
@@ -694,9 +704,17 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
     log.push(`${target.label}이(가) 중독됐다! ${poisonDamage} 피해.`);
   }
   // 위험 수위(체력 25% 이하)에 처음 진입한 순간만 경고 - 매 공격마다 반복하지 않게 1회성 플래그로 관리
-  if (!target.lowHpWarned && target.hp > 0 && target.hp / combatStats.maxHp <= 0.25) {
+  if (!target.lowHpWarned && target.hp > 0 && target.hp / combatStats.maxHp <= DANGER_RETREAT_HP_PCT) {
     target.lowHpWarned = true;
     log.push(`🩸 ${target.label}의 체력이 위험 수위에 이르렀다!`);
+  }
+
+  // 목숨이 위험하면(체력 25% 이하) 확률 판정 없이 무조건 맨 뒷열로 도망침 - 아래 멘탈 밀림(확률 판정)과는
+  // 별개의 확정 발동. 용병/유저 구분 없이 동일 적용. 이미 후열이면(더 물러날 곳이 없음) 아무 일도 없고,
+  // 뒤이은 멘탈 밀림 판정도 이미 후열이라 조건(rowIdx < length-1)이 자연히 걸러져 중복 이동은 없음
+  if (target.hp > 0 && target.hp / combatStats.maxHp <= DANGER_RETREAT_HP_PCT && target.formationRow !== 'back') {
+    target.formationRow = 'back';
+    log.push(`${target.label}이(가) 목숨의 위협을 느끼고 후방으로 몸을 피했다!`);
   }
 
   // 맞으면 멘탈(공포저항)이 낮을수록 한 칸 뒤로 물러날 확률이 있음(전열->중열->후열, 전투 중 일시적,
@@ -830,6 +848,17 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs }) {
     return true;
   }
 
+  // 자기 자신만 지키는 방어형 스킬(전사 방어태세/궁수 회피사격) - 힐/저주/파티버프가 없는(또는 다 쓴)
+  // 서포트 역할 용병도 뭔가는 하도록 하는 최후의 유틸리티 옵션. 지속시간 동안은 재시전 안 함
+  const selfDefSkill = actor.combatStats.classDef.skills.find((s) => (s.type === 'buff_def' || s.type === 'buff_evade') && isSkillUsable(actor, s));
+  if (selfDefSkill && !(actor.selfDefRounds > 0)) {
+    spendActorResource(actor, selfDefSkill, selfDefSkill.manaCost);
+    actor.selfDefRounds = SELF_DEF_BUFF_ROUNDS;
+    actor.selfDefBonus = Math.round(SELF_DEF_BUFF_AC_BONUS * skillEffectivePower(actor, selfDefSkill));
+    log.push(`${actor.label}의 ${selfDefSkill.name}! 스스로를 방비했다.`);
+    return true;
+  }
+
   return false;
 }
 
@@ -854,9 +883,14 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
 
   const party = [
     buildCombatant({ characterLike: { ...character, stance }, isSelf: true, formationRow: effectiveFormationRow(character), ownerCharacter: character }),
-    ...(character.mercenaries || []).map((merc) => buildCombatant({
-      characterLike: merc, isSelf: false, formationRow: effectiveFormationRow(merc), ownerCharacter: character,
-    })),
+    ...(character.mercenaries || []).map((merc) => {
+      // 힐러 컨셉 용병(떠돌이 성직자/군의관)은 유저가 뭘 저장해뒀든 항상 서포트로 취급
+      const fixedRole = (MERCENARY_TEMPLATES[merc.templateId] || {}).fixedCombatRole;
+      const effectiveCombatRole = fixedRole || merc.combatRole || 'fight';
+      return buildCombatant({
+        characterLike: { ...merc, combatRole: effectiveCombatRole }, isSelf: false, formationRow: effectiveFormationRow(merc), ownerCharacter: character,
+      });
+    }),
   ];
 
   // 마법사/성직자의 파티 버프 - 한 번 발동하면 이 전투(모험) 내내 유지됨(재시전으로 갱신 안 됨, 1회성)
@@ -980,6 +1014,7 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
     aliveMonsters().forEach((m) => {
       for (const skillId in m.skillCooldowns) if (m.skillCooldowns[skillId] > 0) m.skillCooldowns[skillId]--;
     });
+    alivePartyMembers().forEach((p) => { if (p.selfDefRounds > 0) p.selfDefRounds--; });
 
     // 이니셔티브 순서 - 속도(민첩/몹 속도)가 높을수록 먼저 행동. 매 라운드 다시 굴려서 소폭의
     // 변동(지터)을 줌 - 완전히 고정된 턴 순서가 되지 않게
@@ -998,7 +1033,10 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
 
         const target = pickMonsterByStance(actor.stance);
         if (!target) continue;
-        if (tryUtilitySkill({ actor, party, monster: target, log, partyBuffs })) continue;
+        // 유저 본인은 항상 유틸 스킬을 우선 시도. 용병은 combatRole==='support'일 때만 -
+        // 'fight'인 용병은 방어/힐 스킬이 있어도 죽기 직전까지 그냥 계속 공격만 함
+        const triesUtility = actor.isSelf || actor.combatRole === 'support';
+        if (triesUtility && tryUtilitySkill({ actor, party, monster: target, log, partyBuffs })) continue;
 
         const otherMonsters = monsters.filter((m) => m !== target);
         const result = performAttack({ actor, monster: target, otherMonsters, log, isUnderleveled, partyBuffs });

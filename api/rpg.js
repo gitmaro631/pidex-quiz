@@ -35,6 +35,7 @@ import dismissMercenary from './_rpg/dismiss-mercenary.js';
 import setFormation from './_rpg/set-formation.js';
 import admitMercenary from './_rpg/admit-mercenary.js';
 import setMercenaryAssignment from './_rpg/set-mercenary-assignment.js';
+import setMercenaryCombatSettings from './_rpg/set-mercenary-combat-settings.js';
 import collectTerritoryIncome from './_rpg/collect-territory-income.js';
 import trainSkill from './_rpg/train-skill.js';
 import enhanceEquipment from './_rpg/enhance-equipment.js';
@@ -79,6 +80,7 @@ const ROUTES = {
   'set-formation': setFormation,
   'admit-mercenary': admitMercenary,
   'set-mercenary-assignment': setMercenaryAssignment,
+  'set-mercenary-combat-settings': setMercenaryCombatSettings,
   'collect-territory-income': collectTerritoryIncome,
   'train-skill': trainSkill,
   'enhance-equipment': enhanceEquipment,
