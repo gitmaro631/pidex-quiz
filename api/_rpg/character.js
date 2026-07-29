@@ -1,6 +1,7 @@
 import { verifyPiUserFull } from '../_verifyPiUser.js';
 import { firestoreGetDoc, withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
+import { accountFacilitiesDocPath, defaultAccountFacilities } from '../_rpgFacilities.js';
 import { computeCurrentTurns, turnCapForLevel } from '../_rpgTurns.js';
 import { computeCharacterCombatStats } from '../../rpg-combat.js';
 import { fetchSurveyCompletion, isSurveyFullyComplete } from '../_rpgSurvey.js';
@@ -13,7 +14,7 @@ export default async function handler(req, res) {
   const verified = await verifyPiUserFull(accessToken);
   if (!verified) return res.status(401).json({ error: 'invalid accessToken' });
   const { username, uid } = verified;
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
 
   try {
     const docPath = characterDocPath(username, slot);
@@ -24,6 +25,12 @@ export default async function handler(req, res) {
         return defaultCharacter(slot);
       });
     }
+
+    // 영지 시설 레벨은 캐릭터 문서가 아니라 계정 공용 문서에서 옴(_rpgFacilities.js) - 같은 유저의
+    // 캐릭터1/2/3이 전부 같은 시설을 공유(용병 배치는 캐릭터별로 그대로 유지). 필드 이름은 그대로
+    // facilityDays/facilityLevels라 나머지 코드(client, rpg-combat.js 등)는 이 함수만 알면 됨
+    const accountFacilities = (await firestoreGetDoc(accountFacilitiesDocPath(username, slot))) || defaultAccountFacilities();
+    character = { ...character, facilityDays: accountFacilities.facilityDays, facilityLevels: accountFacilities.facilityLevels };
 
     // 설문 완료 여부는 자주 안 바뀌는 값이라 캐릭터 문서에 캐싱해두고, TTL이 지났을 때만 다시 확인함.
     // 완료 상태였다가(surveyBonusUnlocked:true) 이번에 다시 확인했는데 미완료로 바뀌었으면(설문 문항이

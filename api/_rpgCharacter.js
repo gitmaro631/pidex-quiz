@@ -3,15 +3,24 @@ import { computeCharacterCombatStats } from '../rpg-combat.js';
 import { MERCENARY_TEMPLATES, randomMercName } from '../data/rpg/mercenaries.js';
 import { CLASSES } from '../data/rpg/classes.js';
 import { encodeFirestorePathSegment } from './_firestore.js';
+import { isAdminUsername } from './_rpgAdmin.js';
 
-export const MAX_CHARACTER_SLOTS = 3;
+export const MAX_CHARACTER_SLOTS = 5;
+// 관리자 계정은 테스트용으로 슬롯 하나를 더 씀(기본 5개 + 테스트슬롯 1개) - 다른 유저는 여전히 5개 한도
+export const ADMIN_EXTRA_TEST_SLOTS = 1;
 
-export function isValidSlot(slot) {
-  const n = Number(slot);
-  return Number.isInteger(n) && n >= 1 && n <= MAX_CHARACTER_SLOTS;
+export function maxCharacterSlotsFor(username) {
+  return MAX_CHARACTER_SLOTS + (isAdminUsername(username) ? ADMIN_EXTRA_TEST_SLOTS : 0);
 }
 
-// 계정(username)당 최대 3캐릭 - 슬롯별로 완전히 독립된 문서
+// username을 안 넘기면(기존 호출부 다수) 관리자 여부를 모르니 기본 5개 한도로 보수적으로 판정 -
+// 관리자의 6번째 슬롯을 실제로 쓰게 하려면 호출부에서 isValidSlot(slot, username)으로 넘겨야 함
+export function isValidSlot(slot, username) {
+  const n = Number(slot);
+  return Number.isInteger(n) && n >= 1 && n <= maxCharacterSlotsFor(username);
+}
+
+// 계정(username)당 최대 5캐릭(MAX_CHARACTER_SLOTS) - 슬롯별로 완전히 독립된 문서
 export function characterDocPath(username, slot) {
   return `rpg_characters/${encodeFirestorePathSegment(username)}__${slot}`;
 }

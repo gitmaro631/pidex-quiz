@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   const { accessToken, slot, itemId, qty } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
 
   const sellQty = Math.max(1, Math.floor(Number(qty) || 1));
   if (!ITEMS[itemId]) return res.status(400).json({ error: 'unknown_item' });

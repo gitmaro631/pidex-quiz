@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   const { accessToken, slot, stance } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
   if (stance !== 'aggressive' && stance !== 'stable') return res.status(400).json({ error: 'invalid_stance' });
 
   let outcome = null;

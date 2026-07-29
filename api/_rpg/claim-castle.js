@@ -3,6 +3,7 @@
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { firestoreGetDoc, withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
+import { accountFacilitiesDocPath, defaultAccountFacilities } from '../_rpgFacilities.js';
 import { ZONES } from '../../data/rpg/zones.js';
 import { CASTLE_CLEAR_REQUIREMENT, CASTLE_ROLL_VARIANCE, castleDocPath } from '../../data/rpg/castle.js';
 import { computePartyPower } from '../../rpg-combat.js';
@@ -16,7 +17,7 @@ export default async function handler(req, res) {
   const { accessToken, slot, zoneId } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
   const zone = ZONES[zoneId];
   if (!zone) return res.status(400).json({ error: 'invalid zoneId' });
 
@@ -26,7 +27,9 @@ export default async function handler(req, res) {
     const clears = (character.zoneClearCounts || {})[zoneId] || 0;
     if (clears < CASTLE_CLEAR_REQUIREMENT) return res.status(400).json({ error: 'not_enough_clears' });
 
-    const challengerPower = computePartyPower(character);
+    // 도전 전력치도 시설(훈련소/방벽) 보너스가 반영돼야 함 - 시설은 계정 공용 문서(_rpgFacilities.js)
+    const accountFacilities = (await firestoreGetDoc(accountFacilitiesDocPath(username, slot))) || defaultAccountFacilities();
+    const challengerPower = computePartyPower({ ...character, facilityLevels: accountFacilities.facilityLevels });
     const challengerName = username;
 
     const castlePath = castleDocPath(zoneId);

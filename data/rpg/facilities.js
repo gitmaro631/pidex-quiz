@@ -74,3 +74,11 @@ export function moraleResistBonus(character) {
   const level = ((character && character.facilityLevels) || {}).morale || 0;
   return TERRITORY_JOBS.morale.bonusPctPerLevel * level;
 }
+
+// 연무장 전용 - 기본공격(improvisedAttack)의 위력 배율 + 명중굴림 보정치. 명중은 D&D식 소수치라
+// 위력%의 절반만 반영(레벨10=위력+40%, 명중+5 정도로 완만하게)
+export function improvisedAttackBonus(character) {
+  const level = ((character && character.facilityLevels) || {}).basics || 0;
+  const pct = TERRITORY_JOBS.basics.bonusPctPerLevel * level;
+  return { powerMult: 1 + pct / 100, accuracyBonus: Math.round(pct / 2) };
+}

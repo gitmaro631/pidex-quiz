@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   const { accessToken, slot, stat, amount } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
   if (!VALID_STATS.includes(stat)) return res.status(400).json({ error: 'invalid_stat' });
 
   const points = Math.max(1, Math.floor(Number(amount) || 1));

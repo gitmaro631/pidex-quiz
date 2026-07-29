@@ -11,20 +11,26 @@ const EQUIPPABLE_TYPES = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring
 const MERC_EQUIPPABLE_TYPES = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
 const ARMOR_SLOTS = ['armor_top', 'armor_bottom'];
 const DURABILITY_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
+// 보조무기 슬롯(내구도/강화 추적 없음) - 위치에 따라 상황에 맞는 무기로 자동 전환하는 데 씀(rpg-combat.js의
+// selectAttackWeapon 참고). weaponSlot 파라미터로 주무기/보조무기 중 어디에 낄지 고름(무기 타입 아이템만 해당)
+const WEAPON_SLOTS = ['weapon', 'weapon2', 'weapon3'];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { accessToken, slot, itemId, mercId } = req.body;
+  const { accessToken, slot, itemId, mercId, weaponSlot } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
 
   const item = ITEMS[itemId];
   const allowedTypes = mercId ? MERC_EQUIPPABLE_TYPES : EQUIPPABLE_TYPES;
   if (!item || !allowedTypes.includes(item.type)) {
     return res.status(400).json({ error: 'not_equippable' });
   }
-  const equipSlot = item.type; // 'weapon' | 'shield' | 'armor_top' | 'armor_bottom' | 'ring' | 'necklace'
+  if (weaponSlot && (item.type !== 'weapon' || !WEAPON_SLOTS.includes(weaponSlot))) {
+    return res.status(400).json({ error: 'invalid_weapon_slot' });
+  }
+  const equipSlot = item.type === 'weapon' ? (weaponSlot || 'weapon') : item.type; // 'weapon'|'weapon2'|'weapon3'|'shield'|'armor_top'|'armor_bottom'|'ring'|'necklace'
 
   let outcome = null;
   try {
@@ -52,7 +58,7 @@ export default async function handler(req, res) {
       }
       // 방패는 캐스터도 장착은 허용(하드 블록 없음) - 다만 전투 중 방어력 기여가 크게 깎임(rpg-combat.js의
       // OFF_CLASS_SHIELD_DEF_MULT 참고), 무기의 직업 불일치 패널티와 같은 원칙
-      if ((ARMOR_SLOTS.includes(equipSlot) || equipSlot === 'weapon' || equipSlot === 'shield') && (item.strRequirement || item.wisRequirement)) {
+      if ((ARMOR_SLOTS.includes(equipSlot) || WEAPON_SLOTS.includes(equipSlot) || equipSlot === 'shield') && (item.strRequirement || item.wisRequirement)) {
         const stats = effectiveStats(target);
         if (item.strRequirement && stats.str < item.strRequirement) {
           outcome = { error: 'not_enough_strength' };

@@ -16,7 +16,6 @@ export const ITEMS = {
   mp_potion_large: { id: 'mp_potion_large', name: '마나 물약(대)', type: 'consumable', rarity: 'normal', restoreMpPct: 0.75, shopPrice: 90, weight: 0.8, minTownTier: 4 },
   stamina_potion_large: { id: 'stamina_potion_large', name: '스테미나 물약(대)', type: 'consumable', rarity: 'normal', restoreStaminaPct: 0.75, shopPrice: 90, weight: 0.8, minTownTier: 4 },
   torch: { id: 'torch', name: '횃불', type: 'consumable', rarity: 'normal', shopPrice: 30, weight: 1 },
-  arrow: { id: 'arrow', name: '화살', type: 'ammo', rarity: 'normal', shopPrice: 2, weight: 0.1 }, // 상점에서 10개 묶음으로 구매됨(개당 가격)
   bandage: { id: 'bandage', name: '붕대', type: 'consumable', rarity: 'normal', cureInjury: 'mild', shopPrice: 25, weight: 0.3 }, // 경상만 치료, 중상은 의사에게
   identify_scroll: { id: 'identify_scroll', name: '감정 스크롤', type: 'consumable', rarity: 'normal', identifyScroll: true, shopPrice: 40, weight: 0.2 }, // 미확인 아이템 즉시 감정
   repair_hammer: { id: 'repair_hammer', name: '수리 망치', type: 'consumable', rarity: 'normal', repairHammer: true, shopPrice: 30, weight: 1 }, // 셀프 수리 1회당 소모(수리스킬 필요)
@@ -39,7 +38,7 @@ export const ITEMS = {
   // 사슬로 연결된 무기 - 창처럼 사거리가 있어 중열에서도 상대 전열을 공격 가능(rpg-combat.js EXTENDED_REACH_WEAPON_TYPES)
   weapon_basic_flail: { id: 'weapon_basic_flail', name: '낡은 사슬도리깨', type: 'weapon', weaponType: 'flail', rarity: 'normal', atkBonus: 4, shopPrice: 55, weight: 6 },
   weapon_basic_bow: { id: 'weapon_basic_bow', name: '낡은 활', type: 'weapon', weaponType: 'bow', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 3 },
-  weapon_basic_dagger: { id: 'weapon_basic_dagger', name: '낡은 단도', type: 'weapon', weaponType: 'dagger', rarity: 'normal', atkBonus: 2, shopPrice: 40, weight: 2 }, // 궁수의 보조무기 - 화살이 떨어지면 이걸로 근접전
+  weapon_basic_dagger: { id: 'weapon_basic_dagger', name: '낡은 단도', type: 'weapon', weaponType: 'dagger', rarity: 'normal', atkBonus: 2, shopPrice: 40, weight: 2 }, // 궁수 등이 쓰는 가벼운 보조무기
   weapon_basic_staff: { id: 'weapon_basic_staff', name: '낡은 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 3 },
   armor_basic: { id: 'armor_basic', name: '낡은 갑옷', type: 'armor_top', rarity: 'normal', armorClass: 'light', defBonus: 2, hpBonus: 10, shopPrice: 60, weight: 6, strRequirement: 5 },
   // 천 방어구(cloth) - 마법사/성직자 전용. 힘과 지혜 둘 다 일정 이상 필요(마력 운용에 정신력도 필요하다는 설정)

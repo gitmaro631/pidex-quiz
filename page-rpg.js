@@ -444,7 +444,7 @@ function maybeShowQuizRefillNotice(container) {
   });
 }
 
-// ── 캐릭터 선택 화면 (계정당 최대 3캐릭) ──────────────
+// ── 캐릭터 선택 화면 (계정당 최대 5캐릭 - api/_rpgCharacter.js의 MAX_CHARACTER_SLOTS 참고) ──────────────
 async function renderCharacterSelect(container) {
   container.innerHTML = `<div class="rpg-loading">캐릭터 목록을 불러오는 중...</div>`;
   let slots;
@@ -459,22 +459,23 @@ async function renderCharacterSelect(container) {
   container.innerHTML = `
     <div class="rpg-page">
       <h3>캐릭터 선택</h3>
-      <p class="rpg-hint">계정당 최대 3명까지 캐릭터를 만들 수 있어요.</p>
+      <p class="rpg-hint">계정당 최대 5명까지 캐릭터를 만들 수 있어요.</p>
       <div class="rpg-class-cards">
         ${slots.map((s) => {
           // 직업을 아직 선택 안 한 캐릭터는(뒤로가기로 나온 경우 등) 실제로는 아무것도 안 정해진
           // 상태라 "새 캐릭터 생성"과 똑같이 취급함(선택을 안 했으니 눈에 보이는 변화도 없어야 함)
           const isBlank = !s.exists || !s.classMain;
+          const slotLabel = s.isTestSlot ? `테스트슬롯 ${s.slot}` : `슬롯 ${s.slot}`;
           return isBlank ? `
           <div class="rpg-slot-block">
             <button class="rpg-slot-btn" data-slot="${s.slot}">
-              <div class="rpg-class-name">슬롯 ${s.slot} — 새 캐릭터 생성</div>
+              <div class="rpg-class-name">${slotLabel} — 새 캐릭터 생성</div>
             </button>
           </div>
         ` : `
           <div class="rpg-slot-block">
             <button class="rpg-slot-btn" data-slot="${s.slot}">
-              <div class="rpg-class-name">슬롯 ${s.slot} — Lv.${s.level} ${(CLASSES[s.classMain] || {}).name}</div>
+              <div class="rpg-class-name">${slotLabel} — Lv.${s.level} ${(CLASSES[s.classMain] || {}).name}</div>
               <div class="rpg-class-skills">${s.gold}골드</div>
             </button>
             <button class="rpg-slot-delete-btn" data-slot="${s.slot}">이 캐릭터 삭제</button>

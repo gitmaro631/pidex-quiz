@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ gold: storage?.gold || 0, items: storage?.items || [] });
   }
 
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
   if (direction !== 'deposit' && direction !== 'withdraw') return res.status(400).json({ error: 'invalid_direction' });
 
   const goldAmount = gold ? Math.max(1, Math.floor(Number(gold))) : 0;

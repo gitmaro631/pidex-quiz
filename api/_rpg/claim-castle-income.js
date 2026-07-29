@@ -8,6 +8,7 @@ import { ZONES } from '../../data/rpg/zones.js';
 import { CLASS_ESSENCE_ITEM } from '../../data/rpg/training.js';
 import { GOLD_INCOME_PER_TIER, MATERIAL_BONUS_MIN_TIER, MATERIAL_BONUS_QTY, castleDocPath } from '../../data/rpg/castle.js';
 import { facilityBonusMultiplier } from '../../data/rpg/facilities.js';
+import { accountFacilitiesDocPath, defaultAccountFacilities } from '../_rpgFacilities.js';
 
 function todayDateKey() {
   return new Date().toISOString().slice(0, 10);
@@ -18,7 +19,7 @@ export default async function handler(req, res) {
   const { accessToken, slot } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
 
   let outcome = null;
   try {
@@ -37,6 +38,8 @@ export default async function handler(req, res) {
         ownedZones.push(zoneId);
       }
     }
+    // 개간지 골드보너스는 계정 공용 시설 레벨 기준(캐릭터별로 따로 안 나뉨 - _rpgFacilities.js 참고)
+    const accountFacilities = (await firestoreGetDoc(accountFacilitiesDocPath(username, slot))) || defaultAccountFacilities();
 
     await withFirestoreTransaction(docPath, (current) => {
       const character = current || defaultCharacter(slot);
@@ -59,7 +62,7 @@ export default async function handler(req, res) {
         }
       }
 
-      income = Math.floor(income * facilityBonusMultiplier(character, 'clearing'));
+      income = Math.floor(income * facilityBonusMultiplier(accountFacilities, 'clearing'));
       const now = Date.now();
       outcome = { gold: (character.gold || 0) + income, income, ownedZones, materialsGranted, alreadyClaimed: false };
       return { ...character, gold: (character.gold || 0) + income, inventory, lastCastleIncomeClaimDate: today, updatedAt: now };

@@ -4,21 +4,23 @@
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { firestoreGetDoc } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
+import { accountFacilitiesDocPath, defaultAccountFacilities } from '../_rpgFacilities.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { accessToken, slot } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
 
   try {
     const character = (await firestoreGetDoc(characterDocPath(username, slot))) || defaultCharacter(slot);
+    const accountFacilities = (await firestoreGetDoc(accountFacilitiesDocPath(username, slot))) || defaultAccountFacilities();
     return res.status(200).json({
       gold: character.gold || 0,
       foodStock: character.foodStock || 0,
-      facilityDays: character.facilityDays || {},
-      facilityLevels: character.facilityLevels || {},
+      facilityDays: accountFacilities.facilityDays || {},
+      facilityLevels: accountFacilities.facilityLevels || {},
     });
   } catch (e) {
     return res.status(500).json({ error: e.message });

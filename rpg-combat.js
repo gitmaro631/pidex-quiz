@@ -10,7 +10,7 @@ import { CLASSES } from './data/rpg/classes.js';
 import { elementalMultiplier } from './data/rpg/elements.js';
 import { CLASS_ESSENCE_ITEM, TIER_POWER_MULT } from './data/rpg/training.js';
 import { ENHANCE_ATK_PER_LEVEL, ENHANCE_DEF_PER_LEVEL, RARE_MONSTER_STONE_DROP_CHANCE } from './data/rpg/enhancement.js';
-import { facilityBonusMultiplier, moraleResistBonus } from './data/rpg/facilities.js';
+import { facilityBonusMultiplier, moraleResistBonus, improvisedAttackBonus } from './data/rpg/facilities.js';
 import { SQUIRE_SKILL_POWER_MULT } from './data/rpg/mercenaries.js';
 
 // 반지+목걸이가 같은 세트(setId)면 세트 보너스를 반환, 아니면 null
@@ -54,9 +54,26 @@ const OFF_CLASS_WEAPON_ATTACK_PENALTY = 4; // D&D식 명중굴림(1d20+공격보
 // 캐스터(마법사/성직자, resourceType이 stamina가 아닌 직업)가 방패를 장착했을 때의 패널티 - 두 손이
 // 자유롭지 않아 방패를 제대로 못 다루므로 방패의 방어력 기여분이 이만큼만 반영됨(회피/AC 저하로 체감)
 const OFF_CLASS_SHIELD_DEF_MULT = 0.4;
+// 전사는 "만능 근접직" 컨셉이라 어떤 무기든 비숙련 패널티 없음(classDef.weaponTypes 체크 자체를 건너뜀)
+const UNRESTRICTED_WEAPON_CLASS_IDS = ['warrior'];
+// 성기사/흑기사는 반대로 "컨셉 무기"(검) 하나만 패널티 없음 - 도끼/사슬도리깨는 원래 weaponTypes에
+// 있어서 예전엔 패널티가 없었는데, 정체성을 더 뚜렷하게 하기 위해 좁힘
+const CONCEPT_WEAPON_BY_CLASS = { paladin: ['sword'], dark_knight: ['sword'] };
+function isOffClassWeapon(classDef, weaponType) {
+  if (!weaponType) return false;
+  if (UNRESTRICTED_WEAPON_CLASS_IDS.includes(classDef.id)) return false;
+  const allowed = CONCEPT_WEAPON_BY_CLASS[classDef.id] || classDef.weaponTypes;
+  return !allowed.includes(weaponType);
+}
 // 용병의 멘탈(공포저항) - 전열에서 피격당할 때마다 낮은 확률로 멘탈이 나가서 후열로 숨음(그 전투 한정, 일시적)
 const MORALE_BREAK_BASE_CHANCE = 0.13; // 예전엔 0.25 - 근접딜러가 밀려나 그 라운드 공격을 못하는 스노우볼이 너무 잦다는 피드백으로 완화
 const PLAYER_BASE_MENTAL_RESIST = 50; // 유저 캐릭터 전용 스탯이 따로 없어 용병 평균값(50~65)대로 기본값 사용
+// 성기사/흑기사는 신념형 직업이라 멘탈이 원래 흔들리지 않음 - 공포로 인한 진형 후퇴 판정 자체를 항상 통과(0% 밀림)
+const CLASS_MENTAL_RESIST_OVERRIDE = { paladin: 100, dark_knight: 100 };
+// 밀려난 칸 수(rowsOut)당 명중/피해 페널티 - 더 이상 "공격 불가"로 아예 막지 않는 대신, 밀린 만큼
+// 조금씩 불리해짐(전열→후열처럼 두 칸 밀리면 페널티가 누적으로 더 세짐 - selectAttackWeapon 참고)
+const PUSHED_ATTACK_ROLL_PENALTY_PER_ROW = 2;
+const PUSHED_DAMAGE_MULT_PER_ROW = 0.85;
 const BASE_INJURY_CHANCE = 0.08;
 const WEAK_AFFINITY_INJURY_BONUS = 0.12; // 상성이 안 좋으면 다칠 확률이 더 높아짐
 // D&D식 명중판정 - 1d20 + 공격보정 vs 상대 AC. 자연 20은 항상 명중(치명타), 자연 1은 항상 빗나감.
@@ -226,6 +243,12 @@ export function computeCharacterCombatStats(character) {
   const armorTopEnhanceBonus = armorTopBroken ? 0 : (equipment.armor_topEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
   const armorBottomEnhanceBonus = armorBottomBroken ? 0 : (equipment.armor_bottomEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
   const weaponAtkBonus = (weaponBroken ? 0 : ((weaponItem && weaponItem.atkBonus) || 0)) + weaponEnhanceBonus;
+  // 보조무기(weapon2/weapon3) - 내구도/강화 추적 없는 단순 예비무기. 진형이 밀려 주무기가 안 닿는 상황에서
+  // 상황에 맞는 무기로 자동 전환하는 데 씀(rpg-combat.js의 selectAttackWeapon 참고) - 평소엔 아무 영향 없음
+  const subWeapons = ['weapon2', 'weapon3']
+    .map((slot) => equipment[slot] && ITEMS[equipment[slot]])
+    .filter(Boolean)
+    .map((item) => ({ weaponType: item.weaponType, atkBonus: item.atkBonus || 0, element: item.element || 'none' }));
   // 방패는 물리 직업(전사/궁수) 전용 장비지만 캐스터도 장착 자체는 가능 - 다만 방어력 기여가 대폭 깎임(회피 저하)
   const offClassShield = !!(shieldItem && !shieldBroken && mainCls.resourceType !== 'stamina');
   const shieldDefContribution = (shieldBroken ? 0 : (((shieldItem && shieldItem.defBonus) || 0) + shieldEnhanceBonus))
@@ -264,6 +287,7 @@ export function computeCharacterCombatStats(character) {
   const facilityAtkMult = facilityBonusMultiplier(character, 'training');
   const facilityDefMult = facilityBonusMultiplier(character, 'ramparts');
   const facilityResourceMult = facilityBonusMultiplier(character, 'sanctum');
+  const improvisedBonus = improvisedAttackBonus(character); // 연무장 - 기본공격(무기/스킬 불필요) 위력/명중 보너스
   // 종자로 흡수한 용병의 스탯 일부(흡수 시점에 고정된 값) - squire-mercenary.js가 부여
   const squireBonus = character.squireStatBonus || {};
   const finalAtk = Math.round((scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus) * facilityAtkMult) + (squireBonus.atk || 0);
@@ -283,6 +307,9 @@ export function computeCharacterCombatStats(character) {
     ac,
     element: weaponBroken ? 'none' : ((weaponItem && weaponItem.element) || 'none'), // 무기 파손시 속성공격도 사라짐
     weaponType: (weaponItem && weaponItem.weaponType) || null,
+    weaponAtkBonus, // 주무기가 최종 atk에 기여한 원수치(보조무기로 전투 중 전환할 때 이 값만 빼고 갈아끼움)
+    improvisedAttackBonus: improvisedBonus, // 연무장 시설 보너스(기본공격 전용) - performAttack 참고
+    subWeapons,
     hasShield: !!(shieldItem && !shieldBroken), // 방패 스킬(방패 강타 등) 사용 조건
     agi: stats.agi,
     weaponBroken: !!weaponBroken,
@@ -336,13 +363,18 @@ export function monsterDifficultyTier(ratio) {
 }
 
 // 전투 1회를 치른 뒤 장착중인 무기/방어구에 마모를 적용 - 내구도가 낮을수록 조기 파손 확률이 높아짐
-export function applyEquipmentWear(equipment) {
+// wearChance - 이번 전투에서 그 부위가 "아예 마모될지 말지"의 확률(기본 1 = 매번 마모, 예전과 동일).
+// 초급 사냥터(저티어 지역)에서 장비가 너무 빨리 닳아 수리비 부담이 크다는 피드백으로, adventure.js가
+// 지역 tier에 따라 이 값을 낮춰서 넘겨줌 - 마모 "양"을 억지로 줄이면 최소 1은 항상 깎여서 티가 잘 안
+// 나길래, 대신 마모가 아예 안 일어나는 판을 늘리는 방식으로 바꿈
+export function applyEquipmentWear(equipment, wearChance = 1) {
   const next = { ...equipment };
   const brokenNow = [];
   const wearOne = (itemKey, durabilityKey) => {
     if (!next[itemKey]) return;
     const before = next[durabilityKey] ?? 100;
     if (before <= 0) return; // 이미 파손됨 - 수리 전까지 더 닳지 않음
+    if (Math.random() >= wearChance) return; // 이번 전투는 마모 없이 넘어감
     const wear = randInt(1, 3);
     let after = Math.max(0, before - wear);
     const breakChance = Math.min(0.8, (100 - after) / 150);
@@ -355,11 +387,6 @@ export function applyEquipmentWear(equipment) {
   wearOne('armor_top', 'armor_topDurability');
   wearOne('armor_bottom', 'armor_bottomDurability');
   return { equipment: next, brokenNow };
-}
-
-function inventoryQty(inventory, itemId) {
-  const entry = (inventory || []).find((e) => e.itemId === itemId);
-  return entry ? entry.qty : 0;
 }
 
 
@@ -417,6 +444,14 @@ const RANGED_WEAPON_TYPES = ['bow', 'staff']; // 원거리 무기 - 자동 진�
 const EXTENDED_REACH_WEAPON_TYPES = ['spear', 'flail'];
 export const FORMATION_ROWS = ['front', 'mid', 'back']; // 몹 반격 우선순위도 이 순서(전열이 있으면 전열, 없으면 중열, 그다음 후열)
 
+// 무기 타입 하나가 어느 열까지 닿는지 - 원거리는 위치 무관, 창/사슬도리깨는 전열+중열, 그 외 근접은 전열뿐.
+// 주무기뿐 아니라 보조무기(weapon2/weapon3) 각각의 사거리 판정에도 씀(selectAttackWeapon 참고)
+function weaponReachRows(weaponType) {
+  if (RANGED_WEAPON_TYPES.includes(weaponType)) return FORMATION_ROWS;
+  if (EXTENDED_REACH_WEAPON_TYPES.includes(weaponType)) return ['front', 'mid'];
+  return ['front'];
+}
+
 // 이 캐릭터/용병이 지금 선택할 수 있는 진형 목록 - 활/마법(원거리) 직업은 1~3열 전부 자유,
 // 창/사슬도리깨를 든 전사는 사거리를 인정해 중열까지, 그 외 근접은 전열 고정
 export function allowedFormationRows(characterLike) {
@@ -440,7 +475,7 @@ export function effectiveFormationRow(characterLike) {
 
 // 파티원 1명(본인 또는 용병)의 전투용 런타임 상태를 구성 - characterLike는 character 또는
 // character.mercenaries[i] (둘 다 stats/level/classMain/equipment/injuries 구조가 동일함)
-function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory, ownerCharacter }) {
+function buildCombatant({ characterLike, isSelf, formationRow, ownerCharacter }) {
   // 영지 시설(훈련소/방벽 등)은 본인뿐 아니라 그 캐릭터가 고용한 용병 전원에게도 적용됨 - 용병 객체엔
   // facilityLevels가 없으니 본대(ownerCharacter)의 것을 그대로 물려받게 함(본인은 이미 갖고 있어 그대로 둠)
   const statsSource = isSelf ? characterLike : { ...characterLike, facilityLevels: (ownerCharacter || characterLike).facilityLevels };
@@ -464,7 +499,6 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory, 
     name: isSelf ? '나' : characterLike.name,
     label: isSelf ? '나' : characterLike.name,
     combatStats,
-    // 용병은 별도 인벤토리 없이 본대(캐릭터)의 물자를 공유 - 화살은 sharedInventory에서 사용
     stance: characterLike.stance || 'stable',
     formationRow,
     allowedRows,
@@ -472,13 +506,13 @@ function buildCombatant({ characterLike, isSelf, formationRow, sharedInventory, 
     mp: typeof characterLike.currentMp === 'number' ? characterLike.currentMp : combatStats.maxMp,
     stamina: typeof characterLike.currentStamina === 'number' ? characterLike.currentStamina : combatStats.maxStamina,
     alive: true,
-    usesBow: combatStats.weaponType === 'bow',
-    arrowsUsed: 0,
     accessoryElementDefense,
     doubleAttackChance,
     // 본인도 용병과 동일하게 공포에 밀려날 수 있음(유저 캐릭터 전용 필드가 없으니 기본값 사용).
-    // 사기진작소 보너스는 본인/용병 구분 없이 그 캐릭터가 배치한 시설이니 파티 전원에게 적용됨
-    mentalResist: Math.min(100, (isSelf ? (characterLike.mentalResist ?? PLAYER_BASE_MENTAL_RESIST) : characterLike.mentalResist)
+    // 사기진작소 보너스는 본인/용병 구분 없이 그 캐릭터가 배치한 시설이니 파티 전원에게 적용됨.
+    // 성기사/흑기사는 CLASS_MENTAL_RESIST_OVERRIDE(100)로 다른 값을 다 덮어써서 사실상 안 밀림
+    mentalResist: Math.min(100, (CLASS_MENTAL_RESIST_OVERRIDE[characterLike.classMain]
+      ?? (isSelf ? (characterLike.mentalResist ?? PLAYER_BASE_MENTAL_RESIST) : characterLike.mentalResist))
       + moraleResistBonus(ownerCharacter)),
     // 스킬 훈련(skillLevels)은 본인 전용 - 용병은 훈련소 대상이 아니라 항상 자기 스킬을 자유롭게 씀
     skillLevels: isSelf ? (characterLike.skillLevels || {}) : null,
@@ -522,32 +556,62 @@ function skillEffectivePower(actor, skill) {
   return skill.power * (TIER_POWER_MULT[tier] || 1);
 }
 
+// 지금 위치(formationRow)에서 실제로 쓸 무기를 주무기+보조무기(weapon2/weapon3) 중에서 고름 - "위치/상황에
+// 따라 무기 3개 중 하나를 골라 쓴다"는 컨셉. 그 열에 닿는 무기가 있으면 그중 공격력이 가장 센 걸 쓰고,
+// 셋 다 안 닿으면(밀려난 근접무기 등) 그래도 주무기로 공격은 계속하되 rowsOut(밀려난 칸 수)만큼
+// performAttack에서 명중/피해 페널티가 붙음
+function selectAttackWeapon(actor) {
+  const combatStats = actor.combatStats;
+  const candidates = [
+    { weaponType: combatStats.weaponType, atkBonus: combatStats.weaponAtkBonus, element: combatStats.element, isMain: true },
+    ...(combatStats.subWeapons || []).map((w) => ({ ...w, isMain: false })),
+  ].filter((w) => w.weaponType);
+
+  const reaching = candidates.filter((w) => weaponReachRows(w.weaponType).includes(actor.formationRow));
+  if (reaching.length) {
+    return { ...reaching.reduce((a, b) => (b.atkBonus > a.atkBonus ? b : a)), rowsOut: 0 };
+  }
+  const main = candidates.find((w) => w.isMain) || { weaponType: combatStats.weaponType, atkBonus: combatStats.weaponAtkBonus, element: combatStats.element, isMain: true };
+  const maxReachIdx = Math.max(...weaponReachRows(main.weaponType).map((r) => FORMATION_ROWS.indexOf(r)));
+  const rowsOut = Math.max(0, FORMATION_ROWS.indexOf(actor.formationRow) - maxReachIdx);
+  return { ...main, rowsOut };
+}
+
 // 파티원 한 명의 공격 1회 처리(스킬/화살/부상/비숙련무기 패널티/2연타 전부 포함) - monster는 참조로 변형됨.
 // otherMonsters: 같은 조우에서 아직 순서를 기다리는 나머지 몹들 - attack_all(광역) 스킬의 스플래시 대상
-function performAttack({ actor, monster, otherMonsters, sharedInventory, log, isUnderleveled, partyBuffs }) {
+function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, partyBuffs }) {
   const combatStats = actor.combatStats;
+  const weapon = selectAttackWeapon(actor);
+  // 보조무기로 교체됐으면 그 무기의 원수치로, 주무기 그대로면 rowsOut(밀린 칸 수)만큼 피해 배율이 깎임
+  // (combatStats.atk는 이미 주무기 보너스가 반영된 최종치라, 그 보너스만 빼고 선택된 무기 보너스로 갈아끼움 -
+  // 시설 배율 등이 살짝 근사치가 되지만 "약간의 페널티" 수준에선 무시할 만함)
+  const effectiveAtk = Math.max(1, combatStats.atk - combatStats.weaponAtkBonus + weapon.atkBonus)
+    * Math.pow(PUSHED_DAMAGE_MULT_PER_ROW, weapon.rowsOut);
   // 스킬은 스탠스와 무관하게 자원이 되는 한 항상 씀(안 쓰는 건 불리해지기만 할 뿐 "방어적"인 게 아님) -
   // 스탠스는 대신 몹 타겟 우선순위(약한 몹부터/강한 몹부터)를 결정함(resolveCombat 참고)
   const skills = combatStats.classDef.skills.filter((s) => (s.type === 'attack' || s.type === 'attack_all') && isSkillUsable(actor, s));
   const useSkill = skills.length > 0;
   const skill = useSkill ? skills[skills.length - 1] : null;
+  // 아직 스킬을 못 배웠거나(훈련소 미이수) 쓸 자원이 없으면 직업별 기본공격(improvisedAttack)으로 대체 -
+  // 무기가 진짜 없을 때(weapon.atkBonus<=0)만 powerMult 페널티가 붙고, 무기는 있는데 스킬만 없으면 정상 위력
+  const improvised = combatStats.classDef.improvisedAttack || { name: '공격', powerMult: 1 };
+  const attackLabel = skill ? skill.name : improvised.name;
   let power = (skill ? skillEffectivePower(actor, skill) : 1.0) * partyBuffs.atkMult; // 마법사의 "무기 강화" 버프가 파티 전체에 적용됨
+  if (!skill && weapon.atkBonus <= 0) power *= improvised.powerMult * combatStats.improvisedAttackBonus.powerMult;
   if (skill) spendActorResource(actor, skill, skill.manaCost);
 
-  const arrowsLeftBeforeShot = actor.usesBow ? inventoryQty(sharedInventory, 'arrow') - actor.arrowsUsed : 0;
-  const isKiting = actor.usesBow && arrowsLeftBeforeShot > 0;
-  if (actor.usesBow) {
-    if (arrowsLeftBeforeShot > 0) actor.arrowsUsed++;
-    else { power *= 0.6; log.push(`${actor.label}의 화살이 떨어져 단도로 근접전을 벌인다! 위력이 약해졌다.`); }
-  }
+  // 화살 소모 개념 없음 - 활은 항상 카이팅 가능(예전엔 화살 떨어지면 위력 60%로 깎였는데, 신규
+  // 캐릭터가 화살 없이 활을 만들어도 못 쓰는 문제가 있어서 아예 없앰)
+  const isBowThisAttack = weapon.weaponType === 'bow';
+  const isKiting = isBowThisAttack;
 
   if (actor.injurySeverity.arm > 0) power *= INJURY_ATK_MULT[actor.injurySeverity.arm];
 
-  const offClassWeapon = combatStats.weaponType && !combatStats.classDef.weaponTypes.includes(combatStats.weaponType);
+  const offClassWeapon = isOffClassWeapon(combatStats.classDef, weapon.weaponType);
   if (offClassWeapon) power *= OFF_CLASS_WEAPON_DAMAGE_MULT;
 
   // 스킬이 자체 속성(elements)을 가지면 매번 그 중 하나를 무작위로 골라 무기 속성 대신 사용
-  const castElement = skill && skill.elements ? skill.elements[randInt(0, skill.elements.length - 1)] : combatStats.element;
+  const castElement = skill && skill.elements ? skill.elements[randInt(0, skill.elements.length - 1)] : weapon.element;
   const elemMult = elementalMultiplier(castElement, monster.element);
   const affinity = classMonsterAffinity(combatStats.classDef, monster.tags);
   const affinityMult = affinity ? affinity.multiplier : 1;
@@ -555,31 +619,36 @@ function performAttack({ actor, monster, otherMonsters, sharedInventory, log, is
     ? (affinity.kind === 'strong' ? ' (천적 관계! 추가 피해)' : ' (상성에 밀려 위력 약화)')
     : '';
   const elementNote = skill && skill.elements ? ` [${castElement}]` : '';
+  const pushedNote = weapon.rowsOut > 0 ? ' (밀려난 자세라 위력 약화)' : '';
 
-  // D&D식 명중판정 - 1d20 + 공격보정(비숙련무기면 -4) vs 몹 AC. 자연20은 항상 명중+치명타, 자연1은 항상 빗나감
+  // D&D식 명중판정 - 1d20 + 공격보정(비숙련무기면 -4, 밀려난 칸 수만큼 추가 감점) vs 몹 AC.
+  // 자연20은 항상 명중+치명타, 자연1은 항상 빗나감
   let monsterDied = false;
   const hitCount = Math.random() < actor.doubleAttackChance ? 2 : 1;
   let lastRawDamage = 0;
   let anyHit = false;
   for (let hitIdx = 0; hitIdx < hitCount && !monsterDied; hitIdx++) {
     const naturalRoll = randInt(1, 20);
-    const attackRollBonus = combatStats.attackBonus - (offClassWeapon ? OFF_CLASS_WEAPON_ATTACK_PENALTY : 0);
+    const attackRollBonus = combatStats.attackBonus
+      - (offClassWeapon ? OFF_CLASS_WEAPON_ATTACK_PENALTY : 0)
+      - weapon.rowsOut * PUSHED_ATTACK_ROLL_PENALTY_PER_ROW
+      + (!skill && weapon.atkBonus <= 0 ? combatStats.improvisedAttackBonus.accuracyBonus : 0);
     const isCrit = naturalRoll === 20;
     const isFumble = naturalRoll === 1;
     const hit = isCrit || (!isFumble && naturalRoll + attackRollBonus >= monster.ac);
     const hitLabel = hitIdx === 1 ? ' (추가타!)' : '';
     if (!hit) {
-      log.push(`${actor.label}의 ${skill ? skill.name : '공격'}이(가) ${pickFlavor(ATTACK_MISS_LINES)}!${hitLabel}`);
+      log.push(`${actor.label}의 ${attackLabel}이(가) ${pickFlavor(ATTACK_MISS_LINES)}!${hitLabel}`);
       continue;
     }
     anyHit = true;
     const critMult = isCrit ? CRIT_DAMAGE_MULT : 1;
-    const rawDamage = Math.max(1, Math.round(combatStats.atk * power * elemMult * affinityMult * critMult * randRange(0.85, 1.15)));
+    const rawDamage = Math.max(1, Math.round(effectiveAtk * power * elemMult * affinityMult * critMult * randRange(0.85, 1.15)));
     lastRawDamage = rawDamage;
     monster.hp -= rawDamage;
     const intro = isCrit ? pickFlavor(ATTACK_CRIT_INTROS) : pickFlavor(ATTACK_HIT_INTROS);
     const critLabel = isCrit ? ' 💥치명타!' : '';
-    log.push(`${actor.label}의 ${skill ? skill.name : '공격'}, ${intro}! ${monster.name}에게 ${rawDamage} 피해.${elementNote}${affinityNote}${critLabel}${hitLabel}`);
+    log.push(`${actor.label}의 ${attackLabel}, ${intro}! ${monster.name}에게 ${rawDamage} 피해.${elementNote}${affinityNote}${critLabel}${hitLabel}${pushedNote}`);
     if (monster.hp <= 0) monsterDied = true;
   }
   // 광역(attack_all) - 대기 중인 다른 몹들에게도 스플래시 피해(스플래시로는 죽지 않음, HP 1 보존)
@@ -631,23 +700,42 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   }
 
   // 맞으면 멘탈(공포저항)이 낮을수록 한 칸 뒤로 물러날 확률이 있음(전열->중열->후열, 전투 중 일시적,
-  // 다음 모험에서는 다시 기본 진형으로 돌아옴). 앞이 뚫리면 그만큼 뒤(궁수 등)가 위험해짐. 성직자의
-  // "평정심"으로 멘탈저항이 일시적으로 오를 수 있음(partyBuffs.mentalBonus). 이미 후열이면 더 물러날 곳이 없음.
-  // 공포로 인한 후퇴는 무기 사거리(allowedRows)와 무관하게 후열까지 밀릴 수 있음 - 근접무기가 사거리 밖으로
-  // 밀려나면 공격을 못 하게 되는 게 의도된 "최악의 경우"(performAttack 쪽 weaponReachRows 체크 참고)
-  // 파티원이 본인 혼자(용병 없음)면 밀려나 봤자 뒤를 봐줄 사람이 없어서 그냥 "이번 라운드 통째로
-  // 공격 못 함"이 되어버림 - 다른 파티원을 지켜주는 전술적 트레이드오프가 없는 솔로 플레이에서는
-  // 공포 후퇴를 아예 적용하지 않음(초보 사냥터에서 특히 체감 난이도가 과했다는 피드백으로 추가)
+  // 다음 모험에서는 다시 기본 진형으로 돌아옴). 밀려도 이제 공격 자체는 계속 가능(rowsOut 페널티만
+  // 붙음 - performAttack/selectAttackWeapon 참고)이라 근접무기라도 "이번 라운드 통째로 공격 불가"는
+  // 더 이상 없음. 그래서 파티원이 혼자여도 밀림 자체는 적용하되, 원거리(활/지팡이)는 밀려봤자 사거리가
+  // 위치 무관이라 의미가 없으므로 "혼자 + 근접무기"일 때만 밀림 판정을 함
   const soloParty = party.filter((p) => p.alive).length <= 1;
+  const targetMeleeWeapon = !RANGED_WEAPON_TYPES.includes(target.combatStats.weaponType);
   const rowIdx = FORMATION_ROWS.indexOf(target.formationRow);
-  if (!soloParty && typeof target.mentalResist === 'number' && rowIdx >= 0 && rowIdx < FORMATION_ROWS.length - 1 && target.hp > 0) {
+  if ((!soloParty || targetMeleeWeapon) && typeof target.mentalResist === 'number' && rowIdx >= 0 && rowIdx < FORMATION_ROWS.length - 1 && target.hp > 0) {
     const effectiveMentalResist = Math.min(100, target.mentalResist + partyBuffs.mentalBonus);
     const breakChance = MORALE_BREAK_BASE_CHANCE * (1 - effectiveMentalResist / 100);
+    // 1차 판정 - 맞은 본인이 멘탈이 나가는지
     if (Math.random() < breakChance) {
-      target.formationRow = FORMATION_ROWS[rowIdx + 1];
-      log.push(`${target.label}이(가) 공포에 질려 뒤로 물러났다! 진형이 무너졌다.`);
-      const frontStillHeld = party.some((p) => p.alive && p.hp > 0 && p.formationRow === 'front');
-      if (!frontStillHeld) log.push('⚠️ 전열이 완전히 무너졌다! 몹들이 후열까지 노리기 시작한다...');
+      const nextRow = FORMATION_ROWS[rowIdx + 1];
+      // 그 뒷줄에 다른 파티원이 있으면 "교체" 시도 - 이 사람도 자기 멘탈 판정(2차)을 함. 여기서
+      // 내성을 보이면(=버텨내면) 자리를 안 내주는 셈이라 앞사람도 결국 못 밀려남(교체 자체가 취소)
+      const swapCandidate = !soloParty ? party.find((p) => p !== target && p.alive && p.hp > 0 && p.formationRow === nextRow) : null;
+      let pushed = true;
+      if (swapCandidate && typeof swapCandidate.mentalResist === 'number') {
+        const swapEffectiveResist = Math.min(100, swapCandidate.mentalResist + partyBuffs.mentalBonus);
+        const swapBreakChance = MORALE_BREAK_BASE_CHANCE * (1 - swapEffectiveResist / 100);
+        if (!(Math.random() < swapBreakChance)) {
+          pushed = false;
+          log.push(`${target.label}이(가) 뒤로 물러나려 했지만 ${swapCandidate.label}이(가) 내성을 보여 자리를 지켰다!`);
+        }
+      }
+      if (pushed) {
+        target.formationRow = nextRow;
+        if (swapCandidate) {
+          swapCandidate.formationRow = FORMATION_ROWS[rowIdx];
+          log.push(`${target.label}이(가) 공포에 질려 뒤로 물러나고, 대신 ${swapCandidate.label}이(가) 앞으로 끌려나왔다!`);
+        } else {
+          log.push(`${target.label}이(가) 공포에 질려 뒤로 물러났다! 진형이 무너졌다.`);
+        }
+        const frontStillHeld = party.some((p) => p.alive && p.hp > 0 && p.formationRow === 'front');
+        if (!frontStillHeld) log.push('⚠️ 전열이 완전히 무너졌다! 몹들이 후열까지 노리기 시작한다...');
+      }
     }
   }
 
@@ -757,7 +845,6 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
   const encounter = presetEncounter || rollEncounter(zoneId, (character.zoneKillCounts || {})[zoneId] || 0);
   const monsters = encounter.monsterIds.map((id) => buildMonsterInstance(id, encounter.zone, encounter.uniqueTier));
   const isUnderleveled = (character.level || 1) < encounter.zone.tier * 3;
-  const sharedInventory = character.inventory || []; // 파티 전원이 이 물자(화살/포션)를 공유
   // 몹 하나하나가 내 파티 대비 얼마나 위협적인지(전력비) - 위험한(붉은) 몹일수록 경험치를 더 줌,
   // 너무 쉬운(회색) 몹은 경험치를 아주 조금만 줌(사냥터 미리보기의 몹 이름 색과 같은 기준, monsterDifficultyTier 참고).
   // 몹 무리 전체의 합산 전력치로 계산해서, 같은 종류라도 여러 마리가 몰려나온 조우가 더 위험하게(더 붉게/더 많은 보상으로) 반영됨
@@ -766,9 +853,9 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
   const encounterXpMult = monsterDifficultyTier(groupPower / partyPower).xpMult;
 
   const party = [
-    buildCombatant({ characterLike: { ...character, stance }, isSelf: true, formationRow: effectiveFormationRow(character), sharedInventory, ownerCharacter: character }),
+    buildCombatant({ characterLike: { ...character, stance }, isSelf: true, formationRow: effectiveFormationRow(character), ownerCharacter: character }),
     ...(character.mercenaries || []).map((merc) => buildCombatant({
-      characterLike: merc, isSelf: false, formationRow: effectiveFormationRow(merc), sharedInventory, ownerCharacter: character,
+      characterLike: merc, isSelf: false, formationRow: effectiveFormationRow(merc), ownerCharacter: character,
     })),
   ];
 
@@ -909,23 +996,12 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
         const actor = entry.ref;
         if (actor.hp <= 0) continue;
 
-        // 무기 사거리가 안 닿는 위치면 아무 행동도 못 함 - 활/지팡이(원거리)는 위치 무관 항상 가능,
-        // 창/사슬도리깨는 사거리가 있어 전열/중열까지 가능, 그 외 근접(검/도끼 등)은 전열이어야만 가능.
-        // 공포에 밀려났거나(진형 붕괴) 원래 자리가 아니게 된 경우 전부 해당 - 이번 라운드는 몸빵만 하다가 넘어감
-        const weaponReachRows = RANGED_WEAPON_TYPES.includes(actor.combatStats.weaponType)
-          ? FORMATION_ROWS
-          : EXTENDED_REACH_WEAPON_TYPES.includes(actor.combatStats.weaponType) ? ['front', 'mid'] : ['front'];
-        if (!weaponReachRows.includes(actor.formationRow)) {
-          log.push(`${actor.label}이(가) 전열에서 밀려나 있어 이번 턴은 공격하지 못했다!`);
-          continue;
-        }
-
         const target = pickMonsterByStance(actor.stance);
         if (!target) continue;
         if (tryUtilitySkill({ actor, party, monster: target, log, partyBuffs })) continue;
 
         const otherMonsters = monsters.filter((m) => m !== target);
-        const result = performAttack({ actor, monster: target, otherMonsters, sharedInventory, log, isUnderleveled, partyBuffs });
+        const result = performAttack({ actor, monster: target, otherMonsters, log, isUnderleveled, partyBuffs });
         if (result.isKiting) anyKiting = true;
         if (result.monsterDied) handleMonsterDeath(target);
       } else {
@@ -950,7 +1026,7 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
     const finalMp = victory ? Math.max(0, actor.mp) : Math.round(actor.combatStats.maxMp * DEFEAT_REVIVE_PCT);
     const finalStamina = victory ? Math.max(0, actor.stamina) : Math.round(actor.combatStats.maxStamina * DEFEAT_REVIVE_PCT);
     return {
-      id: actor.id, arrowsUsed: actor.arrowsUsed, newInjuries: actor.newInjuries,
+      id: actor.id, newInjuries: actor.newInjuries,
       finalHp, finalMp, finalStamina, finalHpPct: Math.max(0, Math.round((finalHp / actor.combatStats.maxHp) * 100)),
     };
   });
@@ -969,7 +1045,6 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter }) {
     killedMonsterIds,
     finalHp: selfFinalHp, finalMp: selfFinalMp, finalStamina: selfFinalStamina,
     finalHpPct: Math.max(0, Math.round((selfFinalHp / selfCombatant.combatStats.maxHp) * 100)),
-    arrowsUsed: selfCombatant.arrowsUsed,
     newInjuries: selfCombatant.newInjuries,
     mercenaries: mercResults,
   };

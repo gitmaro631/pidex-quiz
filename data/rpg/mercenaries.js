@@ -77,6 +77,10 @@ export const TERRITORY_JOBS = {
   // 마나 의존도가 높은 직업이나, 체력 대신 스테미나로 스킬을 쓰는 물리 직업 전부에게 도움이 됨.
   // 훈련소/방벽과 같은 원칙(본인+용병 전원 적용, computeCharacterCombatStats 참고)
   sanctum: { id: 'sanctum', name: '연공실', goldPerDay: 0, statKey: 'mp', bonusPctPerLevel: 2 },
+  // 연무장 - 무기/스킬 없이 쓰는 직업별 기본공격(맨손 강타, 짱돌 던지기, 마력 파동 등 improvisedAttack -
+  // classes.js 참고)의 위력/명중률을 올려줌. 레벨마다 위력 %만큼, 명중은 그 절반만큼(D&D식 명중굴림 보정치라
+  // 값이 작아야 함) 오름(rpg-combat.js의 performAttack 참고)
+  basics: { id: 'basics', name: '연무장', goldPerDay: 0, statKey: 'improvisedPower', bonusPctPerLevel: 4 },
 };
 
 export const SPECIALTY_BONUS_MULT = 1.5; // territorySpecialty가 맞는 시설에 배치하면 기여 속도 50% 추가

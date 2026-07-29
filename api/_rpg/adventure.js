@@ -1,6 +1,7 @@
 import { verifyPiUser } from '../_verifyPiUser.js';
-import { withFirestoreTransaction } from '../_firestore.js';
+import { withMultiDocTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
+import { accountFacilitiesDocPath, defaultAccountFacilities } from '../_rpgFacilities.js';
 import { computeCurrentTurns, turnCapForLevel } from '../_rpgTurns.js';
 import { removeItem, tryAddItem, isOverCapacity } from '../_rpgInventory.js';
 import { ZONES } from '../../data/rpg/zones.js';
@@ -41,7 +42,7 @@ export default async function handler(req, res) {
   const { accessToken, slot, zoneId, optionIndex } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
   const isAdmin = isAdminUsername(username); // 관리자는 테스트 편의를 위해 턴포인트 한도/가방 용량 제한 없음
 
   const zone = ZONES[zoneId];
@@ -52,10 +53,12 @@ export default async function handler(req, res) {
 
   try {
     const docPath = characterDocPath(username, slot);
-    await withFirestoreTransaction(docPath, (current) => {
-      const character = current || defaultCharacter(slot);
+    const facilitiesPath = accountFacilitiesDocPath(username, slot);
+    await withMultiDocTransaction([docPath, facilitiesPath], (docs) => {
+      const character = docs[docPath] || defaultCharacter(slot);
+      const accountFacilities = docs[facilitiesPath] || defaultAccountFacilities();
       // 용병 해고로 반납된 장비 등으로 가방이 칸/무게 한도를 넘었으면 정리하기 전까진 사냥을 막음(관리자 제외)
-      if (!isAdmin && isOverCapacity(character)) { outcome = { error: 'inventory_over_capacity' }; return null; }
+      if (!isAdmin && isOverCapacity(character)) { outcome = { error: 'inventory_over_capacity' }; return {}; }
       const now = Date.now();
       const turns = computeCurrentTurns(character.turnPoints, character.turnPointsUpdatedAt, character.level, now, character.surveyBonusUnlocked);
 
@@ -63,16 +66,18 @@ export default async function handler(req, res) {
       // 이동/텔레포트 스크롤은 여전히 무료, 마을 간 이동만 비용이 붙음
       const travelingBetweenTowns = zone.town && character.currentTown && zone.town !== character.currentTown;
       const turnCost = 1 + (travelingBetweenTowns ? 1 : 0);
-      if (!isAdmin && turns < turnCost) { outcome = { error: 'not_enough_turns' }; return null; }
+      if (!isAdmin && turns < turnCost) { outcome = { error: 'not_enough_turns' }; return {}; }
       if (zone.unlockZoneId && ((character.zoneClearCounts || {})[zone.unlockZoneId] || 0) < CASTLE_CLEAR_REQUIREMENT) {
-        outcome = { error: 'zone_locked' }; return null;
+        outcome = { error: 'zone_locked' }; return {};
       }
       const inventory = [...(character.inventory || [])];
       if (zone.requiresTorch) {
         const torchQty = (inventory.find((e) => e.itemId === 'torch') || {}).qty || 0;
-        if (torchQty < 1) { outcome = { error: 'no_torch' }; return null; }
+        if (torchQty < 1) { outcome = { error: 'no_torch' }; return {}; }
         removeItem(inventory, 'torch', 1);
       }
+      // 전투/개간지 골드보너스는 공용 시설 레벨 기준(캐릭터별 stale 값이 아니라 이 트랜잭션에서 읽은 최신값)
+      const characterForCombat = { ...character, facilityLevels: accountFacilities.facilityLevels };
 
       // 입원 중이거나 영지에서 일하는(assignment:'territory') 용병은 모험에 동행하지 않음(보수도 안 나감) -
       // 그냥 시간이 지나며 자연 회복만 진행됨(영지 수입은 collect-territory-income.js가 별도 정산)
@@ -100,7 +105,7 @@ export default async function handler(req, res) {
       const presetEncounter = chosenOption
         ? { zone, monsterIds: chosenOption.monsterIds, isRare: chosenOption.isRare, uniqueTier: chosenOption.uniqueTier }
         : null;
-      const combatResult = resolveCombat({ character: { ...character, mercenaries }, zoneId, stance: character.stance, presetEncounter });
+      const combatResult = resolveCombat({ character: { ...characterForCombat, mercenaries }, zoneId, stance: character.stance, presetEncounter });
       combatResult.log.unshift(...wageMessages);
       if (travelingBetweenTowns) {
         combatResult.log.unshift(`${(TOWNS[zone.town] || {}).name || zone.town}(으)로 이동했다. (턴포인트 1 추가 소모)`);
@@ -114,12 +119,11 @@ export default async function handler(req, res) {
       }
       if (overflowedLoot.length) combatResult.log.push('인벤토리가 가득 차서 일부 전리품을 놓쳤다.');
       if (overweightLoot.length) combatResult.log.push('짐이 너무 무거워서 일부 전리품을 챙기지 못했다.');
-      // 화살은 본인+용병이 같은 물자를 공유해서 소모 - 전체 합계만큼 인벤토리에서 차감
-      const totalArrowsUsed = combatResult.arrowsUsed + combatResult.mercenaries.reduce((sum, m) => sum + m.arrowsUsed, 0);
-      if (totalArrowsUsed > 0) removeItem(inventory, 'arrow', totalArrowsUsed);
 
-      // 전투 1회를 치르면 장착중인 무기/방어구가 마모됨 - 내구도가 낮을수록 조기 파손 확률이 높아짐
-      const { equipment: wornEquipment, brokenNow } = applyEquipmentWear(character.equipment || {});
+      // 전투 1회를 치르면 장착중인 무기/방어구가 마모됨 - 내구도가 낮을수록 조기 파손 확률이 높아짐.
+      // 초급 지역(tier 낮음)은 아직 수리비 감당이 버거운 시기라 마모가 아예 안 일어나는 판을 늘려줌
+      const wearChance = zone.tier <= 2 ? 0.35 : zone.tier <= 5 ? 0.7 : 1;
+      const { equipment: wornEquipment, brokenNow } = applyEquipmentWear(character.equipment || {}, wearChance);
       brokenNow.forEach((s) => combatResult.log.push(`${EQUIP_SLOT_LABELS[s] || s}이(가) 파손되었습니다! 수리가 필요해요.`));
 
       // 죽으면(패배) 아이템은 그대로 유지한 채 마지막으로 있었던 마을로 돌아감 - 부활 자체는 무료지만
@@ -160,14 +164,14 @@ export default async function handler(req, res) {
       const progression = applyXpGain(character, combatResult.xpGain);
 
       // 개간지(시설) 레벨만큼 전투 골드획득에 % 보너스
-      const bonusedGoldGain = Math.floor(combatResult.goldGain * facilityBonusMultiplier(character, 'clearing'));
+      const bonusedGoldGain = Math.floor(combatResult.goldGain * facilityBonusMultiplier(characterForCombat, 'clearing'));
 
       // 영지일 경계 판정 - 지금까지 쓴 누적 턴(관리자도 포함, 통계용)이 이번 모험의 턴소모만큼 늘어났고,
       // 그로 인해 "영지일"이 하루 이상 지났으면 영지 경제(시설레벨/식량/골드/용병 상주급여)를 정산함
       const nextTotalTurnsSpent = (character.totalTurnsSpent || 0) + turnCost;
       const daysNow = territoryDaysElapsed(nextTotalTurnsSpent, progression.level);
       const daysSinceCheckpoint = daysNow - (character.territoryDayCheckpoint || 0);
-      const territorySettlement = settleTerritoryDays(character, daysSinceCheckpoint);
+      const territorySettlement = settleTerritoryDays(characterForCombat, daysSinceCheckpoint);
       let territoryNotice = null;
       if (territorySettlement) {
         territoryNotice = {
@@ -185,7 +189,7 @@ export default async function handler(req, res) {
       const updatedMercenaries = mercenaries.map((merc) => {
         const mr = combatResult.mercenaries.find((r) => r.id === merc.id);
         if (!mr) return merc;
-        const { equipment: mercWornEquipment, brokenNow: mercBrokenNow } = applyEquipmentWear(merc.equipment || {});
+        const { equipment: mercWornEquipment, brokenNow: mercBrokenNow } = applyEquipmentWear(merc.equipment || {}, wearChance);
         mercBrokenNow.forEach((s) => combatResult.log.push(`${merc.name}의 ${EQUIP_SLOT_LABELS[s] || s}이(가) 파손되었습니다!`));
         let mercProgression = applyXpGain(merc, combatResult.xpGain);
         if (mercProgression.level > progression.level) {
@@ -245,34 +249,37 @@ export default async function handler(req, res) {
       };
 
       return {
-        ...character,
-        gold: finalGold,
-        level: progression.level,
-        xp: progression.xp,
-        statPoints: progression.statPoints,
-        turnPoints: nextTurns,
-        turnPointsUpdatedAt: now,
-        totalTurnsSpent: nextTotalTurnsSpent,
-        territoryDayCheckpoint: daysNow,
-        facilityDays: territorySettlement ? territorySettlement.nextFacilityDays : character.facilityDays,
-        facilityLevels: territorySettlement ? territorySettlement.nextFacilityLevels : character.facilityLevels,
-        foodStock: territorySettlement ? territorySettlement.nextFoodStock : character.foodStock,
-        currentHp: combatResult.finalHp,
-        currentMp: combatResult.finalMp,
-        currentStamina: combatResult.finalStamina,
-        currentTown: nextTown,
-        inventory,
-        zoneKillCounts,
-        zoneClearCounts,
-        visitedZones,
-        loreUnlocked,
-        equipment: wornEquipment,
-        injuries,
-        mercenaries: allUpdatedMercenaries,
-        // 이번 조우는 소비됨 - 이 지역만 미리보기를 비움(다른 지역 미리보기는 그대로 유지),
-        // 다음에 이 지역을 다시 보면 무료로 새로 굴려짐
-        zonePreviews: { ...(character.zonePreviews || {}), [zoneId]: null },
-        updatedAt: now,
+        [docPath]: {
+          ...character,
+          gold: finalGold,
+          level: progression.level,
+          xp: progression.xp,
+          statPoints: progression.statPoints,
+          turnPoints: nextTurns,
+          turnPointsUpdatedAt: now,
+          totalTurnsSpent: nextTotalTurnsSpent,
+          territoryDayCheckpoint: daysNow,
+          foodStock: territorySettlement ? territorySettlement.nextFoodStock : character.foodStock,
+          currentHp: combatResult.finalHp,
+          currentMp: combatResult.finalMp,
+          currentStamina: combatResult.finalStamina,
+          currentTown: nextTown,
+          inventory,
+          zoneKillCounts,
+          zoneClearCounts,
+          visitedZones,
+          loreUnlocked,
+          equipment: wornEquipment,
+          injuries,
+          mercenaries: allUpdatedMercenaries,
+          // 이번 조우는 소비됨 - 이 지역만 미리보기를 비움(다른 지역 미리보기는 그대로 유지),
+          // 다음에 이 지역을 다시 보면 무료로 새로 굴려짐
+          zonePreviews: { ...(character.zonePreviews || {}), [zoneId]: null },
+          updatedAt: now,
+        },
+        [facilitiesPath]: territorySettlement
+          ? { facilityDays: territorySettlement.nextFacilityDays, facilityLevels: territorySettlement.nextFacilityLevels, updatedAt: now }
+          : undefined,
       };
     });
 

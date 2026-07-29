@@ -4,6 +4,7 @@
 import { verifyPiUser } from '../_verifyPiUser.js';
 import { firestoreGetDoc, withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
+import { accountFacilitiesDocPath, defaultAccountFacilities } from '../_rpgFacilities.js';
 import { castleDocPath } from '../../data/rpg/castle.js';
 import { computePartyPower } from '../../rpg-combat.js';
 
@@ -12,12 +13,14 @@ export default async function handler(req, res) {
   const { accessToken, slot, zoneId } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
   if (!zoneId) return res.status(400).json({ error: 'invalid zoneId' });
 
   try {
     const character = await firestoreGetDoc(characterDocPath(username, slot)) || defaultCharacter(slot);
-    const newPower = Math.round(computePartyPower(character));
+    // 방어전력도 시설(훈련소/방벽) 보너스가 반영돼야 함 - 시설은 계정 공용 문서(_rpgFacilities.js)
+    const accountFacilities = (await firestoreGetDoc(accountFacilitiesDocPath(username, slot))) || defaultAccountFacilities();
+    const newPower = Math.round(computePartyPower({ ...character, facilityLevels: accountFacilities.facilityLevels }));
 
     let outcome = null;
     await withFirestoreTransaction(castleDocPath(zoneId), (current) => {

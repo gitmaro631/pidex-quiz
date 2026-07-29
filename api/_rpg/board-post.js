@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   const { accessToken, slot, townId, message } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
   if (!TOWNS[townId]) return res.status(400).json({ error: 'invalid_town' });
 
   const text = String(message || '').trim();

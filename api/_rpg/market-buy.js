@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   const { accessToken, slot, listingId, qty } = req.body;
   const buyerUsername = await verifyPiUser(accessToken);
   if (!buyerUsername) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, buyerUsername)) return res.status(400).json({ error: 'invalid_slot' });
 
   const buyQty = Math.max(1, Math.floor(Number(qty) || 1));
   const listingPath = `rpg_market_listings/${listingId}`;

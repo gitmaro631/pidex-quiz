@@ -3,17 +3,17 @@ import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
 import { addItem } from '../_rpgInventory.js';
 
-const VALID_EQUIP_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
+const VALID_EQUIP_SLOTS = ['weapon', 'weapon2', 'weapon3', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
 // 용병은 반지/목걸이 슬롯이 없음(equip.js의 MERC_EQUIPPABLE_TYPES와 동일 기준)
-const MERC_VALID_EQUIP_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
-const DURABILITY_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
+const MERC_VALID_EQUIP_SLOTS = ['weapon', 'weapon2', 'weapon3', 'shield', 'armor_top', 'armor_bottom'];
+const DURABILITY_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom']; // 보조무기(weapon2/weapon3)는 내구도 추적 안 함
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { accessToken, slot, equipSlot, mercId } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
   const validSlots = mercId ? MERC_VALID_EQUIP_SLOTS : VALID_EQUIP_SLOTS;
   if (!validSlots.includes(equipSlot)) return res.status(400).json({ error: 'invalid_equip_slot' });
 

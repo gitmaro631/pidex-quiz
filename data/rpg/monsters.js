@@ -7,7 +7,9 @@
 export const MONSTERS = {
   slime: {
     id: 'slime', name: '슬라임', element: 'none', tags: ['beast'], rare: false,
-    baseStats: { hp: 18, atk: 3, def: 0 },
+    // 예전엔 hp18/atk3 - 레벨1 맨몸 캐릭터가 groupSizeMax 3인 초원에서 승률 10%대까지 떨어지는
+    // 문제가 실측(시뮬레이션)으로 확인돼서 초원 3종 전부 하향(체력 대략 40~45%, 공격력 30~35% 감소)
+    baseStats: { hp: 10, atk: 2, def: 0 },
     xp: 3, goldMin: 1, goldMax: 3,
     dropTable: [
       { itemId: 'slime_jelly', chance: 0.5, qtyMin: 1, qtyMax: 2 },
@@ -17,7 +19,7 @@ export const MONSTERS = {
   },
   field_rat: {
     id: 'field_rat', name: '들쥐', element: 'none', tags: ['beast'], rare: false,
-    baseStats: { hp: 14, atk: 4, def: 0 },
+    baseStats: { hp: 8, atk: 2, def: 0 },
     xp: 3, goldMin: 1, goldMax: 2,
     dropTable: [
       { itemId: 'rat_tail', chance: 0.4, qtyMin: 1, qtyMax: 1 },
@@ -27,7 +29,7 @@ export const MONSTERS = {
   },
   wolf_pup: {
     id: 'wolf_pup', name: '새끼 늑대', element: 'none', tags: ['beast'], rare: false,
-    baseStats: { hp: 22, atk: 5, def: 1 },
+    baseStats: { hp: 12, atk: 3, def: 0 },
     xp: 4, goldMin: 2, goldMax: 4,
     dropTable: [
       { itemId: 'wolf_pelt', chance: 0.35, qtyMin: 1, qtyMax: 1 },

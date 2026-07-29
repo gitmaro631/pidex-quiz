@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   const { accessToken, slot, mercId, name } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
-  if (!isValidSlot(slot)) return res.status(400).json({ error: 'invalid_slot' });
+  if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
 
   const trimmed = String(name || '').trim();
   if (!trimmed || trimmed.length > MAX_NAME_LENGTH) return res.status(400).json({ error: 'invalid_name' });
