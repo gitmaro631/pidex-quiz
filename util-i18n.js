@@ -96,3 +96,23 @@ export function tf(key, fallback) {
   if (currentLang === 'ko') return fallback;
   return T.en?.[key] ?? fallback;
 }
+
+// t()/tf()의 상태 없는(stateless) 버전 - lang을 인자로 직접 받음. currentLang 전역 싱글턴에 기대지
+// 않아서 서버(Vercel 서버리스 함수, 요청마다 다른 유저의 언어일 수 있음)에서도 안전하게 씀 -
+// rpg-combat.js처럼 클라이언트/서버 양쪽에서 실행되는 순수 함수 모듈은 반드시 이쪽을 써야 함
+export function tLang(key, lang, fallback) {
+  if (T[lang]?.[key] !== undefined) return T[lang][key];
+  if (lang === 'ko' && fallback !== undefined) return fallback;
+  return T.en?.[key] ?? T.ko?.[key] ?? fallback ?? key;
+}
+
+// tLang + {var} 플레이스홀더 치환 - 전투 로그처럼 문장 중간에 변수가 여러 개 섞이는 곳에 씀
+export function ti(key, lang, vars, fallback) {
+  let result = tLang(key, lang, fallback);
+  if (vars) {
+    for (const [k, v] of Object.entries(vars)) {
+      result = result.replaceAll(`{${k}}`, v);
+    }
+  }
+  return result;
+}
