@@ -12,7 +12,7 @@ import { NPCS } from './data/rpg/npcs.js';
 import { QUESTS } from './data/rpg/quests.js';
 import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
-import { computeCharacterCombatStats, monsterDifficultyTier, COMBAT_MISS_PHRASES, effectiveStats } from './rpg-combat.js';
+import { computeCharacterCombatStats, monsterDifficultyTier, COMBAT_MISS_PHRASES, effectiveStats, TWO_HANDED_WEAPON_TYPES } from './rpg-combat.js';
 import {
   MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster, PLAYER_TERRITORY_BONUS_MULT,
   FOOD_PER_DAY_PER_FARMER, FOOD_CONSUMPTION_PER_DAY_PER_WORKER, GOLD_PER_MISSING_FOOD, WAGE_PER_MERC_PER_DAY,
@@ -606,6 +606,8 @@ function renderMain(container) {
 
 // ── 모험 탭 - 지역 목록(현재 마을 소속 + 던전)만 보여줌. 마을 이동은 마을 탭에서 ─────
 const MONSTER_TAG_ICONS = { beast: '🐾', humanoid: '🗡️', undead: '💀', demon: '😈' };
+// 몹 속성 표시 - 유저가 상성(data/rpg/elements.js)에 맞는 무기/장신구를 미리 챙길 수 있게 사냥터 미리보기에 노출
+const ELEMENT_ICONS = { water: '💧', fire: '🔥', air: '🌪️', earth: '🪨', dark: '🌑', holy: '✨', none: '' };
 // 몹 전력비(difficultyRatio, preview-zone.js가 계산)를 색으로 - rpg-combat.js의 MONSTER_DIFFICULTY_TIERS와
 // 같은 기준을 그대로 재사용(경험치/골드 배율도 이 기준과 일치함)
 function monsterDifficultyColor(ratio) {
@@ -785,7 +787,7 @@ function renderZonePreviewScreen(content, container, preview) {
           <div class="rpg-encounter-option-monsters">
             ${opt.monsters.map((m) => `
               <span class="rpg-encounter-icon">${MONSTER_TAG_ICONS[(m.tags || [])[0]] || '❓'}</span>
-              <span class="rpg-encounter-name" style="color: ${monsterDifficultyColor(m.difficultyRatio)}">${m.name}</span>
+              <span class="rpg-encounter-name" style="color: ${monsterDifficultyColor(m.difficultyRatio)}">${m.name}${m.element && m.element !== 'none' ? ` ${ELEMENT_ICONS[m.element] || ''}` : ''}</span>
             `).join(' · ')}
           </div>
         </button>
@@ -1785,6 +1787,17 @@ function renderInventoryTab(content, container) {
     const penaltyWarning = equipPenaltyWarning(item, classDef);
     const addedParts = itemBonusParts(item);
     const removedParts = previousItem ? itemBonusParts(previousItem) : [];
+    // 양손무기(스태프 등)는 방패와 같이 못 낌 - 장착하면 반대쪽이 자동으로 벗겨지니 미리 경고(api/_rpg/equip.js와 동일 규칙)
+    let twoHandedWarning = null;
+    if (item.type === 'shield') {
+      const currentWeapon = targetChar.equipment.weapon ? ITEMS[targetChar.equipment.weapon] : null;
+      if (currentWeapon && TWO_HANDED_WEAPON_TYPES.includes(currentWeapon.weaponType)) {
+        twoHandedWarning = `⚠️ ${currentWeapon.name}은(는) 양손무기라 방패와 같이 낄 수 없어요 - 장착하면 자동으로 벗겨집니다.`;
+      }
+    } else if (item.type === 'weapon' && TWO_HANDED_WEAPON_TYPES.includes(item.weaponType) && targetChar.equipment.shield) {
+      const currentShield = ITEMS[targetChar.equipment.shield];
+      twoHandedWarning = `⚠️ ${item.name}은(는) 양손무기라 방패와 같이 낄 수 없어요 - 장착하면 ${currentShield ? currentShield.name : '방패'}이(가) 자동으로 벗겨집니다.`;
+    }
     showConfirmOverlay(container, {
       title: `${item.name} 장착${mercId ? ` — ${targetChar.name}` : ''}`,
       bodyHtml: `
@@ -1792,6 +1805,7 @@ function renderInventoryTab(content, container) {
         ${addedParts.length ? `<p class="rpg-stat-up">추가: ${addedParts.join(', ')}</p>` : ''}
         ${removedParts.length ? `<p class="rpg-stat-down">해제(${previousItem.name}): ${removedParts.join(', ')}</p>` : ''}
         ${penaltyWarning ? `<p class="rpg-hint">${penaltyWarning}</p>` : ''}
+        ${twoHandedWarning ? `<p class="rpg-hint">${twoHandedWarning}</p>` : ''}
         ${statsDeltaRowsHtml(before, after)}
         ${!reqOk ? '<p class="rpg-hint">⚠️ 요구치를 채우지 못해 장착할 수 없습니다.</p>' : ''}
       `,

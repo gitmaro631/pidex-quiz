@@ -22,7 +22,11 @@ export default async function handler(req, res) {
       if (!character.classMain) { outcome = { error: 'no_class_selected' }; return null; }
 
       const cls = CLASSES[character.classMain];
-      const skill = cls.skills.find((s) => s.id === skillId);
+      const subCls = character.classSub ? CLASSES[character.classSub] : null;
+      // 부직업(classSub) 스킬은 패시브만 훈련 가능(액티브는 본업 정체성을 지키기 위해 제외) - rpg-combat.js
+      // computeCharacterCombatStats가 전투에서 부직업 패시브만 합쳐 쓰는 것과 동일한 기준
+      const skill = cls.skills.find((s) => s.id === skillId)
+        || (subCls && subCls.skills.find((s) => s.id === skillId && s.type.startsWith('passive_')));
       if (!skill) { outcome = { error: 'invalid_skill' }; return null; }
 
       const skillLevels = character.skillLevels || {};

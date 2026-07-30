@@ -41,7 +41,8 @@ function previewPayload(zonePreview, character, zone) {
         uniqueTier: opt.uniqueTier,
         monsters: opt.monsterIds.map((id) => {
           const def = MONSTERS[id];
-          return { monsterId: id, name: def ? def.name : id, tags: def ? def.tags : [], difficultyRatio };
+          // 속성도 같이 보여줘야 유저가 상성(elementalMultiplier, data/rpg/elements.js)에 맞춰 장비를 미리 맞출 수 있음
+          return { monsterId: id, name: def ? def.name : id, tags: def ? def.tags : [], element: def ? def.element : 'none', difficultyRatio };
         }),
       };
     }),

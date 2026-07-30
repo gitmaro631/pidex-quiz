@@ -40,6 +40,14 @@ export const ITEMS = {
   weapon_basic_bow: { id: 'weapon_basic_bow', name: '낡은 활', type: 'weapon', weaponType: 'bow', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 3 },
   weapon_basic_dagger: { id: 'weapon_basic_dagger', name: '낡은 단도', type: 'weapon', weaponType: 'dagger', rarity: 'normal', atkBonus: 2, shopPrice: 40, weight: 2 }, // 궁수 등이 쓰는 가벼운 보조무기
   weapon_basic_staff: { id: 'weapon_basic_staff', name: '낡은 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 3 },
+  // 완드 - 스태프보다 기본 마법공격력은 낮지만(한손무기 컨셉) 방패와 함께 드는 이미지에 맞춰 가벼움
+  weapon_basic_wand: { id: 'weapon_basic_wand', name: '낡은 완드', type: 'weapon', weaponType: 'wand', rarity: 'normal', atkBonus: 2, shopPrice: 45, weight: 1 },
+  // 성직자 전용 둔기류 - 날붙이 대신 뭉툭한 무기만 쓴다는 설정(피를 보지 않는 신성한 전투). 철퇴가 성직자 기본무기
+  weapon_basic_mace: { id: 'weapon_basic_mace', name: '낡은 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 5 },
+  weapon_basic_warhammer: { id: 'weapon_basic_warhammer', name: '낡은 전쟁망치', type: 'weapon', weaponType: 'warhammer', rarity: 'normal', atkBonus: 4, shopPrice: 55, weight: 8 },
+  weapon_basic_morning_star: { id: 'weapon_basic_morning_star', name: '낡은 모닝스타', type: 'weapon', weaponType: 'morning_star', rarity: 'normal', atkBonus: 4, shopPrice: 55, weight: 5 },
+  // 원거리 둔기 계열 - 활과 같은 취급(RANGED_WEAPON_TYPES, rpg-combat.js 참고)
+  weapon_basic_sling: { id: 'weapon_basic_sling', name: '낡은 물매', type: 'weapon', weaponType: 'sling', rarity: 'normal', atkBonus: 2, shopPrice: 40, weight: 1 },
   armor_basic: { id: 'armor_basic', name: '낡은 갑옷', type: 'armor_top', rarity: 'normal', armorClass: 'light', defBonus: 2, hpBonus: 10, shopPrice: 60, weight: 6, strRequirement: 5 },
   // 천 방어구(cloth) - 마법사/성직자 전용. 힘과 지혜 둘 다 일정 이상 필요(마력 운용에 정신력도 필요하다는 설정)
   armor_cloth_basic: { id: 'armor_cloth_basic', name: '낡은 로브', type: 'armor_top', rarity: 'normal', armorClass: 'cloth', defBonus: 1, hpBonus: 8, shopPrice: 55, weight: 3, strRequirement: 4, wisRequirement: 4 },
@@ -53,9 +61,11 @@ export const ITEMS = {
 
   // 방패(shield) - 물리 직업(전사/궁수, resourceType:'stamina')만 착용 가능. 캐스터는 두 손이
   // 지팡이를 쥐어야 해서 방패를 못 씀(equip.js가 classDef.resourceType으로 판정)
-  shield_basic: { id: 'shield_basic', name: '낡은 방패', type: 'shield', rarity: 'normal', defBonus: 3, hpBonus: 5, shopPrice: 55, weight: 5, strRequirement: 6 },
-  shield_uncommon: { id: 'shield_uncommon', name: '강철 방패', type: 'shield', rarity: 'uncommon', defBonus: 6, hpBonus: 15, weight: 8, strRequirement: 10 },
-  shield_rare: { id: 'shield_rare', name: '수호자의 방패', type: 'shield', rarity: 'rare', defBonus: 12, hpBonus: 30, severeInjuryResist: 0.15, weight: 11, strRequirement: 16 },
+  // mentalResistBonus/counterChance/blockChance는 방패기술(shield_mastery, 전사 전용 패시브)이 있어야
+  // 실제로 발동함(rpg-combat.js computeCharacterCombatStats의 shieldMasteryActive 참고) - 등급 높을수록 수치도 큼
+  shield_basic: { id: 'shield_basic', name: '낡은 방패', type: 'shield', rarity: 'normal', defBonus: 3, hpBonus: 5, mentalResistBonus: 5, counterChance: 0.03, blockChance: 0.02, shopPrice: 55, weight: 5, strRequirement: 6 },
+  shield_uncommon: { id: 'shield_uncommon', name: '강철 방패', type: 'shield', rarity: 'uncommon', defBonus: 6, hpBonus: 15, mentalResistBonus: 10, counterChance: 0.06, blockChance: 0.04, weight: 8, strRequirement: 10 },
+  shield_rare: { id: 'shield_rare', name: '수호자의 방패', type: 'shield', rarity: 'rare', defBonus: 12, hpBonus: 30, severeInjuryResist: 0.15, mentalResistBonus: 18, counterChance: 0.1, blockChance: 0.07, weight: 11, strRequirement: 16 },
 
   // 지역별 재료 (합성/승급 소재, 상점 단계에서 용도 확장)
   slime_jelly: { id: 'slime_jelly', name: '슬라임 젤리', type: 'material', rarity: 'normal', weight: 0.5 },
@@ -216,6 +226,29 @@ export const ITEMS = {
   weapon_bow_legendary: { id: 'weapon_bow_legendary', name: '수호자의 성궁', type: 'weapon', weaponType: 'bow', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 4 },
   weapon_staff_uncommon: { id: 'weapon_staff_uncommon', name: '단련된 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'uncommon', atkBonus: 8, weight: 3 },
   weapon_staff_rare: { id: 'weapon_staff_rare', name: '칠흑의 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'rare', atkBonus: 16, element: 'dark', weight: 4 },
+  // 4대 순환속성 지팡이 - 마법사/성직자의 원소계열 스킬이 이제 무기 속성을 그대로 씀(무작위 아님).
+  // 물→불→대기→흙→물 순환이므로 이 넷을 갖추면 어떤 상성이든 대응 가능
+  weapon_staff_water: { id: 'weapon_staff_water', name: '해류의 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'uncommon', atkBonus: 8, element: 'water', weight: 3 },
+  weapon_staff_fire: { id: 'weapon_staff_fire', name: '불꽃의 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'uncommon', atkBonus: 8, element: 'fire', weight: 3 },
+  weapon_staff_air: { id: 'weapon_staff_air', name: '폭풍의 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'uncommon', atkBonus: 8, element: 'air', weight: 3 },
+  weapon_staff_earth: { id: 'weapon_staff_earth', name: '대지의 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'uncommon', atkBonus: 8, element: 'earth', weight: 3 },
+  weapon_wand_uncommon: { id: 'weapon_wand_uncommon', name: '단련된 완드', type: 'weapon', weaponType: 'wand', rarity: 'uncommon', atkBonus: 6, weight: 1 },
+  weapon_wand_rare: { id: 'weapon_wand_rare', name: '칠흑의 완드', type: 'weapon', weaponType: 'wand', rarity: 'rare', atkBonus: 12, element: 'dark', weight: 1 },
+  weapon_wand_legendary: { id: 'weapon_wand_legendary', name: '수호자의 성완', type: 'weapon', weaponType: 'wand', rarity: 'legendary', atkBonus: 24, element: 'holy', weight: 1 },
+  weapon_wand_water: { id: 'weapon_wand_water', name: '해류의 완드', type: 'weapon', weaponType: 'wand', rarity: 'uncommon', atkBonus: 6, element: 'water', weight: 1 },
+  weapon_wand_fire: { id: 'weapon_wand_fire', name: '불꽃의 완드', type: 'weapon', weaponType: 'wand', rarity: 'uncommon', atkBonus: 6, element: 'fire', weight: 1 },
+  weapon_wand_air: { id: 'weapon_wand_air', name: '폭풍의 완드', type: 'weapon', weaponType: 'wand', rarity: 'uncommon', atkBonus: 6, element: 'air', weight: 1 },
+  weapon_wand_earth: { id: 'weapon_wand_earth', name: '대지의 완드', type: 'weapon', weaponType: 'wand', rarity: 'uncommon', atkBonus: 6, element: 'earth', weight: 1 },
+  // 등급이 높을수록 한 무기가 여러 속성을 겸함(elements 복수 - rpg-combat.js performAttack이 시전마다
+  // 그중 하나를 무작위로 씀). rare=2속성, legendary=4속성(순환 4원소 전부)
+  weapon_staff_dual: { id: 'weapon_staff_dual', name: '쌍룡의 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'rare', atkBonus: 16, elements: ['water', 'fire'], weight: 4 },
+  weapon_staff_prism: { id: 'weapon_staff_prism', name: '천공의 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'legendary', atkBonus: 30, elements: ['water', 'fire', 'air', 'earth'], weight: 4 },
+  weapon_wand_dual: { id: 'weapon_wand_dual', name: '쌍룡의 완드', type: 'weapon', weaponType: 'wand', rarity: 'rare', atkBonus: 12, elements: ['water', 'fire'], weight: 1 },
+  weapon_wand_prism: { id: 'weapon_wand_prism', name: '천공의 완드', type: 'weapon', weaponType: 'wand', rarity: 'legendary', atkBonus: 24, elements: ['water', 'fire', 'air', 'earth'], weight: 1 },
+  // 성직자 전용 둔기(철퇴) 몹 드랍 라인 - weapon_uncommon/rare/legendary와 동일 수치, WEAPON_TIER_VARIANTS(rpg-combat.js)에 포함
+  weapon_mace_uncommon: { id: 'weapon_mace_uncommon', name: '단련된 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'uncommon', atkBonus: 8, weight: 5 },
+  weapon_mace_rare: { id: 'weapon_mace_rare', name: '칠흑의 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'rare', atkBonus: 16, element: 'dark', weight: 6 },
+  weapon_mace_legendary: { id: 'weapon_mace_legendary', name: '수호자의 성퇴', type: 'weapon', weaponType: 'mace', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 6 },
   weapon_staff_legendary: { id: 'weapon_staff_legendary', name: '수호자의 성장', type: 'weapon', weaponType: 'staff', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 4 },
   armor_uncommon: { id: 'armor_uncommon', name: '강철 갑옷', type: 'armor_top', rarity: 'uncommon', armorClass: 'heavy', defBonus: 4, hpBonus: 20, weight: 12, strRequirement: 12 },
   armor_rare: { id: 'armor_rare', name: '정련된 판금 갑옷', type: 'armor_top', rarity: 'rare', armorClass: 'heavy', defBonus: 9, hpBonus: 45, weight: 16, strRequirement: 18 },
@@ -285,7 +318,7 @@ export const ITEMS = {
   armor_bottom_heavyset: { id: 'armor_bottom_heavyset', name: '중량 갑주 하의', type: 'armor_bottom', rarity: 'epic', armorClass: 'heavy', defBonus: 10, hpBonus: 40, weight: 12, strRequirement: 16 },
   necklace_heavyset: { id: 'necklace_heavyset', name: '중량 수호자의 목걸이', type: 'necklace', rarity: 'epic', hpBonus: 40, defBonus: 4, weight: 0.3 },
   ring_heavyset: { id: 'ring_heavyset', name: '중량 수호자의 반지', type: 'ring', rarity: 'epic', defBonus: 6, atkBonus: 2, weight: 0.2 },
-  shield_heavyset: { id: 'shield_heavyset', name: '중량 수호자의 방패', type: 'shield', rarity: 'epic', defBonus: 10, hpBonus: 25, weight: 12, strRequirement: 16 },
+  shield_heavyset: { id: 'shield_heavyset', name: '중량 수호자의 방패', type: 'shield', rarity: 'epic', defBonus: 10, hpBonus: 25, mentalResistBonus: 15, counterChance: 0.08, blockChance: 0.05, weight: 12, strRequirement: 16 },
   weapon_heavyset: { id: 'weapon_heavyset', name: '중량 수호자의 대검', type: 'weapon', weaponType: 'sword', rarity: 'epic', atkBonus: 20, weight: 7 },
 
   // 직업별 5피스 세트(현재 1개씩) - 각 직업 무기 타입에 맞춘 5번째 자리(무기 또는 방패)
@@ -293,7 +326,7 @@ export const ITEMS = {
   armor_bottom_warriorset: { id: 'armor_bottom_warriorset', name: '용맹한 전사의 각반', type: 'armor_bottom', rarity: 'epic', armorClass: 'heavy', defBonus: 8, hpBonus: 30, weight: 10, strRequirement: 15 },
   necklace_warriorset: { id: 'necklace_warriorset', name: '용맹한 전사의 목걸이', type: 'necklace', rarity: 'epic', atkBonus: 6, hpBonus: 25, weight: 0.3 },
   ring_warriorset: { id: 'ring_warriorset', name: '용맹한 전사의 반지', type: 'ring', rarity: 'epic', atkBonus: 8, weight: 0.2 },
-  shield_warriorset: { id: 'shield_warriorset', name: '용맹한 전사의 방패', type: 'shield', rarity: 'epic', defBonus: 9, hpBonus: 20, weight: 10, strRequirement: 15 },
+  shield_warriorset: { id: 'shield_warriorset', name: '용맹한 전사의 방패', type: 'shield', rarity: 'epic', defBonus: 9, hpBonus: 20, mentalResistBonus: 15, counterChance: 0.08, blockChance: 0.05, weight: 10, strRequirement: 15 },
 
   armor_top_archerset: { id: 'armor_top_archerset', name: '바람추적자의 상의', type: 'armor_top', rarity: 'epic', armorClass: 'light', defBonus: 6, hpBonus: 30, weight: 6, strRequirement: 12 },
   armor_bottom_archerset: { id: 'armor_bottom_archerset', name: '바람추적자의 하의', type: 'armor_bottom', rarity: 'epic', armorClass: 'light', defBonus: 4, hpBonus: 20, weight: 4, strRequirement: 12 },
@@ -319,7 +352,7 @@ export const ITEMS = {
   armor_bottom_paladinset: { id: 'armor_bottom_paladinset', name: '성전의 각반', type: 'armor_bottom', rarity: 'epic', armorClass: 'heavy', defBonus: 7, hpBonus: 28, weight: 10, strRequirement: 15 },
   necklace_paladinset: { id: 'necklace_paladinset', name: '성전의 목걸이', type: 'necklace', rarity: 'epic', hpBonus: 30, defBonus: 4, weight: 0.3 },
   ring_paladinset: { id: 'ring_paladinset', name: '성전의 반지', type: 'ring', rarity: 'epic', atkBonus: 5, severeInjuryResist: 0.1, weight: 0.2 },
-  shield_paladinset: { id: 'shield_paladinset', name: '성전의 방패', type: 'shield', rarity: 'epic', defBonus: 10, hpBonus: 25, weight: 11, strRequirement: 15 },
+  shield_paladinset: { id: 'shield_paladinset', name: '성전의 방패', type: 'shield', rarity: 'epic', defBonus: 10, hpBonus: 25, mentalResistBonus: 15, counterChance: 0.08, blockChance: 0.05, weight: 11, strRequirement: 15 },
 
   // 흑기사 세트 - 방어보단 공격/속도 위주로 몰아서, 체력을 자원으로 쓰는 흑기사 스킬과 궁합이 좋게 설계됨
   armor_top_darkknightset: { id: 'armor_top_darkknightset', name: '심연기사의 흉갑', type: 'armor_top', rarity: 'epic', armorClass: 'heavy', defBonus: 9, hpBonus: 32, weight: 13, strRequirement: 15 },

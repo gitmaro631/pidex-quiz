@@ -1,6 +1,6 @@
 // 레벨/경험치 순수 계산 모듈 — 지수형 곡선(후반 레벨업이 매우 힘들어짐), 레벨업시 스탯포인트 지급
 const STAT_POINTS_PER_LEVEL = 3;
-export const SUB_CLASS_UNLOCK_LEVEL = 10;
+export const SUB_CLASS_UNLOCK_LEVEL = 15;
 
 // level -> level+1로 가는 데 필요한 누적 경험치(그 레벨에서부터 카운트, character.xp는 "현재 레벨 내 진행도")
 export function xpToNextLevel(level) {

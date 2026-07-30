@@ -4,7 +4,7 @@ import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacte
 import { addItem, removeItem, inventoryQty, capacityForCharacter } from '../_rpgInventory.js';
 import { ITEMS } from '../../data/rpg/items.js';
 import { CLASSES } from '../../data/rpg/classes.js';
-import { effectiveStats } from '../../rpg-combat.js';
+import { effectiveStats, TWO_HANDED_WEAPON_TYPES } from '../../rpg-combat.js';
 
 const EQUIPPABLE_TYPES = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
 // 용병은 반지/목걸이 슬롯이 없음(createMercenaryInstance 참고) - 무기/방패/상하의만 장착 가능
@@ -77,6 +77,32 @@ export default async function handler(req, res) {
         outcome = { error: 'inventory_full' };
         return null;
       }
+
+      // 양손무기(스태프 등)는 방패와 같이 못 낌 - 방패를 끼는데 양손무기를 쓰고 있으면 그 무기를 자동으로
+      // 벗기고, 반대로 양손무기를 끼는데 방패를 쓰고 있으면 방패를 자동으로 벗김(무기 슬롯 자체는 아래서
+      // 새 아이템으로 이미 교체되므로 신경 안 써도 됨 - 여기선 "나머지 한쪽"만 처리)
+      let forcedUnequippedItemId = null;
+      let forcedUnequippedSlot = null;
+      if (equipSlot === 'shield') {
+        const currentWeaponItem = equipment.weapon ? ITEMS[equipment.weapon] : null;
+        if (currentWeaponItem && TWO_HANDED_WEAPON_TYPES.includes(currentWeaponItem.weaponType)) {
+          forcedUnequippedItemId = equipment.weapon;
+          forcedUnequippedSlot = 'weapon';
+        }
+      } else if (equipSlot === 'weapon' && TWO_HANDED_WEAPON_TYPES.includes(item.weaponType) && equipment.shield) {
+        forcedUnequippedItemId = equipment.shield;
+        forcedUnequippedSlot = 'shield';
+      }
+      if (forcedUnequippedSlot) {
+        if (!addItem(inventory, forcedUnequippedItemId, 1, capacityForCharacter(character))) {
+          outcome = { error: 'inventory_full' };
+          return null;
+        }
+        equipment[forcedUnequippedSlot] = null;
+        equipment[`${forcedUnequippedSlot}Durability`] = 100;
+        equipment[`${forcedUnequippedSlot}EnhanceLevel`] = 0;
+      }
+
       equipment[equipSlot] = itemId;
       // 내구도와 강화 단계 모두 개별 아이템 인스턴스를 추적하지 않는 v1 단순화 설계라 재장착시 초기화됨
       if (DURABILITY_SLOTS.includes(equipSlot)) {
@@ -85,7 +111,10 @@ export default async function handler(req, res) {
       }
 
       const now = Date.now();
-      outcome = { equipSlot, equipped: itemId, previous: previous || null, mercId: mercId || null };
+      outcome = {
+        equipSlot, equipped: itemId, previous: previous || null, mercId: mercId || null,
+        forcedUnequippedSlot, forcedUnequippedItemId,
+      };
       if (mercId) {
         mercenaries[mercIdx] = { ...target, equipment };
         return { ...character, mercenaries, inventory, updatedAt: now };
