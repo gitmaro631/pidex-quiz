@@ -1231,4 +1231,14 @@
   "rpg.quest.q5_canyon_clear.name": "협곡의 이상 징후",
   "rpg.quest.q5_canyon_clear.desc": "협곡/폐광에서 몬스터를 10마리 처치하세요.",
 
+  // ── RPG: 영지 일자리/시설 (rpg-i18n.js getTerritoryJobName) ──────────
+  "rpg.territoryJob.clearing.name": "개간지",
+  "rpg.territoryJob.training.name": "훈련소",
+  "rpg.territoryJob.ramparts.name": "방벽",
+  "rpg.territoryJob.farm.name": "농장",
+  "rpg.territoryJob.hospital.name": "병원",
+  "rpg.territoryJob.morale.name": "사기진작소",
+  "rpg.territoryJob.sanctum.name": "연공실",
+  "rpg.territoryJob.basics.name": "연무장",
+
 };

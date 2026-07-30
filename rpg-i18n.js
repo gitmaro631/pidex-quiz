@@ -9,7 +9,7 @@ import { MONSTERS } from './data/rpg/monsters.js';
 import { ZONES } from './data/rpg/zones.js';
 import { TOWNS } from './data/rpg/towns.js';
 import { NPCS } from './data/rpg/npcs.js';
-import { MERCENARY_TEMPLATES } from './data/rpg/mercenaries.js';
+import { MERCENARY_TEMPLATES, TERRITORY_JOBS } from './data/rpg/mercenaries.js';
 import { QUESTS } from './data/rpg/quests.js';
 
 export function getClassName(classId, lang) {
@@ -73,6 +73,11 @@ export function getNpcDialogue(npcId, lang) {
 export function getMercTemplateName(templateId, lang) {
   const template = MERCENARY_TEMPLATES[templateId];
   return tLang(`rpg.mercTemplate.${templateId}.name`, lang, template ? template.name : templateId);
+}
+
+export function getTerritoryJobName(jobId, lang) {
+  const job = TERRITORY_JOBS[jobId];
+  return tLang(`rpg.territoryJob.${jobId}.name`, lang, job ? job.name : jobId);
 }
 
 export function getQuestName(questId, lang) {

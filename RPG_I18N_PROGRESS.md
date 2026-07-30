@@ -27,7 +27,8 @@
 - [x] `locales/ko.js`에 `rpg.zone.*`/`rpg.town.*` 키 추가 (zones.js/towns.js, 59개)
 - [x] `locales/ko.js`에 `rpg.npc.*`(name+dialogue)/`rpg.mercTemplate.*`/`rpg.quest.*`(name+desc) 키 추가 (82개)
 - [x] 전수 검증: 모든 id에 대해 `getXxxName(id,'ko')`가 데이터 파일의 원래 `.name`과 정확히 일치하는지 스크립트로 확인 완료(불일치 0), `lang:'en'`(키 없음)일 때 한국어로 정상 폴백도 확인
-- [ ] `page-rpg.js` UI 문구 → `t('rpg.ui.*')` 적용 + 데이터 이름 표시를 `getXxxName()` 헬퍼로 교체 (아직 시작 안 함)
+- [x] `page-rpg.js` **데이터 이름 표시 부분은 전부 완료** — `.name` 직접 참조를 전수 스캔해서 `getXxxName()`류 헬퍼로 교체(직업/스킬/아이템/세트/지역/마을/NPC/대사/영지일자리/부직업 전부). 용병 자기 이름(`m.name`, 유저가 짓거나 랜덤배정)은 의도적으로 그대로 둠(번역 대상 아님). `TERRITORY_JOBS` 이름 키 9개 추가로 발견해서 `locales/ko.js`/`rpg-i18n.js`에 보강.
+- [ ] `page-rpg.js` **정적 UI 문구**(버튼 라벨/안내문구/토스트 메시지, `t('rpg.ui.*')`) → **아직 시작 안 함**, 최소 250개 이상 (아래 메모 참고)
 - [ ] `rpg-combat.js` 로그 문장(`log.push(...)` 49곳 + 플레이버 배열 약 200개) → `ti('rpg.log.*', lang, vars)` 로 교체, 관련 함수 시그니처에 `lang` 파라미터 추가 (아직 시작 안 함)
 - [ ] `api/_rpg/adventure.js`, `preview-zone.js` 등 `resolveCombat` 호출부가 `req.body.lang`을 받아서 넘기도록 수정 (아직 시작 안 함)
 - [ ] `page-rpg.js`의 `apiPost` 호출부(전투 관련)에 `lang: getLang()` 추가 (아직 시작 안 함)
@@ -37,5 +38,8 @@
 - **1단계(데이터 이름 추출) 완전히 끝남 + 검증 완료.** 총 766개 로케일 키가 `locales/ko.js` 끝부분(`admin_msg_load_fail` 다음)에 `rpg.*` 네임스페이스로 추가됨. 값은 전부 원래 한국어 그대로 복사(번역 아님).
 - `data/rpg/*.js`의 `name`/`desc`/`dialogue` 필드는 **하나도 안 건드림** — 그대로 한국어, 폴백 역할.
 - 새 키를 추가할 땐 `scratch_gen_*.mjs` 같은 1회성 스크립트로 데이터 파일에서 직접 뽑아 `locales/ko.js` 끝(`\n};` 직전)에 밀어넣는 방식을 씀(수작업 타이핑 아님, 정확도 위해). 검증은 `getXxxName(id,'ko') === data[id].name` 전수비교 스크립트로.
-- 다음 할 일: 2단계(page-rpg.js UI, `rpg-i18n.js` 헬퍼로 이름 표시 교체 + `t('rpg.ui.*')`), 3단계(rpg-combat.js 로그 템플릿, 여기가 제일 까다로움 - lang 파라미터를 resolveCombat부터 전 함수에 실어날라야 함)가 아직 하나도 손 안 댐.
-- 아직 로컬 커밋 안 함(git status 확인 후 진행) — 사용자가 커밋/푸시 명시적으로 요청할 때만.
+- 1단계는 커밋 완료(`0b42886`).
+- **2단계 중 "데이터 이름 표시" 부분 완료.** import 추가(`t`, `getLang` from util-i18n.js + `getXxxName` 전부 from rpg-i18n.js), `local const t`/`(t)` 매개변수가 여러 곳에서 i18n의 `t` 함수명과 충돌하고 있던 걸 발견해서 `tmpl`/`town`/`itemType`으로 이름 바꿔서 해결(중요 — 새로 코드 짤 때 `t`를 다른 용도 변수명으로 쓰지 말 것). `data/rpg/mercenaries.js`의 `TERRITORY_JOBS`(영지 일자리 이름)도 원래 계획에 없었는데 발견해서 로케일 키 9개 + `getTerritoryJobName` 헬퍼 추가함. 파일 전체를 `grep -noE "[a-zA-Z_]+\.name\b"`로 두 번 훑어서 남은 게 없는 것까지 확인.
+- **다음 할 일 — 정적 UI 문구(버튼/안내문구/토스트).** 최소 250개 이상, 데이터 조회가 아니라 화면마다 손으로 다 봐야 해서 이번 단계보다 오래 걸릴 것. 파일 내 주석으로 화면 섹션이 구분돼있음(캐릭터 선택/직업 선택/캐릭터탭/파티탭/모험탭/상점탭/대장간/인벤토리/마을탭/성 등) — 섹션별로 순서대로 처리 권장.
+- 3단계(rpg-combat.js 로그 템플릿)는 아직 착수 전 — 구조적으로 제일 큼(lang 파라미터를 resolveCombat부터 전 함수에 실어날라야 함).
+- 커밋: 1단계 완료, 2단계(데이터 이름 부분)는 이번에 커밋 예정 — 사용자가 명시적으로 요청할 때만 push.
