@@ -42,6 +42,8 @@ export const ITEMS = {
   weapon_basic_staff: { id: 'weapon_basic_staff', name: '낡은 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 3 },
   // 완드 - 스태프보다 기본 마법공격력은 낮지만(한손무기 컨셉) 방패와 함께 드는 이미지에 맞춰 가벼움
   weapon_basic_wand: { id: 'weapon_basic_wand', name: '낡은 완드', type: 'weapon', weaponType: 'wand', rarity: 'normal', atkBonus: 2, shopPrice: 45, weight: 1 },
+  // 흑기사 전용 대검 - 양손 저주받은 거대검 컨셉, 도끼와 함께 흑기사의 전용무기
+  weapon_basic_greatsword: { id: 'weapon_basic_greatsword', name: '낡은 대검', type: 'weapon', weaponType: 'greatsword', rarity: 'normal', atkBonus: 5, shopPrice: 60, weight: 9 },
   // 성직자 전용 둔기류 - 날붙이 대신 뭉툭한 무기만 쓴다는 설정(피를 보지 않는 신성한 전투). 철퇴가 성직자 기본무기
   weapon_basic_mace: { id: 'weapon_basic_mace', name: '낡은 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 5 },
   weapon_basic_warhammer: { id: 'weapon_basic_warhammer', name: '낡은 전쟁망치', type: 'weapon', weaponType: 'warhammer', rarity: 'normal', atkBonus: 4, shopPrice: 55, weight: 8 },
@@ -249,6 +251,10 @@ export const ITEMS = {
   weapon_mace_uncommon: { id: 'weapon_mace_uncommon', name: '단련된 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'uncommon', atkBonus: 8, weight: 5 },
   weapon_mace_rare: { id: 'weapon_mace_rare', name: '칠흑의 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'rare', atkBonus: 16, element: 'dark', weight: 6 },
   weapon_mace_legendary: { id: 'weapon_mace_legendary', name: '수호자의 성퇴', type: 'weapon', weaponType: 'mace', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 6 },
+  // 흑기사 전용 대검 몹 드랍 라인 - weapon_uncommon/rare/legendary와 동일 수치
+  weapon_greatsword_uncommon: { id: 'weapon_greatsword_uncommon', name: '단련된 대검', type: 'weapon', weaponType: 'greatsword', rarity: 'uncommon', atkBonus: 8, weight: 9 },
+  weapon_greatsword_rare: { id: 'weapon_greatsword_rare', name: '칠흑의 대검', type: 'weapon', weaponType: 'greatsword', rarity: 'rare', atkBonus: 16, element: 'dark', weight: 10 },
+  weapon_greatsword_legendary: { id: 'weapon_greatsword_legendary', name: '수호자의 성대검', type: 'weapon', weaponType: 'greatsword', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 10 },
   weapon_staff_legendary: { id: 'weapon_staff_legendary', name: '수호자의 성장', type: 'weapon', weaponType: 'staff', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 4 },
   armor_uncommon: { id: 'armor_uncommon', name: '강철 갑옷', type: 'armor_top', rarity: 'uncommon', armorClass: 'heavy', defBonus: 4, hpBonus: 20, weight: 12, strRequirement: 12 },
   armor_rare: { id: 'armor_rare', name: '정련된 판금 갑옷', type: 'armor_top', rarity: 'rare', armorClass: 'heavy', defBonus: 9, hpBonus: 45, weight: 16, strRequirement: 18 },

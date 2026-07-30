@@ -56,11 +56,15 @@ const OFF_CLASS_WEAPON_ATTACK_PENALTY = 4; // D&D식 명중굴림(1d20+공격보
 const OFF_CLASS_SHIELD_DEF_MULT = 0.4;
 // 전사는 "만능 근접직" 컨셉이라 어떤 무기든 비숙련 패널티 없음(classDef.weaponTypes 체크 자체를 건너뜀)
 const UNRESTRICTED_WEAPON_CLASS_IDS = ['warrior'];
-// 성기사/흑기사는 반대로 "컨셉 무기"(검) 하나만 패널티 없음 - 도끼/사슬도리깨는 원래 weaponTypes에
-// 있어서 예전엔 패널티가 없었는데, 정체성을 더 뚜렷하게 하기 위해 좁힘
-const CONCEPT_WEAPON_BY_CLASS = { paladin: ['sword'], dark_knight: ['sword'] };
+// 성기사/흑기사는 반대로 "컨셉 무기"(발더스게이트/디아블로 참고, 전용무기 컨셉) 몇 개만 패널티 없음 -
+// 성기사=검+사슬도리깨(축복받은 둔기), 흑기사=도끼+대검(저주받은 양손검). classDef.weaponTypes와
+// 반드시 동일하게 맞춰둠(둘 다 이 목록 참고)
+const CONCEPT_WEAPON_BY_CLASS = { paladin: ['sword', 'flail'], dark_knight: ['axe', 'greatsword'] };
+// 물매(sling)는 원거리 보조무기 컨셉이라 직업 무관하게 항상 패널티 없음(전 직업 공용)
+const UNIVERSAL_NO_PENALTY_WEAPON_TYPES = ['sling'];
 function isOffClassWeapon(classDef, weaponType) {
   if (!weaponType) return false;
+  if (UNIVERSAL_NO_PENALTY_WEAPON_TYPES.includes(weaponType)) return false;
   if (UNRESTRICTED_WEAPON_CLASS_IDS.includes(classDef.id)) return false;
   const allowed = CONCEPT_WEAPON_BY_CLASS[classDef.id] || classDef.weaponTypes;
   return !allowed.includes(weaponType);
@@ -491,9 +495,9 @@ function classMonsterAffinity(classDef, monsterTags) {
 // 어떤 직업이 잡든 무기/방어구 타입이 완전 무작위로 갈리게 해서(캐릭 직업과 무관) 다른 타입을 얻으면
 // 직접 쓰거나(무기는 직업 불일치 패널티 감수, 방패도 동일한 원칙) 마켓에서 맞는 직업에게 거래할 수 있음
 const WEAPON_TIER_VARIANTS = {
-  weapon_uncommon: ['weapon_uncommon', 'weapon_bow_uncommon', 'weapon_staff_uncommon', 'weapon_mace_uncommon', 'weapon_wand_uncommon'],
-  weapon_rare: ['weapon_rare', 'weapon_bow_rare', 'weapon_staff_rare', 'weapon_mace_rare', 'weapon_wand_rare'],
-  weapon_legendary: ['weapon_legendary', 'weapon_bow_legendary', 'weapon_staff_legendary', 'weapon_mace_legendary', 'weapon_wand_legendary'],
+  weapon_uncommon: ['weapon_uncommon', 'weapon_bow_uncommon', 'weapon_staff_uncommon', 'weapon_mace_uncommon', 'weapon_wand_uncommon', 'weapon_greatsword_uncommon'],
+  weapon_rare: ['weapon_rare', 'weapon_bow_rare', 'weapon_staff_rare', 'weapon_mace_rare', 'weapon_wand_rare', 'weapon_greatsword_rare'],
+  weapon_legendary: ['weapon_legendary', 'weapon_bow_legendary', 'weapon_staff_legendary', 'weapon_mace_legendary', 'weapon_wand_legendary', 'weapon_greatsword_legendary'],
 };
 const ARMOR_TIER_VARIANTS = {
   armor_uncommon: ['armor_uncommon', 'armor_light_uncommon', 'armor_cloth_uncommon'],

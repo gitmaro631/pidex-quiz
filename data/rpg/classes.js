@@ -105,7 +105,9 @@ export const CLASSES = {
   // 일격)은 마나로 씀(스킬 정의에 resourceType을 직접 지정해서 직업 기본 자원과 다르게 쓸 수 있음 -
   // rpg-combat.js의 skillResourceKey 참고). WIS 요구치가 없어도 되게 스킬 위력 자체를 성직자보다 낮게 잡음
   paladin: {
-    id: 'paladin', name: '성기사', weaponTypes: ['sword', 'axe', 'flail'], statScaling: { atk: 'str' }, resourceType: 'stamina',
+    // 전용무기: 검+사슬도리깨(축복받은 둔기) - 발더스게이트/디아블로 성기사 컨셉 참고. 그 외 무기는
+    // 장착은 가능하지만 비숙련 패널티(rpg-combat.js CONCEPT_WEAPON_BY_CLASS)
+    id: 'paladin', name: '성기사', weaponTypes: ['sword', 'flail'], statScaling: { atk: 'str' }, resourceType: 'stamina',
     improvisedAttack: { name: '맨손 강타', powerMult: 0.8 },
     skills: [
       // 공격은 단일/광역 딱 둘 - 둘 다 신성속성 고정(elements 배열, performAttack의 castElement 참고)
@@ -132,7 +134,9 @@ export const CLASSES = {
   // 자살은 방지되지만 그 다음 몹 반격에는 훨씬 취약해짐) - 성기사와 반대로 언데드에게 약함(죽음의 힘이
   // 이미 죽어있는 상대에겐 안 통한다는 컨셉)
   dark_knight: {
-    id: 'dark_knight', name: '흑기사', weaponTypes: ['sword', 'axe', 'flail'], statScaling: { atk: 'str' }, resourceType: 'stamina',
+    // 전용무기: 도끼+대검(저주받은 양손검) - 디아블로류 어둠의 기사 컨셉 참고. 그 외 무기는 장착은
+    // 가능하지만 비숙련 패널티(rpg-combat.js CONCEPT_WEAPON_BY_CLASS)
+    id: 'dark_knight', name: '흑기사', weaponTypes: ['axe', 'greatsword'], statScaling: { atk: 'str' }, resourceType: 'stamina',
     improvisedAttack: { name: '어둠의 손아귀', powerMult: 0.8 },
     skills: [
       // 공격은 단일/광역 딱 둘 - 둘 다 어둠속성 고정. 유혈강타는 광역기 자리로 옮기고 HP소모 컨셉은 그대로 유지
