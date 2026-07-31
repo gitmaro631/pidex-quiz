@@ -247,10 +247,10 @@ let inventoryPage = 0;
 let pinnedItemIds = [];
 // 고정(핀)된 아이템은 항상 최상단 유지 - 정렬 모드는 그 아래 나머지 아이템들에만 적용됨
 const INVENTORY_SORT_MODES = {
-  default: { label: '기본순', types: null },
-  armor: { label: '방어구 우선', types: ['armor_top', 'armor_bottom', 'shield'] },
-  weapon: { label: '무기 우선', types: ['weapon'] },
-  consumable: { label: '소모품 우선', types: ['consumable', 'bag'] },
+  default: { labelKey: 'rpg.ui.inventory.sortDefault', types: null },
+  armor: { labelKey: 'rpg.ui.inventory.sortArmor', types: ['armor_top', 'armor_bottom', 'shield'] },
+  weapon: { labelKey: 'rpg.ui.inventory.sortWeapon', types: ['weapon'] },
+  consumable: { labelKey: 'rpg.ui.inventory.sortConsumable', types: ['consumable', 'bag'] },
 };
 let inventorySortMode = 'default';
 
@@ -1614,11 +1614,11 @@ function renderInventoryTab(content, container) {
   const pageEntries = sortedInventory.slice(inventoryPage * INVENTORY_PAGE_SIZE, (inventoryPage + 1) * INVENTORY_PAGE_SIZE);
 
   content.innerHTML = `
-    <p class="rpg-hint">인벤토리 (${inventory.length}/${capacity}칸, 무게 ${weight.toFixed(1)}/${weightLimit})</p>
+    <p class="rpg-hint">${ti('rpg.ui.inventory.header', getLang(), { count: inventory.length, capacity, weight: weight.toFixed(1), weightLimit })}</p>
     <div class="rpg-inv-toolbar">
-      <label class="rpg-hint">정렬:
+      <label class="rpg-hint">${t('rpg.ui.inventory.sortLabel')}
         <select class="rpg-inv-sort-select">
-          ${Object.entries(INVENTORY_SORT_MODES).map(([key, cfg]) => `<option value="${key}" ${inventorySortMode === key ? 'selected' : ''}>${cfg.label}</option>`).join('')}
+          ${Object.entries(INVENTORY_SORT_MODES).map(([key, cfg]) => `<option value="${key}" ${inventorySortMode === key ? 'selected' : ''}>${t(cfg.labelKey)}</option>`).join('')}
         </select>
       </label>
     </div>
@@ -1629,38 +1629,38 @@ function renderInventoryTab(content, container) {
         const actions = [];
         const equippable = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
         const mercEquippable = MERC_EQUIP_SLOTS.includes(item.type);
-        actions.push(`<button class="rpg-inv-pin ${isPinned ? 'rpg-inv-pin-active' : ''}" data-item="${entry.itemId}">${isPinned ? '📌 고정됨' : '📌 상단고정'}</button>`);
-        if (item.type === 'consumable' || item.type === 'bag') actions.push(`<button class="rpg-inv-use" data-item="${entry.itemId}">사용</button>`);
+        actions.push(`<button class="rpg-inv-pin ${isPinned ? 'rpg-inv-pin-active' : ''}" data-item="${entry.itemId}">${isPinned ? t('rpg.ui.inventory.pinnedBtn') : t('rpg.ui.inventory.pinBtn')}</button>`);
+        if (item.type === 'consumable' || item.type === 'bag') actions.push(`<button class="rpg-inv-use" data-item="${entry.itemId}">${t('rpg.ui.inventory.useBtn')}</button>`);
         if (mercEquippable && (character.mercenaries || []).length) {
           // 무기/방패/상하의는 본인 또는 용병 중 골라서 장착 - 반지/목걸이는 용병 슬롯이 없어 본인 전용(장착 버튼만)
           actions.push(`
             <select class="rpg-inv-equip-target" data-item="${entry.itemId}">
-              <option value="">나에게</option>
-              ${(character.mercenaries || []).map((m) => `<option value="${m.id}">${m.name}에게</option>`).join('')}
+              <option value="">${t('rpg.ui.inventory.toSelf')}</option>
+              ${(character.mercenaries || []).map((m) => `<option value="${m.id}">${ti('rpg.ui.inventory.toMerc', getLang(), { name: m.name })}</option>`).join('')}
             </select>
           `);
         }
-        if (equippable.includes(item.type)) actions.push(`<button class="rpg-inv-equip" data-item="${entry.itemId}">장착</button>`);
+        if (equippable.includes(item.type)) actions.push(`<button class="rpg-inv-equip" data-item="${entry.itemId}">${t('rpg.ui.inventory.equipBtn')}</button>`);
         if (!isItemIdentified(item)) {
-          actions.push(`<button class="rpg-inv-identify" data-item="${entry.itemId}">감정하기</button>`);
-          actions.push(`<button class="rpg-inv-identify" data-item="${entry.itemId}" data-scroll="1">스크롤로 감정</button>`);
+          actions.push(`<button class="rpg-inv-identify" data-item="${entry.itemId}">${t('rpg.ui.inventory.identifyBtn')}</button>`);
+          actions.push(`<button class="rpg-inv-identify" data-item="${entry.itemId}" data-scroll="1">${t('rpg.ui.inventory.identifyScrollBtn')}</button>`);
         }
-        if (entry.itemId === 'torn_cloth' && entry.qty >= 3) actions.push(`<button class="rpg-inv-craft-bandage">붕대로 제작</button>`);
-        actions.push(`<button class="rpg-inv-sell" data-item="${entry.itemId}">NPC판매</button>`);
-        actions.push(`<button class="rpg-inv-list" data-item="${entry.itemId}">마켓등록</button>`);
+        if (entry.itemId === 'torn_cloth' && entry.qty >= 3) actions.push(`<button class="rpg-inv-craft-bandage">${t('rpg.ui.inventory.craftBandageBtn')}</button>`);
+        actions.push(`<button class="rpg-inv-sell" data-item="${entry.itemId}">${t('rpg.ui.inventory.sellBtn')}</button>`);
+        actions.push(`<button class="rpg-inv-list" data-item="${entry.itemId}">${t('rpg.ui.inventory.listBtn')}</button>`);
         return `
           <div class="rpg-inv-row">
             <span>${getItemName(entry.itemId, getLang())}${itemStatsLabel(item)} x${entry.qty}</span>
             <span class="rpg-inv-actions">${actions.join('')}</span>
           </div>
         `;
-      }).join('') : '<p class="rpg-hint">인벤토리가 비어있습니다.</p>'}
+      }).join('') : `<p class="rpg-hint">${t('rpg.ui.inventory.empty')}</p>`}
     </div>
     ${sortedInventory.length ? `
       <div class="rpg-inv-pagination">
-        <button class="rpg-inv-page-prev" ${inventoryPage === 0 ? 'disabled' : ''}>◀ 이전</button>
-        <span class="rpg-hint">${inventoryPage + 1} / ${totalPages} 페이지</span>
-        <button class="rpg-inv-page-next" ${inventoryPage >= totalPages - 1 ? 'disabled' : ''}>다음 ▶</button>
+        <button class="rpg-inv-page-prev" ${inventoryPage === 0 ? 'disabled' : ''}>${t('rpg.ui.inventory.pagePrev')}</button>
+        <span class="rpg-hint">${ti('rpg.ui.inventory.pageLabel', getLang(), { page: inventoryPage + 1, total: totalPages })}</span>
+        <button class="rpg-inv-page-next" ${inventoryPage >= totalPages - 1 ? 'disabled' : ''}>${t('rpg.ui.inventory.pageNext')}</button>
       </div>
     ` : ''}
   `;
@@ -1704,19 +1704,19 @@ function renderInventoryTab(content, container) {
       if (tierUsed >= tierCap) {
         confirmDisabled = true;
         const nextTierItem = Object.values(ITEMS).find((i) => i.type === 'bag' && i.bagTier === tier + 1);
-        rows.push(`<p class="rpg-hint">⚠️ ${getItemName(item.id, getLang())} 등급(${tier}등급)은 이미 한도(${tierCap}칸)를 다 채웠습니다.${nextTierItem ? ` 더 늘리려면 "${getItemName(nextTierItem.id, getLang())}"(${tier + 1}등급)이 필요합니다.` : ' 이게 최고 등급입니다.'}</p>`);
+        rows.push(`<p class="rpg-hint">${ti('rpg.ui.inventory.bagTierFull', getLang(), { name: getItemName(item.id, getLang()), tier, cap: tierCap })}${nextTierItem ? ti('rpg.ui.inventory.bagTierNext', getLang(), { name: getItemName(nextTierItem.id, getLang()), tier: tier + 1 }) : t('rpg.ui.inventory.bagTierMax')}</p>`);
       } else {
         const before = capacityForCharacter(character);
         const after = before + item.slotBonus;
-        rows.push(`<div class="rpg-stat-delta-row"><span>인벤토리 칸</span><span>${before} → ${after}</span><span class="rpg-stat-up">+${item.slotBonus}</span></div>`);
-        rows.push(`<p class="rpg-hint">${tier}등급 진행도: ${tierUsed}/${tierCap}칸</p>`);
+        rows.push(`<div class="rpg-stat-delta-row"><span>${t('rpg.ui.inventory.capacityLabel')}</span><span>${before} → ${after}</span><span class="rpg-stat-up">+${item.slotBonus}</span></div>`);
+        rows.push(`<p class="rpg-hint">${ti('rpg.ui.inventory.tierProgress', getLang(), { tier, used: tierUsed, cap: tierCap })}</p>`);
       }
     } else if (item.cureInjury === 'mild') {
       const injuries = character.injuries || {};
       const mildPart = ['arm', 'leg'].find((p) => (injuries[p] || {}).severity === 1);
       if (!mildPart) {
         confirmDisabled = true;
-        rows.push('<p class="rpg-hint">⚠️ 치료할 경상이 없습니다.</p>');
+        rows.push(`<p class="rpg-hint">${t('rpg.ui.inventory.noMildInjury')}</p>`);
       } else {
         rows.push(`<p>${ti('rpg.ui.bandage.previewMild', getLang(), { part: bodyPartName(mildPart) })}</p>`);
       }
@@ -1725,25 +1725,25 @@ function renderInventoryTab(content, container) {
       if (item.healPct) {
         const beforeHp = character.currentHp;
         const afterHp = Math.min(stats.maxHp, beforeHp + Math.round(stats.maxHp * item.healPct));
-        rows.push(`<div class="rpg-stat-delta-row"><span>체력</span><span>${beforeHp}/${stats.maxHp} → ${afterHp}/${stats.maxHp}</span><span class="rpg-stat-up">+${afterHp - beforeHp}</span></div>`);
+        rows.push(`<div class="rpg-stat-delta-row"><span>${t('rpg.ui.stat.hp')}</span><span>${beforeHp}/${stats.maxHp} → ${afterHp}/${stats.maxHp}</span><span class="rpg-stat-up">+${afterHp - beforeHp}</span></div>`);
       }
       if (item.restoreMpPct) {
         const beforeMp = character.currentMp;
         const afterMp = Math.min(stats.maxMp, beforeMp + Math.round(stats.maxMp * item.restoreMpPct));
-        rows.push(`<div class="rpg-stat-delta-row"><span>마나</span><span>${beforeMp}/${stats.maxMp} → ${afterMp}/${stats.maxMp}</span><span class="rpg-stat-up">+${afterMp - beforeMp}</span></div>`);
+        rows.push(`<div class="rpg-stat-delta-row"><span>${t('rpg.ui.stat.mp')}</span><span>${beforeMp}/${stats.maxMp} → ${afterMp}/${stats.maxMp}</span><span class="rpg-stat-up">+${afterMp - beforeMp}</span></div>`);
       }
       if (item.restoreStaminaPct) {
         const beforeSt = character.currentStamina;
         const afterSt = Math.min(stats.maxStamina, beforeSt + Math.round(stats.maxStamina * item.restoreStaminaPct));
-        rows.push(`<div class="rpg-stat-delta-row"><span>스테미나</span><span>${beforeSt}/${stats.maxStamina} → ${afterSt}/${stats.maxStamina}</span><span class="rpg-stat-up">+${afterSt - beforeSt}</span></div>`);
+        rows.push(`<div class="rpg-stat-delta-row"><span>${t('rpg.ui.stat.stamina')}</span><span>${beforeSt}/${stats.maxStamina} → ${afterSt}/${stats.maxStamina}</span><span class="rpg-stat-up">+${afterSt - beforeSt}</span></div>`);
       }
-      if (!rows.length) rows.push('<p class="rpg-hint">이 아이템은 즉시 사용 효과 미리보기가 없습니다.</p>');
+      if (!rows.length) rows.push(`<p class="rpg-hint">${t('rpg.ui.inventory.noPreview')}</p>`);
     }
 
     showConfirmOverlay(container, {
-      title: `${getItemName(item.id, getLang())} 사용`,
+      title: ti('rpg.ui.inventory.useTitle', getLang(), { name: getItemName(item.id, getLang()) }),
       bodyHtml: `<div class="rpg-stat-delta-table">${rows.join('')}</div>`,
-      confirmLabel: '사용',
+      confirmLabel: t('rpg.ui.inventory.useBtn'),
       confirmDisabled,
       onConfirm: async () => {
         try {
@@ -1754,11 +1754,11 @@ function renderInventoryTab(content, container) {
           container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
           renderInventoryTab(content, container);
           if (r.effect === 'bag') {
-            showToast(`가방을 사용해 인벤토리가 +${r.slotBonus}칸 늘었습니다! (현재 ${capacityForCharacter(character)}칸)`);
+            showToast(ti('rpg.ui.inventory.bagUsed', getLang(), { bonus: r.slotBonus, capacity: capacityForCharacter(character) }));
           } else if (r.effect === 'bandage') {
             showToast(ti('rpg.ui.bandage.cured', getLang(), { part: bodyPartName(r.healedPart) }));
           } else {
-            showToast('사용했습니다');
+            showToast(t('rpg.ui.inventory.used'));
           }
         } catch (e) { showToast(friendlyError(e)); }
       },
@@ -1779,12 +1779,12 @@ function renderInventoryTab(content, container) {
     if (item.strRequirement) {
       const ok = stats.str >= item.strRequirement;
       if (!ok) reqOk = false;
-      reqRows.push(`<div class="rpg-stat-delta-row"><span>요구 힘</span><span>${item.strRequirement} (현재 ${stats.str})</span><span>${ok ? '✅' : '❌'}</span></div>`);
+      reqRows.push(`<div class="rpg-stat-delta-row"><span>${t('rpg.ui.inventory.reqStr')}</span><span>${item.strRequirement} ${ti('rpg.ui.inventory.currentValue', getLang(), { v: stats.str })}</span><span>${ok ? '✅' : '❌'}</span></div>`);
     }
     if (item.wisRequirement) {
       const ok = stats.wis >= item.wisRequirement;
       if (!ok) reqOk = false;
-      reqRows.push(`<div class="rpg-stat-delta-row"><span>요구 지혜</span><span>${item.wisRequirement} (현재 ${stats.wis})</span><span>${ok ? '✅' : '❌'}</span></div>`);
+      reqRows.push(`<div class="rpg-stat-delta-row"><span>${t('rpg.ui.inventory.reqWis')}</span><span>${item.wisRequirement} ${ti('rpg.ui.inventory.currentValue', getLang(), { v: stats.wis })}</span><span>${ok ? '✅' : '❌'}</span></div>`);
     }
     const slot = EQUIP_SLOT_BY_TYPE[item.type];
     const previousItemId = targetChar.equipment[slot];
@@ -1803,24 +1803,24 @@ function renderInventoryTab(content, container) {
     if (item.type === 'shield') {
       const currentWeapon = targetChar.equipment.weapon ? ITEMS[targetChar.equipment.weapon] : null;
       if (currentWeapon && TWO_HANDED_WEAPON_TYPES.includes(currentWeapon.weaponType)) {
-        twoHandedWarning = `⚠️ ${getItemName(currentWeapon.id, getLang())}은(는) 양손무기라 방패와 같이 낄 수 없어요 - 장착하면 자동으로 벗겨집니다.`;
+        twoHandedWarning = ti('rpg.ui.inventory.twoHandedShieldWarn', getLang(), { weapon: getItemName(currentWeapon.id, getLang()) });
       }
     } else if (item.type === 'weapon' && TWO_HANDED_WEAPON_TYPES.includes(item.weaponType) && targetChar.equipment.shield) {
       const currentShield = ITEMS[targetChar.equipment.shield];
-      twoHandedWarning = `⚠️ ${getItemName(item.id, getLang())}은(는) 양손무기라 방패와 같이 낄 수 없어요 - 장착하면 ${currentShield ? getItemName(currentShield.id, getLang()) : '방패'}이(가) 자동으로 벗겨집니다.`;
+      twoHandedWarning = ti('rpg.ui.inventory.twoHandedWeaponWarn', getLang(), { weapon: getItemName(item.id, getLang()), shield: currentShield ? getItemName(currentShield.id, getLang()) : t('rpg.ui.equip.shield') });
     }
     showConfirmOverlay(container, {
-      title: `${getItemName(item.id, getLang())} 장착${mercId ? ` — ${targetChar.name}` : ''}`,
+      title: mercId ? ti('rpg.ui.inventory.equipTitleForMerc', getLang(), { name: getItemName(item.id, getLang()), target: targetChar.name }) : ti('rpg.ui.inventory.equipTitle', getLang(), { name: getItemName(item.id, getLang()) }),
       bodyHtml: `
         ${reqRows.length ? `<div class="rpg-stat-delta-table">${reqRows.join('')}</div>` : ''}
-        ${addedParts.length ? `<p class="rpg-stat-up">추가: ${addedParts.join(', ')}</p>` : ''}
-        ${removedParts.length ? `<p class="rpg-stat-down">해제(${getItemName(previousItem.id, getLang())}): ${removedParts.join(', ')}</p>` : ''}
+        ${addedParts.length ? `<p class="rpg-stat-up">${ti('rpg.ui.inventory.added', getLang(), { parts: addedParts.join(', ') })}</p>` : ''}
+        ${removedParts.length ? `<p class="rpg-stat-down">${ti('rpg.ui.inventory.removed', getLang(), { name: getItemName(previousItem.id, getLang()), parts: removedParts.join(', ') })}</p>` : ''}
         ${penaltyWarning ? `<p class="rpg-hint">${penaltyWarning}</p>` : ''}
         ${twoHandedWarning ? `<p class="rpg-hint">${twoHandedWarning}</p>` : ''}
         ${statsDeltaRowsHtml(before, after)}
-        ${!reqOk ? '<p class="rpg-hint">⚠️ 요구치를 채우지 못해 장착할 수 없습니다.</p>' : ''}
+        ${!reqOk ? `<p class="rpg-hint">${t('rpg.ui.inventory.reqNotMet')}</p>` : ''}
       `,
-      confirmLabel: '장착',
+      confirmLabel: t('rpg.ui.inventory.equipBtn'),
       confirmDisabled: !reqOk,
       onConfirm: async () => {
         try {
@@ -1829,7 +1829,9 @@ function renderInventoryTab(content, container) {
           const finalTarget = mercId ? (character.mercenaries || []).find((m) => m.id === mercId) : character;
           const finalAfter = computeCharacterCombatStats(finalTarget);
           renderInventoryTab(content, container);
-          showToast(`장착 완료${mercId ? ` (${targetChar.name})` : ''} — ${statsDeltaMessage(before, finalAfter)}`);
+          showToast(mercId
+            ? ti('rpg.ui.inventory.equippedForMerc', getLang(), { target: targetChar.name, delta: statsDeltaMessage(before, finalAfter) })
+            : ti('rpg.ui.inventory.equipped', getLang(), { delta: statsDeltaMessage(before, finalAfter) }));
         } catch (e) { showToast(friendlyError(e)); }
       },
     });
@@ -1841,17 +1843,17 @@ function renderInventoryTab(content, container) {
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       await loadCharacter();
       renderInventoryTab(content, container);
-      showToast(`${r.proceeds}골드에 판매했습니다`);
+      showToast(ti('rpg.ui.inventory.sold', getLang(), { proceeds: r.proceeds }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-inv-list').forEach((btn) => btn.addEventListener('click', async () => {
-    const price = prompt('개당 판매 가격(골드)을 입력하세요');
+    const price = prompt(t('rpg.ui.inventory.listPricePrompt'));
     if (!price) return;
     try {
       await apiPost('market-list', { itemId: btn.dataset.item, qty: 1, pricePerUnit: Number(price) });
       await loadCharacter();
       renderInventoryTab(content, container);
-      showToast('마켓에 등록했습니다');
+      showToast(t('rpg.ui.inventory.listed'));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-inv-craft-bandage').forEach((btn) => btn.addEventListener('click', async () => {
@@ -1859,7 +1861,7 @@ function renderInventoryTab(content, container) {
       const r = await apiPost('craft-bandage', { qty: 1 });
       await loadCharacter();
       renderInventoryTab(content, container);
-      showToast(`해진 천 ${r.clothUsed}개로 붕대 ${r.crafted}개를 만들었습니다`);
+      showToast(ti('rpg.ui.inventory.bandageCrafted', getLang(), { used: r.clothUsed, crafted: r.crafted }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-inv-identify').forEach((btn) => btn.addEventListener('click', async () => {
@@ -1870,9 +1872,9 @@ function renderInventoryTab(content, container) {
         character.identifiedItems = [...(character.identifiedItems || []), r.itemId];
         if (useScroll) await loadCharacter();
         renderInventoryTab(content, container);
-        showToast('감정 성공! 아이템 정보가 확인됐습니다');
+        showToast(t('rpg.ui.inventory.identifySuccess'));
       } else {
-        showToast('감정에 실패했습니다. 지혜가 부족하거나 스크롤이 필요해요');
+        showToast(t('rpg.ui.inventory.identifyFail'));
       }
     } catch (e) { showToast(friendlyError(e)); }
   }));
@@ -1882,28 +1884,33 @@ function renderInventoryTab(content, container) {
 function equipmentSectionEffectiveRow(characterLike = character) {
   const weaponId = characterLike.equipment && characterLike.equipment.weapon;
   const weapon = weaponId ? ITEMS[weaponId] : null;
-  return weapon && ['bow', 'staff'].includes(weapon.weaponType) ? '후열' : '전열';
+  return weapon && ['bow', 'staff'].includes(weapon.weaponType) ? t('rpg.ui.inventory.formationBack') : t('rpg.ui.inventory.formationFront');
 }
 
-const FORMATION_ROW_LABELS = { front: '전열', mid: '중열', back: '후열' };
+function formationRowLabel(row) {
+  if (row === 'front') return t('rpg.ui.inventory.formationFront');
+  if (row === 'mid') return t('rpg.ui.inventory.formationMid');
+  if (row === 'back') return t('rpg.ui.inventory.formationBack');
+  return row;
+}
 
 // 진형 선택 UI(전열/중열/후열 중 허용된 열만 버튼 표시 + 자동) - 활/마법은 1~3열 전부,
 // 창을 든 전사는 전열/중열, 그 외 근접은 전열 고정이라 버튼 없이 안내문만 표시
 // - mercId가 있으면 그 용병 대상, 없으면 본인 대상
 function formationSectionHtml(characterLike, mercId) {
   const currentLabel = characterLike.formationRow
-    ? FORMATION_ROW_LABELS[characterLike.formationRow]
-    : `자동(${equipmentSectionEffectiveRow(characterLike)})`;
+    ? formationRowLabel(characterLike.formationRow)
+    : ti('rpg.ui.inventory.formationAutoLabel', getLang(), { row: equipmentSectionEffectiveRow(characterLike) });
   const mercAttr = mercId ? ` data-merc="${mercId}"` : '';
   const allowed = allowedFormationRows(characterLike);
   if (allowed.length === 1) {
-    return `<p>진형: ${FORMATION_ROW_LABELS[allowed[0]]} 고정(근접 직업)</p>`;
+    return `<p>${ti('rpg.ui.inventory.formationFixed', getLang(), { row: formationRowLabel(allowed[0]) })}</p>`;
   }
   return `
-    <p>진형:
-      ${allowed.map((row) => `<button class="rpg-formation-btn" data-formation="${row}"${mercAttr}>${FORMATION_ROW_LABELS[row]}</button>`).join('')}
-      <button class="rpg-formation-btn" data-formation=""${mercAttr}>자동</button>
-      (현재: ${currentLabel})
+    <p>${t('rpg.ui.inventory.formationLabel')}
+      ${allowed.map((row) => `<button class="rpg-formation-btn" data-formation="${row}"${mercAttr}>${formationRowLabel(row)}</button>`).join('')}
+      <button class="rpg-formation-btn" data-formation=""${mercAttr}>${t('rpg.ui.inventory.formationAutoBtn')}</button>
+      ${ti('rpg.ui.inventory.formationCurrent', getLang(), { current: currentLabel })}
     </p>
   `;
 }
