@@ -1306,4 +1306,47 @@
   "rpg.ui.zonePreview.levelUp": " · <b>레벨업! Lv.{level}</b>",
   "rpg.ui.zonePreview.loot": "<br>획득: {items}",
 
+  // ── RPG: 탐험일지(로어) (rpg-i18n.js getLoreTitle/getLoreText) ──────────
+  "rpg.lore.lore_arrival.title": "첫 발자국",
+  "rpg.lore.lore_arrival.text": "이 땅은 최근에야 외부에 알려지기 시작한 대륙이다. 아직 이름조차 제대로 붙지 않은 곳. 항구의 늙은 뱃사람들은 \"돌아올 때마다 수평선이 낯설어진다\"고 중얼거린다.",
+  "rpg.lore.lore_old_maps.title": "낡은 지도",
+  "rpg.lore.lore_old_maps.text": "마을 원로가 색이 바랜 지도 한 장을 보여주었다. \"이 대륙 너머에도 땅이 있다고 하더군. 아직 아무도 가본 적은 없지만 말일세.\"",
+  "rpg.lore.lore_trade_routes.title": "교역로의 소문",
+  "rpg.lore.lore_trade_routes.text": "교역소 상인들 사이에서 먼 바다 건너 낯선 항구 이야기가 돈다. 아무도 직접 본 적은 없다고 하면서도, 다들 그 이야기를 하는 눈빛만은 진지했다.",
+  "rpg.lore.lore_canyon_anomaly.title": "협곡의 문양",
+  "rpg.lore.lore_canyon_anomaly.text": "정찰병이 협곡 유적에서 발견한 문양을 그려 보여주었다. 고대 묘굴 깊은 곳에서 본 것과 똑같은 문양이었다. \"우연이라기엔... 너무 똑같아.\"",
+  "rpg.lore.lore_dungeon_guardian.title": "수호자의 마지막 말",
+  "rpg.lore.lore_dungeon_guardian.text": "던전 수호자가 무너지며 남긴 말은 짧았다. \"...봉인은, 이곳만이 아니다.\" 그 말의 의미를 아는 사람은 아직 아무도 없다.",
+
+  // ── RPG UI: 로어알림/퀘스트행/의사NPC/영지휴식 ──────────
+  "rpg.ui.lore.unlockTitle": "📖 탐험일지 갱신: {title}",
+  "rpg.ui.quest.claimBtn": "완료 보고",
+  "rpg.ui.common.self": "나",
+  "rpg.ui.doctor.severityMinor": "경상",
+  "rpg.ui.doctor.severityMajor": "중상",
+  "rpg.ui.doctor.statusLabel": "{name} - {part} {severity} (남은 {turns}턴)",
+  "rpg.ui.doctor.cureBtn": "치료 ({cost}골드)",
+  "rpg.ui.doctor.noInjured": "지금은 다친 사람이 없네요. (체력만 깎였다면 영지 탭에서 쉬며 회복하세요)",
+  "rpg.ui.territory.restHealBtn": "영지에서 쉬기 (턴 {cost}개)",
+  "rpg.ui.territory.hpLabel": "{name} - 체력 {current}/{max}",
+  "rpg.ui.territory.hpRestBtn": "영지에서 쉬며 체력 회복 (턴 {cost}개)",
+  "rpg.ui.territory.restTitle": "🛌 휴식 (턴 소모)",
+  "rpg.ui.territory.restNone": "지금은 다친 사람도, 체력이 깎인 사람도 없네요.",
+
+  // ── RPG UI: 신체부위 ──────────
+  "rpg.ui.bodyPart.arm": "팔",
+  "rpg.ui.bodyPart.leg": "다리",
+
+  // ── RPG UI: 부상/붕대/영지용병 부상표시 ──────────
+  "rpg.ui.doctor.cured": "{part} 부상을 치료했습니다 ({cost}골드)",
+  "rpg.ui.bandage.previewMild": "{part} 경상이 치료됩니다.",
+  "rpg.ui.bandage.cured": "{part} 부상을 붕대로 치료했습니다",
+  "rpg.ui.territory.injuredLabel": "· 부상: {parts}",
+  "rpg.ui.territory.restingLabel": "휴식",
+  "rpg.ui.territory.hpHealed": "체력을 회복했습니다 (턴 {cost}개 소모)",
+  "rpg.ui.territory.injuryHealed": "{part} 부상이 나았습니다 (턴 {cost}개 소모)",
+  "rpg.ui.injury.severityMajorFull": "중상(의사에게 치료 필요)",
+  "rpg.ui.injury.severityMinorFull": "경상(붕대로 치료 가능)",
+  "rpg.ui.injury.summaryLine": "{part} {severity} — 남은 {turns}턴",
+
 };

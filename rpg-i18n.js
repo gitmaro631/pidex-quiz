@@ -11,6 +11,7 @@ import { TOWNS } from './data/rpg/towns.js';
 import { NPCS } from './data/rpg/npcs.js';
 import { MERCENARY_TEMPLATES, TERRITORY_JOBS } from './data/rpg/mercenaries.js';
 import { QUESTS } from './data/rpg/quests.js';
+import { LORE_ENTRIES } from './data/rpg/lore.js';
 
 export function getClassName(classId, lang) {
   const cls = CLASSES[classId];
@@ -88,4 +89,14 @@ export function getQuestName(questId, lang) {
 export function getQuestDesc(questId, lang) {
   const quest = QUESTS[questId];
   return tLang(`rpg.quest.${questId}.desc`, lang, quest ? quest.desc : '');
+}
+
+export function getLoreTitle(loreId, lang) {
+  const lore = LORE_ENTRIES[loreId];
+  return tLang(`rpg.lore.${loreId}.title`, lang, lore ? lore.title : loreId);
+}
+
+export function getLoreText(loreId, lang) {
+  const lore = LORE_ENTRIES[loreId];
+  return tLang(`rpg.lore.${loreId}.text`, lang, lore ? lore.text : '');
 }

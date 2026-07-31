@@ -51,7 +51,7 @@ function inventoryWeight(inventory) {
 }
 
 const ELEMENT_NAMES = { water: '물', fire: '불', air: '대기', earth: '흙', dark: '어둠', holy: '신성', none: '무속성', all: '전속성' };
-const BODY_PART_NAMES = { arm: '팔', leg: '다리' };
+function bodyPartName(part) { return t(`rpg.ui.bodyPart.${part}`); }
 
 const IDENTIFIABLE_TYPES = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
 // 아이템 등급이 내 레벨보다 높으면 미확인 상태 - 감정 스크롤을 쓰거나, 본인/활성 용병 중 지혜가
@@ -931,7 +931,7 @@ function loreUnlockHtml(newLore) {
   if (!newLore || !newLore.length) return '';
   return newLore.map((entry) => `
     <div class="rpg-lore-unlock">
-      📖 <b>탐험일지 갱신: ${entry.title}</b><br>${entry.text}
+      <b>${ti('rpg.ui.lore.unlockTitle', getLang(), { title: getLoreTitle(entry.id, getLang()) })}</b><br>${getLoreText(entry.id, getLang())}
     </div>
   `).join('');
 }
@@ -945,7 +945,7 @@ function questRowHtml(questId) {
   return `
     <div class="rpg-shop-row">
       <span>${getQuestName(questId, getLang())} — ${getQuestDesc(questId, getLang())}${done ? ' ✅' : ''}</span>
-      ${!done ? `<button class="rpg-quest-claim-btn" data-quest="${questId}" ${met ? '' : 'disabled'}>완료 보고</button>` : ''}
+      ${!done ? `<button class="rpg-quest-claim-btn" data-quest="${questId}" ${met ? '' : 'disabled'}>${t('rpg.ui.quest.claimBtn')}</button>` : ''}
     </div>
   `;
 }
@@ -954,13 +954,13 @@ function questRowHtml(questId) {
 // 본인뿐 아니라 고용한 용병들의 부상도 여기서 같이 치료 가능(mercId 데이터속성으로 구분).
 // 턴을 소모해 쉬면서 회복하는 쪽(무료, 느림)은 영지 탭 쪽 담당(territoryRestRowHtml/territoryHpRestRowHtml 참고)
 function cureRowHtml(name, part, injury, mercId) {
-  const severityLabel = injury.severity === 2 ? '중상' : '경상';
+  const severityLabel = injury.severity === 2 ? t('rpg.ui.doctor.severityMajor') : t('rpg.ui.doctor.severityMinor');
   const mercAttr = mercId ? ` data-merc="${mercId}"` : '';
   const cost = computeCureCost(injury);
   return `
     <div class="rpg-shop-row">
-      <span>${name} - ${BODY_PART_NAMES[part]} ${severityLabel} (남은 ${injury.turnsLeft}턴)</span>
-      <span><button class="rpg-cure-btn" data-part="${part}"${mercAttr}>치료 (${cost}골드)</button></span>
+      <span>${ti('rpg.ui.doctor.statusLabel', getLang(), { name, part: bodyPartName(part), severity: severityLabel, turns: injury.turnsLeft })}</span>
+      <span><button class="rpg-cure-btn" data-part="${part}"${mercAttr}>${ti('rpg.ui.doctor.cureBtn', getLang(), { cost })}</button></span>
     </div>
   `;
 }
@@ -968,24 +968,24 @@ function doctorCureHtml() {
   const rows = [];
   const injuries = character.injuries || {};
   ['arm', 'leg'].filter((p) => (injuries[p] || {}).severity > 0)
-    .forEach((part) => rows.push(cureRowHtml('나', part, injuries[part], null)));
+    .forEach((part) => rows.push(cureRowHtml(t('rpg.ui.common.self'), part, injuries[part], null)));
   (character.mercenaries || []).forEach((m) => {
     const mInjuries = m.injuries || {};
     ['arm', 'leg'].filter((p) => (mInjuries[p] || {}).severity > 0)
       .forEach((part) => rows.push(cureRowHtml(m.name, part, mInjuries[part], m.id)));
   });
-  if (!rows.length) return `<p class="rpg-hint">지금은 다친 사람이 없네요. (체력만 깎였다면 영지 탭에서 쉬며 회복하세요)</p>`;
+  if (!rows.length) return `<p class="rpg-hint">${t('rpg.ui.doctor.noInjured')}</p>`;
   return rows.join('');
 }
 // ── 영지 탭 - 턴 소모로 쉬며 회복(부상/체력 무관하게 무료지만 느림, 골드 지불 즉시완치는 마을 의사 담당) ──
 function territoryRestRowHtml(name, part, injury, mercId) {
-  const severityLabel = injury.severity === 2 ? '중상' : '경상';
+  const severityLabel = injury.severity === 2 ? t('rpg.ui.doctor.severityMajor') : t('rpg.ui.doctor.severityMinor');
   const mercAttr = mercId ? ` data-merc="${mercId}"` : '';
   const restCost = REST_HEAL_TURN_COST_BY_SEVERITY[injury.severity] || 2;
   return `
     <div class="rpg-shop-row">
-      <span>${name} - ${BODY_PART_NAMES[part]} ${severityLabel} (남은 ${injury.turnsLeft}턴)</span>
-      <span><button class="rpg-rest-heal-btn" data-part="${part}"${mercAttr}>영지에서 쉬기 (턴 ${restCost}개)</button></span>
+      <span>${ti('rpg.ui.doctor.statusLabel', getLang(), { name, part: bodyPartName(part), severity: severityLabel, turns: injury.turnsLeft })}</span>
+      <span><button class="rpg-rest-heal-btn" data-part="${part}"${mercAttr}>${ti('rpg.ui.territory.restHealBtn', getLang(), { cost: restCost })}</button></span>
     </div>
   `;
 }
@@ -999,8 +999,8 @@ function hpRestRowHtml(name, mercId, currentHp, maxHp) {
   const mercAttr = mercId ? ` data-merc="${mercId}"` : '';
   return `
     <div class="rpg-shop-row">
-      <span>${name} - 체력 ${currentHp}/${maxHp}</span>
-      <span><button class="rpg-rest-heal-btn" data-part="hp"${mercAttr}>영지에서 쉬며 체력 회복 (턴 ${restCost}개)</button></span>
+      <span>${ti('rpg.ui.territory.hpLabel', getLang(), { name, current: currentHp, max: maxHp })}</span>
+      <span><button class="rpg-rest-heal-btn" data-part="hp"${mercAttr}>${ti('rpg.ui.territory.hpRestBtn', getLang(), { cost: restCost })}</button></span>
     </div>
   `;
 }
@@ -1008,9 +1008,9 @@ function territoryRestHtml() {
   const rows = [];
   const injuries = character.injuries || {};
   ['arm', 'leg'].filter((p) => (injuries[p] || {}).severity > 0)
-    .forEach((part) => rows.push(territoryRestRowHtml('나', part, injuries[part], null)));
+    .forEach((part) => rows.push(territoryRestRowHtml(t('rpg.ui.common.self'), part, injuries[part], null)));
   const selfStats = computeCharacterCombatStats(character);
-  rows.push(hpRestRowHtml('나', null, character.currentHp, selfStats.maxHp));
+  rows.push(hpRestRowHtml(t('rpg.ui.common.self'), null, character.currentHp, selfStats.maxHp));
   (character.mercenaries || []).forEach((m) => {
     const mInjuries = m.injuries || {};
     ['arm', 'leg'].filter((p) => (mInjuries[p] || {}).severity > 0)
@@ -1019,8 +1019,8 @@ function territoryRestHtml() {
     rows.push(hpRestRowHtml(m.name, m.id, m.currentHp, mStats.maxHp));
   });
   const nonEmptyRows = rows.filter(Boolean);
-  if (!nonEmptyRows.length) return `<div class="rpg-territory-rest"><h4>🛌 휴식 (턴 소모)</h4><p class="rpg-hint">지금은 다친 사람도, 체력이 깎인 사람도 없네요.</p></div>`;
-  return `<div class="rpg-territory-rest"><h4>🛌 휴식 (턴 소모)</h4>${nonEmptyRows.join('')}</div>`;
+  if (!nonEmptyRows.length) return `<div class="rpg-territory-rest"><h4>${t('rpg.ui.territory.restTitle')}</h4><p class="rpg-hint">${t('rpg.ui.territory.restNone')}</p></div>`;
+  return `<div class="rpg-territory-rest"><h4>${t('rpg.ui.territory.restTitle')}</h4>${nonEmptyRows.join('')}</div>`;
 }
 
 // ── 직업 교관 NPC - 스킬 훈련 UI. 미습득 스킬은 전투에서 안 나가니 먼저 배워야 함 ─────
@@ -1266,7 +1266,7 @@ function renderTownTab(content, container) {
       }
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
-      showToast(`${BODY_PART_NAMES[r.part]} 부상을 치료했습니다 (${r.cost}골드)`);
+      showToast(ti('rpg.ui.doctor.cured', getLang(), { part: bodyPartName(r.part), cost: r.cost }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelector('.rpg-board-post-btn').addEventListener('click', async () => {
@@ -1719,7 +1719,7 @@ function renderInventoryTab(content, container) {
         confirmDisabled = true;
         rows.push('<p class="rpg-hint">⚠️ 치료할 경상이 없습니다.</p>');
       } else {
-        rows.push(`<p>${BODY_PART_NAMES[mildPart]} 경상이 치료됩니다.</p>`);
+        rows.push(`<p>${ti('rpg.ui.bandage.previewMild', getLang(), { part: bodyPartName(mildPart) })}</p>`);
       }
     } else {
       const stats = computeCharacterCombatStats(character);
@@ -1757,7 +1757,7 @@ function renderInventoryTab(content, container) {
           if (r.effect === 'bag') {
             showToast(`가방을 사용해 인벤토리가 +${r.slotBonus}칸 늘었습니다! (현재 ${capacityForCharacter(character)}칸)`);
           } else if (r.effect === 'bandage') {
-            showToast(`${BODY_PART_NAMES[r.healedPart]} 부상을 붕대로 치료했습니다`);
+            showToast(ti('rpg.ui.bandage.cured', getLang(), { part: bodyPartName(r.healedPart) }));
           } else {
             showToast('사용했습니다');
           }
@@ -2063,7 +2063,7 @@ function mercenaryCardHtml(m) {
   return `
     <div class="rpg-npc-card">
       <div class="rpg-class-name">${m.name} (Lv.${m.level} ${cls ? getClassName(cls.id, getLang()) : m.classMain})${m.hospitalized ? ' — 입원 중 🏥' : ''} <button class="rpg-rename-merc-btn" data-merc="${m.id}">✏️</button></div>
-      <p class="rpg-hint">HP ${m.currentHp} · 보수 ${m.wagePerAdventure}골드/모험 ${injured.length ? `· 부상: ${injured.map((p) => BODY_PART_NAMES[p]).join(', ')}` : ''} ${m.assignment === 'territory' ? `· ${m.job ? getTerritoryJobName(m.job, getLang()) : '휴식'} 중` : ''}</p>
+      <p class="rpg-hint">HP ${m.currentHp} · 보수 ${m.wagePerAdventure}골드/모험 ${injured.length ? ti('rpg.ui.territory.injuredLabel', getLang(), { parts: injured.map((p) => bodyPartName(p)).join(', ') }) : ''} ${m.assignment === 'territory' ? `· ${m.job ? getTerritoryJobName(m.job, getLang()) : t('rpg.ui.territory.restingLabel')} 중` : ''}</p>
       ${mercEquipmentRowHtml(m)}
       ${injured.length && !m.hospitalized ? `<p><button class="rpg-admit-merc-btn" data-merc="${m.id}">병원에 입원시키기 (10골드, 서서히 회복)</button></p>` : ''}
       ${m.hospitalized ? `<p class="rpg-hint">입원 중에는 모험에 동행하지 않고 보수도 나가지 않아요. 완쾌하면 자동으로 퇴원해요.</p>` : ''}
@@ -2174,7 +2174,7 @@ function wireRestHealButtons(content, container, rerender) {
         character.injuries = r.injuries;
       }
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-      showToast(r.part === 'hp' ? `체력을 회복했습니다 (턴 ${r.cost}개 소모)` : `${BODY_PART_NAMES[r.part]} 부상이 나았습니다 (턴 ${r.cost}개 소모)`);
+      showToast(r.part === 'hp' ? ti('rpg.ui.territory.hpHealed', getLang(), { cost: r.cost }) : ti('rpg.ui.territory.injuryHealed', getLang(), { part: bodyPartName(r.part), cost: r.cost }));
       rerender();
     } catch (e) { showToast(friendlyError(e)); }
   }));
@@ -2302,8 +2302,8 @@ function injuriesSummaryHtml() {
   if (!injuredParts.length) return `<p class="rpg-hint">부상 없음</p>`;
   const lines = injuredParts.map((p) => {
     const injury = injuries[p];
-    const severityLabel = injury.severity === 2 ? '중상(의사에게 치료 필요)' : '경상(붕대로 치료 가능)';
-    return `${BODY_PART_NAMES[p]} ${severityLabel} — 남은 ${injury.turnsLeft}턴`;
+    const severityLabel = injury.severity === 2 ? t('rpg.ui.injury.severityMajorFull') : t('rpg.ui.injury.severityMinorFull');
+    return ti('rpg.ui.injury.summaryLine', getLang(), { part: bodyPartName(p), severity: severityLabel, turns: injury.turnsLeft });
   });
   return `<p class="rpg-hint">🩹 부상: ${lines.join(' / ')}</p>`;
 }
