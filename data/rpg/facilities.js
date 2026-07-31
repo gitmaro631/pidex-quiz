@@ -2,7 +2,7 @@
 // 용병을 그 일자리에 배치한 누적 "영지일"(rpg-territory.js 참고 - 턴포인트 소모 기반, 실시간 아님)이
 // 쌓일수록 레벨이 오르고, 레벨마다 영구 전역 보너스가 붙음(골드/공격력/방어력/식량생산).
 // 의도적으로 천천히 오르도록 설계 - 단기 수입이 아니라 장기 성장 목표.
-import { TERRITORY_JOBS, MERCENARY_TEMPLATES, SPECIALTY_BONUS_MULT } from './mercenaries.js';
+import { TERRITORY_JOBS } from './mercenaries.js';
 
 // 레벨 1개 올리는 데 필요한 "구간당" 배치 영지일 - 레벨5 용병 1명 상주 기준
 // (예전엔 7이었는데, 저레벨 캐릭터의 영지 근무 기여도가 낮은 것과 겹쳐 초반 첫 레벨업에만 턴 수백~수천개가
@@ -17,14 +17,9 @@ export const FACILITY_LEVEL_GROWTH = 1.15;
 export const BASELINE_MERC_LEVEL = 5;
 export const MAX_MERCS_PER_FACILITY = 3; // 한 시설(일자리)에 동시에 배치 가능한 용병 수 제한
 
-// 한 시설에 배치된 용병들의 "영지일 적립 속도" - 레벨/기준레벨 배율의 합(레벨이 높을수록 빠르게 적립).
-// jobId를 주면 그 용병의 territorySpecialty가 이 시설과 일치할 때 SPECIALTY_BONUS_MULT(50%)를 추가로 곱함
-export function facilityAccrualRate(assignedMercs, jobId) {
-  return assignedMercs.reduce((sum, m) => {
-    const template = MERCENARY_TEMPLATES[m.templateId];
-    const specialtyMult = (jobId && template && template.territorySpecialty === jobId) ? SPECIALTY_BONUS_MULT : 1;
-    return sum + ((m.level || 1) / BASELINE_MERC_LEVEL) * specialtyMult;
-  }, 0);
+// 한 시설에 배치된 용병들의 "영지일 적립 속도" - 레벨/기준레벨 배율의 합(레벨이 높을수록 빠르게 적립)
+export function facilityAccrualRate(assignedMercs) {
+  return assignedMercs.reduce((sum, m) => sum + (m.level || 1) / BASELINE_MERC_LEVEL, 0);
 }
 
 // 레벨 L에서 L+1로 가는 데 필요한 "그 구간만"의 영지일 - 지수 성장(FACILITY_LEVEL_GROWTH^L)

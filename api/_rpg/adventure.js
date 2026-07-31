@@ -81,22 +81,12 @@ export default async function handler(req, res) {
       // 전투/개간지 골드보너스는 공용 시설 레벨 기준(캐릭터별 stale 값이 아니라 이 트랜잭션에서 읽은 최신값)
       const characterForCombat = { ...character, facilityLevels: accountFacilities.facilityLevels };
 
-      // 입원 중이거나 영지에서 일하는(assignment:'territory') 용병은 모험에 동행하지 않음(보수도 안 나감) -
+      // 입원 중이거나 영지에서 일하는(assignment:'territory') 용병은 모험에 동행하지 않음 -
       // 그냥 시간이 지나며 자연 회복만 진행됨(영지 수입은 collect-territory-income.js가 별도 정산)
       const restingMercs = (character.mercenaries || []).filter((m) => m.hospitalized || m.assignment !== 'active');
-      // 용병 보수는 모험 1회당 자동 차감(전투 동행 중인 용병만) - 못 내면 그 용병들만 전원 해고
-      let gold = character.gold || 0;
-      let mercenaries = (character.mercenaries || []).filter((m) => !m.hospitalized && m.assignment === 'active');
-      const totalWage = mercenaries.reduce((sum, m) => sum + (m.wagePerAdventure || 0), 0);
-      const wageMessages = [];
-      if (totalWage > 0) {
-        if (gold < totalWage) {
-          wageMessages.push(ti('rpg.log.wageUnpaid', lang, { wage: totalWage }));
-          mercenaries = [];
-        } else {
-          gold -= totalWage;
-        }
-      }
+      // 용병 비용은 선술집에서 고용할 때(hireCost) 한 번만 냄 - 모험/영지 상주 보수는 없음
+      const gold = character.gold || 0;
+      const mercenaries = (character.mercenaries || []).filter((m) => !m.hospitalized && m.assignment === 'active');
 
       // 필드 미리보기(preview-zone.js)로 이미 본 몹 구성 후보들 중 유저가 고른 하나(optionIndex)를 그대로
       // 씀("보이는 게 곧 상대") - 미리보기가 없거나 인덱스가 잘못됐으면(미리보기 화면을 건너뛴 예전
@@ -108,7 +98,6 @@ export default async function handler(req, res) {
         ? { zone, monsterIds: chosenOption.monsterIds, isRare: chosenOption.isRare, uniqueTier: chosenOption.uniqueTier }
         : null;
       const combatResult = resolveCombat({ character: { ...characterForCombat, mercenaries }, zoneId, stance: character.stance, presetEncounter, lang });
-      combatResult.log.unshift(...wageMessages);
       if (travelingBetweenTowns) {
         combatResult.log.unshift(ti('rpg.log.townTravel', lang, { town: getTownName(zone.town, lang) }));
       }
@@ -169,17 +158,18 @@ export default async function handler(req, res) {
       const bonusedGoldGain = Math.floor(combatResult.goldGain * facilityBonusMultiplier(characterForCombat, 'clearing'));
 
       // 영지일 경계 판정 - 지금까지 쓴 누적 턴(관리자도 포함, 통계용)이 이번 모험의 턴소모만큼 늘어났고,
-      // 그로 인해 "영지일"이 하루 이상 지났으면 영지 경제(시설레벨/식량/골드/용병 상주급여)를 정산함
+      // 그로 인해 "영지일"이 하루 이상 지났으면 영지 경제(식량/골드)와 영지배치 용병 개인효과(훈련소/병원/
+      // 사기진작소)를 정산함. playerLevel은 이번 모험으로 오른 레벨(progression.level) 기준 - 훈련소
+      // 배치 용병의 레벨 상한으로 씀
       const nextTotalTurnsSpent = (character.totalTurnsSpent || 0) + turnCost;
       const daysNow = territoryDaysElapsed(nextTotalTurnsSpent, progression.level);
       const daysSinceCheckpoint = daysNow - (character.territoryDayCheckpoint || 0);
-      const territorySettlement = settleTerritoryDays(characterForCombat, daysSinceCheckpoint);
+      const territorySettlement = settleTerritoryDays(characterForCombat, daysSinceCheckpoint, progression.level);
       let territoryNotice = null;
       if (territorySettlement) {
         territoryNotice = {
           daysProcessed: territorySettlement.daysProcessed,
           goldIncome: territorySettlement.goldIncome,
-          wagePaid: territorySettlement.wagePaid,
           foodEmergencyCost: territorySettlement.foodEmergencyCost,
           goldDelta: territorySettlement.goldDelta,
           leveledUp: territorySettlement.leveledUp,
@@ -212,12 +202,16 @@ export default async function handler(req, res) {
       });
 
       // 입원/영지 근무 중인 용병도 전투는 안 하지만 턴은 지나가니 부상 회복은 계속 진행됨 - 입원 중이었고
-      // 다 나으면 자동 퇴원(영지 근무는 계속 유지, 병상만 벗어남)
+      // 다 나으면 자동 퇴원(영지 근무는 계속 유지, 병상만 벗어남). 영지일 경계를 넘었으면 훈련소/병원/
+      // 사기진작소 배치 효과(territorySettlement.nextMercenaries)를 먼저 반영한 뒤 그 위에 매 모험마다의
+      // 기본 부상 감소(-1턴)를 겹쳐 적용함(입원 중인 용병은 territory 배치 대상이 아니므로 그대로 통과)
+      const territoryMercEffectById = new Map((territorySettlement ? territorySettlement.nextMercenaries : []).map((m) => [m.id, m]));
       const updatedRestingMercs = restingMercs.map((merc) => {
-        const nextInjuries = decayInjuries(merc.injuries, null);
+        const withTerritoryEffect = !merc.hospitalized ? (territoryMercEffectById.get(merc.id) || merc) : merc;
+        const nextInjuries = decayInjuries(withTerritoryEffect.injuries, null);
         const stillInjured = ['arm', 'leg'].some((p) => nextInjuries[p].severity > 0);
         if (merc.hospitalized && !stillInjured) combatResult.log.push(ti('rpg.log.mercDischarged', lang, { merc: merc.name }));
-        return { ...merc, injuries: nextInjuries, hospitalized: merc.hospitalized && stillInjured };
+        return { ...withTerritoryEffect, injuries: nextInjuries, hospitalized: merc.hospitalized && stillInjured };
       });
       const allUpdatedMercenaries = [...updatedMercenaries, ...updatedRestingMercs];
 
@@ -245,7 +239,6 @@ export default async function handler(req, res) {
         equipment: wornEquipment,
         injuries,
         mercenaries: allUpdatedMercenaries,
-        wagePaid: totalWage,
         gold: finalGold,
         territoryNotice,
       };

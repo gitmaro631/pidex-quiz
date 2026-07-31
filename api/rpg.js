@@ -13,6 +13,7 @@ import useItem from './_rpg/use-item.js';
 import chooseClass from './_rpg/choose-class.js';
 import chooseSubclass from './_rpg/choose-subclass.js';
 import allocateStat from './_rpg/allocate-stat.js';
+import allocateMercStat from './_rpg/allocate-merc-stat.js';
 import setStance from './_rpg/set-stance.js';
 import claimDailyBonus from './_rpg/claim-daily-bonus.js';
 import claimQuest from './_rpg/claim-quest.js';
@@ -64,7 +65,7 @@ const ROUTES = {
   character, adventure,
   'shop-buy': shopBuy, 'sell-item': sellItem, equip, unequip, 'use-item': useItem,
   'choose-class': chooseClass, 'choose-subclass': chooseSubclass,
-  'allocate-stat': allocateStat, 'set-stance': setStance,
+  'allocate-stat': allocateStat, 'allocate-merc-stat': allocateMercStat, 'set-stance': setStance,
   'claim-daily-bonus': claimDailyBonus, 'claim-quest': claimQuest,
   'list-characters': listCharacters, 'create-character': createCharacter,
   'gold-leaderboard': goldLeaderboard,

@@ -71,9 +71,11 @@ export default async function handler(req, res) {
       const foodStock = territorySettlement ? territorySettlement.nextFoodStock : character.foodStock;
       const territoryGoldDelta = territorySettlement ? territorySettlement.goldDelta : 0;
       const finalGold = Math.max(0, (character.gold || 0) + goldIncome + territoryGoldDelta);
+      const finalMercenaries = territorySettlement ? territorySettlement.nextMercenaries : character.mercenaries;
 
       outcome = {
         job, goldIncome, gold: finalGold,
+        mercenaries: finalMercenaries,
         turnPoints: nextTurns, turnPointsCap: turnCapForLevel(character.level, character.surveyBonusUnlocked),
         facilityDays: finalFacilityDays,
         facilityLevels: finalFacilityLevels,
@@ -81,7 +83,6 @@ export default async function handler(req, res) {
         territoryNotice: territorySettlement ? {
           daysProcessed: territorySettlement.daysProcessed,
           goldIncome: territorySettlement.goldIncome,
-          wagePaid: territorySettlement.wagePaid,
           foodEmergencyCost: territorySettlement.foodEmergencyCost,
           goldDelta: territorySettlement.goldDelta,
           leveledUp: territorySettlement.leveledUp,
@@ -96,6 +97,7 @@ export default async function handler(req, res) {
           totalTurnsSpent: nextTotalTurnsSpent,
           territoryDayCheckpoint: daysNow,
           foodStock,
+          mercenaries: finalMercenaries,
           updatedAt: now,
         },
         [facilitiesPath]: { facilityDays: finalFacilityDays, facilityLevels: finalFacilityLevels, updatedAt: now },

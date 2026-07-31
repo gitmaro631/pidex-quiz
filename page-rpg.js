@@ -21,7 +21,7 @@ import { LORE_ENTRIES } from './data/rpg/lore.js';
 import { computeCharacterCombatStats, monsterDifficultyTier, COMBAT_MISS_PHRASES, effectiveStats, TWO_HANDED_WEAPON_TYPES } from './rpg-combat.js';
 import {
   MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster, PLAYER_TERRITORY_BONUS_MULT,
-  FOOD_PER_DAY_PER_FARMER, FOOD_CONSUMPTION_PER_DAY_PER_WORKER, GOLD_PER_MISSING_FOOD, WAGE_PER_MERC_PER_DAY,
+  FOOD_PER_DAY_PER_FARMER, FOOD_CONSUMPTION_PER_DAY_PER_WORKER, GOLD_PER_MISSING_FOOD,
 } from './data/rpg/mercenaries.js';
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
@@ -122,7 +122,6 @@ function showTerritoryNotice(container, notice) {
   if (!notice) return;
   const lines = [];
   if (notice.goldIncome > 0) lines.push(`🌾 개간지 수입 +${notice.goldIncome}골드`);
-  if (notice.wagePaid > 0) lines.push(`👥 용병 상주 급여 -${notice.wagePaid}골드`);
   if (notice.foodEmergencyCost > 0) lines.push(`🍚 식량 부족으로 비상 구매 -${notice.foodEmergencyCost}골드`);
   const levelLines = (notice.leveledUp || []).map((l) => `🎉 ${FACILITY_ICONS[l.jobId] || ''} ${getTerritoryJobName(l.jobId, getLang())}이(가) Lv.${l.level}(으)로 성장했습니다!`);
   const overlay = document.createElement('div');
@@ -1126,7 +1125,7 @@ function tavernHireHtml() {
     const cls = CLASSES[tmpl.classMain];
     return `
       <div class="rpg-shop-row">
-        <span>${ti('rpg.ui.tavern.rowLabel', getLang(), { name: getMercTemplateName(tmpl.id, getLang()), level: tmpl.baseLevel, class: cls ? getClassName(cls.id, getLang()) : tmpl.classMain, hireCost: tmpl.hireCost, wage: tmpl.wagePerAdventure })}</span>
+        <span>${ti('rpg.ui.tavern.rowLabel', getLang(), { name: getMercTemplateName(tmpl.id, getLang()), level: tmpl.baseLevel, class: cls ? getClassName(cls.id, getLang()) : tmpl.classMain, hireCost: tmpl.hireCost })}</span>
         <button class="rpg-hire-btn" data-template="${tmpl.id}">${t('rpg.ui.tavern.hireBtn')}</button>
       </div>
     `;
@@ -1186,6 +1185,7 @@ function renderTownTab(content, container) {
       character.currentTown = r.currentTown;
       character.turnPoints = r.turnPoints;
       character.gold = r.gold;
+      character.mercenaries = r.mercenaries;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
       showToast(ti('rpg.ui.town.traveled', getLang(), { town: getTownName(destTown.id, getLang()) }));
@@ -1964,15 +1964,14 @@ function territoryEconomySummaryHtml() {
   const otherWorkers = workingMercs.filter((m) => m.job !== 'farm');
   const clearingWorkers = workingMercs.filter((m) => m.job === 'clearing');
 
-  const farmProduced = facilityAccrualRate(farmWorkers, 'farm') * FOOD_PER_DAY_PER_FARMER * facilityBonusMultiplier(character, 'farm');
+  const farmProduced = facilityAccrualRate(farmWorkers) * FOOD_PER_DAY_PER_FARMER * facilityBonusMultiplier(character, 'farm');
   const foodAfterProduction = (character.foodStock || 0) + farmProduced;
   const neededFood = otherWorkers.length * FOOD_CONSUMPTION_PER_DAY_PER_WORKER;
   const foodDeficit = Math.max(0, neededFood - foodAfterProduction);
   const foodEmergencyCost = Math.round(foodDeficit * GOLD_PER_MISSING_FOOD);
 
   const goldIncome = Math.floor(clearingWorkers.length * TERRITORY_JOBS.clearing.goldPerDay * facilityBonusMultiplier(character, 'clearing'));
-  const wagePaid = Math.round(workingMercs.length * WAGE_PER_MERC_PER_DAY);
-  const goldDelta = goldIncome - wagePaid - foodEmergencyCost;
+  const goldDelta = goldIncome - foodEmergencyCost;
 
   const warnings = [];
   if (foodDeficit > 0) warnings.push(ti('rpg.ui.territory.foodDeficitWarn', getLang(), { deficit: foodDeficit.toFixed(1), cost: foodEmergencyCost }));
@@ -1984,7 +1983,6 @@ function territoryEconomySummaryHtml() {
       <h4>${t('rpg.ui.territory.economyTitle')}</h4>
       <div class="rpg-stat-delta-table">
         <div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.goldIncomeLabel')}</span><span>${getTerritoryJobName('clearing', getLang())}</span><span class="rpg-stat-up">+${goldIncome}</span></div>
-        <div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.goldExpenseLabel')}</span><span>${t('rpg.ui.territory.wagePaidLabel')}</span><span class="rpg-stat-down">-${wagePaid}</span></div>
         ${foodEmergencyCost > 0 ? `<div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.goldExpenseLabel')}</span><span>${t('rpg.ui.territory.foodEmergencyLabel')}</span><span class="rpg-stat-down">-${foodEmergencyCost}</span></div>` : ''}
         <div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.netChangeLabel')}</span><span></span><span class="${goldDelta >= 0 ? 'rpg-stat-up' : 'rpg-stat-down'}">${ti('rpg.ui.territory.netChangePerDay', getLang(), { sign: goldDelta >= 0 ? '+' : '', delta: goldDelta })}</span></div>
         <div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.foodLabel')}</span><span>${ti('rpg.ui.territory.foodProducedConsumed', getLang(), { produced: farmProduced.toFixed(1), consumed: neededFood.toFixed(1) })}</span><span>${ti('rpg.ui.territory.foodStockLabel', getLang(), { stock: (character.foodStock || 0).toFixed(1) })}</span></div>
@@ -2072,8 +2070,16 @@ function mercenaryCardHtml(m) {
   return `
     <div class="rpg-npc-card">
       <div class="rpg-class-name">${m.name} (Lv.${m.level} ${cls ? getClassName(cls.id, getLang()) : m.classMain})${m.hospitalized ? t('rpg.ui.territory.hospitalizedSuffix') : ''} <button class="rpg-rename-merc-btn" data-merc="${m.id}">✏️</button></div>
-      <p class="rpg-hint">${ti('rpg.ui.territory.mercStatusLine', getLang(), { hp: m.currentHp, wage: m.wagePerAdventure })} ${injured.length ? ti('rpg.ui.territory.injuredLabel', getLang(), { parts: injured.map((p) => bodyPartName(p)).join(', ') }) : ''} ${m.assignment === 'territory' ? ti('rpg.ui.territory.workingSuffix', getLang(), { job: m.job ? getTerritoryJobName(m.job, getLang()) : t('rpg.ui.territory.restingLabel') }) : ''}</p>
+      <p class="rpg-hint">${ti('rpg.ui.territory.mercStatusLine', getLang(), { hp: m.currentHp })} ${injured.length ? ti('rpg.ui.territory.injuredLabel', getLang(), { parts: injured.map((p) => bodyPartName(p)).join(', ') }) : ''} ${m.assignment === 'territory' ? ti('rpg.ui.territory.workingSuffix', getLang(), { job: m.job ? getTerritoryJobName(m.job, getLang()) : t('rpg.ui.territory.restingLabel') }) : ''}</p>
       ${mercEquipmentRowHtml(m)}
+      ${m.statPoints > 0 ? `
+        <p class="rpg-hint">${ti('rpg.ui.territory.mercStatPointsLabel', getLang(), { points: m.statPoints })}</p>
+        <p>
+          ${['str', 'int', 'agi', 'vit', 'wis'].map((s) => `
+            <button class="rpg-merc-stat-btn" data-merc="${m.id}" data-stat="${s}">${s.toUpperCase()} ${m.stats[s] || 0} +1</button>
+          `).join('')}
+        </p>
+      ` : ''}
       ${injured.length && !m.hospitalized ? `<p><button class="rpg-admit-merc-btn" data-merc="${m.id}">${t('rpg.ui.territory.admitBtn')}</button></p>` : ''}
       ${m.hospitalized ? `<p class="rpg-hint">${t('rpg.ui.territory.hospitalizedHint')}</p>` : ''}
       <p>
@@ -2202,6 +2208,7 @@ function renderTerritoryTab(content, container) {
       character.turnPoints = r.turnPoints;
       character.facilityDays = r.facilityDays;
       character.facilityLevels = r.facilityLevels;
+      character.mercenaries = r.mercenaries;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       rerender();
       const levelMsg = r.leveledUp.length ? ti('rpg.ui.territory.facilityLevelUp', getLang(), { job: getTerritoryJobName(r.leveledUp[0].jobId, getLang()), level: r.leveledUp[0].level }) : '';
@@ -2230,6 +2237,15 @@ function renderTerritoryTab(content, container) {
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       rerender();
       showToast(r.refund > 0 ? ti('rpg.ui.territory.mercDismissedRefund', getLang(), { refund: r.refund }) : t('rpg.ui.territory.mercDismissed'));
+    } catch (e) { showToast(friendlyError(e)); }
+  }));
+  content.querySelectorAll('.rpg-merc-stat-btn').forEach((btn) => btn.addEventListener('click', async () => {
+    try {
+      const r = await apiPost('allocate-merc-stat', { mercId: btn.dataset.merc, stat: btn.dataset.stat, amount: 1 });
+      const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
+      if (merc) { merc.stats = r.stats; merc.statPoints = r.statPoints; }
+      rerender();
+      showToast(t('rpg.ui.territory.mercStatAllocated'));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-admit-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {

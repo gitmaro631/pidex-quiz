@@ -91,19 +91,31 @@ export function defaultCharacter(slot, now = Date.now()) {
   };
 }
 
+// 직업의 첫 번째 weaponTypes 항목에 맞는 기본(낡은) 무기 아이템id - 용병 초기 장비 선택용.
+// 새 직업이 추가돼도 그 직업의 weaponTypes[0]이 여기 있으면 자동으로 맞는 무기를 쥐어줌(없으면 검으로 폴백)
+const BASIC_WEAPON_BY_TYPE = {
+  sword: 'weapon_basic_sword', spear: 'weapon_basic_spear', axe: 'weapon_basic_axe', flail: 'weapon_basic_flail',
+  bow: 'weapon_basic_bow', dagger: 'weapon_basic_dagger', staff: 'weapon_basic_staff', wand: 'weapon_basic_wand',
+  greatsword: 'weapon_basic_greatsword', mace: 'weapon_basic_mace', warhammer: 'weapon_basic_warhammer',
+  morning_star: 'weapon_basic_morning_star', sling: 'weapon_basic_sling',
+};
+
 // 선술집 고용 시 용병 템플릿으로부터 "완전한 캐릭터"에 준하는 인스턴스를 만듦 - 레벨/스탯/장비/부상/
-// 포션룰까지 본인 캐릭터와 동일한 구조를 가져서 rpg-combat.js의 party 전투 로직이 공용으로 처리 가능
+// 포션룰까지 본인 캐릭터와 동일한 구조를 가져서 rpg-combat.js의 party 전투 로직이 공용으로 처리 가능.
+// isMercenary:true는 rpg-combat.js가 패시브 스킬을 걸러내고(액티브만 사용) 레벨 기반 스킬단계
+// 자동상승(5레벨당 1단계)을 적용하는 기준 플래그
 export function createMercenaryInstance(templateId, now = Date.now()) {
   const template = MERCENARY_TEMPLATES[templateId];
   if (!template) return null;
   const cls = CLASSES[template.classMain];
   const isMelee = !cls.weaponTypes.includes('bow'); // 근접 무기 위주 직업이면 기본 전열
-  const weaponId = template.classMain === 'archer' ? 'weapon_basic_bow' : 'weapon_basic_sword';
+  const weaponId = BASIC_WEAPON_BY_TYPE[cls.weaponTypes[0]] || 'weapon_basic_sword';
   const armorTopId = 'armor_basic'; // 요구 힘 5로 기본 스탯(5)에서 바로 착용 가능
 
   const instance = {
     id: `${templateId}_${now}`,
     templateId,
+    isMercenary: true,
     name: randomMercName(), // 고용 시 자동으로 랜덤 이름 - 나중에 rename-mercenary.js로 직접 바꿀 수 있음
     level: template.baseLevel,
     xp: 0,
@@ -115,7 +127,6 @@ export function createMercenaryInstance(templateId, now = Date.now()) {
       weapon: weaponId, shield: null, armor_top: armorTopId, armor_bottom: null, ring: null, necklace: null,
       weaponDurability: 100, shieldDurability: 100, armor_topDurability: 100, armor_bottomDurability: 100,
     },
-    wagePerAdventure: template.wagePerAdventure,
     mentalResist: template.mentalResist || 50,
     formationRow: isMelee ? 'front' : 'back',
     stance: 'stable',

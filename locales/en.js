@@ -1892,12 +1892,12 @@
   "rpg.npc.npc_trainer_5.dialogue.0": "Beyond this point, you can't get by on brawn alone without skills.",
   "rpg.npc.npc_blacksmith_5.name": "Blacksmith",
   "rpg.npc.npc_blacksmith_5.dialogue.0": "Even legendary gear can be forged even stronger here.",
-  "rpg.mercTemplate.merc_archer_1.name": "Wandering Archer",
-  "rpg.mercTemplate.merc_warrior_1.name": "Wandering Warrior",
-  "rpg.mercTemplate.merc_mage_1.name": "Wandering Mage",
-  "rpg.mercTemplate.merc_priest_1.name": "Wandering Priest",
-  "rpg.mercTemplate.merc_doctor_1.name": "Wandering Field Medic",
-  "rpg.mercTemplate.merc_engineer_1.name": "Wandering Plumber",
+  "rpg.mercTemplate.merc_warrior.name": "Wandering Warrior",
+  "rpg.mercTemplate.merc_archer.name": "Wandering Archer",
+  "rpg.mercTemplate.merc_mage.name": "Wandering Mage",
+  "rpg.mercTemplate.merc_priest.name": "Wandering Priest",
+  "rpg.mercTemplate.merc_paladin.name": "Wandering Paladin",
+  "rpg.mercTemplate.merc_dark_knight.name": "Wandering Dark Knight",
   "rpg.quest.q1_welcome.name": "First Steps",
   "rpg.quest.q1_welcome.desc": "Choose a class and start your adventure.",
   "rpg.quest.q2_meadow_clear.name": "Clearing the Meadow",
@@ -2054,7 +2054,7 @@
   "rpg.ui.tavern.capReached": "You can't hire any more mercenaries ({count}/{cap}).",
   "rpg.ui.tavern.noClass": "You need to choose a class before hiring mercenaries.",
   "rpg.ui.tavern.noneToday": "No mercenaries available to hire today. Check back tomorrow.",
-  "rpg.ui.tavern.rowLabel": "{name} (Lv.{level} {class}) — hire cost {hireCost} gold, wage {wage} gold/adventure",
+  "rpg.ui.tavern.rowLabel": "{name} (Lv.{level} {class}) — hire cost {hireCost} gold",
   "rpg.ui.tavern.hireBtn": "Hire",
   "rpg.ui.tavern.hired": "Hired {name}!",
   "rpg.ui.town.currentLocation": "Current location: {town}",
@@ -2213,7 +2213,6 @@
   "rpg.ui.territory.economyTitle": "Territory Economy (estimated daily)",
   "rpg.ui.territory.goldIncomeLabel": "Gold Income",
   "rpg.ui.territory.goldExpenseLabel": "Gold Expense",
-  "rpg.ui.territory.wagePaidLabel": "Resident Mercenary Wages",
   "rpg.ui.territory.foodEmergencyLabel": "Emergency Food Purchase",
   "rpg.ui.territory.netChangeLabel": "Net Change",
   "rpg.ui.territory.netChangePerDay": "{sign}{delta}/day",
@@ -2245,7 +2244,7 @@
   "rpg.ui.territory.sendToTerritoryBtn": "Send to Territory",
   "rpg.ui.territory.assignActiveBtn": "Assign to Active Squad",
   "rpg.ui.territory.hospitalizedSuffix": " — Hospitalized 🏥",
-  "rpg.ui.territory.mercStatusLine": "HP {hp} · Wage {wage} gold/adventure",
+  "rpg.ui.territory.mercStatusLine": "HP {hp}",
   "rpg.ui.territory.admitBtn": "Admit to Hospital (10 gold, gradual recovery)",
   "rpg.ui.territory.hospitalizedHint": "While hospitalized, they won't join adventures or earn wages. They're automatically discharged once fully healed.",
   "rpg.ui.territory.dismissBtn": "Dismiss",
@@ -2517,7 +2516,6 @@
   "rpg.ui.combat.extraHitLabel": " (extra hit!)",
   "rpg.ui.combat.critLabel": " 💥Critical!",
   "rpg.ui.combat.rapidFireLabel": " 🏹Rapid Fire!",
-  "rpg.log.wageUnpaid": "Failed to pay mercenary wages ({wage} gold), so all mercenaries left.",
   "rpg.log.townTravel": "Traveled to {town}. (an extra 1 turn point was spent)",
   "rpg.log.inventoryFullLoot": "Your inventory was full, so some loot was lost.",
   "rpg.log.overweightLoot": "Your load was too heavy, so some loot was left behind.",
@@ -2543,5 +2541,9 @@
 
   // ── RPG: basic_attack always-usable hint ──
   "rpg.ui.trainer.alwaysUsableSuffix": " (always usable even untrained; training increases its power)",
+
+  // ── RPG: mercenary stat allocation ──
+  "rpg.ui.territory.mercStatPointsLabel": "{points} stat points available",
+  "rpg.ui.territory.mercStatAllocated": "Allocated stat point",
 
 };

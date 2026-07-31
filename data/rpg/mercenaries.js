@@ -1,49 +1,37 @@
 import { TOWNS } from './towns.js';
+import { CLASSES } from './classes.js';
 
-// 선술집에서 고용 가능한 용병 템플릿 - 파티 구성은 플레이어 자유(같은 역할로만 채워도 됨)
+// 선술집에서 고용 가능한 용병 템플릿 - "구현된 캐릭터"(CLASSES)로부터 자동 생성됨. 나중에 새 직업을
+// classes.js에 추가하면 별도 작업 없이 그 직업도 자동으로 용병 후보가 됨(고유 밸런스가 필요하면
+// MERC_CLASS_CONFIG에 항목 추가, 없으면 MERC_CLASS_CONFIG_DEFAULT 사용).
 // mentalResist(0~100) - 공포 저항력. 전열에서 피격당할 때마다 이 수치가 낮을수록 "멘탈이 나가서"
 // 후열로 도망칠 확률이 높아짐(rpg-combat.js의 MORALE_BREAK_BASE_CHANCE 참고, 전투 중 일시적 상태)
 // minTownTier - 이 등급 이상 마을에서만 로테이션에 등장(town1은 tier1, town5는 tier5) - towns.js 참고
-export const MERCENARY_TEMPLATES = {
-  merc_archer_1: {
-    id: 'merc_archer_1', name: '떠돌이 궁수', classMain: 'archer',
-    baseLevel: 5, hireCost: 150, wagePerAdventure: 8, mentalResist: 55, minTownTier: 1,
-  },
-  merc_warrior_1: {
-    id: 'merc_warrior_1', name: '떠돌이 전사', classMain: 'warrior',
-    baseLevel: 5, hireCost: 150, wagePerAdventure: 8, mentalResist: 65, minTownTier: 1,
-  },
-  merc_mage_1: {
-    id: 'merc_mage_1', name: '떠돌이 마법사', classMain: 'mage',
-    baseLevel: 15, hireCost: 400, wagePerAdventure: 18, mentalResist: 50, minTownTier: 3,
-  },
-  merc_priest_1: {
-    id: 'merc_priest_1', name: '떠돌이 성직자', classMain: 'priest',
-    baseLevel: 15, hireCost: 400, wagePerAdventure: 18, mentalResist: 60, minTownTier: 3,
-    // 컨셉상 순수 힐러 - combatRole 선택지를 무시하고 전투에서 항상 서포트로 취급(rpg-combat.js resolveCombat 참고)
-    fixedCombatRole: 'support',
-  },
-  // 영지 시설 업그레이드 특화 용병 - 다른 용병과 똑같이 전투에도 데려갈 수 있고 전투로 레벨업함
-  // (classMain에 따라 공/방이 정해짐). 차이는 territorySpecialty에 맞는 시설에 배치하면
-  // 기여 속도에 SPECIALTY_BONUS_MULT 보너스가 추가로 붙는다는 것뿐(facilityAccrualRate 참고)
-  merc_doctor_1: {
-    id: 'merc_doctor_1', name: '떠돌이 군의관', classMain: 'priest',
-    baseLevel: 8, hireCost: 250, wagePerAdventure: 12, mentalResist: 55, minTownTier: 2,
-    territorySpecialty: 'hospital',
-    // 컨셉상 순수 힐러 - combatRole 선택지를 무시하고 전투에서 항상 서포트로 취급(rpg-combat.js resolveCombat 참고)
-    fixedCombatRole: 'support',
-  },
-  merc_engineer_1: {
-    id: 'merc_engineer_1', name: '떠돌이 배관공', classMain: 'warrior',
-    baseLevel: 8, hireCost: 250, wagePerAdventure: 12, mentalResist: 60, minTownTier: 2,
-    territorySpecialty: 'farm', // 관개수로(배관) 정비 - 농장 특화
-  },
+// 고용비(hireCost)는 선술집에서 고용할 때 한 번만 내는 비용 - 이후로는 어떤 형태로도(모험 보수/영지
+// 상주 급여/해고 환급) 추가 비용이 나가지 않음
+const MERC_BASE_LEVEL = 5;
+const MERC_CLASS_CONFIG = {
+  warrior: { hireCost: 150, mentalResist: 65, minTownTier: 1 },
+  archer: { hireCost: 150, mentalResist: 55, minTownTier: 1 },
+  mage: { hireCost: 400, mentalResist: 50, minTownTier: 3 },
+  // 컨셉상 순수 힐러 - combatRole 선택지를 무시하고 전투에서 항상 서포트로 취급(rpg-combat.js resolveCombat 참고)
+  priest: { hireCost: 400, mentalResist: 60, minTownTier: 3, fixedCombatRole: 'support' },
+  paladin: { hireCost: 350, mentalResist: 70, minTownTier: 3 },
+  dark_knight: { hireCost: 350, mentalResist: 55, minTownTier: 3 },
 };
+const MERC_CLASS_CONFIG_DEFAULT = { hireCost: 200, mentalResist: 55, minTownTier: 1 };
 
-// 해고 시 고용비 환급이 0으로 줄어드는 데 걸리는 턴수 - 고용 직후(실수로 잘못 고용 등) 바로 무르면
-// 거의 다 돌려받고, 데리고 있을수록 환급이 선형으로 줄어듦(hire-mercenary.js가 고용 시점의
-// 누적 턴소모량을 turnsSpentAtHire로 저장해두고, dismiss-mercenary.js가 이 값으로 경과 턴을 계산)
-export const DISMISS_REFUND_DECAY_TURNS = 40;
+export const MERCENARY_TEMPLATES = Object.fromEntries(
+  Object.values(CLASSES).map((cls) => {
+    const cfg = MERC_CLASS_CONFIG[cls.id] || MERC_CLASS_CONFIG_DEFAULT;
+    const id = `merc_${cls.id}`;
+    return [id, {
+      id, name: `떠돌이 ${cls.name}`, classMain: cls.id,
+      baseLevel: MERC_BASE_LEVEL, hireCost: cfg.hireCost, mentalResist: cfg.mentalResist, minTownTier: cfg.minTownTier,
+      fixedCombatRole: cfg.fixedCombatRole || null,
+    }];
+  }),
+);
 
 // 고용 시 자동으로 붙는 랜덤 이름(나중에 사용자가 원하면 rename-mercenary.js로 직접 바꿀 수 있음)
 export const MERC_RANDOM_NAMES = [
@@ -87,12 +75,9 @@ export const TERRITORY_JOBS = {
   basics: { id: 'basics', name: '연무장', goldPerDay: 0, statKey: 'improvisedPower', bonusPctPerLevel: 4 },
 };
 
-export const SPECIALTY_BONUS_MULT = 1.5; // territorySpecialty가 맞는 시설에 배치하면 기여 속도 50% 추가
-
 export const FOOD_PER_DAY_PER_FARMER = 3; // 농부 1명(레벨5 기준) 영지 1일당 식량 생산
 export const FOOD_CONSUMPTION_PER_DAY_PER_WORKER = 1; // 농장을 제외한 영지 근무자 1명당 영지 1일당 식량 소비
 export const GOLD_PER_MISSING_FOOD = 3; // 식량이 부족하면 부족분 1당 이 골드를 대신 지출(비상 식량 구매)
-export const WAGE_PER_MERC_PER_DAY = 2; // 영지에 배치된 용병 1명당 영지 1일당 상주 급여(고용비/모험 보수와 별개)
 
 // 종자 흡수 - 다른 용병을 "종자"로 붙이면 그 용병은 사라지고(되돌릴 수 없음, 1회만 가능),
 // 흡수한 쪽이 종자의 직업을 부직업처럼 얻음(스킬 50% 위력) + 스탯 일부(10%, 흡수 시점 고정)를 받고

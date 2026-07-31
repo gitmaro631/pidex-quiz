@@ -8,7 +8,7 @@ import { MONSTERS } from './data/rpg/monsters.js';
 import { ITEMS, SET_BONUSES, ZONE_SET_ITEMS, FULL_SET_DEFS, ALL_FULL_SET_ITEM_IDS } from './data/rpg/items.js';
 import { CLASSES } from './data/rpg/classes.js';
 import { elementalMultiplier } from './data/rpg/elements.js';
-import { CLASS_ESSENCE_ITEM, TIER_POWER_MULT } from './data/rpg/training.js';
+import { CLASS_ESSENCE_ITEM, TIER_POWER_MULT, MAX_SKILL_TIER } from './data/rpg/training.js';
 import { ENHANCE_ATK_PER_LEVEL, ENHANCE_DEF_PER_LEVEL, RARE_MONSTER_STONE_DROP_CHANCE } from './data/rpg/enhancement.js';
 import { facilityBonusMultiplier, moraleResistBonus, improvisedAttackBonus } from './data/rpg/facilities.js';
 import { SQUIRE_SKILL_POWER_MULT, MERCENARY_TEMPLATES } from './data/rpg/mercenaries.js';
@@ -273,7 +273,13 @@ export function computeCharacterCombatStats(character) {
   const skills = subCls
     ? [...mainCls.skills, ...subClsPassiveSkills.map((s) => (isSquireSubclass ? { ...s, squireSkill: true } : s))]
     : mainCls.skills;
-  const classDef = { ...mainCls, skills };
+  // 용병은 액티브 스킬만 사용(패시브 제외) - basic_attack은 예외(항상 나가는 기본공격이라 유지).
+  // isMercenary 플래그가 없는 예전 용병 기록도 걸러내도록 skillLevels 부재(용병은 훈련 대상이 아니라
+  // 한 번도 설정된 적 없음, 본인 캐릭터는 defaultCharacter가 항상 {}로 채워줌)를 보조 판정 기준으로 같이 씀
+  const isMercenaryLike = !!character.isMercenary || !character.skillLevels;
+  const classDef = isMercenaryLike
+    ? { ...mainCls, skills: skills.filter((s) => s.id === 'basic_attack' || !s.type.startsWith('passive_')) }
+    : { ...mainCls, skills };
   const scalingStat = stats[mainCls.statScaling.atk] ?? stats.str; // str/agi/int 등 직업별 주스탯
 
   const equipment = character.equipment || {};
@@ -591,6 +597,7 @@ function buildCombatant({ characterLike, isSelf, formationRow, ownerCharacter, l
   return {
     id: isSelf ? 'self' : characterLike.id,
     isSelf,
+    level: characterLike.level || 1, // 용병 액티브 스킬의 레벨연동 자동단계(skillEffectivePower 참고)에 씀
     name: isSelf ? tLang('rpg.ui.combat.self', lang, '나') : characterLike.name,
     label: isSelf ? tLang('rpg.ui.combat.self', lang, '나') : characterLike.name,
     combatStats,
@@ -613,7 +620,7 @@ function buildCombatant({ characterLike, isSelf, formationRow, ownerCharacter, l
     // 사기진작소 보너스는 본인/용병 구분 없이 그 캐릭터가 배치한 시설이니 파티 전원에게 적용됨.
     // 성기사/흑기사는 CLASS_MENTAL_RESIST_OVERRIDE(100)로 다른 값을 다 덮어써서 사실상 안 밀림
     mentalResist: Math.min(100, (CLASS_MENTAL_RESIST_OVERRIDE[characterLike.classMain]
-      ?? (isSelf ? (characterLike.mentalResist ?? PLAYER_BASE_MENTAL_RESIST) : characterLike.mentalResist))
+      ?? (isSelf ? (characterLike.mentalResist ?? PLAYER_BASE_MENTAL_RESIST) : characterLike.mentalResist + (characterLike.moraleTrainingBonus || 0)))
       + moraleResistBonus(ownerCharacter)),
     // 스킬 훈련(skillLevels)은 본인 전용 - 용병은 훈련소 대상이 아니라 항상 자기 스킬을 자유롭게 씀
     skillLevels: isSelf ? (characterLike.skillLevels || {}) : null,
@@ -650,9 +657,18 @@ function isSkillUsable(actor, skill) {
 }
 // 훈련 단계(1~3)에 따라 위력이 세짐 - 본인만 해당, 용병은 항상 기본 위력.
 // squireSkill(종자 흡수로 얻은 스킬)이면 위력이 SQUIRE_SKILL_POWER_MULT(50%)로 깎임
+// 훈련소에서 결정+골드로 단계를 올리는 본인과 달리, 용병은 별도 훈련 없이 레벨이 5 오를 때마다
+// 액티브 스킬 단계가 자동으로 1씩 올라감(최대 MAX_SKILL_TIER, 본인 훈련 단계와 같은 상한/배율 재사용)
+const MERC_LEVELS_PER_SKILL_TIER = 5;
+function mercAutoSkillTier(level) {
+  return Math.min(MAX_SKILL_TIER, Math.floor((level || 1) / MERC_LEVELS_PER_SKILL_TIER));
+}
 function skillEffectivePower(actor, skill) {
   const squireMult = skill.squireSkill ? SQUIRE_SKILL_POWER_MULT : 1;
-  if (!actor.isSelf) return skill.power * squireMult;
+  if (!actor.isSelf) {
+    const mercTier = mercAutoSkillTier(actor.level);
+    return skill.power * (TIER_POWER_MULT[mercTier] || 1) * squireMult;
+  }
   const tier = (actor.skillLevels && actor.skillLevels[skill.id]) || 0;
   return skill.power * (TIER_POWER_MULT[tier] || 1);
 }

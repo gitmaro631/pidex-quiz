@@ -1213,12 +1213,12 @@
   "rpg.npc.npc_blacksmith_5.name": "대장장이",
   "rpg.npc.npc_blacksmith_5.dialogue.0": "전설급 장비도 여기서라면 더 강하게 벼려줄 수 있네.",
   // ── RPG: 용병 템플릿 (rpg-i18n.js getMercTemplateName) ──────────
-  "rpg.mercTemplate.merc_archer_1.name": "떠돌이 궁수",
-  "rpg.mercTemplate.merc_warrior_1.name": "떠돌이 전사",
-  "rpg.mercTemplate.merc_mage_1.name": "떠돌이 마법사",
-  "rpg.mercTemplate.merc_priest_1.name": "떠돌이 성직자",
-  "rpg.mercTemplate.merc_doctor_1.name": "떠돌이 군의관",
-  "rpg.mercTemplate.merc_engineer_1.name": "떠돌이 배관공",
+  "rpg.mercTemplate.merc_warrior.name": "떠돌이 전사",
+  "rpg.mercTemplate.merc_archer.name": "떠돌이 궁수",
+  "rpg.mercTemplate.merc_mage.name": "떠돌이 마법사",
+  "rpg.mercTemplate.merc_priest.name": "떠돌이 성직자",
+  "rpg.mercTemplate.merc_paladin.name": "떠돌이 성기사",
+  "rpg.mercTemplate.merc_dark_knight.name": "떠돌이 흑기사",
   // ── RPG: 퀘스트 (rpg-i18n.js getQuestName/getQuestDesc) ──────────
   "rpg.quest.q1_welcome.name": "첫 발걸음",
   "rpg.quest.q1_welcome.desc": "직업을 선택하고 모험을 시작하세요.",
@@ -1390,7 +1390,7 @@
   "rpg.ui.tavern.capReached": "더 이상 용병을 고용할 수 없습니다 ({count}/{cap}).",
   "rpg.ui.tavern.noClass": "직업을 먼저 선택해야 용병을 고용할 수 있어요.",
   "rpg.ui.tavern.noneToday": "오늘은 고용 가능한 용병이 없네요. 내일 다시 들러보세요.",
-  "rpg.ui.tavern.rowLabel": "{name} (Lv.{level} {class}) — 고용비 {hireCost}골드, 보수 {wage}골드/모험",
+  "rpg.ui.tavern.rowLabel": "{name} (Lv.{level} {class}) — 고용비 {hireCost}골드",
   "rpg.ui.tavern.hireBtn": "고용",
   "rpg.ui.tavern.hired": "{name}을(를) 고용했습니다!",
   "rpg.ui.town.currentLocation": "현재 위치: {town}",
@@ -1559,7 +1559,6 @@
   "rpg.ui.territory.economyTitle": "영지 경제 (하루 기준 예상치)",
   "rpg.ui.territory.goldIncomeLabel": "골드 수입",
   "rpg.ui.territory.goldExpenseLabel": "골드 지출",
-  "rpg.ui.territory.wagePaidLabel": "용병 상주 급여",
   "rpg.ui.territory.foodEmergencyLabel": "식량 비상구매",
   "rpg.ui.territory.netChangeLabel": "순변동",
   "rpg.ui.territory.netChangePerDay": "{sign}{delta}/일",
@@ -1591,7 +1590,7 @@
   "rpg.ui.territory.sendToTerritoryBtn": "영지로 보내기",
   "rpg.ui.territory.assignActiveBtn": "전투부대로 편입",
   "rpg.ui.territory.hospitalizedSuffix": " — 입원 중 🏥",
-  "rpg.ui.territory.mercStatusLine": "HP {hp} · 보수 {wage}골드/모험",
+  "rpg.ui.territory.mercStatusLine": "HP {hp}",
   "rpg.ui.territory.admitBtn": "병원에 입원시키기 (10골드, 서서히 회복)",
   "rpg.ui.territory.hospitalizedHint": "입원 중에는 모험에 동행하지 않고 보수도 나가지 않아요. 완쾌하면 자동으로 퇴원해요.",
   "rpg.ui.territory.dismissBtn": "해고",
@@ -1884,7 +1883,6 @@
   "rpg.ui.combat.rapidFireLabel": " 🏹속사!",
 
   // ── RPG: adventure.js 서버측 로그 ──
-  "rpg.log.wageUnpaid": "용병 보수({wage}골드)를 지불하지 못해 용병들이 모두 떠났다.",
   "rpg.log.townTravel": "{town}(으)로 이동했다. (턴포인트 1 추가 소모)",
   "rpg.log.inventoryFullLoot": "인벤토리가 가득 차서 일부 전리품을 놓쳤다.",
   "rpg.log.overweightLoot": "짐이 너무 무거워서 일부 전리품을 챙기지 못했다.",
@@ -1905,5 +1903,9 @@
 
   // ── RPG: 기본공격 상시사용 안내 ──
   "rpg.ui.trainer.alwaysUsableSuffix": " (미훈련이어도 항상 사용 가능, 훈련하면 위력 상승)",
+
+  // ── RPG: 용병 스탯배분 ──
+  "rpg.ui.territory.mercStatPointsLabel": "스탯포인트 {points} — 배분 가능",
+  "rpg.ui.territory.mercStatAllocated": "스탯을 배분했습니다",
 
 };
