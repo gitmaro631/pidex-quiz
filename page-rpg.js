@@ -1,6 +1,6 @@
 import { currentAccessToken, createGoldPurchasePayment } from './pi-sdk.js';
 import { showToast } from './page-quiz.js';
-import { t, getLang } from './util-i18n.js';
+import { t, ti, getLang } from './util-i18n.js';
 import {
   getClassName, getSkillName, getMonsterName, getMonsterSkillName, getItemName, getSetBonusName,
   getFullSetName, getZoneName, getTownName, getNpcName, getNpcDialogue, getMercTemplateName,
@@ -452,30 +452,30 @@ function maybeShowQuizRefillNotice(container) {
 
 // ── 캐릭터 선택 화면 (계정당 최대 5캐릭 - api/_rpgCharacter.js의 MAX_CHARACTER_SLOTS 참고) ──────────────
 async function renderCharacterSelect(container) {
-  container.innerHTML = `<div class="rpg-loading">캐릭터 목록을 불러오는 중...</div>`;
+  container.innerHTML = `<div class="rpg-loading">${t('rpg.ui.charSelect.loading')}</div>`;
   let slots;
   try {
     const res = await apiPostRaw('list-characters', {});
     slots = res.slots;
   } catch (e) {
-    container.innerHTML = `<div class="rpg-loading">캐릭터 목록을 불러오지 못했습니다.</div>`;
+    container.innerHTML = `<div class="rpg-loading">${t('rpg.ui.charSelect.loadFail')}</div>`;
     return;
   }
 
   container.innerHTML = `
     <div class="rpg-page">
-      <h3>캐릭터 선택</h3>
-      <p class="rpg-hint">계정당 최대 5명까지 캐릭터를 만들 수 있어요.</p>
+      <h3>${t('rpg.ui.charSelect.title')}</h3>
+      <p class="rpg-hint">${t('rpg.ui.charSelect.hint')}</p>
       <div class="rpg-class-cards">
         ${slots.map((s) => {
           // 직업을 아직 선택 안 한 캐릭터는(뒤로가기로 나온 경우 등) 실제로는 아무것도 안 정해진
           // 상태라 "새 캐릭터 생성"과 똑같이 취급함(선택을 안 했으니 눈에 보이는 변화도 없어야 함)
           const isBlank = !s.exists || !s.classMain;
-          const slotLabel = s.isTestSlot ? `테스트슬롯 ${s.slot}` : `슬롯 ${s.slot}`;
+          const slotLabel = ti(s.isTestSlot ? 'rpg.ui.charSelect.testSlotLabel' : 'rpg.ui.charSelect.slotLabel', getLang(), { slot: s.slot });
           return isBlank ? `
           <div class="rpg-slot-block">
             <button class="rpg-slot-btn" data-slot="${s.slot}">
-              <div class="rpg-class-name">${slotLabel} — 새 캐릭터 생성</div>
+              <div class="rpg-class-name">${slotLabel} — ${t('rpg.ui.charSelect.newCharacter')}</div>
             </button>
           </div>
         ` : `
@@ -484,7 +484,7 @@ async function renderCharacterSelect(container) {
               <div class="rpg-class-name">${slotLabel} — Lv.${s.level} ${getClassName(s.classMain, getLang())}</div>
               <div class="rpg-class-skills">${s.gold}골드</div>
             </button>
-            <button class="rpg-slot-delete-btn" data-slot="${s.slot}">이 캐릭터 삭제</button>
+            <button class="rpg-slot-delete-btn" data-slot="${s.slot}">${t('rpg.ui.charSelect.deleteBtn')}</button>
           </div>
         `;
         }).join('')}
@@ -507,10 +507,12 @@ async function renderCharacterSelect(container) {
   }));
   container.querySelectorAll('.rpg-slot-delete-btn').forEach((btn) => btn.addEventListener('click', async () => {
     const slot = Number(btn.dataset.slot);
-    if (!confirm(`슬롯 ${slot} 캐릭터를 정말 삭제할까요? 저장상자 내용물은 그대로 사라지고, 나머지 자산(골드/장비/인벤토리/용병)의 절반은 골드로 환산되어 마지막에 있던 마을의 이송상자로 들어갑니다. 되돌릴 수 없습니다.`)) return;
+    if (!confirm(ti('rpg.ui.charSelect.deleteConfirm', getLang(), { slot }))) return;
     try {
       const r = await apiPostRaw('delete-character', { slot });
-      showToast(r.refund > 0 ? `캐릭터를 삭제했습니다. ${getTownName(r.refundTown, getLang())} 이송상자에 ${r.refund}골드가 들어갔습니다.` : '캐릭터를 삭제했습니다');
+      showToast(r.refund > 0
+        ? ti('rpg.ui.charSelect.deletedWithRefund', getLang(), { town: getTownName(r.refundTown, getLang()), refund: r.refund })
+        : t('rpg.ui.charSelect.deleted'));
       renderCharacterSelect(container);
     } catch (e) {
       showToast(friendlyError(e));
@@ -521,9 +523,9 @@ async function renderCharacterSelect(container) {
 function renderClassSelect(container) {
   container.innerHTML = `
     <div class="rpg-class-select">
-      <button class="rpg-back-to-slots-btn">← 캐릭터 선택으로</button>
-      <h3>직업을 선택하세요</h3>
-      <p class="rpg-hint">한 번 선택하면 되돌릴 수 없어요. 부직업은 나중에 레벨업하면 고를 수 있어요.</p>
+      <button class="rpg-back-to-slots-btn">${t('rpg.ui.classSelect.back')}</button>
+      <h3>${t('rpg.ui.classSelect.title')}</h3>
+      <p class="rpg-hint">${t('rpg.ui.classSelect.hint')}</p>
       <div class="rpg-class-cards">
         ${Object.values(CLASSES).map((c) => `
           <button class="rpg-class-card" data-class="${c.id}">
@@ -560,7 +562,7 @@ function statusBarHtml() {
       <span>HP ${character.currentHp}/${character.maxHp ?? '?'}</span>
       <span>MP ${character.currentMp}</span>
       <span>골드 ${character.gold}</span>
-      <button class="rpg-switch-char-btn">캐릭터 변경</button>
+      <button class="rpg-switch-char-btn">${t('rpg.ui.statusbar.switchChar')}</button>
     </div>
   `;
 }
@@ -571,14 +573,14 @@ function renderMain(container) {
     <div class="rpg-page">
       ${statusBarHtml()}
       <div class="rpg-tabs">
-        <button class="rpg-tab" data-tab="adventure">모험</button>
-        <button class="rpg-tab" data-tab="town">마을</button>
-        <button class="rpg-tab" data-tab="shop">상점</button>
-        <button class="rpg-tab" data-tab="market">마켓</button>
-        <button class="rpg-tab" data-tab="storage">창고</button>
-        <button class="rpg-tab" data-tab="territory">영지</button>
-        <button class="rpg-tab" data-tab="inventory">인벤토리</button>
-        <button class="rpg-tab" data-tab="character">캐릭터</button>
+        <button class="rpg-tab" data-tab="adventure">${t('rpg.ui.tabs.adventure')}</button>
+        <button class="rpg-tab" data-tab="town">${t('rpg.ui.tabs.town')}</button>
+        <button class="rpg-tab" data-tab="shop">${t('rpg.ui.tabs.shop')}</button>
+        <button class="rpg-tab" data-tab="market">${t('rpg.ui.tabs.market')}</button>
+        <button class="rpg-tab" data-tab="storage">${t('rpg.ui.tabs.storage')}</button>
+        <button class="rpg-tab" data-tab="territory">${t('rpg.ui.tabs.territory')}</button>
+        <button class="rpg-tab" data-tab="inventory">${t('rpg.ui.tabs.inventory')}</button>
+        <button class="rpg-tab" data-tab="character">${t('rpg.ui.tabs.character')}</button>
       </div>
       <div class="rpg-tab-content"></div>
     </div>
@@ -621,10 +623,10 @@ function monsterDifficultyColor(ratio) {
 }
 
 function renderAdventureTab(content, container) {
-  const townName = character.currentTown ? getTownName(character.currentTown, getLang()) : '없음(던전)';
+  const townName = character.currentTown ? getTownName(character.currentTown, getLang()) : t('rpg.ui.adventure.noTown');
   const townZones = Object.values(ZONES).filter((z) => z.town === character.currentTown || z.town === null);
   content.innerHTML = `
-    <p class="rpg-hint">현재 위치: ${townName} — 다른 마을로 가려면 "마을" 탭에서 이동하세요.</p>
+    <p class="rpg-hint">${ti('rpg.ui.adventure.currentLocation', getLang(), { town: townName })}</p>
     <div class="rpg-zone-list">
       ${townZones.map((z) => {
         const clears = (character.zoneClearCounts || {})[z.id] || 0;
@@ -635,25 +637,25 @@ function renderAdventureTab(content, container) {
         <div class="rpg-zone-block">
           <button class="rpg-zone-btn" data-zone="${z.id}" ${locked ? 'disabled' : ''}>
             <div class="rpg-zone-name">${getZoneName(z.id, getLang())}${locked ? ' 🔒' : ''}</div>
-            <div class="rpg-zone-tier">Tier ${z.tier}${z.requiresTorch ? ' · 횃불 필요' : ''}</div>
-            ${locked ? `<div class="rpg-zone-tier">${getZoneName(z.unlockZoneId, getLang())} ${unlockClears}/${CASTLE_CLEAR_REQUIREMENT}회 공략 후 해금</div>` : ''}
+            <div class="rpg-zone-tier">Tier ${z.tier}${z.requiresTorch ? t('rpg.ui.adventure.requiresTorch') : ''}</div>
+            ${locked ? `<div class="rpg-zone-tier">${ti('rpg.ui.adventure.unlockAfter', getLang(), { zone: getZoneName(z.unlockZoneId, getLang()), clears: unlockClears, req: CASTLE_CLEAR_REQUIREMENT })}</div>` : ''}
           </button>
-          ${eligible ? `<p class="rpg-hint"><button class="rpg-castle-challenge-btn" data-zone="${z.id}">성 도전하기</button></p>` : ''}
+          ${eligible ? `<p class="rpg-hint"><button class="rpg-castle-challenge-btn" data-zone="${z.id}">${t('rpg.ui.adventure.challengeCastle')}</button></p>` : ''}
         </div>
       `;
       }).join('')}
     </div>
-    <p class="rpg-hint"><button class="rpg-castle-income-btn">성주 수입 수령</button></p>
+    <p class="rpg-hint"><button class="rpg-castle-income-btn">${t('rpg.ui.adventure.claimIncome')}</button></p>
   `;
   content.querySelectorAll('.rpg-castle-challenge-btn').forEach((btn) => btn.addEventListener('click', async () => {
     try {
       const r = await apiPost('claim-castle', { zoneId: btn.dataset.zone });
       if (r.wasEmpty) {
-        showToast(`${getZoneName(r.zoneId, getLang())}의 성이 비어있어 바로 차지했습니다!`);
+        showToast(ti('rpg.ui.castle.claimedEmpty', getLang(), { zone: getZoneName(r.zoneId, getLang()) }));
       } else if (r.won) {
-        showToast(`${r.previousOwnerName}을(를) 꺾고 ${getZoneName(r.zoneId, getLang())}의 성을 차지했습니다! (${r.challengerRoll} vs ${r.defenderRoll})`);
+        showToast(ti('rpg.ui.castle.claimedWon', getLang(), { owner: r.previousOwnerName, zone: getZoneName(r.zoneId, getLang()), challenger: r.challengerRoll, defender: r.defenderRoll }));
       } else {
-        showToast(`도전 실패... (${r.challengerRoll} vs ${r.defenderRoll})`);
+        showToast(ti('rpg.ui.castle.challengeFail', getLang(), { challenger: r.challengerRoll, defender: r.defenderRoll }));
       }
     } catch (e) { showToast(friendlyError(e)); }
   }));
@@ -663,9 +665,9 @@ function renderAdventureTab(content, container) {
       const r = await apiPost('claim-castle-income', {});
       character.gold = r.gold;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-      if (r.alreadyClaimed) showToast('오늘은 이미 수령했습니다.');
-      else if (r.income > 0) showToast(`성주 수입 ${r.income}골드를 수령했습니다! (보유 성 ${r.ownedZones.length}개)`);
-      else showToast('현재 소유한 성이 없습니다.');
+      if (r.alreadyClaimed) showToast(t('rpg.ui.castle.alreadyClaimed'));
+      else if (r.income > 0) showToast(ti('rpg.ui.castle.incomeClaimed', getLang(), { income: r.income, count: r.ownedZones.length }));
+      else showToast(t('rpg.ui.castle.noOwnedCastle'));
     } catch (e) { showToast(friendlyError(e)); }
   });
   content.querySelectorAll('.rpg-zone-btn').forEach((btn) => {
@@ -675,12 +677,12 @@ function renderAdventureTab(content, container) {
 
 // 지역 클릭 시 - 바로 전투가 아니라 몹 구성을 먼저 보여줌("필드에 들어간" 느낌). 처음 보는 건 무료
 async function enterZonePreview(content, container, zoneId) {
-  content.innerHTML = `<div class="rpg-loading">지역에 들어가는 중...</div>`;
+  content.innerHTML = `<div class="rpg-loading">${t('rpg.ui.castle.enteringZone')}</div>`;
   try {
     const r = await apiPost('preview-zone', { zoneId });
     renderZonePreviewScreen(content, container, r.preview);
   } catch (e) {
-    content.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div><p><button class="rpg-zone-back-btn">◀ 지역 목록</button></p>`;
+    content.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div><p><button class="rpg-zone-back-btn">${t('rpg.ui.zonePreview.backToList')}</button></p>`;
     const backBtn = content.querySelector('.rpg-zone-back-btn');
     if (backBtn) backBtn.addEventListener('click', () => renderAdventureTab(content, container));
   }
@@ -688,7 +690,7 @@ async function enterZonePreview(content, container, zoneId) {
 
 // 성 화면 - "성 입장" 버튼을 눌러야 들어오는 별도 메뉴. 여기서 보상/현재 성주/도전·방어력갱신을 다 보여줌
 async function renderCastleScreen(content, container, zoneId) {
-  content.innerHTML = `<div class="rpg-loading">성에 입장하는 중...</div>`;
+  content.innerHTML = `<div class="rpg-loading">${t('rpg.ui.castle.entering')}</div>`;
   let castleInfo;
   try {
     castleInfo = await apiPost('castle-status', { zoneId });
@@ -699,21 +701,21 @@ async function renderCastleScreen(content, container, zoneId) {
 
   const zone = ZONES[zoneId];
   const dailyGold = zone.tier * GOLD_INCOME_PER_TIER;
-  const materialNote = zone.tier >= MATERIAL_BONUS_MIN_TIER ? ` + 결정·강화석 각 ${MATERIAL_BONUS_QTY}개` : '';
+  const materialNote = zone.tier >= MATERIAL_BONUS_MIN_TIER ? ti('rpg.ui.castle.materialBonusNote', getLang(), { qty: MATERIAL_BONUS_QTY }) : '';
   const castle = castleInfo.castle;
   const isMine = castle && castle.ownerUsername === myUsername && castle.ownerSlot === activeSlot;
 
   let statusLine;
   let actionBtn;
   if (!castle) {
-    statusLine = '지금 비어있는 성입니다 - 도전하면 바로 차지합니다.';
-    actionBtn = `<button class="rpg-castle-challenge-btn" data-zone="${zoneId}">🏰 성 도전하기</button>`;
+    statusLine = t('rpg.ui.castle.emptyHint');
+    actionBtn = `<button class="rpg-castle-challenge-btn" data-zone="${zoneId}">${t('rpg.ui.castle.challengeBtn')}</button>`;
   } else if (isMine) {
-    statusLine = `현재 성주: 나 (방어전력 ${Math.round(castle.defensePower || 0)})`;
-    actionBtn = `<button class="rpg-castle-refresh-btn" data-zone="${zoneId}">🔄 방어력 갱신(현재 장비/용병 기준)</button>`;
+    statusLine = ti('rpg.ui.castle.ownerSelf', getLang(), { power: Math.round(castle.defensePower || 0) });
+    actionBtn = `<button class="rpg-castle-refresh-btn" data-zone="${zoneId}">${t('rpg.ui.castle.refreshBtn')}</button>`;
   } else {
-    statusLine = `현재 성주: ${castle.ownerName || castle.ownerUsername} (방어전력 ${Math.round(castle.defensePower || 0)})`;
-    actionBtn = `<button class="rpg-castle-challenge-btn" data-zone="${zoneId}">🏰 성 도전하기</button>`;
+    statusLine = ti('rpg.ui.castle.ownerOther', getLang(), { owner: castle.ownerName || castle.ownerUsername, power: Math.round(castle.defensePower || 0) });
+    actionBtn = `<button class="rpg-castle-challenge-btn" data-zone="${zoneId}">${t('rpg.ui.castle.challengeBtn')}</button>`;
   }
 
   // 야전의무실 - 부상 치료는 안 되고(휴게소는 보류), 턴을 써서 순수 체력만 회복. 본인+용병 전부 대상
@@ -724,17 +726,17 @@ async function renderCastleScreen(content, container, zoneId) {
   ].filter(Boolean).join('');
 
   content.innerHTML = `
-    <p><button class="rpg-castle-back-btn">◀ 사냥터로</button></p>
+    <p><button class="rpg-castle-back-btn">${t('rpg.ui.castle.backToHunting')}</button></p>
     <div class="rpg-castle-section">
       <h4>🏰 ${getZoneName(zoneId, getLang())}의 성</h4>
-      <p class="rpg-hint">성주 보상: 매일 골드 +${dailyGold}${materialNote}</p>
+      <p class="rpg-hint">${ti('rpg.ui.castle.dailyIncomeLabel', getLang(), { gold: dailyGold })}${materialNote}</p>
       <p class="rpg-hint">${statusLine}</p>
       <p>${actionBtn}</p>
     </div>
     <div class="rpg-castle-section">
-      <h4>🩺 야전의무실</h4>
-      <p class="rpg-hint">턴을 소모해 체력만 회복합니다(부상 치료는 안 돼요 - 마을 의사나 영지에서 처리하세요).</p>
-      ${infirmaryRows || '<p class="rpg-hint">지금은 체력이 깎인 사람이 없어요.</p>'}
+      <h4>${t('rpg.ui.castle.infirmaryTitle')}</h4>
+      <p class="rpg-hint">${t('rpg.ui.castle.infirmaryHint')}</p>
+      ${infirmaryRows || `<p class="rpg-hint">${t('rpg.ui.castle.noInjured')}</p>`}
     </div>
   `;
   content.querySelector('.rpg-castle-back-btn').addEventListener('click', () => enterZonePreview(content, container, zoneId));
@@ -750,7 +752,7 @@ async function renderCastleScreen(content, container, zoneId) {
         character.currentHp = r.currentHp;
       }
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-      showToast(`체력을 회복했습니다 (턴 ${r.cost}개 소모)`);
+      showToast(ti('rpg.ui.castle.healed', getLang(), { cost: r.cost }));
       renderCastleScreen(content, container, zoneId);
     } catch (e) { showToast(friendlyError(e)); }
   }));
@@ -759,9 +761,9 @@ async function renderCastleScreen(content, container, zoneId) {
   if (castleChallengeBtn) castleChallengeBtn.addEventListener('click', async () => {
     try {
       const r = await apiPost('claim-castle', { zoneId });
-      if (r.wasEmpty) showToast(`${getZoneName(r.zoneId, getLang())}의 성이 비어있어 바로 차지했습니다!`);
-      else if (r.won) showToast(`${r.previousOwnerName}을(를) 꺾고 ${getZoneName(r.zoneId, getLang())}의 성을 차지했습니다! (${r.challengerRoll} vs ${r.defenderRoll})`);
-      else showToast(`도전 실패... (${r.challengerRoll} vs ${r.defenderRoll})`);
+      if (r.wasEmpty) showToast(ti('rpg.ui.castle.claimedEmpty', getLang(), { zone: getZoneName(r.zoneId, getLang()) }));
+      else if (r.won) showToast(ti('rpg.ui.castle.claimedWon', getLang(), { owner: r.previousOwnerName, zone: getZoneName(r.zoneId, getLang()), challenger: r.challengerRoll, defender: r.defenderRoll }));
+      else showToast(ti('rpg.ui.castle.challengeFail', getLang(), { challenger: r.challengerRoll, defender: r.defenderRoll }));
       renderCastleScreen(content, container, zoneId);
     } catch (e) { showToast(friendlyError(e)); }
   });
@@ -769,7 +771,7 @@ async function renderCastleScreen(content, container, zoneId) {
   if (castleRefreshBtn) castleRefreshBtn.addEventListener('click', async () => {
     try {
       const r = await apiPost('refresh-castle-defense', { zoneId });
-      showToast(`방어전력을 ${r.previousDefensePower} → ${r.defensePower}(으)로 갱신했습니다`);
+      showToast(ti('rpg.ui.castle.defenseRefreshed', getLang(), { prev: r.previousDefensePower, next: r.defensePower }));
       renderCastleScreen(content, container, zoneId);
     } catch (e) { showToast(friendlyError(e)); }
   });
@@ -783,13 +785,13 @@ function renderZonePreviewScreen(content, container, preview) {
   const clears = (character.zoneClearCounts || {})[preview.zoneId] || 0;
   const castleEligible = clears >= CASTLE_CLEAR_REQUIREMENT;
   content.innerHTML = `
-    <p><button class="rpg-zone-back-btn">◀ 지역 목록</button></p>
-    <h4>${getZoneName(zone.id, getLang())}에 들어왔다</h4>
-    <p class="rpg-hint">마주칠 수 있는 조합 중 하나를 골라 들어가세요.</p>
+    <p><button class="rpg-zone-back-btn">${t('rpg.ui.zonePreview.backToList')}</button></p>
+    <h4>${ti('rpg.ui.zonePreview.enteredZone', getLang(), { zone: getZoneName(zone.id, getLang()) })}</h4>
+    <p class="rpg-hint">${t('rpg.ui.zonePreview.pickHint')}</p>
     <div class="rpg-encounter-option-list">
       ${preview.options.map((opt, idx) => `
         <button class="rpg-encounter-option-btn" data-zone="${preview.zoneId}" data-option="${idx}">
-          ${opt.isRare ? '<span class="rpg-encounter-rare-tag">⚠️ 희귀</span>' : ''}
+          ${opt.isRare ? `<span class="rpg-encounter-rare-tag">${t('rpg.ui.zonePreview.rare')}</span>` : ''}
           <div class="rpg-encounter-option-monsters">
             ${opt.monsters.map((m) => `
               <span class="rpg-encounter-icon">${MONSTER_TAG_ICONS[(m.tags || [])[0]] || '❓'}</span>
@@ -800,11 +802,11 @@ function renderZonePreviewScreen(content, container, preview) {
       `).join('')}
     </div>
     <p class="rpg-hint">
-      <button class="rpg-refresh-encounter-btn" data-zone="${preview.zoneId}" ${character.gold >= preview.refreshGoldCost ? '' : 'disabled'}>🔄 새로고침 (${preview.refreshGoldCost}골드)</button>
+      <button class="rpg-refresh-encounter-btn" data-zone="${preview.zoneId}" ${character.gold >= preview.refreshGoldCost ? '' : 'disabled'}>${ti('rpg.ui.zonePreview.refresh', getLang(), { cost: preview.refreshGoldCost })}</button>
     </p>
     ${combatLogSpeedControlHtml()}
     <div class="rpg-combat-log"></div>
-    ${castleEligible ? `<p><button class="rpg-castle-enter-btn" data-zone="${preview.zoneId}">🏰 성 입장</button></p>` : ''}
+    ${castleEligible ? `<p><button class="rpg-castle-enter-btn" data-zone="${preview.zoneId}">${t('rpg.ui.zonePreview.castleEnter')}</button></p>` : ''}
   `;
   const log = content.querySelector('.rpg-combat-log');
   wireCombatLogSpeedControl(content);
@@ -820,7 +822,7 @@ function renderZonePreviewScreen(content, container, preview) {
     } catch (e) { showToast(friendlyError(e)); }
   });
   content.querySelectorAll('.rpg-encounter-option-btn').forEach((btn) => btn.addEventListener('click', async () => {
-    log.innerHTML = `<div class="rpg-loading">전투 중...</div>`;
+    log.innerHTML = `<div class="rpg-loading">${t('rpg.ui.zonePreview.inCombat')}</div>`;
     try {
       const result = await apiPost('adventure', { zoneId: btn.dataset.zone, optionIndex: Number(btn.dataset.option) });
       await loadCharacter(); // 레벨업으로 maxHp 등이 바뀌었을 수 있어 서버 최신값으로 새로고침
@@ -834,9 +836,9 @@ function renderZonePreviewScreen(content, container, preview) {
       if (!log.isConnected) return;
       log.insertAdjacentHTML('beforeend', `
         <div class="rpg-log-summary">
-          ${result.victory ? '승리' : '패배'} · 경험치 +${result.xpGain} · 골드 +${result.goldGain}
-          ${result.levelsGained ? ` · <b>레벨업! Lv.${result.level}</b>` : ''}
-          ${result.loot.length ? `<br>획득: ${result.loot.map((d) => `${getItemName(d.itemId, getLang())} x${d.qty}`).join(', ')}` : ''}
+          ${result.victory ? t('rpg.ui.zonePreview.victory') : t('rpg.ui.zonePreview.defeat')} · 경험치 +${result.xpGain} · 골드 +${result.goldGain}
+          ${result.levelsGained ? ti('rpg.ui.zonePreview.levelUp', getLang(), { level: result.level }) : ''}
+          ${result.loot.length ? ti('rpg.ui.zonePreview.loot', getLang(), { items: result.loot.map((d) => `${getItemName(d.itemId, getLang())} x${d.qty}`).join(', ') }) : ''}
         </div>
         ${loreUnlockHtml(result.newLore)}
       `);
