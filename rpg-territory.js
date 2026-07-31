@@ -7,7 +7,7 @@ import {
   TERRITORY_JOBS, FOOD_PER_DAY_PER_FARMER, FOOD_CONSUMPTION_PER_DAY_PER_WORKER,
   GOLD_PER_MISSING_FOOD, WAGE_PER_MERC_PER_DAY,
 } from './data/rpg/mercenaries.js';
-import { facilityLevelForDays, facilityBonusMultiplier, facilityAccrualRate } from './data/rpg/facilities.js';
+import { facilityBonusMultiplier, facilityAccrualRate } from './data/rpg/facilities.js';
 
 // 지금까지 쓴 누적 턴(totalTurnsSpent)과 현재 레벨의 턴 상한으로 "지금까지 지난 영지일 수"를 계산
 export function territoryDaysElapsed(totalTurnsSpent, level) {
@@ -36,18 +36,12 @@ export function settleTerritoryDays(character, daysToProcess) {
   const foodEmergencyCost = Math.round(foodDeficit * GOLD_PER_MISSING_FOOD);
   const nextFoodStock = Math.round((foodAfterProduction - consumedFromStock) * 10) / 10;
 
-  // 3) 시설별 누적 영지일(레벨업 재료) 적립 + 레벨업 감지
-  const prevLevels = character.facilityLevels || {};
+  // 3) 시설 레벨업은 이제 플레이어 본인이 work-territory.js로 직접 일할 때만 발생함 - 용병을
+  // 영지 일자리에 배치해도 더 이상 시설 누적 영지일(facilityDays)에 기여하지 않음(레벨업 감지도 안 함).
+  // 그대로 유지되는 값만 넘겨줌(감소/변경 없음)
   const nextFacilityDays = { ...(character.facilityDays || {}) };
-  const nextFacilityLevels = { ...prevLevels };
+  const nextFacilityLevels = { ...(character.facilityLevels || {}) };
   const leveledUp = [];
-  for (const jobId of Object.keys(TERRITORY_JOBS)) {
-    const mercsForJob = workingMercs.filter((m) => m.job === jobId);
-    nextFacilityDays[jobId] = (nextFacilityDays[jobId] || 0) + facilityAccrualRate(mercsForJob, jobId) * daysToProcess;
-    const newLevel = facilityLevelForDays(nextFacilityDays[jobId]);
-    if (newLevel > (prevLevels[jobId] || 0)) leveledUp.push({ jobId, name: TERRITORY_JOBS[jobId].name, level: newLevel });
-    nextFacilityLevels[jobId] = newLevel;
-  }
 
   // 4) 개간지 골드 산출(인원수 기준, 시설레벨 보너스 적용) - 5) 용병 상주 급여(전원, 일자리 무관)
   const goldIncome = Math.floor(clearingWorkers.length * TERRITORY_JOBS.clearing.goldPerDay * daysToProcess
