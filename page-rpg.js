@@ -1287,19 +1287,19 @@ function renderShopTab(content, container) {
   const townTier = (TOWNS[character.currentTown] || {}).tier || 1;
   const shopItems = Object.values(ITEMS).filter((i) => i.shopPrice && i.type !== 'randombox' && (i.minTownTier || 1) <= townTier);
   content.innerHTML = `
-    <h4>상점</h4>
+    <h4>${t('rpg.ui.shop.title')}</h4>
     <div class="rpg-shop-list">
       ${shopItems.map((i) => `
         <div class="rpg-shop-row">
-          <span>${getItemName(i.id, getLang())}${itemStatsLabel(i)} (${i.type === 'ammo' ? `${i.shopPrice * 10}골드/10개` : `${i.shopPrice}골드`})</span>
-          <button class="rpg-buy-btn" data-item="${i.id}">구매</button>
+          <span>${getItemName(i.id, getLang())}${itemStatsLabel(i)} (${i.type === 'ammo' ? ti('rpg.ui.shop.ammoPriceLabel', getLang(), { price: i.shopPrice * 10 }) : ti('rpg.ui.shop.priceLabel', getLang(), { price: i.shopPrice })})</span>
+          <button class="rpg-buy-btn" data-item="${i.id}">${t('rpg.ui.shop.buyBtn')}</button>
         </div>
       `).join('')}
     </div>
-    <h4>뽑기 (랜덤박스)</h4>
+    <h4>${t('rpg.ui.shop.gachaTitle')}</h4>
     <div class="rpg-shop-row">
-      <span>${getItemName('random_box', getLang())} — 속성무기·방어구·장신구 중 하나 획득 (${ITEMS.random_box.shopPrice}골드)</span>
-      <button class="rpg-randombox-btn">뽑기</button>
+      <span>${ti('rpg.ui.shop.gachaDesc', getLang(), { item: getItemName('random_box', getLang()), price: ITEMS.random_box.shopPrice })}</span>
+      <button class="rpg-randombox-btn">${t('rpg.ui.shop.gachaBtn')}</button>
     </div>
   `;
   content.querySelectorAll('.rpg-buy-btn').forEach((btn) => {
@@ -1309,22 +1309,22 @@ function renderShopTab(content, container) {
       const totalPrice = item.shopPrice * qty;
       const canAfford = character.gold >= totalPrice;
       showConfirmOverlay(container, {
-        title: `${getItemName(item.id, getLang())}${qty > 1 ? ` x${qty}` : ''} 구매`,
+        title: `${getItemName(item.id, getLang())}${qty > 1 ? ` x${qty}` : ''} ${t('rpg.ui.shop.buyBtn')}`,
         bodyHtml: `
           <div class="rpg-stat-delta-table">
-            <div class="rpg-stat-delta-row"><span>가격</span><span>${totalPrice}골드</span><span></span></div>
-            <div class="rpg-stat-delta-row"><span>보유 골드</span><span>${character.gold} → ${character.gold - totalPrice}</span><span class="${canAfford ? 'rpg-stat-up' : 'rpg-stat-down'}">${canAfford ? '' : '부족'}</span></div>
+            <div class="rpg-stat-delta-row"><span>${t('rpg.ui.shop.priceRowLabel')}</span><span>${ti('rpg.ui.shop.priceLabel', getLang(), { price: totalPrice })}</span><span></span></div>
+            <div class="rpg-stat-delta-row"><span>${t('rpg.ui.shop.ownedGoldLabel')}</span><span>${character.gold} → ${character.gold - totalPrice}</span><span class="${canAfford ? 'rpg-stat-up' : 'rpg-stat-down'}">${canAfford ? '' : t('rpg.ui.shop.insufficient')}</span></div>
           </div>
-          ${!canAfford ? '<p class="rpg-hint">⚠️ 골드가 부족합니다.</p>' : ''}
+          ${!canAfford ? `<p class="rpg-hint">${t('rpg.ui.shop.insufficientGold')}</p>` : ''}
         `,
-        confirmLabel: '구매',
+        confirmLabel: t('rpg.ui.shop.buyBtn'),
         confirmDisabled: !canAfford,
         onConfirm: async () => {
           try {
             const r = await apiPost('shop-buy', { itemId: btn.dataset.item, qty });
             character.gold = r.gold;
             container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-            showToast(qty > 1 ? `${getItemName(item.id, getLang())} ${qty}개 구매 완료` : '구매 완료');
+            showToast(qty > 1 ? ti('rpg.ui.shop.bought', getLang(), { item: getItemName(item.id, getLang()), qty }) : t('rpg.ui.shop.boughtSingle'));
           } catch (e) {
             showToast(friendlyError(e));
           }
@@ -1338,7 +1338,7 @@ function renderShopTab(content, container) {
       character.gold = r.gold;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       const item = ITEMS[r.itemId];
-      showToast(`${getItemName(item.id, getLang())}${itemStatsLabel(item)} 획득!` + (r.overflowed ? ' (인벤토리가 가득 차 놓쳤어요)' : ''));
+      showToast(ti('rpg.ui.shop.gachaResult', getLang(), { item: `${getItemName(item.id, getLang())}${itemStatsLabel(item)}` }) + (r.overflowed ? t('rpg.ui.shop.inventoryFullNote') : ''));
     } catch (e) { showToast(friendlyError(e)); }
   });
 }
@@ -1346,20 +1346,20 @@ function renderShopTab(content, container) {
 // ── 마켓 탭(유저간 거래) ──────────────────────────────
 function renderMarketTab(content, container) {
   content.innerHTML = `
-    <h4>유저 마켓</h4>
-    <div class="rpg-market-list"><div class="rpg-loading">불러오는 중...</div></div>
+    <h4>${t('rpg.ui.market.title')}</h4>
+    <div class="rpg-market-list"><div class="rpg-loading">${t('rpg.ui.market.loading')}</div></div>
     <div class="rpg-market-list-form">
-      <p class="rpg-hint">인벤토리 탭에서 아이템의 "마켓등록" 버튼으로 판매를 등록하세요.</p>
+      <p class="rpg-hint">${t('rpg.ui.market.listHint')}</p>
     </div>
-    <h4>골드 경매장</h4>
-    <p class="rpg-hint">⚠️ 여기서 쓰이는 π(파이)는 <b>실제 화폐 가치가 없는 테스트넷 "테스트파이"</b>입니다. 진짜 돈이 아닙니다.</p>
+    <h4>${t('rpg.ui.market.goldAuctionTitle')}</h4>
+    <p class="rpg-hint">${t('rpg.ui.market.testPiWarning')}</p>
     <div class="rpg-gold-listing-form">
-      <input type="number" class="rpg-gold-list-amount" placeholder="판매할 골드(최소 100)" min="100">
-      <input type="number" class="rpg-gold-list-price" placeholder="희망 테스트파이(π)" min="0.01" step="0.01">
-      <button class="rpg-gold-list-submit">등록</button>
+      <input type="number" class="rpg-gold-list-amount" placeholder="${t('rpg.ui.market.goldAmountPlaceholder')}" min="100">
+      <input type="number" class="rpg-gold-list-price" placeholder="${t('rpg.ui.market.priceTestPiPlaceholder')}" min="0.01" step="0.01">
+      <button class="rpg-gold-list-submit">${t('rpg.ui.market.registerBtn')}</button>
     </div>
-    <p class="rpg-hint">등록 수수료: 판매 골드의 0.1%(최소 1골드), 등록 즉시 차감되며 취소해도 환불되지 않습니다.</p>
-    <div class="rpg-gold-listing-list"><div class="rpg-loading">불러오는 중...</div></div>
+    <p class="rpg-hint">${t('rpg.ui.market.feeNote')}</p>
+    <div class="rpg-gold-listing-list"><div class="rpg-loading">${t('rpg.ui.market.loading')}</div></div>
   `;
   loadMarketListings(content, container);
   loadGoldListings(content, container);
@@ -1369,14 +1369,14 @@ function renderMarketTab(content, container) {
     const priceEl = content.querySelector('.rpg-gold-list-price');
     const goldAmount = Number(amountEl.value);
     const priceTestPi = Number(priceEl.value);
-    if (!goldAmount || goldAmount < 100) { showToast('판매할 골드를 100 이상 입력하세요'); return; }
-    if (!priceTestPi || priceTestPi <= 0) { showToast('희망 테스트파이 가격을 입력하세요'); return; }
+    if (!goldAmount || goldAmount < 100) { showToast(t('rpg.ui.market.goldAmountTooLow')); return; }
+    if (!priceTestPi || priceTestPi <= 0) { showToast(t('rpg.ui.market.priceRequired')); return; }
     try {
       const r = await apiPost('create-gold-listing', { goldAmount, priceTestPi });
       character.gold = Math.max(0, (character.gold || 0) - goldAmount - (r.listing.feeGold || 0));
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       amountEl.value = ''; priceEl.value = '';
-      showToast(`골드 ${goldAmount}개를 ${priceTestPi}π(테스트)에 등록했습니다 (수수료 ${r.listing.feeGold}골드)`);
+      showToast(ti('rpg.ui.market.goldListed', getLang(), { amount: goldAmount, price: priceTestPi, fee: r.listing.feeGold }));
       loadGoldListings(content, container);
     } catch (e) { showToast(friendlyError(e)); }
   });
@@ -1387,16 +1387,16 @@ async function loadGoldListings(content, container) {
   const listEl = content.querySelector('.rpg-gold-listing-list');
   try {
     const r = await apiPost('browse-gold-listings', {});
-    if (!r.listings.length) { listEl.innerHTML = '<p class="rpg-hint">등록된 골드 판매가 없어요.</p>'; return; }
+    if (!r.listings.length) { listEl.innerHTML = `<p class="rpg-hint">${t('rpg.ui.market.noGoldListings')}</p>`; return; }
     listEl.innerHTML = r.listings.map((l) => {
       const isMine = l.sellerUsername === myUsername && l.sellerSlot === activeSlot;
       return `
         <div class="rpg-shop-row">
-          <span>골드 ${l.goldAmount}개 — ${l.priceTestPi}π(테스트) ${isMine ? '<b>(내 등록)</b>' : `· ${l.sellerUsername}`}</span>
+          <span>${ti('rpg.ui.market.goldRowLabel', getLang(), { amount: l.goldAmount, price: l.priceTestPi })} ${isMine ? `<b>${t('rpg.ui.market.myListing')}</b>` : `· ${l.sellerUsername}`}</span>
           <span>
             ${isMine
-              ? `<button class="rpg-gold-cancel-btn" data-listing="${l.id}">취소</button>`
-              : `<button class="rpg-gold-buy-btn" data-listing="${l.id}">테스트파이로 구매</button>`}
+              ? `<button class="rpg-gold-cancel-btn" data-listing="${l.id}">${t('rpg.ui.market.cancelBtn')}</button>`
+              : `<button class="rpg-gold-buy-btn" data-listing="${l.id}">${t('rpg.ui.market.buyWithTestPiBtn')}</button>`}
           </span>
         </div>
       `;
@@ -1407,7 +1407,7 @@ async function loadGoldListings(content, container) {
         const r = await apiPost('cancel-gold-listing', { listingId: btn.dataset.listing });
         character.gold = r.gold;
         container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-        showToast('등록을 취소하고 골드를 환불받았습니다(수수료는 환불 안 됨)');
+        showToast(t('rpg.ui.market.canceled'));
         loadGoldListings(content, container);
       } catch (e) { showToast(friendlyError(e)); }
     }));
@@ -1416,19 +1416,19 @@ async function loadGoldListings(content, container) {
       const listing = r.listings.find((l) => l.id === btn.dataset.listing);
       if (!listing) return;
       showConfirmOverlay(container, {
-        title: '골드 구매',
+        title: t('rpg.ui.market.buyGoldTitle'),
         bodyHtml: `
           <div class="rpg-stat-delta-table">
-            <div class="rpg-stat-delta-row"><span>골드</span><span>${listing.goldAmount}개</span><span></span></div>
-            <div class="rpg-stat-delta-row"><span>가격</span><span>${listing.priceTestPi}π</span><span></span></div>
+            <div class="rpg-stat-delta-row"><span>${t('rpg.ui.market.goldRowGold')}</span><span>${ti('rpg.ui.market.goldRowUnit', getLang(), { amount: listing.goldAmount })}</span><span></span></div>
+            <div class="rpg-stat-delta-row"><span>${t('rpg.ui.market.priceRow')}</span><span>${ti('rpg.ui.market.testPiUnit', getLang(), { price: listing.priceTestPi })}</span><span></span></div>
           </div>
-          <p class="rpg-hint">⚠️ π(파이)는 실제 화폐 가치가 없는 <b>테스트넷 "테스트파이"</b>입니다. Pi 지갑에서 결제를 진행합니다.</p>
+          <p class="rpg-hint">${t('rpg.ui.market.purchaseWarning')}</p>
         `,
-        confirmLabel: '테스트파이로 결제',
+        confirmLabel: t('rpg.ui.market.payWithTestPiBtn'),
         onConfirm: async () => {
           try {
             await createGoldPurchasePayment(listing, activeSlot, currentAccessToken);
-            showToast(`골드 ${listing.goldAmount}개를 구매했습니다!`);
+            showToast(ti('rpg.ui.market.goldPurchased', getLang(), { amount: listing.goldAmount }));
             await loadCharacter();
             container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
             loadGoldListings(content, container);
@@ -1439,7 +1439,7 @@ async function loadGoldListings(content, container) {
       });
     }));
   } catch {
-    listEl.innerHTML = '<p class="rpg-hint">불러오지 못했습니다.</p>';
+    listEl.innerHTML = `<p class="rpg-hint">${t('rpg.ui.market.loadFail')}</p>`;
   }
 }
 
