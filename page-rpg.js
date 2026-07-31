@@ -4,7 +4,7 @@ import { t, ti, getLang } from './util-i18n.js';
 import {
   getClassName, getSkillName, getMonsterName, getMonsterSkillName, getItemName, getSetBonusName,
   getFullSetName, getZoneName, getTownName, getNpcName, getNpcDialogue, getMercTemplateName,
-  getQuestName, getQuestDesc,
+  getTerritoryJobName, getQuestName, getQuestDesc, getLoreTitle, getLoreText,
 } from './rpg-i18n.js';
 import { setupPullToRefresh } from './util-ptr.js';
 import { getQuizRefillProgress, resetQuizRefillProgress } from './util-storage.js';
@@ -50,7 +50,7 @@ function inventoryWeight(inventory) {
   return (inventory || []).reduce((sum, e) => sum + ((ITEMS[e.itemId] && ITEMS[e.itemId].weight) || 0) * e.qty, 0);
 }
 
-const ELEMENT_NAMES = { water: '물', fire: '불', air: '대기', earth: '흙', dark: '어둠', holy: '신성', none: '무속성', all: '전속성' };
+function elementName(element) { return t(`rpg.ui.element.${element}`); }
 function bodyPartName(part) { return t(`rpg.ui.bodyPart.${part}`); }
 
 const IDENTIFIABLE_TYPES = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
@@ -228,8 +228,8 @@ function showAlertOverlay(container, { title, bodyHtml, confirmLabel = '확인' 
 function handleActionError(container, e) {
   if (e.message === 'inventory_over_capacity') {
     showAlertOverlay(container, {
-      title: '가방을 정리해주세요',
-      bodyHtml: '<p>가방이 칸 또는 무게 한도를 넘었습니다. 인벤토리 탭에서 아이템을 팔거나(NPC판매) 상자에 맡겨 한도 아래로 정리해야 사냥·마을이동·구매를 계속할 수 있어요.</p>',
+      title: t('rpg.ui.inventory.overCapacityTitle'),
+      bodyHtml: `<p>${t('rpg.ui.inventory.overCapacityBody')}</p>`,
     });
     return;
   }
@@ -280,97 +280,98 @@ async function apiGet(action, params = {}) {
   return data;
 }
 
-const ERROR_MESSAGES = {
-  not_enough_turns: '턴포인트가 부족합니다.',
-  no_torch: '횃불이 없습니다. 상점에서 구매하세요.',
-  invalid_zone: '알 수 없는 지역입니다.',
-  zone_locked: '이전 마을 최상위 사냥터의 성 도전 자격(100회 공략)을 먼저 채워야 합니다.',
-  not_enough_gold: '골드가 부족합니다.',
-  invalid_gold_amount: '판매할 골드 수량을 확인하세요(최소 100).',
-  invalid_price: '희망 테스트파이 가격을 확인하세요.',
-  too_many_listings: '이미 등록한 판매가 너무 많습니다(최대 5개). 먼저 취소하거나 판매를 기다려주세요.',
-  listing_not_found: '해당 판매 등록을 찾을 수 없습니다.',
-  not_your_listing: '본인이 등록한 판매만 취소할 수 있습니다.',
-  listing_not_cancellable: '이미 팔렸거나 취소된 등록입니다.',
-  listing_unavailable: '이미 다른 사람이 구매를 진행 중이거나 팔린 등록입니다.',
-  cannot_buy_own_listing: '본인이 등록한 판매는 구매할 수 없습니다.',
-  bag_tier_maxed: '이 등급 가방은 이미 한도를 다 채웠습니다. 다음 등급 가방이 필요합니다.',
-  refill_on_cooldown: '턴 회복은 1시간에 한 번만 가능합니다.',
-  not_enough_quiz_answers: '퀴즈를 더 풀어야 턴을 채울 수 있습니다.',
-  turns_not_empty: '턴이 아직 남아있어서 채울 필요가 없습니다.',
-  not_purchasable: '구매할 수 없는 아이템입니다.',
-  not_enough_items: '아이템 수량이 부족합니다.',
-  item_not_owned: '보유하지 않은 아이템입니다.',
-  not_usable: '사용할 수 없는 아이템입니다.',
-  wrong_weapon_type: '이 직업으로는 장착할 수 없는 무기입니다.',
-  not_equippable: '장착할 수 없는 아이템입니다.',
-  nothing_equipped: '장착된 아이템이 없습니다.',
-  inventory_full: '인벤토리가 가득 찼습니다.',
-  overweight: '짐이 너무 무거워서 더 들 수 없습니다. 힘을 올리거나 짐을 정리하세요.',
-  armor_class_restricted: '이 직업은 착용할 수 없는 방어구 종류입니다.',
-  repair_skill_too_low: '수리스킬 단계가 부족해 이 등급은 셀프 수리할 수 없습니다.',
-  not_enough_strength: '힘이 부족해 착용할 수 없습니다.',
-  not_enough_wisdom: '지혜가 부족해 착용할 수 없습니다.',
-  invalid_skill: '알 수 없는 스킬입니다.',
-  max_tier_reached: '이미 최고 단계입니다.',
-  not_enough_clears: '아직 그 지역 성에 도전할 자격이 되지 않습니다 (100회 공략 필요).',
-  already_owner: '이미 이 성을 차지하고 있습니다.',
-  castle_not_found: '아직 아무도 차지하지 않은 성입니다.',
-  not_castle_owner: '이 성의 성주만 방어력을 갱신할 수 있습니다.',
-  not_enough_material: '재료가 부족합니다.',
-  invalid_recipe: '알 수 없는 제작 레시피입니다.',
-  wrong_town: '이 레시피는 재료가 나오는 지역이 속한 마을에서만 제작할 수 있습니다.',
-  no_mild_injury: '붕대로 치료할 수 있는 경상이 없습니다.',
-  no_injury: '치료할 부상이 없습니다.',
-  no_hp_missing: '이미 체력이 가득 찼습니다.',
-  already_hospitalized: '이미 입원 중입니다.',
-  not_in_today_roster: '오늘 선술집에 없는 용병입니다. 목록이 갱신됐을 수 있어요.',
-  party_full: '파티가 가득 찼습니다.',
-  unknown_mercenary: '알 수 없는 용병입니다.',
-  mercenary_not_found: '고용하지 않은 용병입니다.',
-  invalid_mercenary: '잘못된 용병 요청입니다.',
-  invalid_formation: '잘못된 진형 값입니다.',
-  formation_not_allowed: '이 직업/무기로는 그 위치를 선택할 수 없습니다.',
-  invalid_job: '알 수 없는 일자리입니다.',
-  facility_full: '그 시설은 이미 인원이 가득 찼습니다 (최대 3명).',
-  invalid_name: '이름은 1~12자로 입력해주세요.',
-  invalid_squire: '잘못된 종자 지정입니다.',
-  squire_already_absorbed: '이미 종자를 흡수한 용병입니다.',
-  no_class_selected: '직업을 먼저 선택해야 합니다.',
-  invalid_class: '알 수 없는 직업입니다.',
-  class_already_chosen: '이미 직업을 선택했습니다.',
-  subclass_already_chosen: '이미 부직업을 선택했습니다.',
-  level_too_low: `레벨 ${SUB_CLASS_UNLOCK_LEVEL} 이상부터 부직업을 선택할 수 있습니다.`,
-  same_as_main_class: '주직업과 같은 직업은 부직업으로 선택할 수 없습니다.',
-  not_enough_stat_points: '분배 가능한 스탯포인트가 부족합니다.',
-  invalid_stat: '알 수 없는 스탯입니다.',
-  invalid_listing: '거래 등록 정보가 올바르지 않습니다.',
-  not_enough_stock: '남은 수량이 부족합니다.',
-  listing_not_found: '이미 판매되었거나 취소된 거래입니다.',
-  cannot_buy_own_listing: '자신의 거래는 구매할 수 없습니다.',
-  invalid_slot: '잘못된 캐릭터 슬롯입니다.',
-  invalid_equip_slot: '잘못된 장비 슬롯입니다.',
-  slot_occupied: '이미 캐릭터가 있는 슬롯입니다.',
-  character_not_found: '캐릭터 정보를 찾을 수 없습니다.',
-  invalid_town: '알 수 없는 마을입니다.',
-  already_there: '이미 그 마을에 있습니다.',
-  no_preview_to_refresh: '먼저 지역에 들어가야 새로고침할 수 있습니다.',
-  invalid_direction: '잘못된 요청입니다.',
-  invalid_amount: '금액/수량을 확인해주세요.',
-  choose_one_resource_type: '골드와 아이템은 한 번에 하나만 처리할 수 있습니다.',
-  unknown_item: '알 수 없는 아이템입니다.',
-  not_enough_stored_gold: '보관함에 골드가 부족합니다.',
-  not_enough_stored_items: '보관함에 아이템이 부족합니다.',
-  already_full_durability: '이미 내구도가 가득 찼습니다.',
-  invalid_quest: '알 수 없는 퀘스트입니다.',
-  quest_already_done: '이미 완료한 퀘스트입니다.',
-  quest_condition_not_met: '아직 퀘스트 조건을 만족하지 못했습니다.',
-  invalid_message: '메시지를 확인해주세요 (150자 이내).',
-  inventory_over_capacity: '가방이 칸/무게 한도를 넘었습니다. 정리 후 다시 시도하세요.',
+const ERROR_MESSAGE_KEYS = {
+  not_enough_turns: 'rpg.error.not_enough_turns',
+  no_torch: 'rpg.error.no_torch',
+  invalid_zone: 'rpg.error.invalid_zone',
+  zone_locked: 'rpg.error.zone_locked',
+  not_enough_gold: 'rpg.error.not_enough_gold',
+  invalid_gold_amount: 'rpg.error.invalid_gold_amount',
+  invalid_price: 'rpg.error.invalid_price',
+  too_many_listings: 'rpg.error.too_many_listings',
+  listing_not_found: 'rpg.error.listing_not_found',
+  not_your_listing: 'rpg.error.not_your_listing',
+  listing_not_cancellable: 'rpg.error.listing_not_cancellable',
+  listing_unavailable: 'rpg.error.listing_unavailable',
+  cannot_buy_own_listing: 'rpg.error.cannot_buy_own_listing',
+  bag_tier_maxed: 'rpg.error.bag_tier_maxed',
+  refill_on_cooldown: 'rpg.error.refill_on_cooldown',
+  not_enough_quiz_answers: 'rpg.error.not_enough_quiz_answers',
+  turns_not_empty: 'rpg.error.turns_not_empty',
+  not_purchasable: 'rpg.error.not_purchasable',
+  not_enough_items: 'rpg.error.not_enough_items',
+  item_not_owned: 'rpg.error.item_not_owned',
+  not_usable: 'rpg.error.not_usable',
+  wrong_weapon_type: 'rpg.error.wrong_weapon_type',
+  not_equippable: 'rpg.error.not_equippable',
+  nothing_equipped: 'rpg.error.nothing_equipped',
+  inventory_full: 'rpg.error.inventory_full',
+  overweight: 'rpg.error.overweight',
+  armor_class_restricted: 'rpg.error.armor_class_restricted',
+  repair_skill_too_low: 'rpg.error.repair_skill_too_low',
+  not_enough_strength: 'rpg.error.not_enough_strength',
+  not_enough_wisdom: 'rpg.error.not_enough_wisdom',
+  invalid_skill: 'rpg.error.invalid_skill',
+  max_tier_reached: 'rpg.error.max_tier_reached',
+  not_enough_clears: 'rpg.error.not_enough_clears',
+  already_owner: 'rpg.error.already_owner',
+  castle_not_found: 'rpg.error.castle_not_found',
+  not_castle_owner: 'rpg.error.not_castle_owner',
+  not_enough_material: 'rpg.error.not_enough_material',
+  invalid_recipe: 'rpg.error.invalid_recipe',
+  wrong_town: 'rpg.error.wrong_town',
+  no_mild_injury: 'rpg.error.no_mild_injury',
+  no_injury: 'rpg.error.no_injury',
+  no_hp_missing: 'rpg.error.no_hp_missing',
+  already_hospitalized: 'rpg.error.already_hospitalized',
+  not_in_today_roster: 'rpg.error.not_in_today_roster',
+  party_full: 'rpg.error.party_full',
+  unknown_mercenary: 'rpg.error.unknown_mercenary',
+  mercenary_not_found: 'rpg.error.mercenary_not_found',
+  invalid_mercenary: 'rpg.error.invalid_mercenary',
+  invalid_formation: 'rpg.error.invalid_formation',
+  formation_not_allowed: 'rpg.error.formation_not_allowed',
+  invalid_job: 'rpg.error.invalid_job',
+  facility_full: 'rpg.error.facility_full',
+  invalid_name: 'rpg.error.invalid_name',
+  invalid_squire: 'rpg.error.invalid_squire',
+  squire_already_absorbed: 'rpg.error.squire_already_absorbed',
+  no_class_selected: 'rpg.error.no_class_selected',
+  invalid_class: 'rpg.error.invalid_class',
+  class_already_chosen: 'rpg.error.class_already_chosen',
+  subclass_already_chosen: 'rpg.error.subclass_already_chosen',
+  level_too_low: 'rpg.error.level_too_low',
+  same_as_main_class: 'rpg.error.same_as_main_class',
+  not_enough_stat_points: 'rpg.error.not_enough_stat_points',
+  invalid_stat: 'rpg.error.invalid_stat',
+  invalid_listing: 'rpg.error.invalid_listing',
+  not_enough_stock: 'rpg.error.not_enough_stock',
+  invalid_slot: 'rpg.error.invalid_slot',
+  invalid_equip_slot: 'rpg.error.invalid_equip_slot',
+  slot_occupied: 'rpg.error.slot_occupied',
+  character_not_found: 'rpg.error.character_not_found',
+  invalid_town: 'rpg.error.invalid_town',
+  already_there: 'rpg.error.already_there',
+  no_preview_to_refresh: 'rpg.error.no_preview_to_refresh',
+  invalid_direction: 'rpg.error.invalid_direction',
+  invalid_amount: 'rpg.error.invalid_amount',
+  choose_one_resource_type: 'rpg.error.choose_one_resource_type',
+  unknown_item: 'rpg.error.unknown_item',
+  not_enough_stored_gold: 'rpg.error.not_enough_stored_gold',
+  not_enough_stored_items: 'rpg.error.not_enough_stored_items',
+  already_full_durability: 'rpg.error.already_full_durability',
+  invalid_quest: 'rpg.error.invalid_quest',
+  quest_already_done: 'rpg.error.quest_already_done',
+  quest_condition_not_met: 'rpg.error.quest_condition_not_met',
+  invalid_message: 'rpg.error.invalid_message',
+  inventory_over_capacity: 'rpg.error.inventory_over_capacity',
 };
 
 function friendlyError(err) {
-  return ERROR_MESSAGES[err.message] || '오류가 발생했습니다. 다시 시도해주세요.';
+  const key = ERROR_MESSAGE_KEYS[err.message];
+  if (!key) return t('rpg.error.generic');
+  if (err.message === 'level_too_low') return ti(key, getLang(), { level: SUB_CLASS_UNLOCK_LEVEL });
+  return t(key);
 }
 
 async function loadCharacter() {
@@ -382,7 +383,7 @@ async function loadCharacter() {
 export async function renderRpgPage(container, _username) {
   if (_username) myUsername = _username;
   setupPullToRefresh(container, () => renderRpgPage(container));
-  container.innerHTML = `<div class="rpg-loading">불러오는 중...</div>`;
+  container.innerHTML = `<div class="rpg-loading">${t('rpg.ui.common.loading')}</div>`;
 
   if (activeSlot === null) {
     await renderCharacterSelect(container);
@@ -393,10 +394,10 @@ export async function renderRpgPage(container, _username) {
     await loadCharacter();
     // 그날 첫 접속이면 서버가 알아서 판단해서 지급(하루 1회, 중복호출은 안전) - 계정당 1회이므로 지금 선택된 캐릭터가 받음
     apiPost('claim-daily-bonus', {}).then((r) => {
-      if (r.granted) showToast(`퀴즈 랭킹 100위권 보너스 +${r.bonusTurns} 턴포인트!`);
+      if (r.granted) showToast(ti('rpg.ui.common.dailyBonusGranted', getLang(), { turns: r.bonusTurns }));
     }).catch(() => {});
   } catch (e) {
-    container.innerHTML = `<div class="rpg-loading">캐릭터 정보를 불러오지 못했습니다.</div>`;
+    container.innerHTML = `<div class="rpg-loading">${t('rpg.ui.common.characterLoadFail')}</div>`;
     return;
   }
 
@@ -416,9 +417,9 @@ const QUIZ_TURN_REFILL_REQUIRED = 3; // claim-quiz-turn-refill.js의 REQUIRED_QU
 function maybeShowSurveyLapsedNotice(container) {
   if (!character.surveyBonusLapsed) return;
   showConfirmOverlay(container, {
-    title: '📋 설문조사가 변경됐어요',
-    bodyHtml: '<p>설문 문항이 추가되거나 바뀌어서 턴 상한 보너스가 해제됐습니다. 설문을 다시 완료하면 보너스가 돌아와요.</p>',
-    confirmLabel: '확인',
+    title: t('rpg.ui.notice.surveyChangedTitle'),
+    bodyHtml: `<p>${t('rpg.ui.notice.surveyChangedBody')}</p>`,
+    confirmLabel: t('rpg.ui.common.confirmBtn'),
     onConfirm: () => {},
   });
 }
@@ -430,12 +431,12 @@ function maybeShowQuizRefillNotice(container) {
   const progress = Math.min(getQuizRefillProgress(), QUIZ_TURN_REFILL_REQUIRED);
   const ready = progress >= QUIZ_TURN_REFILL_REQUIRED;
   showConfirmOverlay(container, {
-    title: '⏳ 턴이 다 떨어졌어요',
+    title: t('rpg.ui.notice.turnsEmptyTitle'),
     bodyHtml: `
-      <p>1시간에 한 번, 퀴즈를 ${QUIZ_TURN_REFILL_REQUIRED}문제 풀면 턴을 가득 채울 수 있어요.</p>
-      <p class="rpg-hint">지금까지 ${progress}/${QUIZ_TURN_REFILL_REQUIRED}문제 풀었어요.</p>
+      <p>${ti('rpg.ui.notice.quizRefillBody', getLang(), { required: QUIZ_TURN_REFILL_REQUIRED })}</p>
+      <p class="rpg-hint">${ti('rpg.ui.notice.quizRefillProgress', getLang(), { progress, required: QUIZ_TURN_REFILL_REQUIRED })}</p>
     `,
-    confirmLabel: ready ? '턴 채우기' : '확인',
+    confirmLabel: ready ? t('rpg.ui.notice.refillTurnsBtn') : t('rpg.ui.common.confirmBtn'),
     onConfirm: async () => {
       if (!ready) return;
       try {
@@ -444,7 +445,7 @@ function maybeShowQuizRefillNotice(container) {
         resetQuizRefillProgress();
         const bar = container.querySelector('.rpg-statusbar');
         if (bar) bar.outerHTML = statusBarHtml();
-        showToast('턴을 가득 채웠습니다!');
+        showToast(t('rpg.ui.notice.turnsRefilled'));
       } catch (e) { showToast(friendlyError(e)); }
     },
   });
@@ -2321,18 +2322,18 @@ function renderCharacterTab(content, container) {
   const needed = xpToNextLevel(character.level);
   content.innerHTML = `
     <div class="rpg-char-info">
-      <p>직업: ${cls ? getClassName(cls.id, getLang()) : '-'}${subCls ? ` (부직업: ${getClassName(subCls.id, getLang())})` : ''}</p>
-      <p>경험치: ${character.xp} / ${needed}</p>
-      <p>전투 스탠스 (스킬은 스탠스와 무관하게 항상 씀 — 이건 몹이 여럿일 때 누구부터 때릴지만 정함):
-        <button class="rpg-stance-btn" data-stance="stable">안정형(약한 몹부터)</button>
-        <button class="rpg-stance-btn" data-stance="aggressive">공격형(강한 몹부터)</button>
-        (현재: ${character.stance === 'aggressive' ? '공격형' : '안정형'})
+      <p>${ti('rpg.ui.character.classLabel', getLang(), { class: cls ? getClassName(cls.id, getLang()) : '-' })}${subCls ? ti('rpg.ui.character.subclassSuffix', getLang(), { subclass: getClassName(subCls.id, getLang()) }) : ''}</p>
+      <p>${ti('rpg.ui.character.xpLabel', getLang(), { xp: character.xp, needed })}</p>
+      <p>${t('rpg.ui.character.stanceLabel')}
+        <button class="rpg-stance-btn" data-stance="stable">${t('rpg.ui.character.stanceStableBtn')}</button>
+        <button class="rpg-stance-btn" data-stance="aggressive">${t('rpg.ui.character.stanceAggressiveBtn')}</button>
+        ${ti('rpg.ui.inventory.formationCurrent', getLang(), { current: character.stance === 'aggressive' ? t('rpg.ui.character.stanceShortAggressive') : t('rpg.ui.character.stanceShortStable') })}
       </p>
       ${formationSectionHtml(character)}
       ${injuriesSummaryHtml()}
     </div>
     <div class="rpg-stats">
-      <p>남은 스탯포인트: ${character.statPoints}</p>
+      <p>${ti('rpg.ui.character.statPointsLabel', getLang(), { points: character.statPoints })}</p>
       ${['str', 'int', 'agi', 'vit', 'wis'].map((s) => `
         <div class="rpg-stat-row">
           <span>${s.toUpperCase()}: ${character.stats[s] || 0}</span>
@@ -2367,7 +2368,7 @@ function renderCharacterTab(content, container) {
       await loadCharacter();
       const after = computeCharacterCombatStats(character);
       renderCharacterTab(content, container);
-      showToast(`해제 완료 — ${statsDeltaMessage(before, after)}`);
+      showToast(ti('rpg.ui.character.unequippedMsg', getLang(), { delta: statsDeltaMessage(before, after) }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-recommend-btn').forEach((btn) => btn.addEventListener('click', () => {
@@ -2382,7 +2383,7 @@ function renderCharacterTab(content, container) {
       await loadCharacter(); // 망치 소모분 인벤토리 갱신
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderCharacterTab(content, container);
-      showToast(`직접 수리 완료! (${r.cost}골드 소모)`);
+      showToast(ti('rpg.ui.character.selfRepairMsg', getLang(), { cost: r.cost }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
 
@@ -2393,7 +2394,7 @@ function renderCharacterTab(content, container) {
       character.equipment[`${btn.dataset.slot}EnhanceLevel`] = r.level;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderCharacterTab(content, container);
-      showToast(`강화 성공! +${r.level} (결정 ${r.cost.stones}개, ${r.cost.gold}골드 소모)`);
+      showToast(ti('rpg.ui.character.enhanceSuccessMsg', getLang(), { level: r.level, stones: r.cost.stones, gold: r.cost.gold }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
 
@@ -2402,7 +2403,7 @@ function renderCharacterTab(content, container) {
       await apiPost('choose-subclass', { classId: btn.dataset.class });
       await loadCharacter();
       renderCharacterTab(content, container);
-      showToast('부직업을 선택했습니다');
+      showToast(t('rpg.ui.character.subclassChosenMsg'));
     } catch (e) { showToast(friendlyError(e)); }
   }));
 }
@@ -2448,28 +2449,28 @@ function showRecommendOverlay(container, targetChar, slot, mercId, rerender) {
   const currentItem = currentItemId ? ITEMS[currentItemId] : null;
   if (!best) {
     showAlertOverlay(container, {
-      title: `${equipSlotLabel(slot)} 추천`,
-      bodyHtml: `<p>가방에서 지금보다 더 나은 ${equipSlotLabel(slot)}을(를) 찾지 못했습니다. 지금 착용 중인 ${currentItem ? getItemName(currentItem.id, getLang()) : '(없음)'}이(가) 최선이에요.</p>`,
+      title: ti('rpg.ui.recommend.title', getLang(), { slot: equipSlotLabel(slot) }),
+      bodyHtml: `<p>${ti('rpg.ui.recommend.noneBetter', getLang(), { slot: equipSlotLabel(slot), item: currentItem ? getItemName(currentItem.id, getLang()) : `(${t('rpg.ui.territory.none')})` })}</p>`,
     });
     return;
   }
   const removedParts = currentItem ? itemBonusParts(currentItem) : [];
   const addedParts = itemBonusParts(best.item);
   showConfirmOverlay(container, {
-    title: `${equipSlotLabel(slot)} 추천 — ${getItemName(best.item.id, getLang())}`,
+    title: ti('rpg.ui.recommend.titleWithItem', getLang(), { slot: equipSlotLabel(slot), item: getItemName(best.item.id, getLang()) }),
     bodyHtml: `
-      <p class="rpg-hint">현재: ${currentItem ? `${getItemName(currentItem.id, getLang())}${itemStatsLabel(currentItem)}` : '없음'}</p>
-      <p class="rpg-hint">추천: ${getItemName(best.item.id, getLang())}${itemStatsLabel(best.item)}</p>
-      ${addedParts.length ? `<p class="rpg-stat-up">추가: ${addedParts.join(', ')}</p>` : ''}
-      ${removedParts.length ? `<p class="rpg-stat-down">해제(${getItemName(currentItem.id, getLang())}): ${removedParts.join(', ')}</p>` : ''}
+      <p class="rpg-hint">${ti('rpg.ui.recommend.currentLabel', getLang(), { item: currentItem ? `${getItemName(currentItem.id, getLang())}${itemStatsLabel(currentItem)}` : t('rpg.ui.territory.none') })}</p>
+      <p class="rpg-hint">${ti('rpg.ui.recommend.recommendedLabel', getLang(), { item: `${getItemName(best.item.id, getLang())}${itemStatsLabel(best.item)}` })}</p>
+      ${addedParts.length ? `<p class="rpg-stat-up">${ti('rpg.ui.inventory.added', getLang(), { parts: addedParts.join(', ') })}</p>` : ''}
+      ${removedParts.length ? `<p class="rpg-stat-down">${ti('rpg.ui.inventory.removed', getLang(), { name: getItemName(currentItem.id, getLang()), parts: removedParts.join(', ') })}</p>` : ''}
       ${statsDeltaRowsHtml(baseline, best.stats)}
     `,
-    confirmLabel: '이 아이템으로 교체',
+    confirmLabel: t('rpg.ui.recommend.replaceBtn'),
     onConfirm: async () => {
       try {
         await apiPost('equip', mercId ? { itemId: best.itemId, mercId } : { itemId: best.itemId });
         await loadCharacter();
-        showToast(`${equipSlotLabel(slot)}을(를) ${getItemName(best.item.id, getLang())}(으)로 교체했습니다`);
+        showToast(ti('rpg.ui.recommend.replacedMsg', getLang(), { slot: equipSlotLabel(slot), item: getItemName(best.item.id, getLang()) }));
         rerender();
       } catch (e) { showToast(friendlyError(e)); }
     },
@@ -2485,16 +2486,16 @@ function equipmentSectionHtml() {
   const hammerQty = ((character.inventory || []).find((e) => e.itemId === 'repair_hammer') || {}).qty || 0;
   return `
     <div class="rpg-equipment">
-      <h4>장비창</h4>
-      <p class="rpg-hint">공격력 ${stats.atk} · 방어력 ${stats.def} · 최대체력 ${stats.maxHp} · 공격속성: ${ELEMENT_NAMES[stats.element]}</p>
-      <p class="rpg-hint">수리는 기본적으로 대장간에서만 가능해요. 수리스킬을 배우고 수리 망치를 가지고 있으면 여기서 직접 저렴하게 수리할 수 있어요.</p>
+      <h4>${t('rpg.ui.equipment.title')}</h4>
+      <p class="rpg-hint">${ti('rpg.ui.equipment.statsSummary', getLang(), { atk: stats.atk, def: stats.def, maxHp: stats.maxHp, element: elementName(stats.element) })}</p>
+      <p class="rpg-hint">${t('rpg.ui.equipment.repairHint')}</p>
       ${slots.map((slot) => {
         const itemId = character.equipment[slot];
         const item = itemId ? ITEMS[itemId] : null;
         const tracked = DURABILITY_TRACKED_SLOTS.includes(slot);
         const durability = tracked ? (character.equipment[`${slot}Durability`] ?? 100) : null;
         const broken = tracked && durability <= 0;
-        const durabilityLabel = tracked && item ? ` — 내구도 ${durability}/100${broken ? ' (파손됨!)' : ''}` : '';
+        const durabilityLabel = tracked && item ? ti('rpg.ui.equipment.durabilitySuffix', getLang(), { durability, broken: broken ? t('rpg.ui.equipment.brokenSuffix') : '' }) : '';
         const canSelfRepair = tracked && item && durability < 100
           && hammerQty > 0 && rarityAllowedBySkill(item.rarity, character.repairSkillLevel || 0);
         const selfRepairCost = canSelfRepair
@@ -2505,12 +2506,12 @@ function equipmentSectionHtml() {
         const nextEnhanceCost = tracked && item && enhanceLevel < MAX_ENHANCE_LEVEL ? ENHANCE_LEVEL_COSTS[enhanceLevel + 1] : null;
         return `
           <div class="rpg-shop-row">
-            <span>${equipSlotLabel(slot)}: ${item ? `${getItemName(item.id, getLang())}${enhanceLabel}${itemStatsLabel(item)}${durabilityLabel}` : '없음'}</span>
+            <span>${equipSlotLabel(slot)}: ${item ? `${getItemName(item.id, getLang())}${enhanceLabel}${itemStatsLabel(item)}${durabilityLabel}` : t('rpg.ui.territory.none')}</span>
             <span>
-              <button class="rpg-recommend-btn" data-slot="${slot}">✨추천</button>
-              ${item ? `<button class="rpg-unequip-btn" data-slot="${slot}">해제</button>` : ''}
-              ${canSelfRepair ? `<button class="rpg-self-repair-btn" data-slot="${slot}">직접 수리(망치 1개, ${selfRepairCost}골드)</button>` : ''}
-              ${nextEnhanceCost ? `<button class="rpg-enhance-btn" data-slot="${slot}">강화(${nextEnhanceCost.stones}개 결정, ${nextEnhanceCost.gold}골드)</button>` : ''}
+              <button class="rpg-recommend-btn" data-slot="${slot}">${t('rpg.ui.territory.recommendBtn')}</button>
+              ${item ? `<button class="rpg-unequip-btn" data-slot="${slot}">${t('rpg.ui.territory.unequipBtn')}</button>` : ''}
+              ${canSelfRepair ? `<button class="rpg-self-repair-btn" data-slot="${slot}">${ti('rpg.ui.equipment.selfRepairBtn', getLang(), { cost: selfRepairCost })}</button>` : ''}
+              ${nextEnhanceCost ? `<button class="rpg-enhance-btn" data-slot="${slot}">${ti('rpg.ui.equipment.enhanceBtn', getLang(), { stones: nextEnhanceCost.stones, gold: nextEnhanceCost.gold })}</button>` : ''}
             </span>
           </div>
         `;
@@ -2523,14 +2524,14 @@ function equipmentSectionHtml() {
 function subclassSectionHtml() {
   if (character.classSub) return '';
   if ((character.level || 1) < SUB_CLASS_UNLOCK_LEVEL) {
-    return `<p class="rpg-hint">레벨 ${SUB_CLASS_UNLOCK_LEVEL}부터 부직업(겸업)을 선택할 수 있어요. (현재 Lv.${character.level})</p>`;
+    return `<p class="rpg-hint">${ti('rpg.ui.subclass.lockedHint', getLang(), { level: SUB_CLASS_UNLOCK_LEVEL, current: character.level })}</p>`;
   }
   const options = Object.values(CLASSES).filter((c) => c.id !== character.classMain);
   if (!options.length) return '';
   return `
     <div class="rpg-subclass-select">
-      <h4>부직업 선택</h4>
-      <p class="rpg-hint">본업 스킬에 더해 부직업 스킬도 함께 쓸 수 있어요. 한 번 고르면 되돌릴 수 없어요.</p>
+      <h4>${t('rpg.ui.subclass.title')}</h4>
+      <p class="rpg-hint">${t('rpg.ui.subclass.hint')}</p>
       <div class="rpg-class-cards">
         ${options.map((c) => `
           <button class="rpg-subclass-card" data-class="${c.id}">
@@ -2549,15 +2550,15 @@ function journalHtml() {
   const entries = Object.values(LORE_ENTRIES).sort((a, b) => a.order - b.order);
   return `
     <div class="rpg-journal">
-      <h4>탐험일지 (${unlocked.size}/${entries.length})</h4>
+      <h4>${ti('rpg.ui.journal.title', getLang(), { unlocked: unlocked.size, total: entries.length })}</h4>
       ${entries.map((entry) => unlocked.has(entry.id) ? `
         <div class="rpg-journal-entry">
-          <div class="rpg-class-name">${entry.order}. ${entry.title}</div>
-          <p class="rpg-hint">${entry.text}</p>
+          <div class="rpg-class-name">${entry.order}. ${getLoreTitle(entry.id, getLang())}</div>
+          <p class="rpg-hint">${getLoreText(entry.id, getLang())}</p>
         </div>
       ` : `
         <div class="rpg-journal-entry rpg-journal-locked">
-          <div class="rpg-class-name">${entry.order}. ???</div>
+          <div class="rpg-class-name">${entry.order}. ${t('rpg.ui.journal.locked')}</div>
         </div>
       `).join('')}
     </div>
