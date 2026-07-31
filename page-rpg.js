@@ -1946,8 +1946,8 @@ function workTerritoryCardHtml(jobId) {
       <div class="rpg-work-territory-icon">${FACILITY_ICONS[jobId] || '🏛️'}</div>
       <div class="rpg-work-territory-info">
         <div class="rpg-work-territory-name">${getTerritoryJobName(jobId, getLang())} <span class="rpg-hint">Lv.${progress.level}</span></div>
-        <div class="rpg-hint">턴 1개로 여기서 일하기</div>
-        <div class="rpg-hint">다음 레벨까지 턴 약 ${turnsNeeded}개 필요</div>
+        <div class="rpg-hint">${t('rpg.ui.territory.workOneTurn')}</div>
+        <div class="rpg-hint">${ti('rpg.ui.territory.turnsUntilNextLevel', getLang(), { turns: turnsNeeded })}</div>
       </div>
     </button>
   `;
@@ -1972,19 +1972,19 @@ function territoryEconomySummaryHtml() {
   const goldDelta = goldIncome - wagePaid - foodEmergencyCost;
 
   const warnings = [];
-  if (foodDeficit > 0) warnings.push(`⚠️ 식량이 하루 ${foodDeficit.toFixed(1)}만큼 부족해서 골드로 대신 사고 있어요(-${foodEmergencyCost}골드/일). 농장에 용병을 더 배치하세요.`);
-  if (goldDelta < 0) warnings.push(`⚠️ 영지 운영이 매일 ${Math.abs(goldDelta)}골드 적자예요.`);
-  if (!workingMercs.length) warnings.push('영지에 배치된 용병이 없어요. 전투 동행이 필요 없는 용병은 영지로 보내 시설을 키워보세요.');
+  if (foodDeficit > 0) warnings.push(ti('rpg.ui.territory.foodDeficitWarn', getLang(), { deficit: foodDeficit.toFixed(1), cost: foodEmergencyCost }));
+  if (goldDelta < 0) warnings.push(ti('rpg.ui.territory.goldDeficitWarn', getLang(), { delta: Math.abs(goldDelta) }));
+  if (!workingMercs.length) warnings.push(t('rpg.ui.territory.noWorkersWarn'));
 
   return `
     <div class="rpg-territory-economy">
-      <h4>영지 경제 (하루 기준 예상치)</h4>
+      <h4>${t('rpg.ui.territory.economyTitle')}</h4>
       <div class="rpg-stat-delta-table">
-        <div class="rpg-stat-delta-row"><span>골드 수입</span><span>개간지</span><span class="rpg-stat-up">+${goldIncome}</span></div>
-        <div class="rpg-stat-delta-row"><span>골드 지출</span><span>용병 상주 급여</span><span class="rpg-stat-down">-${wagePaid}</span></div>
-        ${foodEmergencyCost > 0 ? `<div class="rpg-stat-delta-row"><span>골드 지출</span><span>식량 비상구매</span><span class="rpg-stat-down">-${foodEmergencyCost}</span></div>` : ''}
-        <div class="rpg-stat-delta-row"><span>순변동</span><span></span><span class="${goldDelta >= 0 ? 'rpg-stat-up' : 'rpg-stat-down'}">${goldDelta >= 0 ? '+' : ''}${goldDelta}/일</span></div>
-        <div class="rpg-stat-delta-row"><span>식량</span><span>생산 ${farmProduced.toFixed(1)} / 소비 ${neededFood.toFixed(1)}</span><span>재고 ${(character.foodStock || 0).toFixed(1)}</span></div>
+        <div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.goldIncomeLabel')}</span><span>${getTerritoryJobName('clearing', getLang())}</span><span class="rpg-stat-up">+${goldIncome}</span></div>
+        <div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.goldExpenseLabel')}</span><span>${t('rpg.ui.territory.wagePaidLabel')}</span><span class="rpg-stat-down">-${wagePaid}</span></div>
+        ${foodEmergencyCost > 0 ? `<div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.goldExpenseLabel')}</span><span>${t('rpg.ui.territory.foodEmergencyLabel')}</span><span class="rpg-stat-down">-${foodEmergencyCost}</span></div>` : ''}
+        <div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.netChangeLabel')}</span><span></span><span class="${goldDelta >= 0 ? 'rpg-stat-up' : 'rpg-stat-down'}">${ti('rpg.ui.territory.netChangePerDay', getLang(), { sign: goldDelta >= 0 ? '+' : '', delta: goldDelta })}</span></div>
+        <div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.foodLabel')}</span><span>${ti('rpg.ui.territory.foodProducedConsumed', getLang(), { produced: farmProduced.toFixed(1), consumed: neededFood.toFixed(1) })}</span><span>${ti('rpg.ui.territory.foodStockLabel', getLang(), { stock: (character.foodStock || 0).toFixed(1) })}</span></div>
       </div>
       ${warnings.length ? `<p class="rpg-hint">${warnings.join('<br>')}</p>` : ''}
     </div>
@@ -1998,27 +1998,27 @@ function facilityDashboardHtml() {
     const progress = facilityProgress(days[jobId] || 0);
     const pct = Math.min(100, Math.round((progress.daysIntoLevel / progress.daysForNextLevel) * 100));
     const workerCount = territoryMercs.filter((m) => m.job === jobId).length;
-    const STAT_KEY_LABELS = { gold: '골드', atk: '공격력', def: '방어력', food: '식량생산', healCostReduction: '치료비/턴 절감', mentalResist: '멘탈저항', mp: '최대 마나/스테미나' };
+    const STAT_KEY_LABEL_KEYS = { gold: 'rpg.ui.territory.statKeyGold', atk: 'rpg.ui.territory.statKeyAtk', def: 'rpg.ui.territory.statKeyDef', food: 'rpg.ui.territory.statKeyFood', healCostReduction: 'rpg.ui.territory.statKeyHealCostReduction', mentalResist: 'rpg.ui.territory.statKeyMentalResist', mp: 'rpg.ui.territory.statKeyMp' };
     const flatBonusStats = ['mentalResist']; // %가 아니라 고정치로 붙는 보너스(사기진작소 등)
     const bonusAmount = job.bonusPctPerLevel * progress.level;
     const bonusLabel = job.bonusPctPerLevel
-      ? `${STAT_KEY_LABELS[job.statKey] || job.statKey} +${bonusAmount.toFixed(1)}${flatBonusStats.includes(job.statKey) ? '' : '%'}`
+      ? `${STAT_KEY_LABEL_KEYS[job.statKey] ? t(STAT_KEY_LABEL_KEYS[job.statKey]) : job.statKey} +${bonusAmount.toFixed(1)}${flatBonusStats.includes(job.statKey) ? '' : '%'}`
       : '';
     return `
       <div class="rpg-facility-row">
         <div class="rpg-facility-head">
           <span>${FACILITY_ICONS[jobId] || '🏛️'} ${getTerritoryJobName(jobId, getLang())} Lv.${progress.level}</span>
-          <span class="rpg-hint">${workerCount}/${MAX_MERCS_PER_FACILITY}명 · ${bonusLabel}</span>
+          <span class="rpg-hint">${ti('rpg.ui.territory.facilityWorkerCount', getLang(), { count: workerCount, max: MAX_MERCS_PER_FACILITY, bonus: bonusLabel })}</span>
         </div>
         <div class="rank-bar-wrap"><div class="rank-bar" style="width:${pct}%"></div></div>
-        <div class="rank-bar-pct">${progress.daysIntoLevel.toFixed(1)} / ${progress.daysForNextLevel}일</div>
+        <div class="rank-bar-pct">${ti('rpg.ui.territory.facilityDaysProgress', getLang(), { current: progress.daysIntoLevel.toFixed(1), total: progress.daysForNextLevel })}</div>
       </div>
     `;
   }).join('');
   return `
     <div class="rpg-facility-dashboard">
-      <h4>🏯 영지 현황판</h4>
-      <p class="rpg-hint">🍚 식량 재고: ${(character.foodStock || 0).toFixed(1)} (농장 외 근무자 1명당 영지 1일에 1 소비, 부족하면 골드로 대신 지출됨)</p>
+      <h4>${t('rpg.ui.territory.dashboardTitle')}</h4>
+      <p class="rpg-hint">${ti('rpg.ui.territory.foodStockHint', getLang(), { stock: (character.foodStock || 0).toFixed(1) })}</p>
       ${rows}
     </div>
   `;
@@ -2028,11 +2028,11 @@ function facilityDashboardHtml() {
 const MERC_EQUIP_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
 function mercEquipmentRowHtml(m) {
   return `
-    <p class="rpg-hint rpg-merc-equipment">장비:
+    <p class="rpg-hint rpg-merc-equipment">${t('rpg.ui.territory.equipmentLabel')}
       ${MERC_EQUIP_SLOTS.map((slot) => {
         const itemId = m.equipment && m.equipment[slot];
         const item = itemId ? ITEMS[itemId] : null;
-        return `${equipSlotLabel(slot)} ${item ? `${getItemName(item.id, getLang())}${itemStatsLabel(item)}` : '없음'} <button class="rpg-merc-recommend-btn" data-merc="${m.id}" data-slot="${slot}">✨추천</button>${item ? ` <button class="rpg-merc-unequip-btn" data-merc="${m.id}" data-slot="${slot}">해제</button>` : ''}`;
+        return `${equipSlotLabel(slot)} ${item ? `${getItemName(item.id, getLang())}${itemStatsLabel(item)}` : t('rpg.ui.territory.none')} <button class="rpg-merc-recommend-btn" data-merc="${m.id}" data-slot="${slot}">${t('rpg.ui.territory.recommendBtn')}</button>${item ? ` <button class="rpg-merc-unequip-btn" data-merc="${m.id}" data-slot="${slot}">${t('rpg.ui.territory.unequipBtn')}</button>` : ''}`;
       }).join(' · ')}
     </p>
   `;
@@ -2041,22 +2041,22 @@ function mercCombatSettingsHtml(m) {
   const template = MERCENARY_TEMPLATES[m.templateId] || {};
   const stance = m.stance === 'aggressive' ? 'aggressive' : 'stable';
   const stanceRow = `
-    <p>타겟 우선순위:
-      <button class="rpg-merc-stance-btn" data-merc="${m.id}" data-stance="stable" ${stance === 'stable' ? 'disabled' : ''}>약한 몹부터</button>
-      <button class="rpg-merc-stance-btn" data-merc="${m.id}" data-stance="aggressive" ${stance === 'aggressive' ? 'disabled' : ''}>쎈 몹부터</button>
-      (현재: ${stance === 'aggressive' ? '쎈 몹부터' : '약한 몹부터'})
+    <p>${t('rpg.ui.territory.targetPriorityLabel')}
+      <button class="rpg-merc-stance-btn" data-merc="${m.id}" data-stance="stable" ${stance === 'stable' ? 'disabled' : ''}>${t('rpg.ui.territory.weakFirstBtn')}</button>
+      <button class="rpg-merc-stance-btn" data-merc="${m.id}" data-stance="aggressive" ${stance === 'aggressive' ? 'disabled' : ''}>${t('rpg.ui.territory.strongFirstBtn')}</button>
+      ${ti('rpg.ui.inventory.formationCurrent', getLang(), { current: stance === 'aggressive' ? t('rpg.ui.territory.strongFirstBtn') : t('rpg.ui.territory.weakFirstBtn') })}
     </p>
   `;
   if (template.fixedCombatRole) {
-    return `${stanceRow}<p class="rpg-hint">전투 역할: 서포트 고정 🔒 (힐러 컨셉 용병이라 항상 방어/힐을 우선함)</p>`;
+    return `${stanceRow}<p class="rpg-hint">${t('rpg.ui.territory.fixedSupportRole')}</p>`;
   }
   const combatRole = m.combatRole === 'support' ? 'support' : 'fight';
   return `
     ${stanceRow}
-    <p>전투 역할:
-      <button class="rpg-merc-role-btn" data-merc="${m.id}" data-role="fight" ${combatRole === 'fight' ? 'disabled' : ''}>버티기(계속 공격)</button>
-      <button class="rpg-merc-role-btn" data-merc="${m.id}" data-role="support" ${combatRole === 'support' ? 'disabled' : ''}>서포트(방어/힐 우선)</button>
-      (현재: ${combatRole === 'support' ? '서포트' : '버티기'})
+    <p>${t('rpg.ui.territory.combatRoleLabel')}
+      <button class="rpg-merc-role-btn" data-merc="${m.id}" data-role="fight" ${combatRole === 'fight' ? 'disabled' : ''}>${t('rpg.ui.territory.fightRoleBtn')}</button>
+      <button class="rpg-merc-role-btn" data-merc="${m.id}" data-role="support" ${combatRole === 'support' ? 'disabled' : ''}>${t('rpg.ui.territory.supportRoleBtn')}</button>
+      ${ti('rpg.ui.inventory.formationCurrent', getLang(), { current: combatRole === 'support' ? t('rpg.ui.territory.roleShortSupport') : t('rpg.ui.territory.roleShortFight') })}
     </p>
   `;
 }
@@ -2064,28 +2064,28 @@ function mercenaryCardHtml(m) {
   const cls = CLASSES[m.classMain];
   const injured = ['arm', 'leg'].filter((p) => (m.injuries && m.injuries[p] && m.injuries[p].severity) > 0);
   const otherAssignment = m.assignment === 'active' ? 'territory' : 'active';
-  const otherLabel = m.assignment === 'active' ? '영지로 보내기' : '전투부대로 편입';
+  const otherLabel = m.assignment === 'active' ? t('rpg.ui.territory.sendToTerritoryBtn') : t('rpg.ui.territory.assignActiveBtn');
   const territoryMercs = (character.mercenaries || []).filter((mm) => mm.assignment === 'territory' && !mm.hospitalized);
   return `
     <div class="rpg-npc-card">
-      <div class="rpg-class-name">${m.name} (Lv.${m.level} ${cls ? getClassName(cls.id, getLang()) : m.classMain})${m.hospitalized ? ' — 입원 중 🏥' : ''} <button class="rpg-rename-merc-btn" data-merc="${m.id}">✏️</button></div>
-      <p class="rpg-hint">HP ${m.currentHp} · 보수 ${m.wagePerAdventure}골드/모험 ${injured.length ? ti('rpg.ui.territory.injuredLabel', getLang(), { parts: injured.map((p) => bodyPartName(p)).join(', ') }) : ''} ${m.assignment === 'territory' ? `· ${m.job ? getTerritoryJobName(m.job, getLang()) : t('rpg.ui.territory.restingLabel')} 중` : ''}</p>
+      <div class="rpg-class-name">${m.name} (Lv.${m.level} ${cls ? getClassName(cls.id, getLang()) : m.classMain})${m.hospitalized ? t('rpg.ui.territory.hospitalizedSuffix') : ''} <button class="rpg-rename-merc-btn" data-merc="${m.id}">✏️</button></div>
+      <p class="rpg-hint">${ti('rpg.ui.territory.mercStatusLine', getLang(), { hp: m.currentHp, wage: m.wagePerAdventure })} ${injured.length ? ti('rpg.ui.territory.injuredLabel', getLang(), { parts: injured.map((p) => bodyPartName(p)).join(', ') }) : ''} ${m.assignment === 'territory' ? ti('rpg.ui.territory.workingSuffix', getLang(), { job: m.job ? getTerritoryJobName(m.job, getLang()) : t('rpg.ui.territory.restingLabel') }) : ''}</p>
       ${mercEquipmentRowHtml(m)}
-      ${injured.length && !m.hospitalized ? `<p><button class="rpg-admit-merc-btn" data-merc="${m.id}">병원에 입원시키기 (10골드, 서서히 회복)</button></p>` : ''}
-      ${m.hospitalized ? `<p class="rpg-hint">입원 중에는 모험에 동행하지 않고 보수도 나가지 않아요. 완쾌하면 자동으로 퇴원해요.</p>` : ''}
+      ${injured.length && !m.hospitalized ? `<p><button class="rpg-admit-merc-btn" data-merc="${m.id}">${t('rpg.ui.territory.admitBtn')}</button></p>` : ''}
+      ${m.hospitalized ? `<p class="rpg-hint">${t('rpg.ui.territory.hospitalizedHint')}</p>` : ''}
       <p>
         <button class="rpg-assignment-btn" data-merc="${m.id}" data-assignment="${otherAssignment}">${otherLabel}</button>
-        <button class="rpg-dismiss-merc-btn" data-merc="${m.id}">해고</button>
+        <button class="rpg-dismiss-merc-btn" data-merc="${m.id}">${t('rpg.ui.territory.dismissBtn')}</button>
       </p>
       ${m.assignment === 'active' ? `
         ${formationSectionHtml(m, m.id)}
         ${mercCombatSettingsHtml(m)}
       ` : `
-        <p>일자리:
+        <p>${t('rpg.ui.territory.jobLabel')}
           ${Object.values(TERRITORY_JOBS).map((job) => {
             const countInJob = territoryMercs.filter((mm) => mm.job === job.id && mm.id !== m.id).length;
             const full = countInJob >= MAX_MERCS_PER_FACILITY && m.job !== job.id;
-            return `<button class="rpg-merc-job-btn" data-merc="${m.id}" data-job="${job.id}" ${m.job === job.id ? 'disabled' : ''} ${full ? 'disabled' : ''}>${FACILITY_ICONS[job.id] || ''} ${getTerritoryJobName(job.id, getLang())}${m.job === job.id ? ' ✓' : full ? ' (가득참)' : ''}</button>`;
+            return `<button class="rpg-merc-job-btn" data-merc="${m.id}" data-job="${job.id}" ${m.job === job.id ? 'disabled' : ''} ${full ? 'disabled' : ''}>${FACILITY_ICONS[job.id] || ''} ${getTerritoryJobName(job.id, getLang())}${m.job === job.id ? t('rpg.ui.territory.jobDoneSuffix') : full ? t('rpg.ui.territory.jobFullSuffix') : ''}</button>`;
           }).join('')}
         </p>
       `}
@@ -2098,12 +2098,12 @@ function mercenaryCardHtml(m) {
 function squireSectionHtml(host) {
   if (host.classSub) {
     const subCls = CLASSES[host.classSub];
-    return `<p class="rpg-hint">🧬 종자: ${subCls ? getClassName(subCls.id, getLang()) : host.classSub} 직업 스킬(50% 위력)+스탯 일부(10%) 흡수함</p>`;
+    return `<p class="rpg-hint">${ti('rpg.ui.territory.squireAbsorbedLabel', getLang(), { class: subCls ? getClassName(subCls.id, getLang()) : host.classSub })}</p>`;
   }
   const candidates = (character.mercenaries || []).filter((mm) => mm.id !== host.id && mm.classMain !== host.classMain);
   if (!candidates.length) return '';
   return `
-    <p class="rpg-hint">🧬 종자로 흡수(1회만, 되돌릴 수 없음):
+    <p class="rpg-hint">${t('rpg.ui.territory.squireAbsorbLabel')}
       ${candidates.map((c) => `<button class="rpg-squire-btn" data-host="${host.id}" data-squire="${c.id}">${c.name}(${getClassName(c.classMain, getLang())})</button>`).join('')}
     </p>
   `;
@@ -2113,7 +2113,7 @@ function squireSectionHtml(host) {
 function workTerritorySectionHtml() {
   return `
     <div class="rpg-facility-dashboard">
-      <h4>🛠️ 영지 근무 (전투 없이 턴 1개로 안전하게 시설에 기여, 용병보다 20% 더 효율적)</h4>
+      <h4>${t('rpg.ui.territory.workSectionTitle')}</h4>
       <div class="rpg-work-territory-list">
         ${Object.keys(TERRITORY_JOBS).map((jobId) => workTerritoryCardHtml(jobId)).join('')}
       </div>
@@ -2125,7 +2125,7 @@ function partySectionHtml() {
   const active = mercenaries.filter((m) => m.assignment === 'active');
   const territory = mercenaries.filter((m) => m.assignment !== 'active');
   if (!mercenaries.length) {
-    return `<div class="rpg-party">${territoryEconomySummaryHtml()}${facilityDashboardHtml()}${workTerritorySectionHtml()}${territoryRestHtml()}<h4>파티 / 영지</h4><p class="rpg-hint">아직 고용한 용병이 없어요. 마을 선술집에서 용병을 고용해보세요.</p></div>`;
+    return `<div class="rpg-party">${territoryEconomySummaryHtml()}${facilityDashboardHtml()}${workTerritorySectionHtml()}${territoryRestHtml()}<h4>${t('rpg.ui.territory.partyTitle')}</h4><p class="rpg-hint">${t('rpg.ui.territory.noMercsHint')}</p></div>`;
   }
   return `
     <div class="rpg-party">
@@ -2133,10 +2133,10 @@ function partySectionHtml() {
       ${facilityDashboardHtml()}
       ${workTerritorySectionHtml()}
       ${territoryRestHtml()}
-      <h4>전투부대 (${active.length}/${MAX_MERCENARIES})</h4>
-      ${active.length ? active.map(mercenaryCardHtml).join('') : '<p class="rpg-hint">동행 중인 용병이 없어요.</p>'}
-      <h4>영지 (${territory.length}/${MAX_TERRITORY_MERCENARIES})</h4>
-      ${territory.length ? territory.map(mercenaryCardHtml).join('') : '<p class="rpg-hint">영지에서 쉬고 있는 용병이 없어요.</p>'}
+      <h4>${ti('rpg.ui.territory.activeSquadTitle', getLang(), { count: active.length, max: MAX_MERCENARIES })}</h4>
+      ${active.length ? active.map(mercenaryCardHtml).join('') : `<p class="rpg-hint">${t('rpg.ui.territory.noActiveMercsHint')}</p>`}
+      <h4>${ti('rpg.ui.territory.territorySquadTitle', getLang(), { count: territory.length, max: MAX_TERRITORY_MERCENARIES })}</h4>
+      ${territory.length ? territory.map(mercenaryCardHtml).join('') : `<p class="rpg-hint">${t('rpg.ui.territory.noTerritoryMercsHint')}</p>`}
     </div>
   `;
 }
@@ -2201,8 +2201,8 @@ function renderTerritoryTab(content, container) {
       character.facilityLevels = r.facilityLevels;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       rerender();
-      const levelMsg = r.leveledUp.length ? ` · 🎉 ${getTerritoryJobName(r.leveledUp[0].jobId, getLang())} Lv.${r.leveledUp[0].level}!` : '';
-      showToast(`${getTerritoryJobName(r.job, getLang())}에서 일했습니다${r.goldIncome ? ` (+${r.goldIncome}골드)` : ''}${levelMsg}`);
+      const levelMsg = r.leveledUp.length ? ti('rpg.ui.territory.facilityLevelUp', getLang(), { job: getTerritoryJobName(r.leveledUp[0].jobId, getLang()), level: r.leveledUp[0].level }) : '';
+      showToast(ti('rpg.ui.territory.workedAt', getLang(), { job: getTerritoryJobName(r.job, getLang()), income: r.goldIncome ? ti('rpg.ui.territory.workedIncome', getLang(), { gold: r.goldIncome }) : '' }) + levelMsg);
       showTerritoryNotice(container, r.territoryNotice);
     } catch (e) { showToast(friendlyError(e)); }
   }));
@@ -2211,7 +2211,7 @@ function renderTerritoryTab(content, container) {
       await apiPost('unequip', { equipSlot: btn.dataset.slot, mercId: btn.dataset.merc });
       await loadCharacter();
       rerender();
-      showToast('용병 장비를 해제했습니다');
+      showToast(t('rpg.ui.territory.mercUnequipped'));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-merc-recommend-btn').forEach((btn) => btn.addEventListener('click', () => {
@@ -2226,7 +2226,7 @@ function renderTerritoryTab(content, container) {
       character.gold = r.gold;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       rerender();
-      showToast(r.refund > 0 ? `용병을 해고했습니다 (골드 ${r.refund} 환급)` : '용병을 해고했습니다');
+      showToast(r.refund > 0 ? ti('rpg.ui.territory.mercDismissedRefund', getLang(), { refund: r.refund }) : t('rpg.ui.territory.mercDismissed'));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-admit-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -2237,7 +2237,7 @@ function renderTerritoryTab(content, container) {
       if (merc) merc.hospitalized = true;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       rerender();
-      showToast(`병원에 입원시켰습니다 (${r.cost}골드)`);
+      showToast(ti('rpg.ui.territory.mercAdmitted', getLang(), { cost: r.cost }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-assignment-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -2246,7 +2246,7 @@ function renderTerritoryTab(content, container) {
       const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
       if (merc) { merc.assignment = r.assignment; merc.job = r.job; }
       rerender();
-      showToast(r.assignment === 'active' ? '전투부대로 편입했습니다' : '영지로 보냈습니다');
+      showToast(r.assignment === 'active' ? t('rpg.ui.territory.assignedActive') : t('rpg.ui.territory.assignedTerritory'));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-merc-stance-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -2255,7 +2255,7 @@ function renderTerritoryTab(content, container) {
       const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
       if (merc) merc.stance = r.stance;
       rerender();
-      showToast(r.stance === 'aggressive' ? '쎈 몹부터 노리도록 바꿨습니다' : '약한 몹부터 노리도록 바꿨습니다');
+      showToast(r.stance === 'aggressive' ? t('rpg.ui.territory.stanceStrong') : t('rpg.ui.territory.stanceWeak'));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-merc-role-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -2264,7 +2264,7 @@ function renderTerritoryTab(content, container) {
       const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
       if (merc) merc.combatRole = r.combatRole;
       rerender();
-      showToast(r.combatRole === 'support' ? '서포트 역할로 바꿨습니다' : '버티기 역할로 바꿨습니다');
+      showToast(r.combatRole === 'support' ? t('rpg.ui.territory.roleSupport') : t('rpg.ui.territory.roleFight'));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-merc-job-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -2273,30 +2273,30 @@ function renderTerritoryTab(content, container) {
       const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
       if (merc) merc.job = r.job;
       rerender();
-      showToast(`${getTerritoryJobName(r.job, getLang())}에 배치했습니다`);
+      showToast(ti('rpg.ui.territory.mercAssignedJob', getLang(), { job: getTerritoryJobName(r.job, getLang()) }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-rename-merc-btn').forEach((btn) => btn.addEventListener('click', async () => {
     const merc = (character.mercenaries || []).find((m) => m.id === btn.dataset.merc);
-    const nextName = prompt('용병의 새 이름을 입력하세요 (최대 12자)', merc ? merc.name : '');
+    const nextName = prompt(t('rpg.ui.territory.renamePrompt'), merc ? merc.name : '');
     if (!nextName || !nextName.trim()) return;
     try {
       const r = await apiPost('rename-mercenary', { mercId: btn.dataset.merc, name: nextName.trim() });
       if (merc) merc.name = r.name;
       rerender();
-      showToast('용병 이름을 변경했습니다');
+      showToast(t('rpg.ui.territory.mercRenamed'));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-squire-btn').forEach((btn) => btn.addEventListener('click', async () => {
     const squire = (character.mercenaries || []).find((m) => m.id === btn.dataset.squire);
-    if (!confirm(`${squire ? squire.name : '이 용병'}을(를) 종자로 흡수하면 독립된 용병으로는 다시 못 씁니다(되돌릴 수 없음). 계속할까요?`)) return;
+    if (!confirm(ti('rpg.ui.territory.squireConfirm', getLang(), { name: squire ? squire.name : t('rpg.ui.territory.thisMerc') }))) return;
     try {
       const r = await apiPost('squire-mercenary', { hostMercId: btn.dataset.host, squireMercId: btn.dataset.squire });
       character.mercenaries = (character.mercenaries || []).filter((m) => m.id !== btn.dataset.squire);
       const host = character.mercenaries.find((m) => m.id === r.hostMercId);
       if (host) { host.classSub = r.classSub; host.squireStatBonus = r.squireStatBonus; host.hireCostBonus = r.hireCostBonus; }
       rerender();
-      showToast(`${getClassName(r.classSub, getLang())} 종자를 흡수했습니다!`);
+      showToast(ti('rpg.ui.territory.squireAbsorbed', getLang(), { class: getClassName(r.classSub, getLang()) }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
 }
@@ -2305,13 +2305,13 @@ function renderTerritoryTab(content, container) {
 function injuriesSummaryHtml() {
   const injuries = character.injuries || {};
   const injuredParts = ['arm', 'leg'].filter((p) => (injuries[p] || {}).severity > 0);
-  if (!injuredParts.length) return `<p class="rpg-hint">부상 없음</p>`;
+  if (!injuredParts.length) return `<p class="rpg-hint">${t('rpg.ui.injury.none')}</p>`;
   const lines = injuredParts.map((p) => {
     const injury = injuries[p];
     const severityLabel = injury.severity === 2 ? t('rpg.ui.injury.severityMajorFull') : t('rpg.ui.injury.severityMinorFull');
     return ti('rpg.ui.injury.summaryLine', getLang(), { part: bodyPartName(p), severity: severityLabel, turns: injury.turnsLeft });
   });
-  return `<p class="rpg-hint">🩹 부상: ${lines.join(' / ')}</p>`;
+  return `<p class="rpg-hint">${ti('rpg.ui.injury.summaryPrefix', getLang(), { lines: lines.join(' / ') })}</p>`;
 }
 
 // ── 캐릭터 탭 ───────────────────────────────────────
