@@ -1025,24 +1025,23 @@ function territoryRestHtml() {
 
 // ── 직업 교관 NPC - 스킬 훈련 UI. 미습득 스킬은 전투에서 안 나가니 먼저 배워야 함 ─────
 function trainerHtml() {
-  if (!character.classMain) return `<p class="rpg-hint">직업을 먼저 선택해야 스킬을 배울 수 있어요.</p>`;
+  if (!character.classMain) return `<p class="rpg-hint">${t('rpg.ui.trainer.noClass')}</p>`;
   const cls = CLASSES[character.classMain];
   const essenceItemId = CLASS_ESSENCE_ITEM[character.classMain];
-  const essenceItem = ITEMS[essenceItemId];
   const owned = (character.inventory || []).find((e) => e.itemId === essenceItemId);
   const ownedQty = owned ? owned.qty : 0;
   const skillLevels = character.skillLevels || {};
   return `
-    <p class="rpg-hint">보유 ${getItemName(essenceItemId, getLang())}: ${ownedQty}개 (몹을 잡으면 확률적으로 드랍돼요)</p>
+    <p class="rpg-hint">${ti('rpg.ui.trainer.ownedMaterial', getLang(), { item: getItemName(essenceItemId, getLang()), qty: ownedQty })}</p>
     ${cls.skills.map((s) => {
       const tier = skillLevels[s.id] || 0;
       const maxed = tier >= MAX_SKILL_TIER;
       const cost = maxed ? null : TRAINING_TIER_COSTS[tier + 1];
-      const label = tier === 0 ? '배우기' : '단계 올리기';
+      const label = tier === 0 ? t('rpg.ui.trainer.learnBtn') : t('rpg.ui.trainer.levelUpBtn');
       return `
         <div class="rpg-shop-row">
-          <span>${getSkillName(cls.id, s.id, getLang())} — ${tier === 0 ? '미습득' : `${tier}/${MAX_SKILL_TIER}단계`}${maxed ? ' (최대)' : ''}</span>
-          ${maxed ? '' : `<button class="rpg-train-skill-btn" data-skill="${s.id}">${label} (${getItemName(essenceItemId, getLang())} ${cost.essence}개, ${cost.gold}골드)</button>`}
+          <span>${getSkillName(cls.id, s.id, getLang())} — ${tier === 0 ? t('rpg.ui.trainer.unlearned') : ti('rpg.ui.trainer.tierLabel', getLang(), { tier, max: MAX_SKILL_TIER })}${maxed ? t('rpg.ui.trainer.maxed') : ''}</span>
+          ${maxed ? '' : `<button class="rpg-train-skill-btn" data-skill="${s.id}">${ti('rpg.ui.trainer.trainBtn', getLang(), { label, item: getItemName(essenceItemId, getLang()), essence: cost.essence, gold: cost.gold })}</button>`}
         </div>
       `;
     }).join('')}
@@ -1051,7 +1050,7 @@ function trainerHtml() {
 
 // ── 대장간 NPC - 수리(항상 가능) + 수리스킬 훈련(배우면 셀프 수리 가능, 대장간보다 저렴) ─────
 const REPAIR_COST_PER_POINT_BY_RARITY = { normal: 2, uncommon: 3, rare: 5, epic: 8, legendary: 12 };
-const RARITY_NAMES = { normal: '일반', uncommon: '고급', rare: '희귀', epic: '영웅', legendary: '전설' };
+function rarityName(rarity) { return t(`rpg.ui.rarity.${rarity}`); }
 function blacksmithHtml() {
   const needsRepair = DURABILITY_TRACKED_SLOTS
     .map((s) => ({ slot: s, itemId: character.equipment[s], durability: character.equipment[`${s}Durability`] ?? 100 }))
@@ -1063,26 +1062,26 @@ function blacksmithHtml() {
     const cost = Math.ceil((100 - e.durability) * costPerPoint);
     return `
       <div class="rpg-shop-row">
-        <span>${EQUIP_SLOT_LABELS[e.slot]}: ${getItemName(item.id, getLang())} — 내구도 ${e.durability}/100</span>
+        <span>${equipSlotLabel(e.slot)}: ${getItemName(item.id, getLang())} — 내구도 ${e.durability}/100</span>
         <button class="rpg-blacksmith-repair-btn" data-slot="${e.slot}">수리(${cost}골드)</button>
       </div>
     `;
-  }).join('') : `<p class="rpg-hint">수리가 필요한 장비가 없어요.</p>`;
+  }).join('') : `<p class="rpg-hint">${t('rpg.ui.blacksmith.noRepairNeeded')}</p>`;
 
   const repairSkill = character.repairSkillLevel || 0;
   const maxedSkill = repairSkill >= MAX_REPAIR_SKILL_LEVEL;
   const nextSkillCost = maxedSkill ? null : REPAIR_SKILL_COSTS[repairSkill + 1];
-  const capLabel = repairSkill > 0 ? `${RARITY_NAMES[REPAIR_SKILL_RARITY_CAP[repairSkill]]} 등급까지 셀프 수리 가능` : '아직 셀프 수리 불가';
+  const capLabel = repairSkill > 0 ? ti('rpg.ui.blacksmith.selfRepairCap', getLang(), { rarity: rarityName(REPAIR_SKILL_RARITY_CAP[repairSkill]) }) : t('rpg.ui.blacksmith.selfRepairNone');
 
   return `
-    <h5>수리가 필요한 장비</h5>
+    <h5>${t('rpg.ui.blacksmith.needsRepairTitle')}</h5>
     ${repairRows}
-    <h5>수리스킬 (배우면 수리 망치로 직접 수리 가능, 대장간보다 저렴)</h5>
+    <h5>${t('rpg.ui.blacksmith.repairSkillTitle')}</h5>
     <div class="rpg-shop-row">
-      <span>수리스킬 ${repairSkill}/${MAX_REPAIR_SKILL_LEVEL}단계 — ${capLabel}</span>
-      ${maxedSkill ? '' : `<button class="rpg-train-repair-skill-btn">${repairSkill === 0 ? '배우기' : '단계 올리기'} (${nextSkillCost}골드)</button>`}
+      <span>${ti('rpg.ui.blacksmith.repairSkillLabel', getLang(), { level: repairSkill, max: MAX_REPAIR_SKILL_LEVEL, cap: capLabel })}</span>
+      ${maxedSkill ? '' : `<button class="rpg-train-repair-skill-btn">${ti('rpg.ui.blacksmith.trainSkillBtn', getLang(), { label: repairSkill === 0 ? t('rpg.ui.trainer.learnBtn') : t('rpg.ui.trainer.levelUpBtn'), cost: nextSkillCost })}</button>`}
     </div>
-    <h5>장비 제작 (이 마을 사냥터 재료로 제작 - "코어" 재료는 그 지역 레어몹 전용, 더 좋은 결과물)</h5>
+    <h5>${t('rpg.ui.blacksmith.craftTitle')}</h5>
     ${craftSectionHtml()}
   `;
 }
@@ -1090,7 +1089,7 @@ function blacksmithHtml() {
 // 지역 재료로 테마 장비를 만드는 제작 목록 - 지금 있는 마을(currentTown)에 속한 지역 레시피만 표시
 function craftSectionHtml() {
   const recipes = Object.entries(CRAFT_RECIPES).filter(([, r]) => r.town === character.currentTown || r.town === null);
-  if (!recipes.length) return '<p class="rpg-hint">이 마을에서 제작 가능한 장비가 없어요.</p>';
+  if (!recipes.length) return `<p class="rpg-hint">${t('rpg.ui.craft.noneAvailable')}</p>`;
   const inventory = character.inventory || [];
   const sorted = recipes.sort(([, a], [, b]) => a.tier - b.tier || (a.tierKey === 'core' ? 1 : 0) - (b.tierKey === 'core' ? 1 : 0));
   return sorted.map(([key, r]) => {
@@ -1101,9 +1100,9 @@ function craftSectionHtml() {
     const enoughGold = (character.gold || 0) >= r.gold;
     return `
       <div class="rpg-shop-row">
-        <span>${r.zoneName} ${r.tierKey === 'core' ? '(코어)' : ''} — ${getItemName(item.id, getLang())}${itemStatsLabel(item)}<br>
-          <span class="rpg-hint">재료: ${getItemName(matItem.id, getLang())} ${have}/${r.materialQty}개 · ${r.gold}골드</span></span>
-        <button class="rpg-craft-btn" data-recipe="${key}" ${enoughMat && enoughGold ? '' : 'disabled'}>제작</button>
+        <span>${r.zoneName} ${r.tierKey === 'core' ? t('rpg.ui.craft.coreLabel') : ''} — ${getItemName(item.id, getLang())}${itemStatsLabel(item)}<br>
+          <span class="rpg-hint">${ti('rpg.ui.craft.materialLabel', getLang(), { material: getItemName(matItem.id, getLang()), have, need: r.materialQty, gold: r.gold })}</span></span>
+        <button class="rpg-craft-btn" data-recipe="${key}" ${enoughMat && enoughGold ? '' : 'disabled'}>${t('rpg.ui.craft.btn')}</button>
       </div>
     `;
   }).join('');
@@ -1113,19 +1112,19 @@ function craftSectionHtml() {
 function tavernHireHtml() {
   const mercenaries = character.mercenaries || [];
   const totalCap = MAX_MERCENARIES + MAX_TERRITORY_MERCENARIES;
-  if (mercenaries.length >= totalCap) return `<p class="rpg-hint">더 이상 용병을 고용할 수 없습니다 (${mercenaries.length}/${totalCap}).</p>`;
-  if (!character.classMain) return `<p class="rpg-hint">직업을 먼저 선택해야 용병을 고용할 수 있어요.</p>`;
+  if (mercenaries.length >= totalCap) return `<p class="rpg-hint">${ti('rpg.ui.tavern.capReached', getLang(), { count: mercenaries.length, cap: totalCap })}</p>`;
+  if (!character.classMain) return `<p class="rpg-hint">${t('rpg.ui.tavern.noClass')}</p>`;
   const hiredTemplateIds = new Set(mercenaries.map((m) => m.templateId));
   const todayRoster = new Set(dailyTavernRoster(character.currentTown || 'town1'));
   const options = Object.values(MERCENARY_TEMPLATES)
     .filter((tmpl) => todayRoster.has(tmpl.id) && !hiredTemplateIds.has(tmpl.id));
-  if (!options.length) return `<p class="rpg-hint">오늘은 고용 가능한 용병이 없네요. 내일 다시 들러보세요.</p>`;
+  if (!options.length) return `<p class="rpg-hint">${t('rpg.ui.tavern.noneToday')}</p>`;
   return options.map((tmpl) => {
     const cls = CLASSES[tmpl.classMain];
     return `
       <div class="rpg-shop-row">
-        <span>${getMercTemplateName(tmpl.id, getLang())} (Lv.${tmpl.baseLevel} ${cls ? getClassName(cls.id, getLang()) : tmpl.classMain}) — 고용비 ${tmpl.hireCost}골드, 보수 ${tmpl.wagePerAdventure}골드/모험</span>
-        <button class="rpg-hire-btn" data-template="${tmpl.id}">고용</button>
+        <span>${ti('rpg.ui.tavern.rowLabel', getLang(), { name: getMercTemplateName(tmpl.id, getLang()), level: tmpl.baseLevel, class: cls ? getClassName(cls.id, getLang()) : tmpl.classMain, hireCost: tmpl.hireCost, wage: tmpl.wagePerAdventure })}</span>
+        <button class="rpg-hire-btn" data-template="${tmpl.id}">${t('rpg.ui.tavern.hireBtn')}</button>
       </div>
     `;
   }).join('');
@@ -1146,16 +1145,16 @@ function renderTownTab(content, container) {
   const townNpcs = Object.values(NPCS).filter((n) => n.townId === character.currentTown);
   const otherTowns = Object.values(TOWNS).filter((town) => town.id !== character.currentTown);
   content.innerHTML = `
-    <p class="rpg-hint">현재 위치: ${townName}</p>
-    <h4>다른 마을로 이동</h4>
+    <p class="rpg-hint">${ti('rpg.ui.town.currentLocation', getLang(), { town: townName })}</p>
+    <h4>${t('rpg.ui.town.travelTitle')}</h4>
     <p class="rpg-hint">
       ${otherTowns.map((town) => {
         const unlocked = isTownUnlocked(town.id);
         return `<button class="rpg-travel-town-btn" data-town="${town.id}" ${unlocked ? '' : 'disabled'}>${getTownName(town.id, getLang())}${unlocked ? '' : ' 🔒'}</button>`;
       }).join('')}
-      (턴 1개 소모)
+      ${t('rpg.ui.town.travelCost')}
     </p>
-    <h4>마을 사람들</h4>
+    <h4>${t('rpg.ui.town.peopleTitle')}</h4>
     <div class="rpg-npc-list">
       ${townNpcs.map((npc) => `
         <div class="rpg-npc-card">
@@ -1167,18 +1166,18 @@ function renderTownTab(content, container) {
           ${npc.role === 'trainer' ? trainerHtml() : ''}
           ${npc.role === 'blacksmith' ? blacksmithHtml() : ''}
         </div>
-      `).join('') || '<p class="rpg-hint">이 마을엔 아직 만날 사람이 없어요.</p>'}
+      `).join('') || `<p class="rpg-hint">${t('rpg.ui.town.noOneHere')}</p>`}
     </div>
-    <h4>마을 게시판</h4>
-    <div class="rpg-board-list"><div class="rpg-loading">불러오는 중...</div></div>
+    <h4>${t('rpg.ui.town.boardTitle')}</h4>
+    <div class="rpg-board-list"><div class="rpg-loading">${t('rpg.ui.town.boardLoading')}</div></div>
     <div class="rpg-board-form">
-      <input type="text" class="rpg-board-input" maxlength="150" placeholder="게시판에 글 남기기 (150자 이내)" style="width:70%">
-      <button class="rpg-board-post-btn">등록</button>
+      <input type="text" class="rpg-board-input" maxlength="150" placeholder="${t('rpg.ui.town.boardPlaceholder')}" style="width:70%">
+      <button class="rpg-board-post-btn">${t('rpg.ui.town.boardSubmit')}</button>
     </div>
   `;
   content.querySelectorAll('.rpg-travel-town-btn').forEach((btn) => btn.addEventListener('click', async () => {
     const destTown = TOWNS[btn.dataset.town];
-    if (!confirm(`${getTownName(destTown.id, getLang())}(으)로 이동하시겠습니까? 턴포인트 1개를 소모합니다.`)) return;
+    if (!confirm(ti('rpg.ui.town.travelConfirm', getLang(), { town: getTownName(destTown.id, getLang()) }))) return;
     try {
       const r = await apiPost('travel-town', { townId: btn.dataset.town });
       character.currentTown = r.currentTown;
@@ -1186,7 +1185,7 @@ function renderTownTab(content, container) {
       character.gold = r.gold;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
-      showToast(`${getTownName(destTown.id, getLang())}(으)로 이동했습니다`);
+      showToast(ti('rpg.ui.town.traveled', getLang(), { town: getTownName(destTown.id, getLang()) }));
       showTerritoryNotice(container, r.territoryNotice);
     } catch (e) { handleActionError(container, e); }
   }));
@@ -1198,7 +1197,7 @@ function renderTownTab(content, container) {
       await loadCharacter();
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
-      showToast('퀘스트를 완료했습니다!' + (r.overflowed ? ' (인벤토리가 가득 차 보상 아이템을 놓쳤어요)' : ''));
+      showToast(t('rpg.ui.quest.completed') + (r.overflowed ? t('rpg.ui.quest.overflowNote') : ''));
       if (r.newLore && r.newLore.length) content.insertAdjacentHTML('afterbegin', loreUnlockHtml(r.newLore));
     } catch (e) { showToast(friendlyError(e)); }
   }));
@@ -1209,7 +1208,7 @@ function renderTownTab(content, container) {
       character.mercenaries = [...(character.mercenaries || []), r.hired];
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
-      showToast(`${r.hired.name}을(를) 고용했습니다!`);
+      showToast(ti('rpg.ui.tavern.hired', getLang(), { name: r.hired.name }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-train-skill-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -1219,7 +1218,7 @@ function renderTownTab(content, container) {
       character.skillLevels = r.skillLevels;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
-      showToast(`${r.tier}단계로 훈련했습니다!`);
+      showToast(ti('rpg.ui.trainer.trained', getLang(), { tier: r.tier }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-blacksmith-repair-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -1229,7 +1228,7 @@ function renderTownTab(content, container) {
       character.equipment[`${btn.dataset.slot}Durability`] = r.durability;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
-      showToast(`수리 완료! (${r.cost}골드 소모)`);
+      showToast(ti('rpg.ui.blacksmith.repaired', getLang(), { cost: r.cost }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   const trainRepairBtn = content.querySelector('.rpg-train-repair-skill-btn');
@@ -1240,7 +1239,7 @@ function renderTownTab(content, container) {
       character.repairSkillLevel = r.level;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
-      showToast(`수리스킬 ${r.level}단계로 훈련했습니다!`);
+      showToast(ti('rpg.ui.blacksmith.repairSkillTrained', getLang(), { level: r.level }));
     } catch (e) { showToast(friendlyError(e)); }
   });
   content.querySelectorAll('.rpg-craft-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -1250,7 +1249,7 @@ function renderTownTab(content, container) {
       await loadCharacter();
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderTownTab(content, container);
-      showToast(`${getItemName(r.crafted, getLang())}을(를) 제작했습니다!`);
+      showToast(ti('rpg.ui.craft.crafted', getLang(), { item: getItemName(r.crafted, getLang()) }));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-cure-btn').forEach((btn) => btn.addEventListener('click', async () => {
@@ -1277,7 +1276,7 @@ function renderTownTab(content, container) {
       await apiPost('board-post', { townId: character.currentTown, message });
       input.value = '';
       loadBoard(content);
-      showToast('게시글을 등록했습니다');
+      showToast(t('rpg.ui.board.posted'));
     } catch (e) { showToast(friendlyError(e)); }
   });
   loadBoard(content);
@@ -2026,7 +2025,7 @@ function mercEquipmentRowHtml(m) {
       ${MERC_EQUIP_SLOTS.map((slot) => {
         const itemId = m.equipment && m.equipment[slot];
         const item = itemId ? ITEMS[itemId] : null;
-        return `${EQUIP_SLOT_LABELS[slot]} ${item ? `${getItemName(item.id, getLang())}${itemStatsLabel(item)}` : '없음'} <button class="rpg-merc-recommend-btn" data-merc="${m.id}" data-slot="${slot}">✨추천</button>${item ? ` <button class="rpg-merc-unequip-btn" data-merc="${m.id}" data-slot="${slot}">해제</button>` : ''}`;
+        return `${equipSlotLabel(slot)} ${item ? `${getItemName(item.id, getLang())}${itemStatsLabel(item)}` : '없음'} <button class="rpg-merc-recommend-btn" data-merc="${m.id}" data-slot="${slot}">✨추천</button>${item ? ` <button class="rpg-merc-unequip-btn" data-merc="${m.id}" data-slot="${slot}">해제</button>` : ''}`;
       }).join(' · ')}
     </p>
   `;
@@ -2442,15 +2441,15 @@ function showRecommendOverlay(container, targetChar, slot, mercId, rerender) {
   const currentItem = currentItemId ? ITEMS[currentItemId] : null;
   if (!best) {
     showAlertOverlay(container, {
-      title: `${EQUIP_SLOT_LABELS[slot]} 추천`,
-      bodyHtml: `<p>가방에서 지금보다 더 나은 ${EQUIP_SLOT_LABELS[slot]}을(를) 찾지 못했습니다. 지금 착용 중인 ${currentItem ? getItemName(currentItem.id, getLang()) : '(없음)'}이(가) 최선이에요.</p>`,
+      title: `${equipSlotLabel(slot)} 추천`,
+      bodyHtml: `<p>가방에서 지금보다 더 나은 ${equipSlotLabel(slot)}을(를) 찾지 못했습니다. 지금 착용 중인 ${currentItem ? getItemName(currentItem.id, getLang()) : '(없음)'}이(가) 최선이에요.</p>`,
     });
     return;
   }
   const removedParts = currentItem ? itemBonusParts(currentItem) : [];
   const addedParts = itemBonusParts(best.item);
   showConfirmOverlay(container, {
-    title: `${EQUIP_SLOT_LABELS[slot]} 추천 — ${getItemName(best.item.id, getLang())}`,
+    title: `${equipSlotLabel(slot)} 추천 — ${getItemName(best.item.id, getLang())}`,
     bodyHtml: `
       <p class="rpg-hint">현재: ${currentItem ? `${getItemName(currentItem.id, getLang())}${itemStatsLabel(currentItem)}` : '없음'}</p>
       <p class="rpg-hint">추천: ${getItemName(best.item.id, getLang())}${itemStatsLabel(best.item)}</p>
@@ -2463,7 +2462,7 @@ function showRecommendOverlay(container, targetChar, slot, mercId, rerender) {
       try {
         await apiPost('equip', mercId ? { itemId: best.itemId, mercId } : { itemId: best.itemId });
         await loadCharacter();
-        showToast(`${EQUIP_SLOT_LABELS[slot]}을(를) ${getItemName(best.item.id, getLang())}(으)로 교체했습니다`);
+        showToast(`${equipSlotLabel(slot)}을(를) ${getItemName(best.item.id, getLang())}(으)로 교체했습니다`);
         rerender();
       } catch (e) { showToast(friendlyError(e)); }
     },
@@ -2471,7 +2470,7 @@ function showRecommendOverlay(container, targetChar, slot, mercId, rerender) {
 }
 
 // ── 장비창 — 착용 중인 장비를 슬롯별로 한눈에 보여줌 ──
-const EQUIP_SLOT_LABELS = { weapon: '무기', shield: '방패', armor_top: '상의', armor_bottom: '하의', ring: '반지', necklace: '목걸이' };
+function equipSlotLabel(slot) { return t(`rpg.ui.equipSlot.${slot}`); }
 const DURABILITY_TRACKED_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
 function equipmentSectionHtml() {
   const stats = computeCharacterCombatStats(character);
@@ -2499,7 +2498,7 @@ function equipmentSectionHtml() {
         const nextEnhanceCost = tracked && item && enhanceLevel < MAX_ENHANCE_LEVEL ? ENHANCE_LEVEL_COSTS[enhanceLevel + 1] : null;
         return `
           <div class="rpg-shop-row">
-            <span>${EQUIP_SLOT_LABELS[slot]}: ${item ? `${getItemName(item.id, getLang())}${enhanceLabel}${itemStatsLabel(item)}${durabilityLabel}` : '없음'}</span>
+            <span>${equipSlotLabel(slot)}: ${item ? `${getItemName(item.id, getLang())}${enhanceLabel}${itemStatsLabel(item)}${durabilityLabel}` : '없음'}</span>
             <span>
               <button class="rpg-recommend-btn" data-slot="${slot}">✨추천</button>
               ${item ? `<button class="rpg-unequip-btn" data-slot="${slot}">해제</button>` : ''}
