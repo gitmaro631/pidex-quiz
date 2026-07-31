@@ -29,9 +29,10 @@
 - [x] 전수 검증: 모든 id에 대해 `getXxxName(id,'ko')`가 데이터 파일의 원래 `.name`과 정확히 일치하는지 스크립트로 확인 완료(불일치 0), `lang:'en'`(키 없음)일 때 한국어로 정상 폴백도 확인
 - [x] `page-rpg.js` **데이터 이름 표시 부분은 전부 완료** — `.name` 직접 참조를 전수 스캔해서 `getXxxName()`류 헬퍼로 교체(직업/스킬/아이템/세트/지역/마을/NPC/대사/영지일자리/부직업 전부). 용병 자기 이름(`m.name`, 유저가 짓거나 랜덤배정)은 의도적으로 그대로 둠(번역 대상 아님). `TERRITORY_JOBS` 이름 키 9개 추가로 발견해서 `locales/ko.js`/`rpg-i18n.js`에 보강.
 - [x] `page-rpg.js` **정적 UI 문구**(버튼 라벨/안내문구/토스트 메시지, `t('rpg.ui.*')`) → **완료**. `util-i18n.js`에 클라이언트에서 쓰기 편한 `ti(key, lang, vars)` 변수치환 헬퍼 이미 있음(서버와 공유).
-- [ ] `rpg-combat.js` 로그 문장(`log.push(...)` 49곳 + 플레이버 배열 약 200개) → `ti('rpg.log.*', lang, vars)` 로 교체, 관련 함수 시그니처에 `lang` 파라미터 추가 (아직 시작 안 함)
-- [ ] `api/_rpg/adventure.js`, `preview-zone.js` 등 `resolveCombat` 호출부가 `req.body.lang`을 받아서 넘기도록 수정 (아직 시작 안 함)
-- [ ] `page-rpg.js`의 `apiPost` 호출부(전투 관련)에 `lang: getLang()` 추가 (아직 시작 안 함)
+- [x] `rpg-combat.js` 로그 문장(`log.push(...)` 49곳 전부 + 플레이버 배열 7종 28개 + 전투 접미태그 6개) → `ti('rpg.log.*', lang, vars)`/`tLang(...)`로 교체 완료. `resolveCombat`/`buildMonsterInstance`/`buildCombatant`/`performAttack`/`performMonsterAttack`/`applyRoundStartPassives`/`tryUtilitySkill`에 전부 `lang` 파라미터(기본값 `'ko'`) 추가, `resolveCombat` 내부 클로저(`tryMonsterSkill`/`handleMonsterDeath`/메인 라운드 루프)는 `lang`이 스코프에 있어 별도 인자 없이 그대로 씀.
+- [x] `api/_rpg/adventure.js`, `preview-zone.js`가 `req.body.lang`을 받아 `resolveCombat`/`buildMonsterInstance`에 넘기도록 수정. `adventure.js` 자체에 있던 서버측 로그(용병보수미지불/마을이동/인벤토리초과/장비파손/골드도둑/용병레벨제한/퇴원 등, 원래 계획에 없던 부분)도 발견해서 같이 로케일화. `preview-zone.js`의 몹 미리보기 이름도 `MONSTERS[id].name` 직접참조하던 걸 `getMonsterName(id, lang)`으로 교체(데이터참조 버그 수정).
+- [x] `page-rpg.js`의 `apiPost('adventure'/'preview-zone', ...)` 3곳에 `lang: getLang()` 추가.
+- **검증**: 독립 스크립트로 `resolveCombat()`을 `lang:'ko'`/`lang:'en'` 둘 다 20회씩 반복 호출 - 에러 없음, 변수치환/조사(이/가, 을/를 등)/몹이름/스킬이름 전부 정상 출력 확인. `en`은 아직 번역 키가 없어 한국어로 폴백되는 것도 의도대로 확인(실제 번역은 다음 단계).
 
 ## 다음 세션이 참고할 메모
 
@@ -52,5 +53,7 @@
   - **2단계(정적 UI 문구) 전체 완료 확인**: `showToast`/`alert`/`confirm`/`title:`/`bodyHtml:` 패턴으로 한국어 하드코딩 전수 grep 재검사 완료, 남은 것 없음.
   - 패턴: 각 섹션마다 (1) 한글 리터럴 읽고 `rpg.ui.{섹션}.{키}` 이름으로 로케일 키 생성 스크립트(`scratch_add_keysN.mjs` 1회성)로 `locales/ko.js`에 추가 (2) 코드에서 `t('key')` 또는 변수 있으면 `ti('key', getLang(), {vars})`로 교체 (3) `node --check page-rpg.js`
   - "골드"/"버튼" 등 반복되는 단어를 개별 `t()`로 다 안 쪼개고 문장 전체를 하나의 키로 유지하는 지금 방식이 번역 품질상 맞음(단어 단위로 쪼개면 언어별 어순이 안 맞음) — 계속 이 방식 유지할 것
-- 3단계(rpg-combat.js 로그 템플릿)는 아직 착수 전 — 구조적으로 제일 큼(lang 파라미터를 resolveCombat부터 전 함수에 실어날라야 함). 다음 세션은 여기부터 시작하면 됨.
-- 커밋: 1단계, 2단계(데이터 이름), 2단계(정적 UI 전체) 모두 로컬 커밋 완료 — 사용자가 명시적으로 요청할 때만 push.
+- **3단계(rpg-combat.js 로그 템플릿 + lang 배선) 완료.** 남은 건 실제 번역(영어 등 17개 언어 값 채우기)뿐 — 이건 애초 계획대로 별도 단계로 명시적으로 남겨둠(이번 작업은 "키 구조 추출"까지).
+- `BODY_PART_NAMES`(rpg-combat.js에도 별도로 있던 것 - page-rpg.js의 것과 다른 모듈)도 `bodyPartNameFor(part, lang)` 함수로 감쌈(원본 상수는 tLang 폴백용으로 그대로 둠, 프리징버그 없음 - 매번 새 lang 인자를 받는 함수라서).
+- 커밋: 1단계, 2단계(데이터 이름), 2단계(정적 UI 전체), 3단계(전투로그+API+lang배선) 모두 로컬 커밋 완료 — 사용자가 명시적으로 요청할 때만 push.
+- **다음 세션이 할 일**: 이제 구조는 다 갖춰졌으니, 남은 건 `locales/en.js`(및 필요하면 다른 15개 언어)에 `rpg.*` 키들의 실제 번역값을 채우는 작업. 지금은 전부 한국어 폴백으로 동작 중이라 기능상 문제는 없음.

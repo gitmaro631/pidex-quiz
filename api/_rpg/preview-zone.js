@@ -9,6 +9,7 @@ import { ZONES } from '../../data/rpg/zones.js';
 import { MONSTERS } from '../../data/rpg/monsters.js';
 import { rollEncounter, buildMonsterInstance, monsterPowerScore, computePartyPower } from '../../rpg-combat.js';
 import { CASTLE_CLEAR_REQUIREMENT } from '../../data/rpg/castle.js';
+import { getMonsterName } from '../../rpg-i18n.js';
 
 const OPTION_COUNT = 5; // 한 번에 보여줄 랜덤 조합 후보 수
 const REFRESH_GOLD_BASE = 15;
@@ -27,13 +28,13 @@ function rollOptions(zoneId, killCount) {
 // 몹 이름 색깔로 난이도를 보여주기 위한 전력비 - 그 조합(옵션) 안의 몹 전원의 전력치 합을 내 파티
 // (본인+전투용병) 전력치로 나눈 값(클수록 위험). 한 마리씩 따로 계산하면 "몹이 여러 마리라 더 위험한"
 // 상황이 반영되지 않아서, 같은 조합에 속한 몹 이름은 전부 그 조합의 합산 전력비를 공유함
-function previewPayload(zonePreview, character, zone) {
+function previewPayload(zonePreview, character, zone, lang) {
   const partyPower = Math.max(1, computePartyPower(character));
   return {
     zoneId: zonePreview.zoneId,
     refreshGoldCost: refreshGoldCost(zone),
     options: zonePreview.options.map((opt) => {
-      const instances = opt.monsterIds.map((id) => buildMonsterInstance(id, zone, opt.uniqueTier));
+      const instances = opt.monsterIds.map((id) => buildMonsterInstance(id, zone, opt.uniqueTier, lang));
       const groupPower = instances.reduce((sum, inst) => sum + monsterPowerScore(inst), 0);
       const difficultyRatio = Math.round((groupPower / partyPower) * 1000) / 1000;
       return {
@@ -42,7 +43,7 @@ function previewPayload(zonePreview, character, zone) {
         monsters: opt.monsterIds.map((id) => {
           const def = MONSTERS[id];
           // 속성도 같이 보여줘야 유저가 상성(elementalMultiplier, data/rpg/elements.js)에 맞춰 장비를 미리 맞출 수 있음
-          return { monsterId: id, name: def ? def.name : id, tags: def ? def.tags : [], element: def ? def.element : 'none', difficultyRatio };
+          return { monsterId: id, name: getMonsterName(id, lang), tags: def ? def.tags : [], element: def ? def.element : 'none', difficultyRatio };
         }),
       };
     }),
@@ -51,7 +52,7 @@ function previewPayload(zonePreview, character, zone) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { accessToken, slot, zoneId, refresh } = req.body;
+  const { accessToken, slot, zoneId, refresh, lang } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
@@ -82,16 +83,16 @@ export default async function handler(req, res) {
         const nextZonePreview = { zoneId, options: rollOptions(zoneId, (character.zoneKillCounts || {})[zoneId] || 0) };
         zonePreviews[zoneId] = nextZonePreview;
         const nextGold = character.gold - cost;
-        outcome = { preview: previewPayload(nextZonePreview, character, zone), gold: nextGold };
+        outcome = { preview: previewPayload(nextZonePreview, character, zone, lang), gold: nextGold };
         return { ...character, zonePreviews, gold: nextGold, updatedAt: now };
       }
 
       // 새로고침이 아니면: 이미 본 지역이면 그대로 재사용(공짜, 다른 지역 갔다와도 유지), 아니면 무료로 새로 굴림
-      if (hasExisting) { outcome = { preview: previewPayload(existing, character, zone), gold: character.gold }; return null; }
+      if (hasExisting) { outcome = { preview: previewPayload(existing, character, zone, lang), gold: character.gold }; return null; }
 
       const nextZonePreview = { zoneId, options: rollOptions(zoneId, (character.zoneKillCounts || {})[zoneId] || 0) };
       zonePreviews[zoneId] = nextZonePreview;
-      outcome = { preview: previewPayload(nextZonePreview, character, zone), gold: character.gold };
+      outcome = { preview: previewPayload(nextZonePreview, character, zone, lang), gold: character.gold };
       return { ...character, zonePreviews, updatedAt: now };
     });
 

@@ -680,7 +680,7 @@ function renderAdventureTab(content, container) {
 async function enterZonePreview(content, container, zoneId) {
   content.innerHTML = `<div class="rpg-loading">${t('rpg.ui.castle.enteringZone')}</div>`;
   try {
-    const r = await apiPost('preview-zone', { zoneId });
+    const r = await apiPost('preview-zone', { zoneId, lang: getLang() });
     renderZonePreviewScreen(content, container, r.preview);
   } catch (e) {
     content.innerHTML = `<div class="rpg-loading">${friendlyError(e)}</div><p><button class="rpg-zone-back-btn">${t('rpg.ui.zonePreview.backToList')}</button></p>`;
@@ -816,7 +816,7 @@ function renderZonePreviewScreen(content, container, preview) {
   if (castleEnterBtn) castleEnterBtn.addEventListener('click', () => renderCastleScreen(content, container, preview.zoneId));
   content.querySelector('.rpg-refresh-encounter-btn').addEventListener('click', async () => {
     try {
-      const r = await apiPost('preview-zone', { zoneId: preview.zoneId, refresh: true });
+      const r = await apiPost('preview-zone', { zoneId: preview.zoneId, refresh: true, lang: getLang() });
       character.gold = r.gold;
       container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
       renderZonePreviewScreen(content, container, r.preview);
@@ -825,7 +825,7 @@ function renderZonePreviewScreen(content, container, preview) {
   content.querySelectorAll('.rpg-encounter-option-btn').forEach((btn) => btn.addEventListener('click', async () => {
     log.innerHTML = `<div class="rpg-loading">${t('rpg.ui.zonePreview.inCombat')}</div>`;
     try {
-      const result = await apiPost('adventure', { zoneId: btn.dataset.zone, optionIndex: Number(btn.dataset.option) });
+      const result = await apiPost('adventure', { zoneId: btn.dataset.zone, optionIndex: Number(btn.dataset.option), lang: getLang() });
       await loadCharacter(); // 레벨업으로 maxHp 등이 바뀌었을 수 있어 서버 최신값으로 새로고침
 
       // 다른 탭으로 넘어가면 content.innerHTML이 통째로 바뀌면서 log가 화면에서 떨어져 나감(에러는

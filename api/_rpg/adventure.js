@@ -5,7 +5,6 @@ import { accountFacilitiesDocPath, defaultAccountFacilities } from '../_rpgFacil
 import { computeCurrentTurns, turnCapForLevel } from '../_rpgTurns.js';
 import { removeItem, tryAddItem, isOverCapacity } from '../_rpgInventory.js';
 import { ZONES } from '../../data/rpg/zones.js';
-import { TOWNS } from '../../data/rpg/towns.js';
 import { resolveCombat, applyEquipmentWear } from '../../rpg-combat.js';
 import { applyXpGain } from '../../rpg-progression.js';
 import { checkNewLoreUnlocks } from '../../rpg-lore.js';
@@ -14,8 +13,11 @@ import { isAdminUsername } from '../_rpgAdmin.js';
 import { CASTLE_CLEAR_REQUIREMENT } from '../../data/rpg/castle.js';
 import { facilityBonusMultiplier } from '../../data/rpg/facilities.js';
 import { territoryDaysElapsed, settleTerritoryDays } from '../../rpg-territory.js';
+import { tLang, ti } from '../../util-i18n.js';
+import { getTownName } from '../../rpg-i18n.js';
 
 const EQUIP_SLOT_LABELS = { weapon: '무기', shield: '방패', armor_top: '상의', armor_bottom: '하의' };
+function equipSlotLabelFor(slot, lang) { return tLang(`rpg.ui.equipSlot.${slot}`, lang, EQUIP_SLOT_LABELS[slot] || slot); }
 
 // 부상은 모험(턴 소모) 단위로 회복이 진행됨 - 새로 다치거나 악화된 부위는 freshInjuries로 갱신되고,
 // 그 외 기존 부상은 턴이 1 지날 때마다 회복 카운트가 줄어듦(본인/용병 공용 로직)
@@ -39,7 +41,7 @@ function decayInjuries(prevInjuries, freshInjuries) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { accessToken, slot, zoneId, optionIndex } = req.body;
+  const { accessToken, slot, zoneId, optionIndex, lang } = req.body;
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
@@ -89,7 +91,7 @@ export default async function handler(req, res) {
       const wageMessages = [];
       if (totalWage > 0) {
         if (gold < totalWage) {
-          wageMessages.push(`용병 보수(${totalWage}골드)를 지불하지 못해 용병들이 모두 떠났다.`);
+          wageMessages.push(ti('rpg.log.wageUnpaid', lang, { wage: totalWage }));
           mercenaries = [];
         } else {
           gold -= totalWage;
@@ -105,10 +107,10 @@ export default async function handler(req, res) {
       const presetEncounter = chosenOption
         ? { zone, monsterIds: chosenOption.monsterIds, isRare: chosenOption.isRare, uniqueTier: chosenOption.uniqueTier }
         : null;
-      const combatResult = resolveCombat({ character: { ...characterForCombat, mercenaries }, zoneId, stance: character.stance, presetEncounter });
+      const combatResult = resolveCombat({ character: { ...characterForCombat, mercenaries }, zoneId, stance: character.stance, presetEncounter, lang });
       combatResult.log.unshift(...wageMessages);
       if (travelingBetweenTowns) {
-        combatResult.log.unshift(`${(TOWNS[zone.town] || {}).name || zone.town}(으)로 이동했다. (턴포인트 1 추가 소모)`);
+        combatResult.log.unshift(ti('rpg.log.townTravel', lang, { town: getTownName(zone.town, lang) }));
       }
 
       const overflowedLoot = [];
@@ -117,23 +119,23 @@ export default async function handler(req, res) {
         const added = tryAddItem(character, inventory, drop.itemId, drop.qty);
         if (!added.ok) (added.reason === 'overweight' ? overweightLoot : overflowedLoot).push(drop.itemId);
       }
-      if (overflowedLoot.length) combatResult.log.push('인벤토리가 가득 차서 일부 전리품을 놓쳤다.');
-      if (overweightLoot.length) combatResult.log.push('짐이 너무 무거워서 일부 전리품을 챙기지 못했다.');
+      if (overflowedLoot.length) combatResult.log.push(tLang('rpg.log.inventoryFullLoot', lang, '인벤토리가 가득 차서 일부 전리품을 놓쳤다.'));
+      if (overweightLoot.length) combatResult.log.push(tLang('rpg.log.overweightLoot', lang, '짐이 너무 무거워서 일부 전리품을 챙기지 못했다.'));
 
       // 전투 1회를 치르면 장착중인 무기/방어구가 마모됨 - 내구도가 낮을수록 조기 파손 확률이 높아짐.
       // 초급 지역(tier 낮음)은 아직 수리비 감당이 버거운 시기라 마모가 아예 안 일어나는 판을 늘려줌
       const wearChance = zone.tier <= 2 ? 0.35 : zone.tier <= 5 ? 0.7 : 1;
       const { equipment: wornEquipment, brokenNow } = applyEquipmentWear(character.equipment || {}, wearChance);
-      brokenNow.forEach((s) => combatResult.log.push(`${EQUIP_SLOT_LABELS[s] || s}이(가) 파손되었습니다! 수리가 필요해요.`));
+      brokenNow.forEach((s) => combatResult.log.push(ti('rpg.log.equipBroken', lang, { slot: equipSlotLabelFor(s, lang) })));
 
       // 죽으면(패배) 아이템은 그대로 유지한 채 마지막으로 있었던 마을로 돌아감 - 부활 자체는 무료지만
       // 소지금의 10%를 잃고(resolveCombat이 계산한 goldLost), 다시 사냥터까지 가려면 소모품을
       // 또 써야 하니 결과적으로 골드 소모를 유도함
       const nextTown = zone.town || character.currentTown || 'town1';
       if (!combatResult.victory) {
-        const townName = (TOWNS[nextTown] || {}).name || nextTown;
-        if (combatResult.goldLost > 0) combatResult.log.push(`정신을 잃은 사이 골드 ${combatResult.goldLost}를 도둑맞았다...`);
-        combatResult.log.push(`정신을 차려보니 ${townName}이었다.`);
+        const townName = getTownName(nextTown, lang);
+        if (combatResult.goldLost > 0) combatResult.log.push(ti('rpg.log.goldStolen', lang, { gold: combatResult.goldLost }));
+        combatResult.log.push(ti('rpg.log.wokeUpInTown', lang, { town: townName }));
       }
 
       const zoneKillCounts = { ...(character.zoneKillCounts || {}) };
@@ -190,10 +192,10 @@ export default async function handler(req, res) {
         const mr = combatResult.mercenaries.find((r) => r.id === merc.id);
         if (!mr) return merc;
         const { equipment: mercWornEquipment, brokenNow: mercBrokenNow } = applyEquipmentWear(merc.equipment || {}, wearChance);
-        mercBrokenNow.forEach((s) => combatResult.log.push(`${merc.name}의 ${EQUIP_SLOT_LABELS[s] || s}이(가) 파손되었습니다!`));
+        mercBrokenNow.forEach((s) => combatResult.log.push(ti('rpg.log.mercEquipBroken', lang, { merc: merc.name, slot: equipSlotLabelFor(s, lang) })));
         let mercProgression = applyXpGain(merc, combatResult.xpGain);
         if (mercProgression.level > progression.level) {
-          if (merc.level < progression.level) combatResult.log.push(`${merc.name}은(는) 주인공의 레벨을 넘어설 수 없다.`);
+          if (merc.level < progression.level) combatResult.log.push(ti('rpg.log.mercLevelCapped', lang, { merc: merc.name }));
           mercProgression = { level: progression.level, xp: 0, statPoints: mercProgression.statPoints };
         }
         return {
@@ -214,7 +216,7 @@ export default async function handler(req, res) {
       const updatedRestingMercs = restingMercs.map((merc) => {
         const nextInjuries = decayInjuries(merc.injuries, null);
         const stillInjured = ['arm', 'leg'].some((p) => nextInjuries[p].severity > 0);
-        if (merc.hospitalized && !stillInjured) combatResult.log.push(`${merc.name}이(가) 완쾌해 퇴원했다!`);
+        if (merc.hospitalized && !stillInjured) combatResult.log.push(ti('rpg.log.mercDischarged', lang, { merc: merc.name }));
         return { ...merc, injuries: nextInjuries, hospitalized: merc.hospitalized && stillInjured };
       });
       const allUpdatedMercenaries = [...updatedMercenaries, ...updatedRestingMercs];
