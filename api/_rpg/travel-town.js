@@ -61,7 +61,6 @@ export default async function handler(req, res) {
         territoryNotice: territorySettlement ? {
           daysProcessed: territorySettlement.daysProcessed,
           goldIncome: territorySettlement.goldIncome,
-          foodEmergencyCost: territorySettlement.foodEmergencyCost,
           goldDelta: territorySettlement.goldDelta,
           leveledUp: territorySettlement.leveledUp,
         } : null,
@@ -75,7 +74,6 @@ export default async function handler(req, res) {
           turnPointsUpdatedAt: now,
           totalTurnsSpent: nextTotalTurnsSpent,
           territoryDayCheckpoint: daysNow,
-          foodStock: territorySettlement ? territorySettlement.nextFoodStock : character.foodStock,
           mercenaries: finalMercenaries,
           updatedAt: now,
         },

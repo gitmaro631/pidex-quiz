@@ -66,9 +66,8 @@ export function defaultCharacter(slot, now = Date.now()) {
     formationRow: null, // null이면 장착 무기로 자동 결정(활=후열, 그 외=전열) - rpg-combat.js의 effectiveFormationRow 참고
     totalTurnsSpent: 0, // 지금까지 소모한 턴포인트 누적(레벨업으로도 안 줄어듦) - "영지일" 경계 판정용(rpg-territory.js)
     territoryDayCheckpoint: 0, // 마지막으로 영지 경제를 정산한 시점의 영지일 수 - adventure.js가 매 모험마다 갱신
-    facilityDays: { clearing: 0, training: 0, ramparts: 0, farm: 0, morale: 0, sanctum: 0 }, // 시설별 누적 배치 영지일(레벨업 재료)
-    facilityLevels: { clearing: 0, training: 0, ramparts: 0, farm: 0, morale: 0, sanctum: 0 }, // facilityDays로부터 계산된 현재 레벨(전역 보너스 % 산정용, data/rpg/facilities.js 참고)
-    foodStock: 0, // 농장이 생산하는 식량 재고 - 농장 외 영지 근무자들의 영지일당 소비를 감당(부족하면 골드로 대신 지출)
+    facilityDays: { clearing: 0, training: 0, ramparts: 0, morale: 0, sanctum: 0 }, // 시설별 누적 배치 영지일(레벨업 재료)
+    facilityLevels: { clearing: 0, training: 0, ramparts: 0, morale: 0, sanctum: 0 }, // facilityDays로부터 계산된 현재 레벨(전역 보너스 % 산정용, data/rpg/facilities.js 참고)
     skillLevels: {}, // 직업훈련소에서 배운 스킬 단계({ [skillId]: 1~3 }) - 없으면(0) 전투에서 그 스킬을 못 씀
     repairSkillLevel: 0, // 대장간에서 배우는 셀프 수리 스킬(0~4) - 단계에 따라 셀프 수리 가능 등급이 오름
     identifiedItems: [], // 한 번 감정(확인)된 아이템id 목록 - 이후로는 항상 실제 스탯이 보임

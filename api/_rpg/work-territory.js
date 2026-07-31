@@ -1,8 +1,8 @@
 // 사냥이 버거운 유저를 위한 안전한 턴 소모처 - 전투 없이 턴 1개를 영지 시설 일에 투입함.
-// 용병과 같은 일자리(clearing/training/ramparts/farm)를 고르되, 용병보다 기여 배율이 더 높음
-// (PLAYER_TERRITORY_BONUS_MULT). 시설 성장(공/방/골드 보너스)을 통해 결과적으로 전투를 쉽게 만드는 게 목적이라
-// 용병들의 일 단위 정산(settleTerritoryDays)과 별개로 이 턴의 기여분만 즉시 시설 누적일에 반영함.
-// 골드 산출(개간지)도 이 턴만큼 비례해서 즉시 지급 - 식량 생산/소비는 이 액션에서는 다루지 않음(용병 몫).
+// 용병과 같은 일자리(clearing/training/ramparts/hospital/morale/sanctum/basics)를 고르되, 용병보다
+// 기여 배율이 더 높음(PLAYER_TERRITORY_BONUS_MULT). 시설 성장(공/방/골드 보너스)을 통해 결과적으로
+// 전투를 쉽게 만드는 게 목적이라 용병들의 일 단위 정산(settleTerritoryDays)과 별개로 이 턴의 기여분만
+// 즉시 시설 누적일에 반영함. 골드 산출(개간지)도 이 턴만큼 비례해서 즉시 지급.
 // 시설 레벨(facilityDays/facilityLevels)은 캐릭터 문서가 아니라 계정 공용 문서에 저장됨(_rpgFacilities.js) -
 // 같은 유저의 캐릭터1/2/3이 전부 같은 시설을 공유(용병 배치는 그대로 캐릭터별)
 import { verifyPiUser } from '../_verifyPiUser.js';
@@ -55,8 +55,8 @@ export default async function handler(req, res) {
       const nextTurns = isAdmin ? turns : turns - 1;
       const nextTotalTurnsSpent = (character.totalTurnsSpent || 0) + 1;
 
-      // 이 턴 소모로 영지일 경계도 넘을 수 있음 - 그러면 용병 몫(식량/급여/골드)도 같이 정산(그 캐릭터의
-      // 용병만 대상, 시설 레벨 자체는 공용 문서 기준으로 계산)
+      // 이 턴 소모로 영지일 경계도 넘을 수 있음 - 그러면 용병 몫(개간지 골드 + 훈련소/병원/사기진작소/
+      // 방벽/연공실/연무장 개인효과)도 같이 정산(그 캐릭터의 용병만 대상, 시설 레벨 자체는 공용 문서 기준으로 계산)
       const daysNow = territoryDaysElapsed(nextTotalTurnsSpent, character.level);
       const daysSinceCheckpoint = daysNow - (character.territoryDayCheckpoint || 0);
       const territorySettlement = settleTerritoryDays(
@@ -68,7 +68,6 @@ export default async function handler(req, res) {
       const finalFacilityLevels = territorySettlement ? territorySettlement.nextFacilityLevels : nextFacilityLevels;
       const finalLeveledUpThisJob = Math.max(finalFacilityLevels[job] || 0, newLevel);
       finalFacilityLevels[job] = finalLeveledUpThisJob;
-      const foodStock = territorySettlement ? territorySettlement.nextFoodStock : character.foodStock;
       const territoryGoldDelta = territorySettlement ? territorySettlement.goldDelta : 0;
       const finalGold = Math.max(0, (character.gold || 0) + goldIncome + territoryGoldDelta);
       const finalMercenaries = territorySettlement ? territorySettlement.nextMercenaries : character.mercenaries;
@@ -83,7 +82,6 @@ export default async function handler(req, res) {
         territoryNotice: territorySettlement ? {
           daysProcessed: territorySettlement.daysProcessed,
           goldIncome: territorySettlement.goldIncome,
-          foodEmergencyCost: territorySettlement.foodEmergencyCost,
           goldDelta: territorySettlement.goldDelta,
           leveledUp: territorySettlement.leveledUp,
         } : null,
@@ -96,7 +94,6 @@ export default async function handler(req, res) {
           turnPointsUpdatedAt: now,
           totalTurnsSpent: nextTotalTurnsSpent,
           territoryDayCheckpoint: daysNow,
-          foodStock,
           mercenaries: finalMercenaries,
           updatedAt: now,
         },

@@ -170,7 +170,6 @@ export default async function handler(req, res) {
         territoryNotice = {
           daysProcessed: territorySettlement.daysProcessed,
           goldIncome: territorySettlement.goldIncome,
-          foodEmergencyCost: territorySettlement.foodEmergencyCost,
           goldDelta: territorySettlement.goldDelta,
           leveledUp: territorySettlement.leveledUp,
         };
@@ -254,7 +253,6 @@ export default async function handler(req, res) {
           turnPointsUpdatedAt: now,
           totalTurnsSpent: nextTotalTurnsSpent,
           territoryDayCheckpoint: daysNow,
-          foodStock: territorySettlement ? territorySettlement.nextFoodStock : character.foodStock,
           currentHp: combatResult.finalHp,
           currentMp: combatResult.finalMp,
           currentStamina: combatResult.finalStamina,

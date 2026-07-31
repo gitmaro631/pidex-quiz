@@ -12,7 +12,7 @@ export function accountFacilitiesDocPath(username, slot) {
   return `rpg_account_facilities/${encodeFirestorePathSegment(username)}${suffix}`;
 }
 
-const FACILITY_IDS = ['clearing', 'training', 'ramparts', 'farm', 'hospital', 'morale', 'sanctum', 'basics'];
+const FACILITY_IDS = ['clearing', 'training', 'ramparts', 'hospital', 'morale', 'sanctum', 'basics'];
 
 export function defaultAccountFacilities() {
   const facilityDays = {};

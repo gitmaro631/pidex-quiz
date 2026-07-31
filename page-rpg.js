@@ -21,14 +21,13 @@ import { LORE_ENTRIES } from './data/rpg/lore.js';
 import { computeCharacterCombatStats, monsterDifficultyTier, COMBAT_MISS_PHRASES, effectiveStats, TWO_HANDED_WEAPON_TYPES } from './rpg-combat.js';
 import {
   MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster, PLAYER_TERRITORY_BONUS_MULT,
-  FOOD_PER_DAY_PER_FARMER, FOOD_CONSUMPTION_PER_DAY_PER_WORKER, GOLD_PER_MISSING_FOOD,
 } from './data/rpg/mercenaries.js';
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
 import { CASTLE_CLEAR_REQUIREMENT, GOLD_INCOME_PER_TIER, MATERIAL_BONUS_MIN_TIER, MATERIAL_BONUS_QTY } from './data/rpg/castle.js';
 import { computeCureCost, REST_HEAL_TURN_COST_BY_SEVERITY, HP_REST_HEAL_FULL_TURNS } from './data/rpg/injuries.js';
 import { allowedFormationRows } from './rpg-combat.js';
-import { facilityProgress, facilityAccrualRate, facilityBonusMultiplier, MAX_MERCS_PER_FACILITY, BASELINE_MERC_LEVEL } from './data/rpg/facilities.js';
+import { facilityProgress, facilityBonusMultiplier, MAX_MERCS_PER_FACILITY, BASELINE_MERC_LEVEL } from './data/rpg/facilities.js';
 import { CRAFT_RECIPES } from './data/rpg/craft-recipes.js';
 
 // api/ 아래 파일은 Vercel이 서버 함수 전용으로 취급해서 브라우저가 직접 fetch 못 함(404) -
@@ -122,7 +121,6 @@ function showTerritoryNotice(container, notice) {
   if (!notice) return;
   const lines = [];
   if (notice.goldIncome > 0) lines.push(`🌾 개간지 수입 +${notice.goldIncome}골드`);
-  if (notice.foodEmergencyCost > 0) lines.push(`🍚 식량 부족으로 비상 구매 -${notice.foodEmergencyCost}골드`);
   const levelLines = (notice.leveledUp || []).map((l) => `🎉 ${FACILITY_ICONS[l.jobId] || ''} ${getTerritoryJobName(l.jobId, getLang())}이(가) Lv.${l.level}(으)로 성장했습니다!`);
   const overlay = document.createElement('div');
   overlay.className = 'rpg-notice-overlay';
@@ -1921,7 +1919,7 @@ function formationSectionHtml(characterLike, mercId) {
 // ── 파티(고용한 용병) 섹션 - 캐릭터 탭에서 사용 ─────────
 // 전투부대(active, 최대 MAX_MERCENARIES명)는 모험에 동행하고, 영지(territory)는 남아서 일을 함
 // ── 영지 현황판 - 시설(개간지/훈련소/방벽/농장) 레벨과 다음 레벨까지 진행률을 한눈에 보여줌 ──
-const FACILITY_ICONS = { clearing: '🌾', training: '⚔️', ramparts: '🛡️', farm: '🌱', hospital: '🏥', morale: '📯', sanctum: '🔮' };
+const FACILITY_ICONS = { clearing: '🌾', training: '⚔️', ramparts: '🛡️', hospital: '🏥', morale: '📯', sanctum: '🔮', basics: '🥋' };
 
 // api/_rpgTurns.js와 반드시 같은 공식 유지 - 서버 전용 파일이라 브라우저가 직접 못 불러와서 복제해서 씀
 function turnCapForLevelClient(level) {
@@ -1957,25 +1955,15 @@ function workTerritoryCardHtml(jobId) {
 }
 // 영지 경제 요약 - "지금 이대로 영지일이 하루 지나면 어떻게 되는지"를 rpg-territory.js의
 // settleTerritoryDays와 똑같은 공식으로 미리 계산해서 보여줌(실제 정산은 그대로 서버에서 일어나고,
-// 이건 화면 미리보기일 뿐). 골드 수입/지출, 식량 수급, 순변동, 부족 시 경고를 한눈에 보여줌
+// 이건 화면 미리보기일 뿐). 골드 수입/지출, 순변동을 한눈에 보여줌
 function territoryEconomySummaryHtml() {
   const workingMercs = (character.mercenaries || []).filter((m) => m.assignment === 'territory' && !m.hospitalized);
-  const farmWorkers = workingMercs.filter((m) => m.job === 'farm');
-  const otherWorkers = workingMercs.filter((m) => m.job !== 'farm');
   const clearingWorkers = workingMercs.filter((m) => m.job === 'clearing');
 
-  const farmProduced = facilityAccrualRate(farmWorkers) * FOOD_PER_DAY_PER_FARMER * facilityBonusMultiplier(character, 'farm');
-  const foodAfterProduction = (character.foodStock || 0) + farmProduced;
-  const neededFood = otherWorkers.length * FOOD_CONSUMPTION_PER_DAY_PER_WORKER;
-  const foodDeficit = Math.max(0, neededFood - foodAfterProduction);
-  const foodEmergencyCost = Math.round(foodDeficit * GOLD_PER_MISSING_FOOD);
-
   const goldIncome = Math.floor(clearingWorkers.length * TERRITORY_JOBS.clearing.goldPerDay * facilityBonusMultiplier(character, 'clearing'));
-  const goldDelta = goldIncome - foodEmergencyCost;
+  const goldDelta = goldIncome;
 
   const warnings = [];
-  if (foodDeficit > 0) warnings.push(ti('rpg.ui.territory.foodDeficitWarn', getLang(), { deficit: foodDeficit.toFixed(1), cost: foodEmergencyCost }));
-  if (goldDelta < 0) warnings.push(ti('rpg.ui.territory.goldDeficitWarn', getLang(), { delta: Math.abs(goldDelta) }));
   if (!workingMercs.length) warnings.push(t('rpg.ui.territory.noWorkersWarn'));
 
   return `
@@ -1983,9 +1971,7 @@ function territoryEconomySummaryHtml() {
       <h4>${t('rpg.ui.territory.economyTitle')}</h4>
       <div class="rpg-stat-delta-table">
         <div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.goldIncomeLabel')}</span><span>${getTerritoryJobName('clearing', getLang())}</span><span class="rpg-stat-up">+${goldIncome}</span></div>
-        ${foodEmergencyCost > 0 ? `<div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.goldExpenseLabel')}</span><span>${t('rpg.ui.territory.foodEmergencyLabel')}</span><span class="rpg-stat-down">-${foodEmergencyCost}</span></div>` : ''}
         <div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.netChangeLabel')}</span><span></span><span class="${goldDelta >= 0 ? 'rpg-stat-up' : 'rpg-stat-down'}">${ti('rpg.ui.territory.netChangePerDay', getLang(), { sign: goldDelta >= 0 ? '+' : '', delta: goldDelta })}</span></div>
-        <div class="rpg-stat-delta-row"><span>${t('rpg.ui.territory.foodLabel')}</span><span>${ti('rpg.ui.territory.foodProducedConsumed', getLang(), { produced: farmProduced.toFixed(1), consumed: neededFood.toFixed(1) })}</span><span>${ti('rpg.ui.territory.foodStockLabel', getLang(), { stock: (character.foodStock || 0).toFixed(1) })}</span></div>
       </div>
       ${warnings.length ? `<p class="rpg-hint">${warnings.join('<br>')}</p>` : ''}
     </div>
@@ -1999,7 +1985,7 @@ function facilityDashboardHtml() {
     const progress = facilityProgress(days[jobId] || 0);
     const pct = Math.min(100, Math.round((progress.daysIntoLevel / progress.daysForNextLevel) * 100));
     const workerCount = territoryMercs.filter((m) => m.job === jobId).length;
-    const STAT_KEY_LABEL_KEYS = { gold: 'rpg.ui.territory.statKeyGold', atk: 'rpg.ui.territory.statKeyAtk', def: 'rpg.ui.territory.statKeyDef', food: 'rpg.ui.territory.statKeyFood', healCostReduction: 'rpg.ui.territory.statKeyHealCostReduction', mentalResist: 'rpg.ui.territory.statKeyMentalResist', mp: 'rpg.ui.territory.statKeyMp' };
+    const STAT_KEY_LABEL_KEYS = { gold: 'rpg.ui.territory.statKeyGold', atk: 'rpg.ui.territory.statKeyAtk', def: 'rpg.ui.territory.statKeyDef', healCostReduction: 'rpg.ui.territory.statKeyHealCostReduction', mentalResist: 'rpg.ui.territory.statKeyMentalResist', mp: 'rpg.ui.territory.statKeyMp' };
     const flatBonusStats = ['mentalResist']; // %가 아니라 고정치로 붙는 보너스(사기진작소 등)
     const bonusAmount = job.bonusPctPerLevel * progress.level;
     const bonusLabel = job.bonusPctPerLevel
@@ -2019,7 +2005,6 @@ function facilityDashboardHtml() {
   return `
     <div class="rpg-facility-dashboard">
       <h4>${t('rpg.ui.territory.dashboardTitle')}</h4>
-      <p class="rpg-hint">${ti('rpg.ui.territory.foodStockHint', getLang(), { stock: (character.foodStock || 0).toFixed(1) })}</p>
       ${rows}
     </div>
   `;

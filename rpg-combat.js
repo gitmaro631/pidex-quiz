@@ -330,7 +330,8 @@ export function computeCharacterCombatStats(character) {
   const rapidFireChance = rapidFireTier > 0 ? rapidFireSkillDef.power * (TIER_POWER_MULT[rapidFireTier] || 1) : 0;
   const evasionSkillDef = classDef.skills.find((s) => s.type === 'passive_evasion');
   const evasionTier = (character.skillLevels && evasionSkillDef && character.skillLevels[evasionSkillDef.id]) || 0;
-  const evasionChance = evasionTier > 0 ? evasionSkillDef.power * (TIER_POWER_MULT[evasionTier] || 1) : 0;
+  // 연무장 배치 개인효과(basicsEvasionBonus) - 궁수 전용 회피 패시브와 별개로 누구나 얻을 수 있는 회피율
+  const evasionChance = (evasionTier > 0 ? evasionSkillDef.power * (TIER_POWER_MULT[evasionTier] || 1) : 0) + (character.basicsEvasionBonus || 0);
   // 마법사 전용 패시브 - 공격을 받으면 확률로 방어의 오라를 둘러 몇 라운드간 자기 AC가 오름(performMonsterAttack 참고)
   const arcaneAuraSkillDef = classDef.skills.find((s) => s.type === 'passive_arcane_aura');
   const arcaneAuraTier = (character.skillLevels && arcaneAuraSkillDef && character.skillLevels[arcaneAuraSkillDef.id]) || 0;
@@ -374,8 +375,12 @@ export function computeCharacterCombatStats(character) {
   const improvisedBonus = improvisedAttackBonus(character); // 연무장 - 기본공격(무기/스킬 불필요) 위력/명중 보너스
   // 종자로 흡수한 용병의 스탯 일부(흡수 시점에 고정된 값) - squire-mercenary.js가 부여
   const squireBonus = character.squireStatBonus || {};
+  // 영지 배치 개인효과(rpg-territory.js의 applyMercTerritoryJobEffect가 용병 개체에 직접 붙여줌) -
+  // 방벽=방어력 flat 가산, 연공실=최대 마나/스테미나 % 가산, 연무장=회피율 flat 가산(evasionChance에서 반영)
+  const rampartsDefBonus = character.rampartsDefBonus || 0;
+  const sanctumResourceBonusPct = character.sanctumResourceBonusPct || 0;
   const finalAtk = Math.round((scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus) * facilityAtkMult) + (squireBonus.atk || 0);
-  const finalDef = Math.round((stats.vit + gearDefBonus + accessoryDefBonus) * facilityDefMult) + (squireBonus.def || 0);
+  const finalDef = Math.round((stats.vit + gearDefBonus + accessoryDefBonus) * facilityDefMult) + (squireBonus.def || 0) + rampartsDefBonus;
   // D&D식 명중판정용 - 레벨/tier 위주로 압축한 값(공/방 원수치를 그대로 쓰면 고티어에서 늘 명중해버림).
   // attackBonus: 레벨 + 무기숙련(atk의 일부) / ac: 레벨 + 방어(def의 일부) + 민첩(dex 보정격)
   const attackBonus = 2 + Math.floor(level / 3) + Math.min(6, Math.floor(finalAtk / 10));
@@ -383,9 +388,9 @@ export function computeCharacterCombatStats(character) {
   const ac = 10 + Math.floor(level / 3) + defAcContribution + Math.min(5, Math.floor(stats.agi / 8));
   return {
     maxHp: BASE_HP + level * HP_PER_LEVEL + Math.round(stats.vit * level * VIT_HP_PER_LEVEL) + gearHpBonus + accessoryHpBonus + (squireBonus.maxHp || 0),
-    maxMp: Math.round((BASE_MP + level * MP_PER_LEVEL + Math.round(scalingStat * level * MAGIC_STAT_MP_PER_LEVEL)) * facilityResourceMult),
+    maxMp: Math.round((BASE_MP + level * MP_PER_LEVEL + Math.round(scalingStat * level * MAGIC_STAT_MP_PER_LEVEL)) * facilityResourceMult * (1 + sanctumResourceBonusPct / 100)),
     // 향후 스테미나 소모 스킬/행동에 대비한 자원(현재는 회복 대상으로만 사용)
-    maxStamina: Math.round((BASE_STAMINA + level * STAMINA_PER_LEVEL + Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL)) * facilityResourceMult),
+    maxStamina: Math.round((BASE_STAMINA + level * STAMINA_PER_LEVEL + Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL)) * facilityResourceMult * (1 + sanctumResourceBonusPct / 100)),
     atk: finalAtk,
     def: finalDef,
     attackBonus,

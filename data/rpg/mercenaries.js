@@ -55,10 +55,6 @@ export const TERRITORY_JOBS = {
   clearing: { id: 'clearing', name: '개간지', goldPerDay: 15, statKey: 'gold', bonusPctPerLevel: 2 },
   training: { id: 'training', name: '훈련소', goldPerDay: 0, statKey: 'atk', bonusPctPerLevel: 1.5 },
   ramparts: { id: 'ramparts', name: '방벽', goldPerDay: 0, statKey: 'def', bonusPctPerLevel: 1.5 },
-  // 밭/농사 - 다른 시설과 달리 골드/전투스탯이 아니라 "식량"을 생산함(rpg-territory.js 참고,
-  // bonusPctPerLevel은 여기선 식량 생산량에 적용됨). 식량이 부족하면 그 부족분을 골드로 사와야 함
-  // (foodEmergencyCost) - 영지 일자리들이 서로 맞물리는 핵심 연결고리
-  farm: { id: 'farm', name: '농장', goldPerDay: 0, statKey: 'food', bonusPctPerLevel: 2 },
   // 병원 - 레벨마다 부상 치료 비용/시간이 줄어듦(의사/붕대 골드비용, 영지에서 쉬기 턴비용, 입원비 전부 해당)
   hospital: { id: 'hospital', name: '병원', goldPerDay: 0, statKey: 'healCostReduction', bonusPctPerLevel: 4 },
   // 사기진작소 - 레벨마다 멘탈저항(공포로 후열로 밀려날 확률을 낮추는 수치)이 고정치로 올라감
@@ -74,10 +70,6 @@ export const TERRITORY_JOBS = {
   // 값이 작아야 함) 오름(rpg-combat.js의 performAttack 참고)
   basics: { id: 'basics', name: '연무장', goldPerDay: 0, statKey: 'improvisedPower', bonusPctPerLevel: 4 },
 };
-
-export const FOOD_PER_DAY_PER_FARMER = 3; // 농부 1명(레벨5 기준) 영지 1일당 식량 생산
-export const FOOD_CONSUMPTION_PER_DAY_PER_WORKER = 1; // 농장을 제외한 영지 근무자 1명당 영지 1일당 식량 소비
-export const GOLD_PER_MISSING_FOOD = 3; // 식량이 부족하면 부족분 1당 이 골드를 대신 지출(비상 식량 구매)
 
 // 종자 흡수 - 다른 용병을 "종자"로 붙이면 그 용병은 사라지고(되돌릴 수 없음, 1회만 가능),
 // 흡수한 쪽이 종자의 직업을 부직업처럼 얻음(스킬 50% 위력) + 스탯 일부(10%, 흡수 시점 고정)를 받고

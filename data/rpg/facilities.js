@@ -17,11 +17,6 @@ export const FACILITY_LEVEL_GROWTH = 1.15;
 export const BASELINE_MERC_LEVEL = 5;
 export const MAX_MERCS_PER_FACILITY = 3; // 한 시설(일자리)에 동시에 배치 가능한 용병 수 제한
 
-// 한 시설에 배치된 용병들의 "영지일 적립 속도" - 레벨/기준레벨 배율의 합(레벨이 높을수록 빠르게 적립)
-export function facilityAccrualRate(assignedMercs) {
-  return assignedMercs.reduce((sum, m) => sum + (m.level || 1) / BASELINE_MERC_LEVEL, 0);
-}
-
 // 레벨 L에서 L+1로 가는 데 필요한 "그 구간만"의 영지일 - 지수 성장(FACILITY_LEVEL_GROWTH^L)
 function daysForLevelStep(level) {
   return FACILITY_DAYS_PER_LEVEL * Math.pow(FACILITY_LEVEL_GROWTH, level);
@@ -49,7 +44,7 @@ export function facilityProgress(days) {
   return { level, daysIntoLevel: days - requiredSoFar, daysForNextLevel };
 }
 
-// jobId(clearing/training/ramparts/farm) 시설의 현재 레벨에 따른 배율(1.0 = 보너스 없음)
+// jobId(clearing/training/ramparts/hospital/morale/sanctum/basics) 시설의 현재 레벨에 따른 배율(1.0 = 보너스 없음)
 export function facilityBonusMultiplier(character, jobId) {
   const job = TERRITORY_JOBS[jobId];
   if (!job) return 1;
