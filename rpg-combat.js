@@ -603,8 +603,13 @@ function buildCombatant({ characterLike, isSelf, formationRow, ownerCharacter, l
     id: isSelf ? 'self' : characterLike.id,
     isSelf,
     level: characterLike.level || 1, // 용병 액티브 스킬의 레벨연동 자동단계(skillEffectivePower 참고)에 씀
-    name: isSelf ? tLang('rpg.ui.combat.self', lang, '나') : characterLike.name,
-    label: isSelf ? tLang('rpg.ui.combat.self', lang, '나') : characterLike.name,
+    // 영어처럼 격변화가 있는 언어에서 "Me's Attack" 같은 비문이 나오지 않도록, 자기 자신 라벨을
+    // 문법적 위치별로 따로 준비함(한국어는 조사가 자동으로 붙어 label 하나로 충분해서 그대로 재사용).
+    // label=주어(I), labelObject=목적어(me), labelPossessive=소유격 전체구(My / "이름's")
+    name: isSelf ? tLang('rpg.ui.combat.selfSubject', lang, '나') : characterLike.name,
+    label: isSelf ? tLang('rpg.ui.combat.selfSubject', lang, '나') : characterLike.name,
+    labelObject: isSelf ? tLang('rpg.ui.combat.selfObject', lang, '나') : characterLike.name,
+    labelPossessive: isSelf ? tLang('rpg.ui.combat.selfPossessive', lang, '나') : `${characterLike.name}'s`,
     combatStats,
     stance: characterLike.stance || 'stable',
     // 유저 본인은 role 분기 대상이 아님(항상 기존처럼 utility 스킬 우선) - 용병만 fight/support로 갈림.
@@ -780,7 +785,7 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
     const hit = isCrit || (!isFumble && naturalRoll + attackRollBonus >= monsterEffectiveAc);
     const hitLabel = hitIdx === 1 ? tLang('rpg.ui.combat.extraHitLabel', lang, ' (추가타!)') : '';
     if (!hit) {
-      log.push(ti('rpg.log.attackMiss', lang, { actor: actor.label, attack: attackLabel, miss: pickFlavor('attackMiss', ATTACK_MISS_LINES, lang), hitLabel, grumble: grumbleNote }));
+      log.push(ti('rpg.log.attackMiss', lang, { actor: actor.label, actorPoss: actor.labelPossessive, attack: attackLabel, miss: pickFlavor('attackMiss', ATTACK_MISS_LINES, lang), hitLabel, grumble: grumbleNote }));
       continue;
     }
     anyHit = true;
@@ -789,7 +794,7 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
     if (exposeSkill) {
       monster.evasionDebuffRoundsLeft = EXPOSE_EVASION_ROUNDS;
       monster.evasionDebuffReduction = Math.round(skillEffectivePower(actor, exposeSkill));
-      log.push(ti('rpg.log.exposeEvasion', lang, { actor: actor.label, skill: displaySkillName(actor, exposeSkill, lang), monster: monster.name }));
+      log.push(ti('rpg.log.exposeEvasion', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, exposeSkill, lang), monster: monster.name }));
     }
     const critMult = isCrit ? CRIT_DAMAGE_MULT : 1;
     // 속사(rapid_fire) - 단일/광역 공격 어느 쪽이든 이번 타격에 확률로 3배 데미지
@@ -802,7 +807,7 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
     const critLabel = isCrit ? tLang('rpg.ui.combat.critLabel', lang, ' 💥치명타!') : '';
     const rapidFireLabel = isRapidFire ? tLang('rpg.ui.combat.rapidFireLabel', lang, ' 🏹속사!') : '';
     log.push(ti('rpg.log.attackHit', lang, {
-      actor: actor.label, attack: attackLabel, intro, monster: monster.name, damage: rawDamage,
+      actor: actor.label, actorPoss: actor.labelPossessive, attack: attackLabel, intro, monster: monster.name, damage: rawDamage,
       elementNote, affinityNote, critLabel, rapidFireLabel, hitLabel, pushedNote, grumble: grumbleNote,
     }));
     // 성기사 전용 패시브 - 입힌 피해의 일정 %만큼 파티 중 체력이 가장 낮은 아군(본인 포함)을 치료
@@ -814,7 +819,7 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
         .reduce((min, p) => (p.hp / p.combatStats.maxHp < min.hp / min.combatStats.maxHp ? p : min));
       if (lowestAlly) {
         lowestAlly.hp = Math.min(lowestAlly.combatStats.maxHp, lowestAlly.hp + healAmount);
-        log.push(ti('rpg.log.holyLeech', lang, { actor: actor.label, target: lowestAlly.label, amount: healAmount }));
+        log.push(ti('rpg.log.holyLeech', lang, { actor: actor.label, actorPoss: actor.labelPossessive, target: lowestAlly.label, targetObj: lowestAlly.labelObject, amount: healAmount }));
       }
     }
     if (monster.hp <= 0) monsterDied = true;
@@ -828,7 +833,7 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
           monster.drainRoundsLeft = BLOOD_DRAIN_ROUNDS;
           monster.drainPerRound = Math.max(1, Math.round(combatStats.atk * BLOOD_DRAIN_PER_ROUND_MULT));
           monster.drainTargetActor = actor;
-          log.push(ti('rpg.log.bloodDrainStart', lang, { actor: actor.label, monster: monster.name }));
+          log.push(ti('rpg.log.bloodDrainStart', lang, { actor: actor.label, actorPoss: actor.labelPossessive, monster: monster.name }));
         }
       }
     }
@@ -840,7 +845,7 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
       if (other === monster || other.hp <= 0) continue;
       other.hp = Math.max(1, other.hp - splashDamage);
     }
-    log.push(ti('rpg.log.attackAllSplash', lang, { actor: actor.label, skill: displaySkillName(actor, skill, lang), damage: splashDamage }));
+    log.push(ti('rpg.log.attackAllSplash', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, skill, lang), damage: splashDamage }));
   }
   return { monsterDied, isKiting, affinity };
 }
@@ -884,7 +889,7 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   target.hp -= monsterDamage;
   const intro = isCrit ? pickFlavor('monsterCritIntro', MONSTER_CRIT_INTROS, lang) : pickFlavor('monsterHitIntro', MONSTER_HIT_INTROS, lang);
   const critLabel = isCrit ? tLang('rpg.ui.combat.critLabel', lang, ' 💥치명타!') : '';
-  log.push(ti('rpg.log.monsterHit', lang, { monster: monster.name, target: target.label, intro, damage: monsterDamage, critLabel }));
+  log.push(ti('rpg.log.monsterHit', lang, { monster: monster.name, target: target.label, targetObj: target.labelObject, intro, damage: monsterDamage, critLabel }));
   // 방패기술의 반격 - 맞은 직후 방패로 쳐내며 즉시 되받아침(자기 atk 기준 배율 데미지)
   let monsterDiedFromCounter = false;
   if (monster.hp > 0 && Math.random() < (combatStats.shieldCounterChance || 0)) {
@@ -910,7 +915,7 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
     const indomitableSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_indomitable_will' && isSkillUsable(target, s));
     if (indomitableSkill && Math.random() < skillEffectivePower(target, indomitableSkill)) {
       target.stackingDefBonus = (target.stackingDefBonus || 0) + INDOMITABLE_WILL_AC_PER_STACK;
-      log.push(ti('rpg.log.indomitableWill', lang, { target: target.label }));
+      log.push(ti('rpg.log.indomitableWill', lang, { target: target.label, targetPoss: target.labelPossessive }));
     }
   }
   // 흑기사 전용 공포의 오라(dread_aura, HP소모) - 공격을 받으면 확률로 그 몹을 멘탈붕괴시켜 몇 라운드 공격 불가
@@ -919,13 +924,13 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
     if (dreadSkill && Math.random() < skillEffectivePower(target, dreadSkill)) {
       spendActorResource(target, dreadSkill, dreadSkill.manaCost);
       monster.stunnedRounds = DREAD_AURA_STUN_ROUNDS;
-      log.push(ti('rpg.log.dreadAura', lang, { target: target.label, monster: monster.name }));
+      log.push(ti('rpg.log.dreadAura', lang, { target: target.label, targetPoss: target.labelPossessive, monster: monster.name }));
     }
   }
   // 위험 수위(체력 25% 이하)에 처음 진입한 순간만 경고 - 매 공격마다 반복하지 않게 1회성 플래그로 관리
   if (!target.lowHpWarned && target.hp > 0 && target.hp / combatStats.maxHp <= DANGER_RETREAT_HP_PCT) {
     target.lowHpWarned = true;
-    log.push(ti('rpg.log.lowHpWarning', lang, { target: target.label }));
+    log.push(ti('rpg.log.lowHpWarning', lang, { target: target.label, targetPoss: target.labelPossessive }));
   }
 
   // 목숨이 위험하면(체력 25% 이하) 확률 판정 없이 무조건 맨 뒷열로 도망침 - 아래 멘탈 밀림(확률 판정)과는
@@ -1008,7 +1013,7 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
       const turnsLeft = randInt(lo, hi);
       target.newInjuries[part] = { severity: nextSeverity, turnsLeft };
       log.push(nextSeverity === 2
-        ? ti('rpg.log.injuryWorsened', lang, { target: target.label, part: bodyPartNameFor(part, lang), turns: turnsLeft })
+        ? ti('rpg.log.injuryWorsened', lang, { target: target.label, targetPoss: target.labelPossessive, part: bodyPartNameFor(part, lang), turns: turnsLeft })
         : ti('rpg.log.injuryMinor', lang, { target: target.label, part: bodyPartNameFor(part, lang), turns: turnsLeft }));
     }
   }
@@ -1028,7 +1033,7 @@ function applyRoundStartPassives({ party, partyBuffs, log, lang = 'ko' }) {
         spendActorResource(actor, reviveSkill, reviveSkill.manaCost);
         const target = dead[0];
         target.hp = Math.round(target.combatStats.maxHp * REVIVE_HP_PCT);
-        log.push(ti('rpg.log.revive', lang, { actor: actor.label, skill: displaySkillName(actor, reviveSkill, lang), target: target.label }));
+        log.push(ti('rpg.log.revive', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, reviveSkill, lang), target: target.label }));
       }
     }
     // 성기사 용맹한 결의(valorous_resolve) - 확률로 파티 전체 공격력/방어력이 조금씩 영구 상승(전투 내내 유지, 스택)
@@ -1036,7 +1041,7 @@ function applyRoundStartPassives({ party, partyBuffs, log, lang = 'ko' }) {
     if (partyBoostSkill && Math.random() < skillEffectivePower(actor, partyBoostSkill)) {
       partyBuffs.paladinAtkMult = (partyBuffs.paladinAtkMult || 1) * PALADIN_PARTY_BOOST_ATK_MULT_PER_STACK;
       partyBuffs.paladinDefAcBonus = (partyBuffs.paladinDefAcBonus || 0) + PALADIN_PARTY_BOOST_DEF_AC_PER_STACK;
-      log.push(ti('rpg.log.partyBoost', lang, { actor: actor.label, skill: displaySkillName(actor, partyBoostSkill, lang) }));
+      log.push(ti('rpg.log.partyBoost', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, partyBoostSkill, lang) }));
     }
     // 전사 도발(taunt) - 확률로 발동, 지속시간 동안 몹의 표적을 자신에게 몰고 방어력이 2배가 됨. 이미 도발 중이면 재발동 안 함
     const tauntSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'passive_taunt' && isSkillUsable(actor, s));
@@ -1044,7 +1049,7 @@ function applyRoundStartPassives({ party, partyBuffs, log, lang = 'ko' }) {
       spendActorResource(actor, tauntSkill, tauntSkill.manaCost);
       const tier = (actor.skillLevels && actor.skillLevels[tauntSkill.id]) || 1;
       actor.tauntRoundsLeft = TAUNT_ROUNDS_BY_TIER[tier] || TAUNT_ROUNDS_BY_TIER[1];
-      log.push(ti('rpg.log.taunt', lang, { actor: actor.label, skill: displaySkillName(actor, tauntSkill, lang) }));
+      log.push(ti('rpg.log.taunt', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, tauntSkill, lang) }));
     }
   });
 }
@@ -1060,7 +1065,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko' }
   if (mentalSkill && partyBuffs.mentalBonus === 0) {
     spendActorResource(actor, mentalSkill, mentalSkill.manaCost);
     partyBuffs.mentalBonus = skillEffectivePower(actor, mentalSkill);
-    log.push(ti('rpg.log.mentalCalm', lang, { actor: actor.label, skill: displaySkillName(actor, mentalSkill, lang) }));
+    log.push(ti('rpg.log.mentalCalm', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, mentalSkill, lang) }));
     // 몇 라운드간 파티 전원이 멘탈붕괴 판정 자체를 안 받음(완전 면역) + 이미 멘탈붕괴로 밀려나있던
     // 아군은 즉시 원래 자리로 복귀
     party.filter((p) => p.alive && p.hp > 0).forEach((p) => {
@@ -1085,7 +1090,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko' }
         const healAmount = Math.round(p.combatStats.maxHp * healPct) + Math.round(actor.combatStats.atk * 0.3);
         p.hp = Math.min(p.combatStats.maxHp, p.hp + healAmount);
       });
-      log.push(ti('rpg.log.massHeal', lang, { actor: actor.label, skill: displaySkillName(actor, massHealSkill, lang), count: hurtMany.length }));
+      log.push(ti('rpg.log.massHeal', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, massHealSkill, lang), count: hurtMany.length }));
       return true;
     }
   }
@@ -1101,7 +1106,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko' }
       // 자연히 지혜가 높을수록 치유량도 커짐) - 훈련 단계가 오르면 skillEffectivePower로 회복 비율도 커짐
       const healAmount = Math.round(target.combatStats.maxHp * skillEffectivePower(actor, healSkill)) + Math.round(actor.combatStats.atk * 0.5);
       target.hp = Math.min(target.combatStats.maxHp, target.hp + healAmount);
-      log.push(ti('rpg.log.heal', lang, { actor: actor.label, skill: displaySkillName(actor, healSkill, lang), target: target.label, amount: healAmount }));
+      log.push(ti('rpg.log.heal', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, healSkill, lang), target: target.label, targetObj: target.labelObject, amount: healAmount }));
       return true;
     }
   }
@@ -1113,7 +1118,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko' }
     monster.atk = Math.max(1, Math.round(monster.atk * (1 - debuffPower)));
     monster.def = Math.max(0, Math.round(monster.def * (1 - debuffPower)));
     monster.cursed = true;
-    log.push(ti('rpg.log.debuffMonster', lang, { actor: actor.label, skill: displaySkillName(actor, debuffSkill, lang), monster: monster.name }));
+    log.push(ti('rpg.log.debuffMonster', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, debuffSkill, lang), monster: monster.name }));
     return true;
   }
 
@@ -1121,7 +1126,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko' }
   if (atkBuffSkill && partyBuffs.atkMult === 1) {
     spendActorResource(actor, atkBuffSkill, atkBuffSkill.manaCost);
     partyBuffs.atkMult = skillEffectivePower(actor, atkBuffSkill);
-    log.push(ti('rpg.log.atkBuffParty', lang, { actor: actor.label, skill: displaySkillName(actor, atkBuffSkill, lang) }));
+    log.push(ti('rpg.log.atkBuffParty', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, atkBuffSkill, lang) }));
     return true;
   }
 
@@ -1129,7 +1134,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko' }
   if (defBuffSkill && partyBuffs.defMult === 1) {
     spendActorResource(actor, defBuffSkill, defBuffSkill.manaCost);
     partyBuffs.defMult = skillEffectivePower(actor, defBuffSkill);
-    log.push(ti('rpg.log.defBuffParty', lang, { actor: actor.label, skill: displaySkillName(actor, defBuffSkill, lang) }));
+    log.push(ti('rpg.log.defBuffParty', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, defBuffSkill, lang) }));
     return true;
   }
 
@@ -1140,7 +1145,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko' }
     spendActorResource(actor, selfDefSkill, selfDefSkill.manaCost);
     actor.selfDefRounds = SELF_DEF_BUFF_ROUNDS;
     actor.selfDefBonus = Math.round(SELF_DEF_BUFF_AC_BONUS * skillEffectivePower(actor, selfDefSkill));
-    log.push(ti('rpg.log.selfDefBuff', lang, { actor: actor.label, skill: displaySkillName(actor, selfDefSkill, lang) }));
+    log.push(ti('rpg.log.selfDefBuff', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, selfDefSkill, lang) }));
     return true;
   }
 
@@ -1243,7 +1248,7 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter, lang
         }
         const dmg = Math.max(1, Math.round(monster.atk * (skill.powerMult ?? 1.6) * (isCrit ? CRIT_DAMAGE_MULT : 1) * randRange(0.85, 1.15)));
         target.hp -= dmg;
-        log.push(ti('rpg.log.monsterSkillHit', lang, { monster: monster.name, skill: displayMonsterSkillName(monster, skill, lang), target: target.label, damage: dmg, critLabel: isCrit ? tLang('rpg.ui.combat.critLabel', lang, ' 💥치명타!') : '' }));
+        log.push(ti('rpg.log.monsterSkillHit', lang, { monster: monster.name, skill: displayMonsterSkillName(monster, skill, lang), target: target.label, targetObj: target.labelObject, damage: dmg, critLabel: isCrit ? tLang('rpg.ui.combat.critLabel', lang, ' 💥치명타!') : '' }));
         return true;
       }
     }
@@ -1344,7 +1349,7 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter, lang
         const drainTarget = m.drainTargetActor;
         if (drainTarget && drainTarget.hp > 0) {
           drainTarget.hp = Math.min(drainTarget.combatStats.maxHp, drainTarget.hp + drainAmount);
-          log.push(ti('rpg.log.bloodDrainTick', lang, { monster: m.name, target: drainTarget.label, amount: drainAmount }));
+          log.push(ti('rpg.log.bloodDrainTick', lang, { monster: m.name, target: drainTarget.label, targetObj: drainTarget.labelObject, amount: drainAmount }));
         }
         if (m.hp <= 0) handleMonsterDeath(m);
       }
