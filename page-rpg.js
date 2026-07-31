@@ -1446,10 +1446,10 @@ async function loadGoldListings(content, container) {
 // ── 창고 탭(이송상자/저장상자) ────────────────────────
 function renderStorageTab(content, container) {
   content.innerHTML = `
-    <h4>이송상자 (계정 공유 - 내 다른 캐릭터와 골드/아이템 주고받기)</h4>
-    <div class="rpg-storage-box" data-kind="account"><div class="rpg-loading">불러오는 중...</div></div>
-    <h4>저장상자 (이 캐릭터 전용)</h4>
-    <div class="rpg-storage-box" data-kind="character"><div class="rpg-loading">불러오는 중...</div></div>
+    <h4>${t('rpg.ui.storage.accountTitle')}</h4>
+    <div class="rpg-storage-box" data-kind="account"><div class="rpg-loading">${t('rpg.ui.storage.loading')}</div></div>
+    <h4>${t('rpg.ui.storage.characterTitle')}</h4>
+    <div class="rpg-storage-box" data-kind="character"><div class="rpg-loading">${t('rpg.ui.storage.loading')}</div></div>
   `;
   loadStorageBox(content, container, 'account');
   loadStorageBox(content, container, 'character');
@@ -1467,30 +1467,30 @@ async function loadStorageBox(content, container, kind) {
 
     boxEl.innerHTML = `
       ${kind === 'account' ? `
-        <p>보관된 골드: ${data.gold}</p>
+        <p>${ti('rpg.ui.storage.goldStored', getLang(), { gold: data.gold })}</p>
         <div class="rpg-shop-row">
-          <span>골드 입출금</span>
+          <span>${t('rpg.ui.storage.goldExchangeLabel')}</span>
           <span>
             <input type="number" class="rpg-storage-gold-amount" min="1" style="width:70px">
-            <button class="rpg-storage-gold-deposit">입금</button>
-            <button class="rpg-storage-gold-withdraw">출금</button>
+            <button class="rpg-storage-gold-deposit">${t('rpg.ui.storage.depositBtn')}</button>
+            <button class="rpg-storage-gold-withdraw">${t('rpg.ui.storage.withdrawBtn')}</button>
           </span>
         </div>
       ` : ''}
-      <p class="rpg-hint">보관 중인 아이템</p>
+      <p class="rpg-hint">${t('rpg.ui.storage.storedItemsLabel')}</p>
       ${items.length ? items.map((e) => `
         <div class="rpg-shop-row">
           <span>${getItemName(e.itemId, getLang())} x${e.qty}</span>
-          <button class="rpg-storage-withdraw-item" data-item="${e.itemId}">출금</button>
+          <button class="rpg-storage-withdraw-item" data-item="${e.itemId}">${t('rpg.ui.storage.withdrawBtn')}</button>
         </div>
-      `).join('') : '<p class="rpg-hint">보관된 아이템이 없습니다.</p>'}
-      <p class="rpg-hint">인벤토리에서 입금</p>
+      `).join('') : `<p class="rpg-hint">${t('rpg.ui.storage.noStoredItems')}</p>`}
+      <p class="rpg-hint">${t('rpg.ui.storage.depositFromInventory')}</p>
       ${inventory.length ? inventory.map((e) => `
         <div class="rpg-shop-row">
           <span>${getItemName(e.itemId, getLang())} x${e.qty}</span>
-          <button class="rpg-storage-deposit-item" data-item="${e.itemId}">입금</button>
+          <button class="rpg-storage-deposit-item" data-item="${e.itemId}">${t('rpg.ui.storage.depositBtn')}</button>
         </div>
-      `).join('') : '<p class="rpg-hint">인벤토리가 비어있습니다.</p>'}
+      `).join('') : `<p class="rpg-hint">${t('rpg.ui.storage.emptyInventory')}</p>`}
     `;
 
     if (kind === 'account') {
@@ -1501,7 +1501,7 @@ async function loadStorageBox(content, container, kind) {
           const r = await apiPost('account-storage', { townId, direction: 'deposit', gold: amount });
           character.gold = r.gold;
           container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-          showToast('입금했습니다');
+          showToast(t('rpg.ui.storage.deposited'));
           loadStorageBox(content, container, kind);
         } catch (e) { showToast(friendlyError(e)); }
       });
@@ -1512,7 +1512,7 @@ async function loadStorageBox(content, container, kind) {
           const r = await apiPost('account-storage', { townId, direction: 'withdraw', gold: amount });
           character.gold = r.gold;
           container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-          showToast('출금했습니다');
+          showToast(t('rpg.ui.storage.withdrawn'));
           loadStorageBox(content, container, kind);
         } catch (e) { showToast(friendlyError(e)); }
       });
@@ -1522,7 +1522,7 @@ async function loadStorageBox(content, container, kind) {
       try {
         await apiPost(endpoint, { townId, direction: 'withdraw', itemId: btn.dataset.item, qty: 1 });
         await loadCharacter();
-        showToast('출금했습니다');
+        showToast(t('rpg.ui.storage.withdrawn'));
         loadStorageBox(content, container, kind);
       } catch (e) { showToast(friendlyError(e)); }
     }));
@@ -1530,12 +1530,12 @@ async function loadStorageBox(content, container, kind) {
       try {
         await apiPost(endpoint, { townId, direction: 'deposit', itemId: btn.dataset.item, qty: 1 });
         await loadCharacter();
-        showToast('입금했습니다');
+        showToast(t('rpg.ui.storage.deposited'));
         loadStorageBox(content, container, kind);
       } catch (e) { showToast(friendlyError(e)); }
     }));
   } catch (e) {
-    boxEl.innerHTML = `<p class="rpg-hint">보관함을 불러오지 못했습니다.</p>`;
+    boxEl.innerHTML = `<p class="rpg-hint">${t('rpg.ui.storage.loadFail')}</p>`;
   }
 }
 
@@ -1547,9 +1547,9 @@ async function loadBoard(content) {
     const posts = data.posts || [];
     listEl.innerHTML = posts.length
       ? posts.map((p) => `<p class="rpg-hint">📌 ${p.username}: ${p.message}</p>`).join('')
-      : '<p class="rpg-hint">아직 등록된 글이 없습니다.</p>';
+      : `<p class="rpg-hint">${t('rpg.ui.board.noPosts')}</p>`;
   } catch (e) {
-    listEl.innerHTML = '<p class="rpg-hint">게시판을 불러오지 못했습니다.</p>';
+    listEl.innerHTML = `<p class="rpg-hint">${t('rpg.ui.board.loadFail')}</p>`;
   }
 }
 
@@ -1559,13 +1559,13 @@ async function loadMarketListings(content, container) {
     const data = await apiGet('market-browse');
     const listings = data.listings || [];
     if (!listings.length) {
-      listEl.innerHTML = `<p class="rpg-hint">등록된 거래가 없습니다.</p>`;
+      listEl.innerHTML = `<p class="rpg-hint">${t('rpg.ui.market.noListings')}</p>`;
       return;
     }
     listEl.innerHTML = listings.map((l) => `
       <div class="rpg-shop-row">
-        <span>${getItemName(l.itemId, getLang())} x${l.qty} — ${l.pricePerUnit}골드/개 (판매자: ${l.sellerUsername})</span>
-        <button class="rpg-buy-btn" data-listing="${l.listingId}" data-qty="${l.qty}">구매</button>
+        <span>${ti('rpg.ui.market.itemRowLabel', getLang(), { item: getItemName(l.itemId, getLang()), qty: l.qty, price: l.pricePerUnit, seller: l.sellerUsername })}</span>
+        <button class="rpg-buy-btn" data-listing="${l.listingId}" data-qty="${l.qty}">${t('rpg.ui.shop.buyBtn')}</button>
       </div>
     `).join('');
     listEl.querySelectorAll('.rpg-buy-btn').forEach((btn) => {
@@ -1574,7 +1574,7 @@ async function loadMarketListings(content, container) {
           const r = await apiPost('market-buy', { listingId: btn.dataset.listing, qty: 1 });
           character.gold = r.buyerGold;
           container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
-          showToast('구매 완료');
+          showToast(t('rpg.ui.market.itemBought'));
           loadMarketListings(content, container);
         } catch (e) {
           showToast(friendlyError(e));
@@ -1582,7 +1582,7 @@ async function loadMarketListings(content, container) {
       });
     });
   } catch (e) {
-    listEl.innerHTML = `<p class="rpg-hint">마켓을 불러오지 못했습니다.</p>`;
+    listEl.innerHTML = `<p class="rpg-hint">${t('rpg.ui.market.itemLoadFail')}</p>`;
   }
 }
 

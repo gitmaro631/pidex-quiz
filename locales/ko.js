@@ -1459,4 +1459,26 @@
   "rpg.ui.market.goldPurchased": "골드 {amount}개를 구매했습니다!",
   "rpg.ui.market.loadFail": "불러오지 못했습니다.",
 
+  // ── RPG UI: 창고탭/게시판/마켓목록 ──────────
+  "rpg.ui.storage.accountTitle": "이송상자 (계정 공유 - 내 다른 캐릭터와 골드/아이템 주고받기)",
+  "rpg.ui.storage.loading": "불러오는 중...",
+  "rpg.ui.storage.characterTitle": "저장상자 (이 캐릭터 전용)",
+  "rpg.ui.storage.goldStored": "보관된 골드: {gold}",
+  "rpg.ui.storage.goldExchangeLabel": "골드 입출금",
+  "rpg.ui.storage.depositBtn": "입금",
+  "rpg.ui.storage.withdrawBtn": "출금",
+  "rpg.ui.storage.storedItemsLabel": "보관 중인 아이템",
+  "rpg.ui.storage.noStoredItems": "보관된 아이템이 없습니다.",
+  "rpg.ui.storage.depositFromInventory": "인벤토리에서 입금",
+  "rpg.ui.storage.emptyInventory": "인벤토리가 비어있습니다.",
+  "rpg.ui.storage.deposited": "입금했습니다",
+  "rpg.ui.storage.withdrawn": "출금했습니다",
+  "rpg.ui.storage.loadFail": "보관함을 불러오지 못했습니다.",
+  "rpg.ui.board.noPosts": "아직 등록된 글이 없습니다.",
+  "rpg.ui.board.loadFail": "게시판을 불러오지 못했습니다.",
+  "rpg.ui.market.noListings": "등록된 거래가 없습니다.",
+  "rpg.ui.market.itemRowLabel": "{item} x{qty} — {price}골드/개 (판매자: {seller})",
+  "rpg.ui.market.itemBought": "구매 완료",
+  "rpg.ui.market.itemLoadFail": "마켓을 불러오지 못했습니다.",
+
 };
