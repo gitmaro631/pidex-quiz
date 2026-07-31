@@ -702,13 +702,16 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
   // 배열 마지막 스킬로 폴백
   const skills = combatStats.classDef.skills.filter((s) => (s.type === 'attack' || s.type === 'attack_all') && isSkillUsable(actor, s));
   const skill = chosenSkill || (skills.length > 0 ? skills[skills.length - 1] : null);
-  // 아직 스킬을 못 배웠거나(훈련소 미이수) 쓸 자원이 없으면 직업별 기본공격(improvisedAttack)으로 대체 -
-  // 무기가 진짜 없을 때(weapon.atkBonus<=0)만 powerMult 페널티가 붙고, 무기는 있는데 스킬만 없으면 정상 위력
-  const improvised = combatStats.classDef.improvisedAttack || { name: '공격', powerMult: 1 };
-  const attackLabel = skill ? displaySkillName(actor, skill, lang) : tLang('rpg.ui.combat.improvisedAttack', lang, improvised.name);
+  // 아직 다른 공격 스킬을 못 배웠거나 쓸 자원이 없으면 직업별 기본공격(basic_attack, skills 배열에
+  // 있는 훈련 가능한 스킬)으로 대체 - 0단계(미훈련)여도 항상 쓸 수 있고, 훈련하면 다른 스킬처럼
+  // TIER_POWER_MULT만큼 위력이 세짐. 무기가 진짜 없을 때(weapon.atkBonus<=0)만 improvisedAttack.powerMult
+  // 페널티가 추가로 곱해지고, 무기는 있는데 스킬만 없으면 그 페널티 없이 기본공격 위력 그대로 나감
+  const basicAttackSkill = combatStats.classDef.skills.find((s) => s.id === 'basic_attack');
+  const improvised = combatStats.classDef.improvisedAttack || { powerMult: 1 };
+  const attackLabel = skill ? displaySkillName(actor, skill, lang) : displaySkillName(actor, basicAttackSkill, lang);
   const grumbleNote = skill ? '' : ` ${pickFlavor('grumble', IMPROVISED_ATTACK_GRUMBLE_LINES, lang)}`;
   // 파티 전체 적용: buff_atk_party(마법사/흑기사 등, 1회성) * 성기사 용맹한 결의(매턴 확률로 쌓이는 영구 스택)
-  let power = (skill ? skillEffectivePower(actor, skill) : 1.0) * partyBuffs.atkMult * (partyBuffs.paladinAtkMult || 1);
+  let power = (skill ? skillEffectivePower(actor, skill) : skillEffectivePower(actor, basicAttackSkill)) * partyBuffs.atkMult * (partyBuffs.paladinAtkMult || 1);
   if (!skill && weapon.atkBonus <= 0) power *= improvised.powerMult * combatStats.improvisedAttackBonus.powerMult;
   if (skill) spendActorResource(actor, skill, skill.manaCost);
 

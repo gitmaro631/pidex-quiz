@@ -2533,4 +2533,15 @@
   "rpg.ui.territory.facilityWorkerCount": "{count}/{max} workers · {bonus}",
   "rpg.ui.territory.facilityDaysProgress": "{current} / {total} days",
 
+  // ── RPG: basic_attack (trainable) skill names ──
+  "rpg.skill.warrior.basic_attack.name": "Punch",
+  "rpg.skill.archer.basic_attack.name": "Stone Throw",
+  "rpg.skill.mage.basic_attack.name": "Arcane Pulse",
+  "rpg.skill.priest.basic_attack.name": "Purifying Light",
+  "rpg.skill.paladin.basic_attack.name": "Unarmed Strike",
+  "rpg.skill.dark_knight.basic_attack.name": "Grasp of Darkness",
+
+  // ── RPG: basic_attack always-usable hint ──
+  "rpg.ui.trainer.alwaysUsableSuffix": " (always usable even untrained; training increases its power)",
+
 };

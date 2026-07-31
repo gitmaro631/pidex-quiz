@@ -1038,10 +1038,12 @@ function trainerHtml() {
       const tier = skillLevels[s.id] || 0;
       const maxed = tier >= MAX_SKILL_TIER;
       const cost = maxed ? null : TRAINING_TIER_COSTS[tier + 1];
+      const isBasicAttack = s.id === 'basic_attack';
       const label = tier === 0 ? t('rpg.ui.trainer.learnBtn') : t('rpg.ui.trainer.levelUpBtn');
+      const tierText = tier === 0 && !isBasicAttack ? t('rpg.ui.trainer.unlearned') : ti('rpg.ui.trainer.tierLabel', getLang(), { tier, max: MAX_SKILL_TIER });
       return `
         <div class="rpg-shop-row">
-          <span>${getSkillName(cls.id, s.id, getLang())} — ${tier === 0 ? t('rpg.ui.trainer.unlearned') : ti('rpg.ui.trainer.tierLabel', getLang(), { tier, max: MAX_SKILL_TIER })}${maxed ? t('rpg.ui.trainer.maxed') : ''}</span>
+          <span>${getSkillName(cls.id, s.id, getLang())} — ${tierText}${maxed ? t('rpg.ui.trainer.maxed') : ''}${isBasicAttack ? t('rpg.ui.trainer.alwaysUsableSuffix') : ''}</span>
           ${maxed ? '' : `<button class="rpg-train-skill-btn" data-skill="${s.id}">${ti('rpg.ui.trainer.trainBtn', getLang(), { label, item: getItemName(essenceItemId, getLang()), essence: cost.essence, gold: cost.gold })}</button>`}
         </div>
       `;

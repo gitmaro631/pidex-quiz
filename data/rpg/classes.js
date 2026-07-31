@@ -10,10 +10,15 @@ export const CLASSES = {
     // resourceType: 'stamina' - 물리 직업은 스킬을 스테미나로 씀(마나 아님). 필드명은 그대로 manaCost지만
     // 실제로 어느 자원 풀에서 빠지는지는 이 resourceType이 결정함(rpg-combat.js 참고)
     id: 'warrior', name: '전사', weaponTypes: ['sword', 'spear', 'axe', 'flail'], statScaling: { atk: 'str' }, resourceType: 'stamina',
-    // 스킬을 아직 못 배웠거나(훈련소) 그 스킬을 쓸 자원이 없으면 이 기본공격으로 대체됨(rpg-combat.js
-    // performAttack 참고) - 무기가 있든 없든 항상 쓸 수 있고, 진짜 맨손(무기 보너스 0)일 때만 powerMult로 약해짐
-    improvisedAttack: { name: '주먹질', powerMult: 0.8 },
+    // 다른 공격 스킬을 아직 못 배웠거나 쓸 자원이 없으면 이 기본공격으로 대체됨(rpg-combat.js performAttack
+    // 참고) - skills 배열의 basic_attack 항목이 실제 위력(훈련으로 단계 상승 가능)을 담당하고, 아래
+    // powerMult는 진짜 맨손(무기 보너스 0)일 때만 추가로 곱해지는 별도 페널티
+    improvisedAttack: { powerMult: 0.8 },
     skills: [
+      // 다른 스킬처럼 결정+골드로 훈련해 단계를 올릴 수 있음(0단계=미훈련이어도 항상 사용 가능,
+      // 훈련하면 위력이 세짐 - TIER_POWER_MULT 참고). 공격 스킬 선택 로직(chooseAttackPlan)에서
+      // 골라지지 않도록 type을 'attack'이 아닌 별도 값(passive_basic_attack)으로 둠
+      { id: 'basic_attack', name: '주먹질', manaCost: 0, type: 'passive_basic_attack', power: 1 },
       { id: 'power_strike', name: '강타', manaCost: 5, type: 'attack', power: 1.6 },
       { id: 'whirlwind', name: '회전베기', manaCost: 8, type: 'attack_all', power: 1.1 },
       { id: 'guard_stance', name: '방어태세', manaCost: 4, type: 'buff_def', power: 1.5 },
@@ -34,8 +39,9 @@ export const CLASSES = {
     // classDef.weaponTypes에 없는 무기라 rpg-combat.js에서 명중/데미지 패널티를 받음
     id: 'archer', name: '궁수', weaponTypes: ['bow', 'dagger'], armorRestriction: ['light'], statScaling: { atk: 'agi' }, resourceType: 'stamina',
     // 무기가 아예 없으면 짱돌이라도 던짐(약하지만 무기 없이도 뭐라도 함) - improvisedAttack 참고
-    improvisedAttack: { name: '짱돌 던지기', powerMult: 0.5 },
+    improvisedAttack: { powerMult: 0.5 },
     skills: [
+      { id: 'basic_attack', name: '짱돌 던지기', manaCost: 0, type: 'passive_basic_attack', power: 1 },
       { id: 'aimed_shot', name: '조준사격', manaCost: 5, type: 'attack', power: 1.5 },
       { id: 'multi_shot', name: '다중사격', manaCost: 8, type: 'attack_all', power: 1.0 },
       { id: 'evasive_shot', name: '회피사격', manaCost: 4, type: 'buff_evade', power: 1.3 },
@@ -63,10 +69,11 @@ export const CLASSES = {
     id: 'mage', name: '마법사', weaponTypes: ['staff', 'wand', 'dagger'], armorRestriction: ['cloth'], statScaling: { atk: 'int' }, resourceType: 'mana',
     // 마력탄(magic_bolt)을 아직 훈련 안 했어도(또는 마나가 없어도) 이 기본 마법 공격은 항상 나감 -
     // "마법사인데 마법을 못 쓴다"는 인상을 주지 않기 위함(powerMult 페널티도 없음, 이미 마법 공격 자체가 컨셉)
-    improvisedAttack: { name: '마력 파동', powerMult: 1 },
+    improvisedAttack: { powerMult: 1 },
     // 원소계열 스킬은 무작위 속성이 아니라 장착한 지팡이/완드의 element를 그대로 씀(무속성 무기면 무속성
     // 공격) - rpg-combat.js의 performAttack에서 skill.elements가 없으면 weapon.element를 쓰는 걸 그대로 이용
     skills: [
+      { id: 'basic_attack', name: '마력 파동', manaCost: 0, type: 'passive_basic_attack', power: 1 },
       { id: 'magic_bolt', name: '마력탄', manaCost: 5, type: 'attack', power: 1.5 },
       { id: 'elemental_nova', name: '원소 폭발', manaCost: 12, type: 'attack_all', power: 1.2 },
       // 패시브 - 공격을 받을 때마다 이 확률로 방어의 오라를 둘러 몇 라운드간 자기 AC가 오름(전사 방어태세와
@@ -85,8 +92,9 @@ export const CLASSES = {
     // 성직자는 날붙이를 쓰지 않는다는 설정(피를 보지 않는 신성한 전투) - 둔기(철퇴가 기본무기,
     // 전쟁망치/모닝스타/도리깨)와 지팡이(쿼터스태프), 원거리는 물매만 씀
     id: 'priest', name: '성직자', weaponTypes: ['mace', 'warhammer', 'morning_star', 'flail', 'staff', 'sling'], armorRestriction: ['cloth'], statScaling: { atk: 'wis' }, resourceType: 'mana',
-    improvisedAttack: { name: '정화의 빛', powerMult: 1 },
+    improvisedAttack: { powerMult: 1 },
     skills: [
+      { id: 'basic_attack', name: '정화의 빛', manaCost: 0, type: 'passive_basic_attack', power: 1 },
       // 성직자의 단일공격은 무기속성이 아니라 항상 신성속성 고정(elements 배열이 하나뿐이면 그 하나만 나감,
       // 마법사 원소계열 스킬과 같은 방식 - performAttack의 castElement 참고)
       { id: 'smite', name: '심판의 빛', manaCost: 5, type: 'attack', power: 1.3, elements: ['holy'] },
@@ -108,8 +116,9 @@ export const CLASSES = {
     // 전용무기: 검+사슬도리깨(축복받은 둔기) - 발더스게이트/디아블로 성기사 컨셉 참고. 그 외 무기는
     // 장착은 가능하지만 비숙련 패널티(rpg-combat.js CONCEPT_WEAPON_BY_CLASS)
     id: 'paladin', name: '성기사', weaponTypes: ['sword', 'flail'], statScaling: { atk: 'str' }, resourceType: 'stamina',
-    improvisedAttack: { name: '맨손 강타', powerMult: 0.8 },
+    improvisedAttack: { powerMult: 0.8 },
     skills: [
+      { id: 'basic_attack', name: '맨손 강타', manaCost: 0, type: 'passive_basic_attack', power: 1 },
       // 공격은 단일/광역 딱 둘 - 둘 다 신성속성 고정(elements 배열, performAttack의 castElement 참고)
       { id: 'holy_strike', name: '성스러운 일격', manaCost: 5, type: 'attack', power: 1.6, elements: ['holy'] },
       { id: 'holy_wave', name: '신성한 파동', manaCost: 10, type: 'attack_all', power: 1.2, resourceType: 'mana', elements: ['holy'] },
@@ -137,8 +146,9 @@ export const CLASSES = {
     // 전용무기: 도끼+대검(저주받은 양손검) - 디아블로류 어둠의 기사 컨셉 참고. 그 외 무기는 장착은
     // 가능하지만 비숙련 패널티(rpg-combat.js CONCEPT_WEAPON_BY_CLASS)
     id: 'dark_knight', name: '흑기사', weaponTypes: ['axe', 'greatsword'], statScaling: { atk: 'str' }, resourceType: 'stamina',
-    improvisedAttack: { name: '어둠의 손아귀', powerMult: 0.8 },
+    improvisedAttack: { powerMult: 0.8 },
     skills: [
+      { id: 'basic_attack', name: '어둠의 손아귀', manaCost: 0, type: 'passive_basic_attack', power: 1 },
       // 공격은 단일/광역 딱 둘 - 둘 다 어둠속성 고정. 유혈강타는 광역기 자리로 옮기고 HP소모 컨셉은 그대로 유지
       { id: 'dark_strike', name: '암흑 일격', manaCost: 5, type: 'attack', power: 1.6, elements: ['dark'] },
       { id: 'blood_strike', name: '유혈 강타', manaCost: 12, type: 'attack_all', power: 1.6, resourceType: 'hp', elements: ['dark'] },

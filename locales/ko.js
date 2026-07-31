@@ -1895,4 +1895,15 @@
   "rpg.log.mercLevelCapped": "{merc}은(는) 주인공의 레벨을 넘어설 수 없다.",
   "rpg.log.mercDischarged": "{merc}이(가) 완쾌해 퇴원했다!",
 
+  // ── RPG: 기본공격(basic_attack) 훈련가능 스킬명 ──
+  "rpg.skill.warrior.basic_attack.name": "주먹질",
+  "rpg.skill.archer.basic_attack.name": "짱돌 던지기",
+  "rpg.skill.mage.basic_attack.name": "마력 파동",
+  "rpg.skill.priest.basic_attack.name": "정화의 빛",
+  "rpg.skill.paladin.basic_attack.name": "맨손 강타",
+  "rpg.skill.dark_knight.basic_attack.name": "어둠의 손아귀",
+
+  // ── RPG: 기본공격 상시사용 안내 ──
+  "rpg.ui.trainer.alwaysUsableSuffix": " (미훈련이어도 항상 사용 가능, 훈련하면 위력 상승)",
+
 };
