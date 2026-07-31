@@ -1813,7 +1813,7 @@
   "rpg.log.flavor.monsterHitIntro.4": "내리찍었다",
   "rpg.log.flavor.monsterCritIntro.0": "치명적으로 급소를 강타했다",
   "rpg.log.flavor.monsterCritIntro.1": "방어를 완전히 무너뜨렸다",
-  "rpg.log.flavor.monsterMiss.0": "공격을 가까스로 피했다",
+  "rpg.log.flavor.monsterMiss.0": "가까스로 피했다",
   "rpg.log.flavor.monsterMiss.1": "아슬아슬하게 회피했다",
   "rpg.log.flavor.monsterMiss.2": "몸을 굴려 피했다",
   "rpg.log.flavor.monsterMiss.3": "방어로 막아냈다",

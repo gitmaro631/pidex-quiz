@@ -165,7 +165,7 @@ const IMPROVISED_ATTACK_GRUMBLE_LINES = [
 ];
 const MONSTER_HIT_INTROS = ['강타했다', '물어뜯었다', '베어냈다', '덮쳤다', '내리찍었다'];
 const MONSTER_CRIT_INTROS = ['치명적으로 급소를 강타했다', '방어를 완전히 무너뜨렸다'];
-const MONSTER_MISS_LINES = ['공격을 가까스로 피했다', '아슬아슬하게 회피했다', '몸을 굴려 피했다', '방어로 막아냈다'];
+const MONSTER_MISS_LINES = ['가까스로 피했다', '아슬아슬하게 회피했다', '몸을 굴려 피했다', '방어로 막아냈다'];
 // 클라이언트(page-rpg.js)가 전투 로그 메시지 종류를 색으로 구분할 때 재사용 - 빗나감 문구 전체
 export const COMBAT_MISS_PHRASES = [...ATTACK_MISS_LINES, ...MONSTER_MISS_LINES];
 
