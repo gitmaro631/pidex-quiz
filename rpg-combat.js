@@ -605,11 +605,15 @@ function buildCombatant({ characterLike, isSelf, formationRow, ownerCharacter, l
     level: characterLike.level || 1, // 용병 액티브 스킬의 레벨연동 자동단계(skillEffectivePower 참고)에 씀
     // 영어처럼 격변화가 있는 언어에서 "Me's Attack" 같은 비문이 나오지 않도록, 자기 자신 라벨을
     // 문법적 위치별로 따로 준비함(한국어는 조사가 자동으로 붙어 label 하나로 충분해서 그대로 재사용).
-    // label=주어(I), labelObject=목적어(me), labelPossessive=소유격 전체구(My / "이름's")
+    // label=주어(I), labelObject=목적어(me), labelPossessive=소유격 전체구(My / "이름's").
+    // "'s" 접미사는 영어에서만 성립하는 표기라 lang==='en'일 때만 붙임 - 다른 언어(인도네시아어 등)는
+    // 소유격 표시가 어순/조사로 되거나 아예 필요 없어서 붙이면 오히려 영어 표기가 섞여 보임(버그였음)
     name: isSelf ? tLang('rpg.ui.combat.selfSubject', lang, '나') : characterLike.name,
     label: isSelf ? tLang('rpg.ui.combat.selfSubject', lang, '나') : characterLike.name,
     labelObject: isSelf ? tLang('rpg.ui.combat.selfObject', lang, '나') : characterLike.name,
-    labelPossessive: isSelf ? tLang('rpg.ui.combat.selfPossessive', lang, '나') : `${characterLike.name}'s`,
+    labelPossessive: isSelf
+      ? tLang('rpg.ui.combat.selfPossessive', lang, '나')
+      : (lang === 'en' ? `${characterLike.name}'s` : characterLike.name),
     combatStats,
     stance: characterLike.stance || 'stable',
     // 유저 본인은 role 분기 대상이 아님(항상 기존처럼 utility 스킬 우선) - 용병만 fight/support로 갈림.
