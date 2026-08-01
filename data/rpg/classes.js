@@ -51,7 +51,9 @@ export const CLASSES = {
       { id: 'rapid_fire', name: '속사', manaCost: 0, type: 'passive_rapid_fire', power: 0.08 },
       // 마찬가지로 패시브 - 공격을 받을 때마다(명중 판정과는 별개로) 이 확률만큼 완전히 회피함.
       // 회피사격(evasive_shot, 서포트 역할일 때만 쓰는 일시적 자기버프)과는 다른, 항상 켜져있는 스킬
-      { id: 'evasion', name: '회피', manaCost: 0, type: 'passive_evasion', power: 0.08 },
+      // 훈련 만렙(tier3, ×1.3)+연무장 시설 보너스 최대치를 합쳐도 15% 밑으로 유지되게 낮춤(0.08→0.06) -
+      // 명중판정까지 통과한 크리티컬조차 조건 없이 무조건 무효화하는 유일한 방어수단이라 원래 값이 과했음
+      { id: 'evasion', name: '회피', manaCost: 0, type: 'passive_evasion', power: 0.06 },
       // 패시브 - 명중할 때마다(확률 아님, 항상 적용) 그 몹의 회피력(AC)이 몇 라운드간 떨어짐. power는
       // 감소량 기준값, 단계가 오르면 감소량이 커짐(rpg-combat.js performAttack/EXPOSE_EVASION_ROUNDS 참고)
       { id: 'exposing_shot', name: '급소 노출', manaCost: 0, type: 'passive_expose_evasion', power: 3 },
