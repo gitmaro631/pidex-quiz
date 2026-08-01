@@ -85,6 +85,9 @@ const DANGER_RETREAT_HP_PCT = 0.25;
 const SHIELD_COUNTER_BASE_DAMAGE_MULT = 0.5;
 // 궁수 속사 발동 시 데미지 배율 - 확률만 단계별로 세지고 배율 자체는 고정 3배
 const RAPID_FIRE_DAMAGE_MULT = 3;
+// 전사 이도류(dual_wield) - 보조무기 공격력 합산치에 얹는 추가 보너스. 3단계(만렙)에서 정확히 +5%가 되도록
+// 단계별 값을 직접 지정(다른 패시브처럼 TIER_POWER_MULT로 배율만 곱하는 방식이 아님 - 목표 수치가 명확해서 고정표 사용)
+const DUAL_WIELD_BONUS_BY_TIER = { 1: 0.03, 2: 0.04, 3: 0.05 };
 // 사기진작(morale_boost) 시전 시 파티 전원이 멘탈붕괴 완전 면역을 받는 지속 라운드 수
 const MORALE_BOOST_IMMUNE_ROUNDS = 4;
 // 성기사 불굴의 의지 - 발동 1회당 AC(방어) 증가폭(그 전투 내내 유지, 스택 가능)
@@ -284,6 +287,7 @@ export function computeCharacterCombatStats(character) {
 
   const equipment = character.equipment || {};
   const weaponItem = equipment.weapon ? ITEMS[equipment.weapon] : null;
+  const offhandItem = equipment.offhand ? ITEMS[equipment.offhand] : null;
   const shieldItem = equipment.shield ? ITEMS[equipment.shield] : null;
   const armorTopItem = equipment.armor_top ? ITEMS[equipment.armor_top] : null;
   const armorBottomItem = equipment.armor_bottom ? ITEMS[equipment.armor_bottom] : null;
@@ -292,16 +296,25 @@ export function computeCharacterCombatStats(character) {
 
   // 내구도 0이 되면 파손 - 수리 전까지 그 부위 보너스가 전부 사라짐(장신구는 내구도 대상 아님)
   const weaponBroken = weaponItem && (equipment.weaponDurability ?? 100) <= 0;
+  const offhandBroken = offhandItem && (equipment.offhandDurability ?? 100) <= 0;
   const shieldBroken = shieldItem && (equipment.shieldDurability ?? 100) <= 0;
   const armorTopBroken = armorTopItem && (equipment.armor_topDurability ?? 100) <= 0;
   const armorBottomBroken = armorBottomItem && (equipment.armor_bottomDurability ?? 100) <= 0;
 
   // 대장간 강화(1~10단계) - 내구도와 같은 원칙으로, 파손되면 강화 보너스도 함께 사라짐
   const weaponEnhanceBonus = weaponBroken ? 0 : (equipment.weaponEnhanceLevel || 0) * ENHANCE_ATK_PER_LEVEL;
+  const offhandEnhanceBonus = offhandBroken ? 0 : (equipment.offhandEnhanceLevel || 0) * ENHANCE_ATK_PER_LEVEL;
   const shieldEnhanceBonus = shieldBroken ? 0 : (equipment.shieldEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
   const armorTopEnhanceBonus = armorTopBroken ? 0 : (equipment.armor_topEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
   const armorBottomEnhanceBonus = armorBottomBroken ? 0 : (equipment.armor_bottomEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
   const weaponAtkBonus = (weaponBroken ? 0 : ((weaponItem && weaponItem.atkBonus) || 0)) + weaponEnhanceBonus;
+  // 이도류(전사 전용, equip.js에서 방패와 상호배타적으로 강제함) - 보조무기의 공격력이 그대로 합산됨(기본
+  // 동작, 훈련 불필요). dual_wield 패시브를 훈련해뒀으면 그 위에 단계별 추가 보너스가 얹어짐(위 상수 참고)
+  const offhandBaseAtkBonus = (offhandBroken ? 0 : ((offhandItem && offhandItem.atkBonus) || 0)) + offhandEnhanceBonus;
+  const dualWieldSkillDef = classDef.skills.find((s) => s.type === 'passive_dual_wield');
+  const dualWieldTier = (character.skillLevels && dualWieldSkillDef && character.skillLevels[dualWieldSkillDef.id]) || 0;
+  const dualWieldBonusPct = offhandItem && dualWieldTier > 0 ? (DUAL_WIELD_BONUS_BY_TIER[dualWieldTier] || 0) : 0;
+  const offhandAtkBonus = Math.round(offhandBaseAtkBonus * (1 + dualWieldBonusPct));
   // 보조무기(weapon2/weapon3) - 내구도/강화 추적 없는 단순 예비무기. 진형이 밀려 주무기가 안 닿는 상황에서
   // 상황에 맞는 무기로 자동 전환하는 데 씀(rpg-combat.js의 selectAttackWeapon 참고) - 평소엔 아무 영향 없음
   const subWeapons = ['weapon2', 'weapon3']
@@ -379,7 +392,7 @@ export function computeCharacterCombatStats(character) {
   // 방벽=방어력 flat 가산, 연공실=최대 마나/스테미나 % 가산, 연무장=회피율 flat 가산(evasionChance에서 반영)
   const rampartsDefBonus = character.rampartsDefBonus || 0;
   const sanctumResourceBonusPct = character.sanctumResourceBonusPct || 0;
-  const finalAtk = Math.round((scalingStat * 2 + level + weaponAtkBonus + accessoryAtkBonus) * facilityAtkMult) + (squireBonus.atk || 0);
+  const finalAtk = Math.round((scalingStat * 2 + level + weaponAtkBonus + offhandAtkBonus + accessoryAtkBonus) * facilityAtkMult) + (squireBonus.atk || 0);
   const finalDef = Math.round((stats.vit + gearDefBonus + accessoryDefBonus) * facilityDefMult) + (squireBonus.def || 0) + rampartsDefBonus;
   // D&D식 명중판정용 - 레벨/tier 위주로 압축한 값(공/방 원수치를 그대로 쓰면 고티어에서 늘 명중해버림).
   // attackBonus: 레벨 + 무기숙련(atk의 일부) / ac: 레벨 + 방어(def의 일부) + 민첩(dex 보정격)
@@ -487,6 +500,7 @@ export function applyEquipmentWear(equipment, wearChance = 1) {
     if (after === 0) brokenNow.push(itemKey);
   };
   wearOne('weapon', 'weaponDurability');
+  wearOne('offhand', 'offhandDurability');
   wearOne('shield', 'shieldDurability');
   wearOne('armor_top', 'armor_topDurability');
   wearOne('armor_bottom', 'armor_bottomDurability');

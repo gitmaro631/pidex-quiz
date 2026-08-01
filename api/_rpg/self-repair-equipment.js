@@ -9,7 +9,7 @@ import { rarityAllowedBySkill } from '../../data/rpg/enhancement.js';
 
 const REPAIR_COST_PER_POINT_BY_RARITY = { normal: 2, uncommon: 3, rare: 5, epic: 8, legendary: 12 };
 const SELF_REPAIR_DISCOUNT = 0.6; // 대장간 수리비의 60%만 냄(스킬 투자 보상)
-const DURABILITY_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
+const DURABILITY_SLOTS = ['weapon', 'offhand', 'shield', 'armor_top', 'armor_bottom'];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

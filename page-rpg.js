@@ -362,6 +362,9 @@ const ERROR_MESSAGE_KEYS = {
   quest_condition_not_met: 'rpg.error.quest_condition_not_met',
   invalid_message: 'rpg.error.invalid_message',
   inventory_over_capacity: 'rpg.error.inventory_over_capacity',
+  offhand_class_restricted: 'rpg.error.offhand_class_restricted',
+  offhand_two_handed: 'rpg.error.offhand_two_handed',
+  main_weapon_two_handed: 'rpg.error.main_weapon_two_handed',
 };
 
 function friendlyError(err) {
@@ -1641,6 +1644,15 @@ function renderInventoryTab(content, container) {
             </select>
           `);
         }
+        if (item.type === 'weapon') {
+          // 이도류(보조무기) 슬롯 선택 - 전사가 아니면 서버가 offhand_class_restricted로 거부함(equip.js 참고)
+          actions.push(`
+            <select class="rpg-inv-weapon-slot" data-item="${entry.itemId}">
+              <option value="weapon">${t('rpg.ui.equipSlot.weapon')}</option>
+              <option value="offhand">${t('rpg.ui.equipSlot.offhand')}</option>
+            </select>
+          `);
+        }
         if (equippable.includes(item.type)) actions.push(`<button class="rpg-inv-equip" data-item="${entry.itemId}">${t('rpg.ui.inventory.equipBtn')}</button>`);
         if (!isItemIdentified(item)) {
           actions.push(`<button class="rpg-inv-identify" data-item="${entry.itemId}">${t('rpg.ui.inventory.identifyBtn')}</button>`);
@@ -1787,7 +1799,9 @@ function renderInventoryTab(content, container) {
       if (!ok) reqOk = false;
       reqRows.push(`<div class="rpg-stat-delta-row"><span>${t('rpg.ui.inventory.reqWis')}</span><span>${item.wisRequirement} ${ti('rpg.ui.inventory.currentValue', getLang(), { v: stats.wis })}</span><span>${ok ? '✅' : '❌'}</span></div>`);
     }
-    const slot = EQUIP_SLOT_BY_TYPE[item.type];
+    const weaponSlotSelect = item.type === 'weapon' ? content.querySelector(`.rpg-inv-weapon-slot[data-item="${itemId}"]`) : null;
+    const weaponSlot = weaponSlotSelect && weaponSlotSelect.value === 'offhand' ? 'offhand' : null;
+    const slot = weaponSlot || EQUIP_SLOT_BY_TYPE[item.type];
     const previousItemId = targetChar.equipment[slot];
     const previousItem = previousItemId ? ITEMS[previousItemId] : null;
     const before = computeCharacterCombatStats(targetChar);
@@ -1799,16 +1813,22 @@ function renderInventoryTab(content, container) {
     const penaltyWarning = equipPenaltyWarning(item, classDef);
     const addedParts = itemBonusParts(item);
     const removedParts = previousItem ? itemBonusParts(previousItem) : [];
-    // 양손무기(스태프 등)는 방패와 같이 못 낌 - 장착하면 반대쪽이 자동으로 벗겨지니 미리 경고(api/_rpg/equip.js와 동일 규칙)
+    // 양손무기(스태프 등)는 방패/보조무기와 같이 못 끼고, 방패와 보조무기(이도류)도 서로 상호배타적임 -
+    // 장착하면 반대쪽이 자동으로 벗겨지니 미리 경고(api/_rpg/equip.js와 동일 규칙)
     let twoHandedWarning = null;
-    if (item.type === 'shield') {
+    if (slot === 'shield') {
       const currentWeapon = targetChar.equipment.weapon ? ITEMS[targetChar.equipment.weapon] : null;
       if (currentWeapon && TWO_HANDED_WEAPON_TYPES.includes(currentWeapon.weaponType)) {
         twoHandedWarning = ti('rpg.ui.inventory.twoHandedShieldWarn', getLang(), { weapon: getItemName(currentWeapon.id, getLang()) });
+      } else if (targetChar.equipment.offhand) {
+        twoHandedWarning = ti('rpg.ui.inventory.offhandSwapWarn', getLang(), { name: getItemName(targetChar.equipment.offhand, getLang()) });
       }
-    } else if (item.type === 'weapon' && TWO_HANDED_WEAPON_TYPES.includes(item.weaponType) && targetChar.equipment.shield) {
-      const currentShield = ITEMS[targetChar.equipment.shield];
-      twoHandedWarning = ti('rpg.ui.inventory.twoHandedWeaponWarn', getLang(), { weapon: getItemName(item.id, getLang()), shield: currentShield ? getItemName(currentShield.id, getLang()) : t('rpg.ui.equip.shield') });
+    } else if (slot === 'offhand' && targetChar.equipment.shield) {
+      twoHandedWarning = ti('rpg.ui.inventory.offhandSwapWarn', getLang(), { name: getItemName(targetChar.equipment.shield, getLang()) });
+    } else if (slot === 'weapon' && TWO_HANDED_WEAPON_TYPES.includes(item.weaponType) && (targetChar.equipment.shield || targetChar.equipment.offhand)) {
+      const conflictId = targetChar.equipment.shield || targetChar.equipment.offhand;
+      const conflictItem = ITEMS[conflictId];
+      twoHandedWarning = ti('rpg.ui.inventory.twoHandedWeaponWarn', getLang(), { weapon: getItemName(item.id, getLang()), shield: conflictItem ? getItemName(conflictItem.id, getLang()) : t('rpg.ui.equip.shield') });
     }
     showConfirmOverlay(container, {
       title: mercId ? ti('rpg.ui.inventory.equipTitleForMerc', getLang(), { name: getItemName(item.id, getLang()), target: targetChar.name }) : ti('rpg.ui.inventory.equipTitle', getLang(), { name: getItemName(item.id, getLang()) }),
@@ -1825,7 +1845,7 @@ function renderInventoryTab(content, container) {
       confirmDisabled: !reqOk,
       onConfirm: async () => {
         try {
-          await apiPost('equip', mercId ? { itemId, mercId } : { itemId });
+          await apiPost('equip', { itemId, ...(mercId ? { mercId } : {}), ...(weaponSlot ? { weaponSlot } : {}) });
           await loadCharacter();
           const finalTarget = mercId ? (character.mercenaries || []).find((m) => m.id === mercId) : character;
           const finalAfter = computeCharacterCombatStats(finalTarget);
@@ -2013,9 +2033,11 @@ function facilityDashboardHtml() {
 // 용병 장비 슬롯(무기/방패/상하의만 - 반지/목걸이 없음, api/_rpg/equip.js의 MERC_EQUIPPABLE_TYPES와 동일)
 const MERC_EQUIP_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
 function mercEquipmentRowHtml(m) {
+  // 이도류(보조무기) 슬롯은 전사 용병만 표시(equip.js의 offhand_class_restricted와 대응)
+  const slots = m.classMain === 'warrior' ? ['weapon', 'offhand', 'shield', 'armor_top', 'armor_bottom'] : MERC_EQUIP_SLOTS;
   return `
     <p class="rpg-hint rpg-merc-equipment">${t('rpg.ui.territory.equipmentLabel')}
-      ${MERC_EQUIP_SLOTS.map((slot) => {
+      ${slots.map((slot) => {
         const itemId = m.equipment && m.equipment[slot];
         const item = itemId ? ITEMS[itemId] : null;
         return `${equipSlotLabel(slot)} ${item ? `${getItemName(item.id, getLang())}${itemStatsLabel(item)}` : t('rpg.ui.territory.none')} <button class="rpg-merc-recommend-btn" data-merc="${m.id}" data-slot="${slot}">${t('rpg.ui.territory.recommendBtn')}</button>${item ? ` <button class="rpg-merc-unequip-btn" data-merc="${m.id}" data-slot="${slot}">${t('rpg.ui.territory.unequipBtn')}</button>` : ''}`;
@@ -2410,9 +2432,10 @@ function findBestItemForSlot(targetChar, slot) {
   const currentItemId = (targetChar.equipment || {})[slot];
   let bestScore = gearScore(baseline);
   let best = null;
+  const expectedType = slot === 'offhand' ? 'weapon' : slot; // 이도류 슬롯은 무기 타입 아이템을 낌(equip.js 참고)
   for (const entry of (character.inventory || [])) { // 가방은 항상 계정(character) 공용
     const item = ITEMS[entry.itemId];
-    if (!item || item.type !== slot || entry.itemId === currentItemId) continue;
+    if (!item || item.type !== expectedType || entry.itemId === currentItemId) continue;
     if (!canEquipItemOn(targetChar, item)) continue;
     const candidateStats = computeCharacterCombatStats({
       ...targetChar,
@@ -2449,7 +2472,7 @@ function showRecommendOverlay(container, targetChar, slot, mercId, rerender) {
     confirmLabel: t('rpg.ui.recommend.replaceBtn'),
     onConfirm: async () => {
       try {
-        await apiPost('equip', mercId ? { itemId: best.itemId, mercId } : { itemId: best.itemId });
+        await apiPost('equip', { itemId: best.itemId, ...(mercId ? { mercId } : {}), ...(slot === 'offhand' ? { weaponSlot: 'offhand' } : {}) });
         await loadCharacter();
         showToast(ti('rpg.ui.recommend.replacedMsg', getLang(), { slot: equipSlotLabel(slot), item: getItemName(best.item.id, getLang()) }));
         rerender();
@@ -2460,10 +2483,13 @@ function showRecommendOverlay(container, targetChar, slot, mercId, rerender) {
 
 // ── 장비창 — 착용 중인 장비를 슬롯별로 한눈에 보여줌 ──
 function equipSlotLabel(slot) { return t(`rpg.ui.equipSlot.${slot}`); }
-const DURABILITY_TRACKED_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
+const DURABILITY_TRACKED_SLOTS = ['weapon', 'offhand', 'shield', 'armor_top', 'armor_bottom'];
 function equipmentSectionHtml() {
   const stats = computeCharacterCombatStats(character);
-  const slots = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
+  // 이도류(보조무기) 슬롯은 전사만 낄 수 있어서 전사일 때만 표시(equip.js의 offhand_class_restricted와 대응)
+  const slots = character.classMain === 'warrior'
+    ? ['weapon', 'offhand', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace']
+    : ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
   const hammerQty = ((character.inventory || []).find((e) => e.itemId === 'repair_hammer') || {}).qty || 0;
   return `
     <div class="rpg-equipment">

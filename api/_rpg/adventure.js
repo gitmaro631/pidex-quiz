@@ -16,7 +16,7 @@ import { territoryDaysElapsed, settleTerritoryDays } from '../../rpg-territory.j
 import { tLang, ti } from '../../util-i18n.js';
 import { getTownName } from '../../rpg-i18n.js';
 
-const EQUIP_SLOT_LABELS = { weapon: '무기', shield: '방패', armor_top: '상의', armor_bottom: '하의' };
+const EQUIP_SLOT_LABELS = { weapon: '무기', offhand: '보조무기', shield: '방패', armor_top: '상의', armor_bottom: '하의' };
 function equipSlotLabelFor(slot, lang) { return tLang(`rpg.ui.equipSlot.${slot}`, lang, EQUIP_SLOT_LABELS[slot] || slot); }
 
 // 부상은 모험(턴 소모) 단위로 회복이 진행됨 - 새로 다치거나 악화된 부위는 freshInjuries로 갱신되고,

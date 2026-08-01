@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   const username = await verifyPiUser(accessToken);
   if (!username) return res.status(401).json({ error: 'invalid accessToken' });
   if (!isValidSlot(slot, username)) return res.status(400).json({ error: 'invalid_slot' });
-  const DURABILITY_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
+  const DURABILITY_SLOTS = ['weapon', 'offhand', 'shield', 'armor_top', 'armor_bottom'];
   if (!DURABILITY_SLOTS.includes(equipSlot)) return res.status(400).json({ error: 'invalid_equip_slot' });
 
   const durabilityKey = `${equipSlot}Durability`;

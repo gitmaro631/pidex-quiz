@@ -27,6 +27,10 @@ export const CLASSES = {
       // power는 발동 확률 기준값(단계별로 세짐), 지속 라운드 수는 별도로 훈련 단계에 정비례해서 늘어남
       // (TAUNT_ROUNDS_BY_TIER, rpg-combat.js 참고)
       { id: 'taunt', name: '도발', manaCost: 6, type: 'passive_taunt', power: 0.15 },
+      // 전사 전용 - 방패 대신 보조무기(offhand)를 끼면(equip.js 참고) 그 무기의 공격력도 그대로 합산됨
+      // (이건 훈련과 무관한 기본 동작). 이 스킬은 그 합산치에 추가 보너스를 얹어줌 - 3단계(만렙) 기준
+      // +5%, DUAL_WIELD_BONUS_BY_TIER(rpg-combat.js)가 단계별 정확한 값을 관리(1단계 3%, 2단계 4%, 3단계 5%)
+      { id: 'dual_wield', name: '이도류', manaCost: 0, type: 'passive_dual_wield', power: 0.05 },
       SHIELD_EQUIP_SKILL,
     ],
     // 직업-몹 타입 상성(확률 발동, 명중 보장 아님) - 전사는 언데드 사냥에 강하고 야수 상대는 약함

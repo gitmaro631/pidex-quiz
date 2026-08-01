@@ -1143,6 +1143,7 @@
   "rpg.skill.warrior.guard_stance.name": "Guard Stance",
   "rpg.skill.warrior.execute.name": "Execute",
   "rpg.skill.warrior.taunt.name": "Taunt",
+  "rpg.skill.warrior.dual_wield.name": "Dual Wield",
   "rpg.skill.warrior.shield_equip.name": "Shield Equip",
   "rpg.class.archer.name": "Archer",
   "rpg.skill.archer.aimed_shot.name": "Aimed Shot",
@@ -2026,6 +2027,7 @@
   "rpg.ui.trainer.maxed": " (max)",
   "rpg.ui.trainer.trainBtn": "{label} ({item} x{essence}, {gold} gold)",
   "rpg.ui.equipSlot.weapon": "Weapon",
+  "rpg.ui.equipSlot.offhand": "Off-hand",
   "rpg.ui.equipSlot.shield": "Shield",
   "rpg.ui.equipSlot.armor_top": "Top",
   "rpg.ui.equipSlot.armor_bottom": "Bottom",
@@ -2172,6 +2174,7 @@
   "rpg.ui.inventory.reqWis": "Required Wisdom",
   "rpg.ui.inventory.twoHandedShieldWarn": "⚠️ {weapon} is a two-handed weapon and can't be worn with a shield — equipping it will automatically unequip your shield.",
   "rpg.ui.inventory.twoHandedWeaponWarn": "⚠️ {weapon} is a two-handed weapon and can't be worn with a shield — equipping it will automatically unequip {shield}.",
+  "rpg.ui.inventory.offhandSwapWarn": "⚠️ A shield and an off-hand (dual-wield) weapon can't be worn together — equipping this will automatically unequip {name}.",
   "rpg.ui.inventory.equipTitle": "Equip {name}",
   "rpg.ui.inventory.equipTitleForMerc": "Equip {name} — {target}",
   "rpg.ui.inventory.added": "Added: {parts}",
@@ -2392,6 +2395,9 @@
   "rpg.error.quest_condition_not_met": "You haven't met the quest requirements yet.",
   "rpg.error.invalid_message": "Please check your message (150 characters max).",
   "rpg.error.inventory_over_capacity": "Your bag has exceeded its slot/weight limit. Clean it up and try again.",
+  "rpg.error.offhand_class_restricted": "Only warriors can dual-wield an off-hand weapon.",
+  "rpg.error.offhand_two_handed": "Two-handed weapons can't be equipped in the off-hand.",
+  "rpg.error.main_weapon_two_handed": "Your main weapon is two-handed, so you can't equip an off-hand weapon too.",
   "rpg.error.generic": "An error occurred. Please try again.",
 
   // ── RPG UI: loading/daily bonus/turn refill notices/over-capacity ──

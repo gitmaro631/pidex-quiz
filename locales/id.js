@@ -1143,6 +1143,7 @@
   "rpg.skill.warrior.guard_stance.name": "Sikap Bertahan",
   "rpg.skill.warrior.execute.name": "Eksekusi",
   "rpg.skill.warrior.taunt.name": "Provokasi",
+  "rpg.skill.warrior.dual_wield.name": "Dua Senjata",
   "rpg.skill.warrior.shield_equip.name": "Pasang Perisai",
   "rpg.class.archer.name": "Pemanah",
   "rpg.skill.archer.aimed_shot.name": "Bidikan Tepat",
@@ -2040,6 +2041,7 @@
 
   // ── RPG UI: Slot Perlengkapan/Nama Rarity/Pandai Besi/Kerajinan ──────────
   "rpg.ui.equipSlot.weapon": "Senjata",
+  "rpg.ui.equipSlot.offhand": "Senjata Kedua",
   "rpg.ui.equipSlot.shield": "Perisai",
   "rpg.ui.equipSlot.armor_top": "Atasan",
   "rpg.ui.equipSlot.armor_bottom": "Bawahan",
@@ -2192,6 +2194,7 @@
   "rpg.ui.inventory.reqWis": "Kebijaksanaan Dibutuhkan",
   "rpg.ui.inventory.twoHandedShieldWarn": "⚠️ {weapon} adalah senjata dua tangan dan tidak bisa dipakai bersama perisai - memasangnya akan otomatis melepas perisaimu.",
   "rpg.ui.inventory.twoHandedWeaponWarn": "⚠️ {weapon} adalah senjata dua tangan dan tidak bisa dipakai bersama perisai - memasangnya akan otomatis melepas {shield}.",
+  "rpg.ui.inventory.offhandSwapWarn": "⚠️ Perisai dan senjata kedua (dual-wield) tidak bisa dipakai bersamaan - memasang ini akan otomatis melepas {name}.",
   "rpg.ui.inventory.equipTitle": "Pasang {name}",
   "rpg.ui.inventory.equipTitleForMerc": "Pasang {name} — {target}",
   "rpg.ui.inventory.added": "Ditambahkan: {parts}",
@@ -2431,6 +2434,9 @@
   "rpg.error.quest_condition_not_met": "Kamu belum memenuhi syarat quest ini.",
   "rpg.error.invalid_message": "Periksa pesanmu (maks 150 karakter).",
   "rpg.error.inventory_over_capacity": "Tasmu melebihi batas slot/berat. Rapikan dulu lalu coba lagi.",
+  "rpg.error.offhand_class_restricted": "Hanya prajurit yang bisa memakai senjata kedua (dual-wield).",
+  "rpg.error.offhand_two_handed": "Senjata dua tangan tidak bisa dipasang sebagai senjata kedua.",
+  "rpg.error.main_weapon_two_handed": "Senjata utamamu adalah senjata dua tangan, jadi tidak bisa sekaligus memasang senjata kedua.",
   "rpg.error.generic": "Terjadi kesalahan. Silakan coba lagi.",
 
   // ── RPG: Loading/Bonus Harian/Info Isi Ulang Turn ──

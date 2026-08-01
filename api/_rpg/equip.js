@@ -10,10 +10,13 @@ const EQUIPPABLE_TYPES = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring
 // 용병은 반지/목걸이 슬롯이 없음(createMercenaryInstance 참고) - 무기/방패/상하의만 장착 가능
 const MERC_EQUIPPABLE_TYPES = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
 const ARMOR_SLOTS = ['armor_top', 'armor_bottom'];
-const DURABILITY_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
+// offhand(이도류 보조무기) - 방패처럼 주무기와 별개로 강화/내구도를 추적함(weapon2/weapon3와는 다름)
+const DURABILITY_SLOTS = ['weapon', 'offhand', 'shield', 'armor_top', 'armor_bottom'];
 // 보조무기 슬롯(내구도/강화 추적 없음) - 위치에 따라 상황에 맞는 무기로 자동 전환하는 데 씀(rpg-combat.js의
-// selectAttackWeapon 참고). weaponSlot 파라미터로 주무기/보조무기 중 어디에 낄지 고름(무기 타입 아이템만 해당)
-const WEAPON_SLOTS = ['weapon', 'weapon2', 'weapon3'];
+// selectAttackWeapon 참고). weaponSlot 파라미터로 주무기/보조무기 중 어디에 낄지 고름(무기 타입 아이템만 해당).
+// offhand는 이들과 달리 "항상 같이 싸우는 두 번째 무기"로, 공격력이 주무기와 그대로 합산됨(전사 전용,
+// computeCharacterCombatStats 참고) - 방패와 상호배타적이라 아래에서 서로 자동 해제 처리함
+const WEAPON_SLOTS = ['weapon', 'weapon2', 'weapon3', 'offhand'];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -48,6 +51,19 @@ export default async function handler(req, res) {
 
       const cls = CLASSES[target.classMain] || CLASSES.warrior;
 
+      // 이도류(보조무기) 슬롯 - 전사 전용 하드 블록(다른 무기 슬롯과 달리 직업 불일치 페널티가 아니라
+      // 아예 장착 자체가 안 됨, 상하의 직업제한과 같은 원칙). 양손무기는 보조무기로도, 주무기가 양손무기인
+      // 채로도 낄 수 없음(둘 다 손이 모자람)
+      if (equipSlot === 'offhand') {
+        if (cls.id !== 'warrior') { outcome = { error: 'offhand_class_restricted' }; return null; }
+        if (TWO_HANDED_WEAPON_TYPES.includes(item.weaponType)) { outcome = { error: 'offhand_two_handed' }; return null; }
+        const currentMainWeapon = target.equipment && target.equipment.weapon ? ITEMS[target.equipment.weapon] : null;
+        if (currentMainWeapon && TWO_HANDED_WEAPON_TYPES.includes(currentMainWeapon.weaponType)) {
+          outcome = { error: 'main_weapon_two_handed' };
+          return null;
+        }
+      }
+
       // 무기는 직업에 안 맞아도 장착은 허용(전투 중 명중/위력 패널티는 rpg-combat.js가 처리) -
       // 상/하의는 직업 제한(예: 궁수는 경갑만)을 못 채우면 아예 장착 불가(하드 블록)
       if (ARMOR_SLOTS.includes(equipSlot) && item.armorClass) {
@@ -78,9 +94,9 @@ export default async function handler(req, res) {
         return null;
       }
 
-      // 양손무기(스태프 등)는 방패와 같이 못 낌 - 방패를 끼는데 양손무기를 쓰고 있으면 그 무기를 자동으로
-      // 벗기고, 반대로 양손무기를 끼는데 방패를 쓰고 있으면 방패를 자동으로 벗김(무기 슬롯 자체는 아래서
-      // 새 아이템으로 이미 교체되므로 신경 안 써도 됨 - 여기선 "나머지 한쪽"만 처리)
+      // 양손무기(스태프 등)는 방패/보조무기와 같이 못 낌, 방패와 보조무기(이도류)도 서로 상호배타적 -
+      // 셋 중 하나를 끼면 손이 모자라는 나머지 한쪽이 있을 경우 자동으로 벗겨서 가방으로 돌려줌(무기
+      // 슬롯 자체는 아래서 새 아이템으로 이미 교체되므로 신경 안 써도 됨 - 여기선 "나머지 한쪽"만 처리)
       let forcedUnequippedItemId = null;
       let forcedUnequippedSlot = null;
       if (equipSlot === 'shield') {
@@ -88,8 +104,19 @@ export default async function handler(req, res) {
         if (currentWeaponItem && TWO_HANDED_WEAPON_TYPES.includes(currentWeaponItem.weaponType)) {
           forcedUnequippedItemId = equipment.weapon;
           forcedUnequippedSlot = 'weapon';
+        } else if (equipment.offhand) {
+          forcedUnequippedItemId = equipment.offhand;
+          forcedUnequippedSlot = 'offhand';
         }
-      } else if (equipSlot === 'weapon' && TWO_HANDED_WEAPON_TYPES.includes(item.weaponType) && equipment.shield) {
+      } else if (equipSlot === 'weapon' && TWO_HANDED_WEAPON_TYPES.includes(item.weaponType)) {
+        if (equipment.shield) {
+          forcedUnequippedItemId = equipment.shield;
+          forcedUnequippedSlot = 'shield';
+        } else if (equipment.offhand) {
+          forcedUnequippedItemId = equipment.offhand;
+          forcedUnequippedSlot = 'offhand';
+        }
+      } else if (equipSlot === 'offhand' && equipment.shield) {
         forcedUnequippedItemId = equipment.shield;
         forcedUnequippedSlot = 'shield';
       }

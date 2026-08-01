@@ -465,6 +465,7 @@
   "rpg.skill.warrior.guard_stance.name": "방어태세",
   "rpg.skill.warrior.execute.name": "처형",
   "rpg.skill.warrior.taunt.name": "도발",
+  "rpg.skill.warrior.dual_wield.name": "이도류",
   "rpg.skill.warrior.shield_equip.name": "방패장착",
   "rpg.class.archer.name": "궁수",
   "rpg.skill.archer.aimed_shot.name": "조준사격",
@@ -1360,6 +1361,7 @@
 
   // ── RPG UI: 장비슬롯/등급명/대장간/제작 ──────────
   "rpg.ui.equipSlot.weapon": "무기",
+  "rpg.ui.equipSlot.offhand": "보조무기",
   "rpg.ui.equipSlot.shield": "방패",
   "rpg.ui.equipSlot.armor_top": "상의",
   "rpg.ui.equipSlot.armor_bottom": "하의",
@@ -1512,6 +1514,7 @@
   "rpg.ui.inventory.reqWis": "요구 지혜",
   "rpg.ui.inventory.twoHandedShieldWarn": "⚠️ {weapon}은(는) 양손무기라 방패와 같이 낄 수 없어요 - 장착하면 자동으로 벗겨집니다.",
   "rpg.ui.inventory.twoHandedWeaponWarn": "⚠️ {weapon}은(는) 양손무기라 방패와 같이 낄 수 없어요 - 장착하면 {shield}이(가) 자동으로 벗겨집니다.",
+  "rpg.ui.inventory.offhandSwapWarn": "⚠️ 방패와 보조무기(이도류)는 같이 낄 수 없어요 - 장착하면 {name}이(가) 자동으로 벗겨집니다.",
   "rpg.ui.inventory.equipTitle": "{name} 장착",
   "rpg.ui.inventory.equipTitleForMerc": "{name} 장착 — {target}",
   "rpg.ui.inventory.added": "추가: {parts}",
@@ -1751,6 +1754,9 @@
   "rpg.error.quest_condition_not_met": "아직 퀘스트 조건을 만족하지 못했습니다.",
   "rpg.error.invalid_message": "메시지를 확인해주세요 (150자 이내).",
   "rpg.error.inventory_over_capacity": "가방이 칸/무게 한도를 넘었습니다. 정리 후 다시 시도하세요.",
+  "rpg.error.offhand_class_restricted": "이도류(보조무기)는 전사만 장착할 수 있습니다.",
+  "rpg.error.offhand_two_handed": "양손무기는 보조무기로 낄 수 없습니다.",
+  "rpg.error.main_weapon_two_handed": "주무기가 양손무기라 보조무기를 같이 낄 수 없습니다.",
   "rpg.error.generic": "오류가 발생했습니다. 다시 시도해주세요.",
 
   // ── RPG: 로딩/일일보너스/턴리필 안내 ──

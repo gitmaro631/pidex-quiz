@@ -3,10 +3,11 @@ import { withFirestoreTransaction } from '../_firestore.js';
 import { characterDocPath, defaultCharacter, isValidSlot } from '../_rpgCharacter.js';
 import { addItem } from '../_rpgInventory.js';
 
-const VALID_EQUIP_SLOTS = ['weapon', 'weapon2', 'weapon3', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
+const VALID_EQUIP_SLOTS = ['weapon', 'weapon2', 'weapon3', 'offhand', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
 // 용병은 반지/목걸이 슬롯이 없음(equip.js의 MERC_EQUIPPABLE_TYPES와 동일 기준)
-const MERC_VALID_EQUIP_SLOTS = ['weapon', 'weapon2', 'weapon3', 'shield', 'armor_top', 'armor_bottom'];
-const DURABILITY_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom']; // 보조무기(weapon2/weapon3)는 내구도 추적 안 함
+const MERC_VALID_EQUIP_SLOTS = ['weapon', 'weapon2', 'weapon3', 'offhand', 'shield', 'armor_top', 'armor_bottom'];
+// 보조무기(weapon2/weapon3)는 내구도 추적 안 함, offhand(이도류)는 weapon/shield와 동일하게 추적함
+const DURABILITY_SLOTS = ['weapon', 'offhand', 'shield', 'armor_top', 'armor_bottom'];
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
