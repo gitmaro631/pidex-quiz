@@ -368,7 +368,9 @@ export function computeCharacterCombatStats(character) {
   const evasionTier = (character.skillLevels && evasionSkillDef && character.skillLevels[evasionSkillDef.id]) || 0;
   // 3단계(만렙)에서 5% 안쪽으로 딱 떨어지게 고정표 사용(다른 무기숙련 패시브들과 같은 원칙 -
   // power*TIER_POWER_MULT로는 정확한 목표치를 못 맞춰서 EVASION_SKILL_BONUS_BY_TIER를 직접 씀)
-  // 연무장 배치 개인효과(basicsEvasionBonus)는 궁수 전용 회피 패시브와 별개로 누구나 얻을 수 있는 회피율
+  // 연무장 배치 개인효과(basicsEvasionBonus)는 용병 전용(applyMercTerritoryJobEffect가 character.mercenaries만
+  // 순회함) - 플레이어 본인은 work-territory.js로 공용 시설 레벨은 올릴 수 있어도 이 개인 보너스는 못 받음.
+  // 그래서 본인 캐릭터의 회피율은 사실상 궁수 전용 회피 패시브 스킬 만렙(5%)이 최대치
   const evasionChance = (evasionTier > 0 ? (EVASION_SKILL_BONUS_BY_TIER[evasionTier] || 0) : 0) + (character.basicsEvasionBonus || 0);
   // 마법사 전용 패시브 - 공격을 받으면 확률로 방어의 오라를 둘러 몇 라운드간 자기 AC가 오름(performMonsterAttack 참고)
   const arcaneAuraSkillDef = classDef.skills.find((s) => s.type === 'passive_arcane_aura');

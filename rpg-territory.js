@@ -29,8 +29,9 @@ export const RAMPARTS_DEF_GAIN_PER_DAY = 0.2; // 영지 1일에 방어력 영구
 export const RAMPARTS_DEF_GAIN_CAP = 10; // 방벽으로 얻는 개인 방어력 보너스 상한
 export const SANCTUM_RESOURCE_GAIN_PCT_PER_DAY = 0.2; // 영지 1일에 최대 마나/스테미나 % 보너스 이만큼 증가
 export const SANCTUM_RESOURCE_GAIN_PCT_CAP = 10; // 연공실로 얻는 개인 마나/스테미나 % 보너스 상한
-// 궁수 회피 스킬 만렙(5%, EVASION_SKILL_BONUS_BY_TIER)과 합쳐도 8% 밑으로 유지되게 상한을 3%로 낮춤
-// (5%+3%=8%). 40일 만에 상한 도달하는 기존 램프 속도는 유지(0.03/40=0.00075)
+// 이 개인효과는 용병 전용(applyMercTerritoryJobEffect가 character.mercenaries만 처리함 - 플레이어 본인은
+// 해당 없음). 용병 궁수 기준 회피 스킬 만렙(5%)과 합치면 최대 8%가 되게 상한을 3%로 낮춤(5%+3%=8%).
+// 40일 만에 상한 도달하는 기존 램프 속도는 유지(0.03/40=0.00075)
 export const BASICS_EVASION_GAIN_PER_DAY = 0.00075; // 영지 1일에 회피율(0~1) 이만큼 증가
 export const BASICS_EVASION_GAIN_CAP = 0.03; // 연무장으로 얻는 개인 회피율 보너스 상한(3%)
 
