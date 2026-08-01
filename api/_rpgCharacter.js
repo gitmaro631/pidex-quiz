@@ -128,11 +128,10 @@ export function createMercenaryInstance(templateId, now = Date.now()) {
     },
     mentalResist: template.mentalResist || 50,
     formationRow: isMelee ? 'front' : 'back',
+    // 유저 본인 stance와 완전히 독립된, 용병 개인의 공격 대상 우선순위 - set-mercenary-combat-settings.js로 변경.
+    // 'aggressive'(센 몹 우선) | 'stable'(약한 몹 우선). 힐 스킬 보유 용병은 stance와 무관하게 아군이
+    // 다치면 항상 힐을 최우선 시도함(rpg-combat.js resolveCombat/tryUtilitySkill의 healOnly 참고)
     stance: 'stable',
-    // 유저 본인 stance와 완전히 독립된, 용병 개인의 타겟 우선순위/전투역할 - set-mercenary-combat-settings.js로 변경.
-    // 'fight'(죽기 직전까지 계속 공격) | 'support'(방어태세/힐 등으로 자기·아군 보조) - 힐러 컨셉 용병은
-    // MERCENARY_TEMPLATES의 fixedCombatRole이 이 값을 무시하고 항상 'support'로 강제함(rpg-combat.js resolveCombat 참고)
-    combatRole: 'fight',
     injuries: {
       arm: { severity: 0, turnsLeft: 0 },
       leg: { severity: 0, turnsLeft: 0 },

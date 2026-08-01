@@ -2024,25 +2024,12 @@ function mercEquipmentRowHtml(m) {
   `;
 }
 function mercCombatSettingsHtml(m) {
-  const template = MERCENARY_TEMPLATES[m.templateId] || {};
   const stance = m.stance === 'aggressive' ? 'aggressive' : 'stable';
-  const stanceRow = `
+  return `
     <p>${t('rpg.ui.territory.targetPriorityLabel')}
       <button class="rpg-merc-stance-btn" data-merc="${m.id}" data-stance="stable" ${stance === 'stable' ? 'disabled' : ''}>${t('rpg.ui.territory.weakFirstBtn')}</button>
       <button class="rpg-merc-stance-btn" data-merc="${m.id}" data-stance="aggressive" ${stance === 'aggressive' ? 'disabled' : ''}>${t('rpg.ui.territory.strongFirstBtn')}</button>
       ${ti('rpg.ui.inventory.formationCurrent', getLang(), { current: stance === 'aggressive' ? t('rpg.ui.territory.strongFirstBtn') : t('rpg.ui.territory.weakFirstBtn') })}
-    </p>
-  `;
-  if (template.fixedCombatRole) {
-    return `${stanceRow}<p class="rpg-hint">${t('rpg.ui.territory.fixedSupportRole')}</p>`;
-  }
-  const combatRole = m.combatRole === 'support' ? 'support' : 'fight';
-  return `
-    ${stanceRow}
-    <p>${t('rpg.ui.territory.combatRoleLabel')}
-      <button class="rpg-merc-role-btn" data-merc="${m.id}" data-role="fight" ${combatRole === 'fight' ? 'disabled' : ''}>${t('rpg.ui.territory.fightRoleBtn')}</button>
-      <button class="rpg-merc-role-btn" data-merc="${m.id}" data-role="support" ${combatRole === 'support' ? 'disabled' : ''}>${t('rpg.ui.territory.supportRoleBtn')}</button>
-      ${ti('rpg.ui.inventory.formationCurrent', getLang(), { current: combatRole === 'support' ? t('rpg.ui.territory.roleShortSupport') : t('rpg.ui.territory.roleShortFight') })}
     </p>
   `;
 }
@@ -2260,15 +2247,6 @@ function renderTerritoryTab(content, container) {
       if (merc) merc.stance = r.stance;
       rerender();
       showToast(r.stance === 'aggressive' ? t('rpg.ui.territory.stanceStrong') : t('rpg.ui.territory.stanceWeak'));
-    } catch (e) { showToast(friendlyError(e)); }
-  }));
-  content.querySelectorAll('.rpg-merc-role-btn').forEach((btn) => btn.addEventListener('click', async () => {
-    try {
-      const r = await apiPost('set-mercenary-combat-settings', { mercId: btn.dataset.merc, combatRole: btn.dataset.role });
-      const merc = (character.mercenaries || []).find((m) => m.id === r.mercId);
-      if (merc) merc.combatRole = r.combatRole;
-      rerender();
-      showToast(r.combatRole === 'support' ? t('rpg.ui.territory.roleSupport') : t('rpg.ui.territory.roleFight'));
     } catch (e) { showToast(friendlyError(e)); }
   }));
   content.querySelectorAll('.rpg-merc-job-btn').forEach((btn) => btn.addEventListener('click', async () => {

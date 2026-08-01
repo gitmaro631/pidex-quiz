@@ -14,8 +14,7 @@ const MERC_CLASS_CONFIG = {
   warrior: { hireCost: 150, mentalResist: 65, minTownTier: 1 },
   archer: { hireCost: 150, mentalResist: 55, minTownTier: 1 },
   mage: { hireCost: 400, mentalResist: 50, minTownTier: 3 },
-  // 컨셉상 순수 힐러 - combatRole 선택지를 무시하고 전투에서 항상 서포트로 취급(rpg-combat.js resolveCombat 참고)
-  priest: { hireCost: 400, mentalResist: 60, minTownTier: 3, fixedCombatRole: 'support' },
+  priest: { hireCost: 400, mentalResist: 60, minTownTier: 3 },
   paladin: { hireCost: 350, mentalResist: 70, minTownTier: 3 },
   dark_knight: { hireCost: 350, mentalResist: 55, minTownTier: 3 },
 };
@@ -28,7 +27,6 @@ export const MERCENARY_TEMPLATES = Object.fromEntries(
     return [id, {
       id, name: `떠돌이 ${cls.name}`, classMain: cls.id,
       baseLevel: MERC_BASE_LEVEL, hireCost: cfg.hireCost, mentalResist: cfg.mentalResist, minTownTier: cfg.minTownTier,
-      fixedCombatRole: cfg.fixedCombatRole || null,
     }];
   }),
 );

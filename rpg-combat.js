@@ -11,7 +11,7 @@ import { elementalMultiplier } from './data/rpg/elements.js';
 import { CLASS_ESSENCE_ITEM, TIER_POWER_MULT, MAX_SKILL_TIER } from './data/rpg/training.js';
 import { ENHANCE_ATK_PER_LEVEL, ENHANCE_DEF_PER_LEVEL, RARE_MONSTER_STONE_DROP_CHANCE } from './data/rpg/enhancement.js';
 import { facilityBonusMultiplier, moraleResistBonus, improvisedAttackBonus } from './data/rpg/facilities.js';
-import { SQUIRE_SKILL_POWER_MULT, MERCENARY_TEMPLATES } from './data/rpg/mercenaries.js';
+import { SQUIRE_SKILL_POWER_MULT } from './data/rpg/mercenaries.js';
 import { tLang, ti } from './util-i18n.js';
 import { getMonsterName, getSkillName, getMonsterSkillName, getItemName, getZoneName } from './rpg-i18n.js';
 
@@ -616,9 +616,6 @@ function buildCombatant({ characterLike, isSelf, formationRow, ownerCharacter, l
       : (lang === 'en' ? `${characterLike.name}'s` : characterLike.name),
     combatStats,
     stance: characterLike.stance || 'stable',
-    // 유저 본인은 role 분기 대상이 아님(항상 기존처럼 utility 스킬 우선) - 용병만 fight/support로 갈림.
-    // resolveCombat이 fixedCombatRole(힐러 컨셉 용병)을 이미 반영해서 넘겨줌
-    combatRole: isSelf ? null : (characterLike.combatRole || 'fight'),
     formationRow,
     homeFormationRow: formationRow, // 사기진작(morale_boost)이 멘탈붕괴로 밀려난 아군을 되돌릴 때 쓰는 원래 자리
     mentallyBroken: false, // 멘탈붕괴로 밀려난 상태인지 - 위험수위(HP) 강제 후퇴와는 구분해서 사기진작 복귀 대상만 표시
@@ -1062,10 +1059,10 @@ function applyRoundStartPassives({ party, partyBuffs, log, lang = 'ko' }) {
 // 우선순위: 사기진작(멘탈붕괴 면역+복귀, 전투당 1회) > 치유(다친 아군 있을 때) > 저주(몹 미저주 상태) >
 // 파티 버프(공격력/방어력, 전투당 1회씩만) - 진짜 패시브(되살림/도발/용맹한 결의)는 턴을 쓰는 이 함수가
 // 아니라 매 라운드 자동으로 발동하는 applyRoundStartPassives에서 처리함(우선순위 개념 자체가 없음)
-function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko' }) {
+function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko', healOnly = false }) {
   const alive = party.filter((p) => p.alive && p.hp > 0);
 
-  const mentalSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'buff_mental_party' && isSkillUsable(actor, s));
+  const mentalSkill = !healOnly && actor.combatStats.classDef.skills.find((s) => s.type === 'buff_mental_party' && isSkillUsable(actor, s));
   if (mentalSkill && partyBuffs.mentalBonus === 0) {
     spendActorResource(actor, mentalSkill, mentalSkill.manaCost);
     partyBuffs.mentalBonus = skillEffectivePower(actor, mentalSkill);
@@ -1114,6 +1111,10 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko' }
       return true;
     }
   }
+
+  // 용병이 힐 보유 시 무조건 힐 우선(사용자 지시) - 힐이 필요 없어진 뒤에야 아래(저주/버프) 시도로 넘어감.
+  // healOnly 모드(용병 전용)에서는 여기서 끝 - 이 아래 저주/버프/자기방어는 본인(isSelf)만 계속 시도함
+  if (healOnly) return false;
 
   const debuffSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'debuff_monster' && isSkillUsable(actor, s));
   if (debuffSkill && !monster.cursed) {
@@ -1177,14 +1178,9 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter, lang
 
   const party = [
     buildCombatant({ characterLike: { ...character, stance }, isSelf: true, formationRow: effectiveFormationRow(character), ownerCharacter: character, lang }),
-    ...(character.mercenaries || []).map((merc) => {
-      // 힐러 컨셉 용병(떠돌이 성직자/군의관)은 유저가 뭘 저장해뒀든 항상 서포트로 취급
-      const fixedRole = (MERCENARY_TEMPLATES[merc.templateId] || {}).fixedCombatRole;
-      const effectiveCombatRole = fixedRole || merc.combatRole || 'fight';
-      return buildCombatant({
-        characterLike: { ...merc, combatRole: effectiveCombatRole }, isSelf: false, formationRow: effectiveFormationRow(merc), ownerCharacter: character, lang,
-      });
-    }),
+    ...(character.mercenaries || []).map((merc) => buildCombatant({
+      characterLike: merc, isSelf: false, formationRow: effectiveFormationRow(merc), ownerCharacter: character, lang,
+    })),
   ];
 
   // 마법사/성직자의 파티 버프 - 한 번 발동하면 이 전투(모험) 내내 유지됨(재시전으로 갱신 안 됨, 1회성)
@@ -1385,10 +1381,13 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter, lang
         const plan = chooseAttackPlan(actor);
         if (!plan || !plan.target) continue;
         const target = plan.target;
-        // 유저 본인은 항상 유틸 스킬을 우선 시도. 용병은 combatRole==='support'일 때만 -
-        // 'fight'인 용병은 방어/힐 스킬이 있어도 죽기 직전까지 그냥 계속 공격만 함
-        const triesUtility = actor.isSelf || actor.combatRole === 'support';
-        if (triesUtility && tryUtilitySkill({ actor, party, monster: target, log, partyBuffs, lang })) continue;
+        // 유저 본인은 항상 유틸 스킬(힐/저주/버프)을 전부 시도. 용병은 역할 구분 없이 힐 스킬을
+        // 보유했으면 아군이 다쳤을 때 무조건 힐을 최우선으로 시도(healOnly) - 힐이 필요 없으면
+        // 바로 아래로 넘어가 stance(공격 대상 우선순위)대로 공격함
+        const usedUtility = actor.isSelf
+          ? tryUtilitySkill({ actor, party, monster: target, log, partyBuffs, lang })
+          : tryUtilitySkill({ actor, party, monster: target, log, partyBuffs, lang, healOnly: true });
+        if (usedUtility) continue;
 
         const otherMonsters = monsters.filter((m) => m !== target);
         const result = performAttack({ actor, monster: target, otherMonsters, log, isUnderleveled, partyBuffs, party, chosenSkill: plan.skill, lang });
