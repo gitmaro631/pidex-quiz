@@ -36,7 +36,7 @@ export const ITEMS = {
   weapon_basic_spear: { id: 'weapon_basic_spear', name: '낡은 창', type: 'weapon', weaponType: 'spear', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 5 },
   weapon_basic_axe: { id: 'weapon_basic_axe', name: '낡은 도끼', type: 'weapon', weaponType: 'axe', rarity: 'normal', atkBonus: 4, shopPrice: 50, weight: 6 },
   // 사슬로 연결된 무기 - 창처럼 사거리가 있어 중열에서도 상대 전열을 공격 가능(rpg-combat.js EXTENDED_REACH_WEAPON_TYPES)
-  weapon_basic_flail: { id: 'weapon_basic_flail', name: '낡은 사슬도리깨', type: 'weapon', weaponType: 'flail', rarity: 'normal', atkBonus: 4, shopPrice: 55, weight: 6 },
+  weapon_basic_flail: { id: 'weapon_basic_flail', name: '낡은 사슬도리깨', type: 'weapon', weaponType: 'flail', rarity: 'normal', atkBonus: 4, mentalResistBonus: 3, shopPrice: 55, weight: 6 },
   weapon_basic_bow: { id: 'weapon_basic_bow', name: '낡은 활', type: 'weapon', weaponType: 'bow', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 3 },
   weapon_basic_dagger: { id: 'weapon_basic_dagger', name: '낡은 단도', type: 'weapon', weaponType: 'dagger', rarity: 'normal', atkBonus: 2, shopPrice: 40, weight: 2 }, // 궁수 등이 쓰는 가벼운 보조무기
   weapon_basic_staff: { id: 'weapon_basic_staff', name: '낡은 지팡이', type: 'weapon', weaponType: 'staff', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 3 },
@@ -45,9 +45,9 @@ export const ITEMS = {
   // 흑기사 전용 대검 - 양손 저주받은 거대검 컨셉, 도끼와 함께 흑기사의 전용무기
   weapon_basic_greatsword: { id: 'weapon_basic_greatsword', name: '낡은 대검', type: 'weapon', weaponType: 'greatsword', rarity: 'normal', atkBonus: 5, shopPrice: 60, weight: 9 },
   // 성직자 전용 둔기류 - 날붙이 대신 뭉툭한 무기만 쓴다는 설정(피를 보지 않는 신성한 전투). 철퇴가 성직자 기본무기
-  weapon_basic_mace: { id: 'weapon_basic_mace', name: '낡은 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'normal', atkBonus: 3, shopPrice: 50, weight: 5 },
-  weapon_basic_warhammer: { id: 'weapon_basic_warhammer', name: '낡은 전쟁망치', type: 'weapon', weaponType: 'warhammer', rarity: 'normal', atkBonus: 4, shopPrice: 55, weight: 8 },
-  weapon_basic_morning_star: { id: 'weapon_basic_morning_star', name: '낡은 모닝스타', type: 'weapon', weaponType: 'morning_star', rarity: 'normal', atkBonus: 4, shopPrice: 55, weight: 5 },
+  weapon_basic_mace: { id: 'weapon_basic_mace', name: '낡은 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'normal', atkBonus: 3, severeInjuryResist: 0.03, shopPrice: 50, weight: 5 },
+  weapon_basic_warhammer: { id: 'weapon_basic_warhammer', name: '낡은 전쟁망치', type: 'weapon', weaponType: 'warhammer', rarity: 'normal', atkBonus: 4, severeInjuryResist: 0.02, shopPrice: 55, weight: 8 },
+  weapon_basic_morning_star: { id: 'weapon_basic_morning_star', name: '낡은 모닝스타', type: 'weapon', weaponType: 'morning_star', rarity: 'normal', atkBonus: 4, hpBonus: 4, shopPrice: 55, weight: 5 },
   // 원거리 둔기 계열 - 활과 같은 취급(RANGED_WEAPON_TYPES, rpg-combat.js 참고)
   weapon_basic_sling: { id: 'weapon_basic_sling', name: '낡은 물매', type: 'weapon', weaponType: 'sling', rarity: 'normal', atkBonus: 2, shopPrice: 40, weight: 1 },
   armor_basic: { id: 'armor_basic', name: '낡은 갑옷', type: 'armor_top', rarity: 'normal', armorClass: 'light', defBonus: 2, hpBonus: 10, shopPrice: 60, weight: 6, strRequirement: 5 },
@@ -248,9 +248,9 @@ export const ITEMS = {
   weapon_wand_dual: { id: 'weapon_wand_dual', name: '쌍룡의 완드', type: 'weapon', weaponType: 'wand', rarity: 'rare', atkBonus: 12, elements: ['water', 'fire'], weight: 1 },
   weapon_wand_prism: { id: 'weapon_wand_prism', name: '천공의 완드', type: 'weapon', weaponType: 'wand', rarity: 'legendary', atkBonus: 24, elements: ['water', 'fire', 'air', 'earth'], weight: 1 },
   // 성직자 전용 둔기(철퇴) 몹 드랍 라인 - weapon_uncommon/rare/legendary와 동일 수치, WEAPON_TIER_VARIANTS(rpg-combat.js)에 포함
-  weapon_mace_uncommon: { id: 'weapon_mace_uncommon', name: '단련된 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'uncommon', atkBonus: 8, weight: 5 },
-  weapon_mace_rare: { id: 'weapon_mace_rare', name: '칠흑의 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'rare', atkBonus: 16, element: 'dark', weight: 6 },
-  weapon_mace_legendary: { id: 'weapon_mace_legendary', name: '수호자의 성퇴', type: 'weapon', weaponType: 'mace', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 6 },
+  weapon_mace_uncommon: { id: 'weapon_mace_uncommon', name: '단련된 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'uncommon', atkBonus: 8, mentalResistBonus: 6, weight: 5 },
+  weapon_mace_rare: { id: 'weapon_mace_rare', name: '칠흑의 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'rare', atkBonus: 16, element: 'dark', hpBonus: 22, weight: 6 },
+  weapon_mace_legendary: { id: 'weapon_mace_legendary', name: '수호자의 성퇴', type: 'weapon', weaponType: 'mace', rarity: 'legendary', atkBonus: 30, element: 'holy', mentalResistBonus: 11, weight: 6 },
   // 흑기사 전용 대검 몹 드랍 라인 - weapon_uncommon/rare/legendary와 동일 수치
   weapon_greatsword_uncommon: { id: 'weapon_greatsword_uncommon', name: '단련된 대검', type: 'weapon', weaponType: 'greatsword', rarity: 'uncommon', atkBonus: 8, weight: 9 },
   weapon_greatsword_rare: { id: 'weapon_greatsword_rare', name: '칠흑의 대검', type: 'weapon', weaponType: 'greatsword', rarity: 'rare', atkBonus: 16, element: 'dark', weight: 10 },

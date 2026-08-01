@@ -77,6 +77,7 @@ function itemStatsLabel(item) {
   if (item.element && item.element !== 'none') parts.push(`속성:${ELEMENT_NAMES[item.element] || item.element}`);
   if (item.elementDefense) parts.push(`${ELEMENT_NAMES[item.elementDefense] || item.elementDefense}속성방어`);
   if (item.severeInjuryResist) parts.push(`중상방어+${Math.round(item.severeInjuryResist * 100)}%`);
+  if (item.mentalResistBonus) parts.push(`멘탈저항+${item.mentalResistBonus}`);
   if (item.doubleAttackChance) parts.push(`2연타 확률+${Math.round(item.doubleAttackChance * 100)}%`);
   if (item.armorClass) parts.push({ heavy: '중갑', light: '경갑', cloth: '천갑' }[item.armorClass] || item.armorClass);
   if (item.strRequirement) parts.push(`요구 힘 ${item.strRequirement}`);
@@ -99,6 +100,7 @@ function itemBonusParts(item) {
   if (item.intBonus) parts.push(`지능+${item.intBonus}`);
   if (item.wisBonus) parts.push(`지혜+${item.wisBonus}`);
   if (item.severeInjuryResist) parts.push(`중상방어+${Math.round(item.severeInjuryResist * 100)}%`);
+  if (item.mentalResistBonus) parts.push(`멘탈저항+${item.mentalResistBonus}`);
   if (item.doubleAttackChance) parts.push(`2연타 확률+${Math.round(item.doubleAttackChance * 100)}%`);
   return parts;
 }
@@ -2033,8 +2035,8 @@ function facilityDashboardHtml() {
 // 용병 장비 슬롯(무기/방패/상하의만 - 반지/목걸이 없음, api/_rpg/equip.js의 MERC_EQUIPPABLE_TYPES와 동일)
 const MERC_EQUIP_SLOTS = ['weapon', 'shield', 'armor_top', 'armor_bottom'];
 function mercEquipmentRowHtml(m) {
-  // 이도류(보조무기) 슬롯은 전사 용병만 표시(equip.js의 offhand_class_restricted와 대응)
-  const slots = m.classMain === 'warrior' ? ['weapon', 'offhand', 'shield', 'armor_top', 'armor_bottom'] : MERC_EQUIP_SLOTS;
+  // 이도류(보조무기) 슬롯은 전사/마법사 용병만 표시(equip.js의 offhand_class_restricted와 대응)
+  const slots = ['warrior', 'mage'].includes(m.classMain) ? ['weapon', 'offhand', 'shield', 'armor_top', 'armor_bottom'] : MERC_EQUIP_SLOTS;
   return `
     <p class="rpg-hint rpg-merc-equipment">${t('rpg.ui.territory.equipmentLabel')}
       ${slots.map((slot) => {
@@ -2486,8 +2488,8 @@ function equipSlotLabel(slot) { return t(`rpg.ui.equipSlot.${slot}`); }
 const DURABILITY_TRACKED_SLOTS = ['weapon', 'offhand', 'shield', 'armor_top', 'armor_bottom'];
 function equipmentSectionHtml() {
   const stats = computeCharacterCombatStats(character);
-  // 이도류(보조무기) 슬롯은 전사만 낄 수 있어서 전사일 때만 표시(equip.js의 offhand_class_restricted와 대응)
-  const slots = character.classMain === 'warrior'
+  // 이도류(보조무기) 슬롯은 전사/마법사만 낄 수 있어서 그때만 표시(equip.js의 offhand_class_restricted와 대응)
+  const slots = ['warrior', 'mage'].includes(character.classMain)
     ? ['weapon', 'offhand', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace']
     : ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
   const hammerQty = ((character.inventory || []).find((e) => e.itemId === 'repair_hammer') || {}).qty || 0;

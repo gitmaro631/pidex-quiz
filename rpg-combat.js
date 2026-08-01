@@ -88,6 +88,14 @@ const RAPID_FIRE_DAMAGE_MULT = 3;
 // 전사 이도류(dual_wield) - 보조무기 공격력 합산치에 얹는 추가 보너스. 3단계(만렙)에서 정확히 +5%가 되도록
 // 단계별 값을 직접 지정(다른 패시브처럼 TIER_POWER_MULT로 배율만 곱하는 방식이 아님 - 목표 수치가 명확해서 고정표 사용)
 const DUAL_WIELD_BONUS_BY_TIER = { 1: 0.03, 2: 0.04, 3: 0.05 };
+// 성직자 둔기술(blunt_mastery) - 철퇴/전쟁망치/모닝스타/사슬도리깨 장착 시 주무기 공격력에 얹는 보너스.
+// 3단계(만렙)에서 정확히 +10%(1/2단계는 6%/8%) - dual_wield와 같은 원칙으로 고정표 사용
+const BLUNT_WEAPON_TYPES = ['mace', 'warhammer', 'morning_star', 'flail'];
+const BLUNT_MASTERY_BONUS_BY_TIER = { 1: 0.06, 2: 0.08, 3: 0.10 };
+// 마법사 완드술/스태프술 - 완드는 원래 화력이 낮은 대신 방패/양손완드가 가능해서 보너스도 작게(3단계 5%),
+// 스태프는 양손 전용이라 화력이 센 대신 보너스도 크게(3단계 10%)
+const WAND_MASTERY_BONUS_BY_TIER = { 1: 0.03, 2: 0.04, 3: 0.05 };
+const STAFF_MASTERY_BONUS_BY_TIER = { 1: 0.06, 2: 0.08, 3: 0.10 };
 // 사기진작(morale_boost) 시전 시 파티 전원이 멘탈붕괴 완전 면역을 받는 지속 라운드 수
 const MORALE_BOOST_IMMUNE_ROUNDS = 4;
 // 성기사 불굴의 의지 - 발동 1회당 AC(방어) 증가폭(그 전투 내내 유지, 스택 가능)
@@ -307,7 +315,20 @@ export function computeCharacterCombatStats(character) {
   const shieldEnhanceBonus = shieldBroken ? 0 : (equipment.shieldEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
   const armorTopEnhanceBonus = armorTopBroken ? 0 : (equipment.armor_topEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
   const armorBottomEnhanceBonus = armorBottomBroken ? 0 : (equipment.armor_bottomEnhanceLevel || 0) * ENHANCE_DEF_PER_LEVEL;
-  const weaponAtkBonus = (weaponBroken ? 0 : ((weaponItem && weaponItem.atkBonus) || 0)) + weaponEnhanceBonus;
+  const weaponBaseAtkBonus = (weaponBroken ? 0 : ((weaponItem && weaponItem.atkBonus) || 0)) + weaponEnhanceBonus;
+  // 무기 종류별 숙련 패시브(성직자 둔기술/마법사 완드술·스태프술) - 해당 무기 장착 중일 때만 적용,
+  // 어떤 스킬 타입도 클래스당 하나뿐이라 서로 안 겹침(위 상수들 참고)
+  const currentWeaponType = weaponBroken ? null : (weaponItem && weaponItem.weaponType);
+  const bluntMasterySkillDef = classDef.skills.find((s) => s.type === 'passive_blunt_mastery');
+  const bluntMasteryTier = (character.skillLevels && bluntMasterySkillDef && character.skillLevels[bluntMasterySkillDef.id]) || 0;
+  const bluntMasteryBonusPct = BLUNT_WEAPON_TYPES.includes(currentWeaponType) && bluntMasteryTier > 0 ? (BLUNT_MASTERY_BONUS_BY_TIER[bluntMasteryTier] || 0) : 0;
+  const wandMasterySkillDef = classDef.skills.find((s) => s.type === 'passive_wand_mastery');
+  const wandMasteryTier = (character.skillLevels && wandMasterySkillDef && character.skillLevels[wandMasterySkillDef.id]) || 0;
+  const wandMasteryBonusPct = currentWeaponType === 'wand' && wandMasteryTier > 0 ? (WAND_MASTERY_BONUS_BY_TIER[wandMasteryTier] || 0) : 0;
+  const staffMasterySkillDef = classDef.skills.find((s) => s.type === 'passive_staff_mastery');
+  const staffMasteryTier = (character.skillLevels && staffMasterySkillDef && character.skillLevels[staffMasterySkillDef.id]) || 0;
+  const staffMasteryBonusPct = currentWeaponType === 'staff' && staffMasteryTier > 0 ? (STAFF_MASTERY_BONUS_BY_TIER[staffMasteryTier] || 0) : 0;
+  const weaponAtkBonus = Math.round(weaponBaseAtkBonus * (1 + bluntMasteryBonusPct + wandMasteryBonusPct + staffMasteryBonusPct));
   // 이도류(전사 전용, equip.js에서 방패와 상호배타적으로 강제함) - 보조무기의 공격력이 그대로 합산됨(기본
   // 동작, 훈련 불필요). dual_wield 패시브를 훈련해뒀으면 그 위에 단계별 추가 보너스가 얹어짐(위 상수 참고)
   const offhandBaseAtkBonus = (offhandBroken ? 0 : ((offhandItem && offhandItem.atkBonus) || 0)) + offhandEnhanceBonus;
@@ -355,12 +376,21 @@ export function computeCharacterCombatStats(character) {
   const gearDefBonus = shieldDefContribution
     + (armorTopBroken ? 0 : ((armorTopItem && armorTopItem.defBonus) || 0)) + armorTopEnhanceBonus
     + (armorBottomBroken ? 0 : ((armorBottomItem && armorBottomItem.defBonus) || 0)) + armorBottomEnhanceBonus;
+  // 무기/보조무기도 성직자 둔기 아이템 등의 hpBonus/severeInjuryResist를 실제로 반영하도록 포함
   const gearHpBonus = (shieldBroken ? 0 : ((shieldItem && shieldItem.hpBonus) || 0))
     + (armorTopBroken ? 0 : ((armorTopItem && armorTopItem.hpBonus) || 0))
-    + (armorBottomBroken ? 0 : ((armorBottomItem && armorBottomItem.hpBonus) || 0));
+    + (armorBottomBroken ? 0 : ((armorBottomItem && armorBottomItem.hpBonus) || 0))
+    + (weaponBroken ? 0 : ((weaponItem && weaponItem.hpBonus) || 0))
+    + (offhandBroken ? 0 : ((offhandItem && offhandItem.hpBonus) || 0));
   const gearSevereInjuryResist = (shieldBroken ? 0 : ((shieldItem && shieldItem.severeInjuryResist) || 0))
     + (armorTopBroken ? 0 : ((armorTopItem && armorTopItem.severeInjuryResist) || 0))
-    + (armorBottomBroken ? 0 : ((armorBottomItem && armorBottomItem.severeInjuryResist) || 0));
+    + (armorBottomBroken ? 0 : ((armorBottomItem && armorBottomItem.severeInjuryResist) || 0))
+    + (weaponBroken ? 0 : ((weaponItem && weaponItem.severeInjuryResist) || 0))
+    + (offhandBroken ? 0 : ((offhandItem && offhandItem.severeInjuryResist) || 0));
+  // 무기의 mentalResistBonus(성직자 둔기 아이템 등) - 방패의 것과 달리 방패기술 같은 "활성화" 훈련
+  // 없이도 항상 그대로 적용됨(단순 장비 스탯이라 별도 숙련 게이트가 필요 없음)
+  const weaponMentalResistBonus = (weaponBroken ? 0 : ((weaponItem && weaponItem.mentalResistBonus) || 0))
+    + (offhandBroken ? 0 : ((offhandItem && offhandItem.mentalResistBonus) || 0));
   // 반지+목걸이를 같은 세트(setId)로 맞춰 착용하면, 그리고 5피스 풀세트를 갖추면 각 아이템 자체
   // 스탯 위에 세트 보너스가 추가로 붙음(두 시스템은 서로 다른 slot조합이라 동시 발동도 가능)
   const twoPieceSetBonus = (matchedSetBonus(ringItem, necklaceItem) || {}).bonus || {};
@@ -414,6 +444,11 @@ export function computeCharacterCombatStats(character) {
     elements: weaponBroken ? null : ((weaponItem && weaponItem.elements) || null),
     weaponType: (weaponItem && weaponItem.weaponType) || null,
     weaponAtkBonus, // 주무기가 최종 atk에 기여한 원수치(보조무기로 전투 중 전환할 때 이 값만 빼고 갈아끼움)
+    // 마법사 양손완드 - 보조무기가 완드일 때만 씀(performAttack의 동시타격 판정 참고). 전사 이도류와
+    // 달리 물리 데미지가 아니라 "속성이 다르면 별도 속성 공격을 하나 더 날림" 컨셉이라 원소 정보가 필요함
+    offhandWeaponType: (offhandItem && !offhandBroken && offhandItem.weaponType) || null,
+    offhandElement: (offhandItem && !offhandBroken && offhandItem.element) || null,
+    offhandAtkBonus,
     improvisedAttackBonus: improvisedBonus, // 연무장 시설 보너스(기본공격 전용) - performAttack 참고
     subWeapons,
     hasShield: !!(shieldItem && !shieldBroken), // 방패 스킬(방패 강타 등) 사용 조건
@@ -429,6 +464,7 @@ export function computeCharacterCombatStats(character) {
     setDoubleAttackChance: setBonus.doubleAttackChance || 0,
     // 방패기술(shield_mastery)이 있어야만 0이 아님 - performMonsterAttack 참고
     shieldMentalResistBonus,
+    weaponMentalResistBonus, // 무기/보조무기의 mentalResistBonus 합산치 - 별도 숙련 없이 항상 적용됨
     shieldCounterChance,
     shieldBlockChance,
     shieldCounterDamageMult,
@@ -862,6 +898,20 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
     }
     log.push(ti('rpg.log.attackAllSplash', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, skill, lang), damage: splashDamage }));
   }
+  // 마법사 양손완드 - 주무기/보조무기가 둘 다 완드고 이번에 쓴 속성(castElement)과 보조무기 속성이
+  // 다르면, 명중한 공격에 보조무기 속성 타격을 하나 더 동시에 날림(별도 명중판정 없음 - "두 속성을
+  // 동시에 쏜다"는 컨셉이라 주공격이 맞았으면 자동 적중)
+  if (anyHit && monster.hp > 0 && combatStats.weaponType === 'wand' && combatStats.offhandWeaponType === 'wand'
+    && combatStats.offhandElement && combatStats.offhandElement !== castElement) {
+    const offhandElemMult = elementalMultiplier(combatStats.offhandElement, monster.element);
+    const offhandDamage = Math.max(1, Math.round(combatStats.offhandAtkBonus * offhandElemMult * affinityMult * randRange(0.85, 1.15)));
+    monster.hp -= offhandDamage;
+    if (monster.hp <= 0) monsterDied = true;
+    log.push(ti('rpg.log.dualWandCast', lang, {
+      actor: actor.label, actorPoss: actor.labelPossessive, monster: monster.name,
+      damage: offhandDamage, element: combatStats.offhandElement,
+    }));
+  }
   return { monsterDied, isKiting, affinity };
 }
 
@@ -967,7 +1017,7 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   // 사기진작(morale_boost)을 받아 멘탈붕괴 면역 중이면 판정 자체를 안 함(tryUtilitySkill 참고)
   if ((!soloParty || targetMeleeWeapon) && typeof target.mentalResist === 'number' && rowIdx >= 0 && rowIdx < FORMATION_ROWS.length - 1 && target.hp > 0 && !(target.mentalImmuneRounds > 0)) {
     // 방패기술의 멘탈붕괴방어 - 방패 자체의 수치만큼 멘탈저항에 그대로 더해짐
-    const effectiveMentalResist = Math.min(100, target.mentalResist + partyBuffs.mentalBonus + (combatStats.shieldMentalResistBonus || 0));
+    const effectiveMentalResist = Math.min(100, target.mentalResist + partyBuffs.mentalBonus + (combatStats.shieldMentalResistBonus || 0) + (combatStats.weaponMentalResistBonus || 0));
     const breakChance = MORALE_BREAK_BASE_CHANCE * (1 - effectiveMentalResist / 100);
     // 1차 판정 - 맞은 본인이 멘탈이 나가는지
     if (Math.random() < breakChance) {

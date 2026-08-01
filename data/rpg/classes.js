@@ -85,6 +85,11 @@ export const CLASSES = {
       // 패시브 - 공격을 받을 때마다 이 확률로 방어의 오라를 둘러 몇 라운드간 자기 AC가 오름(전사 방어태세와
       // 같은 selfDefRounds/selfDefBonus 메커니즘 재사용). power는 발동 확률 기준값, 단계가 오르면 확률이 세짐
       { id: 'arcane_aura', name: '방어의 오라', manaCost: 0, type: 'passive_arcane_aura', power: 0.1 },
+      // 완드/스태프 각각 장착 중일 때만 주무기 공격력에 보너스가 붙음(둔기술과 같은 원칙). 완드는 원래
+      // 화력이 낮은 대신 방패/이도류가 가능해서 보너스도 더 작게(3단계 5%), 스태프는 양손 전용이라
+      // 화력이 세고 보너스도 더 크게(3단계 10%) - WAND/STAFF_MASTERY_BONUS_BY_TIER(rpg-combat.js) 참고
+      { id: 'wand_mastery', name: '완드술', manaCost: 0, type: 'passive_wand_mastery', power: 0.05 },
+      { id: 'staff_mastery', name: '스태프술', manaCost: 0, type: 'passive_staff_mastery', power: 0.10 },
       SHIELD_EQUIP_SKILL,
     ],
     strongVs: [{ tag: 'humanoid', chance: 0.25, multiplier: 1.4 }],
@@ -110,6 +115,9 @@ export const CLASSES = {
       // 사기+멘탈관리 - 전투 내내 파티 멘탈저항 +20에 더해, 시전 순간 파티 전원이 몇 라운드 멘탈붕괴
       // 완전면역(MORALE_BOOST_IMMUNE_ROUNDS) + 이미 멘탈붕괴로 밀려나있던 아군은 원위치 복귀(tryUtilitySkill 참고)
       { id: 'morale_boost', name: '사기진작', manaCost: 8, type: 'buff_mental_party', power: 20 },
+      // 둔기(철퇴/전쟁망치/모닝스타/도리깨) 장착 중일 때만 주무기 공격력에 보너스가 붙음(지팡이/물매는 해당 없음).
+      // 3단계(만렙) 기준 +10%, BLUNT_MASTERY_BONUS_BY_TIER(rpg-combat.js)가 단계별 정확한 값을 관리(1단계 6%, 2단계 8%, 3단계 10%)
+      { id: 'blunt_mastery', name: '둔기술', manaCost: 0, type: 'passive_blunt_mastery', power: 0.10 },
       SHIELD_EQUIP_SKILL,
     ],
     strongVs: [{ tag: 'undead', chance: 0.3, multiplier: 1.4 }],

@@ -51,11 +51,14 @@ export default async function handler(req, res) {
 
       const cls = CLASSES[target.classMain] || CLASSES.warrior;
 
-      // 이도류(보조무기) 슬롯 - 전사 전용 하드 블록(다른 무기 슬롯과 달리 직업 불일치 페널티가 아니라
-      // 아예 장착 자체가 안 됨, 상하의 직업제한과 같은 원칙). 양손무기는 보조무기로도, 주무기가 양손무기인
+      // 이도류(보조무기) 슬롯 - 하드 블록(다른 무기 슬롯과 달리 직업 불일치 페널티가 아니라 아예 장착
+      // 자체가 안 됨, 상하의 직업제한과 같은 원칙). 전사는 무기 종류 무관하게 가능, 마법사는 완드만
+      // 가능(양손 완드 컨셉 - 다른 무기는 양손에 못 듦). 양손무기는 보조무기로도, 주무기가 양손무기인
       // 채로도 낄 수 없음(둘 다 손이 모자람)
       if (equipSlot === 'offhand') {
-        if (cls.id !== 'warrior') { outcome = { error: 'offhand_class_restricted' }; return null; }
+        const isWarriorOffhand = cls.id === 'warrior';
+        const isMageWandOffhand = cls.id === 'mage' && item.weaponType === 'wand';
+        if (!isWarriorOffhand && !isMageWandOffhand) { outcome = { error: 'offhand_class_restricted' }; return null; }
         if (TWO_HANDED_WEAPON_TYPES.includes(item.weaponType)) { outcome = { error: 'offhand_two_handed' }; return null; }
         const currentMainWeapon = target.equipment && target.equipment.weapon ? ITEMS[target.equipment.weapon] : null;
         if (currentMainWeapon && TWO_HANDED_WEAPON_TYPES.includes(currentMainWeapon.weaponType)) {
