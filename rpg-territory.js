@@ -29,10 +29,10 @@ export const RAMPARTS_DEF_GAIN_PER_DAY = 0.2; // 영지 1일에 방어력 영구
 export const RAMPARTS_DEF_GAIN_CAP = 10; // 방벽으로 얻는 개인 방어력 보너스 상한
 export const SANCTUM_RESOURCE_GAIN_PCT_PER_DAY = 0.2; // 영지 1일에 최대 마나/스테미나 % 보너스 이만큼 증가
 export const SANCTUM_RESOURCE_GAIN_PCT_CAP = 10; // 연공실로 얻는 개인 마나/스테미나 % 보너스 상한
-// 궁수 회피 스킬 만렙(0.06×1.3=0.078)과 합쳐도 15% 밑으로 유지되게 상한을 0.08→0.06으로 낮춤
-// (0.078+0.06=0.138). 40일 만에 상한 도달하는 기존 램프 속도는 유지(0.06/40=0.0015)
-export const BASICS_EVASION_GAIN_PER_DAY = 0.0015; // 영지 1일에 회피율(0~1) 이만큼 증가
-export const BASICS_EVASION_GAIN_CAP = 0.06; // 연무장으로 얻는 개인 회피율 보너스 상한(6%)
+// 궁수 회피 스킬 만렙(5%, EVASION_SKILL_BONUS_BY_TIER)과 합쳐도 8% 밑으로 유지되게 상한을 3%로 낮춤
+// (5%+3%=8%). 40일 만에 상한 도달하는 기존 램프 속도는 유지(0.03/40=0.00075)
+export const BASICS_EVASION_GAIN_PER_DAY = 0.00075; // 영지 1일에 회피율(0~1) 이만큼 증가
+export const BASICS_EVASION_GAIN_CAP = 0.03; // 연무장으로 얻는 개인 회피율 보너스 상한(3%)
 
 // 용병 한 명에게 그 일자리 효과를 daysToProcess만큼 적용한 새 상태를 반환 - 전투동행(active) 중이거나
 // 입원(hospitalized) 중이면 대상이 아니라 그대로 반환

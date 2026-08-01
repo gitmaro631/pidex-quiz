@@ -96,6 +96,8 @@ const BLUNT_MASTERY_BONUS_BY_TIER = { 1: 0.06, 2: 0.08, 3: 0.10 };
 // 스태프는 양손 전용이라 화력이 센 대신 보너스도 크게(3단계 10%)
 const WAND_MASTERY_BONUS_BY_TIER = { 1: 0.03, 2: 0.04, 3: 0.05 };
 const STAFF_MASTERY_BONUS_BY_TIER = { 1: 0.06, 2: 0.08, 3: 0.10 };
+// 궁수 회피 스킬 - 3단계(만렙)에서 5% 안쪽으로 제한
+const EVASION_SKILL_BONUS_BY_TIER = { 1: 0.03, 2: 0.04, 3: 0.05 };
 // 사기진작(morale_boost) 시전 시 파티 전원이 멘탈붕괴 완전 면역을 받는 지속 라운드 수
 const MORALE_BOOST_IMMUNE_ROUNDS = 4;
 // 성기사 불굴의 의지 - 발동 1회당 AC(방어) 증가폭(그 전투 내내 유지, 스택 가능)
@@ -364,8 +366,10 @@ export function computeCharacterCombatStats(character) {
   const rapidFireChance = rapidFireTier > 0 ? rapidFireSkillDef.power * (TIER_POWER_MULT[rapidFireTier] || 1) : 0;
   const evasionSkillDef = classDef.skills.find((s) => s.type === 'passive_evasion');
   const evasionTier = (character.skillLevels && evasionSkillDef && character.skillLevels[evasionSkillDef.id]) || 0;
-  // 연무장 배치 개인효과(basicsEvasionBonus) - 궁수 전용 회피 패시브와 별개로 누구나 얻을 수 있는 회피율
-  const evasionChance = (evasionTier > 0 ? evasionSkillDef.power * (TIER_POWER_MULT[evasionTier] || 1) : 0) + (character.basicsEvasionBonus || 0);
+  // 3단계(만렙)에서 5% 안쪽으로 딱 떨어지게 고정표 사용(다른 무기숙련 패시브들과 같은 원칙 -
+  // power*TIER_POWER_MULT로는 정확한 목표치를 못 맞춰서 EVASION_SKILL_BONUS_BY_TIER를 직접 씀)
+  // 연무장 배치 개인효과(basicsEvasionBonus)는 궁수 전용 회피 패시브와 별개로 누구나 얻을 수 있는 회피율
+  const evasionChance = (evasionTier > 0 ? (EVASION_SKILL_BONUS_BY_TIER[evasionTier] || 0) : 0) + (character.basicsEvasionBonus || 0);
   // 마법사 전용 패시브 - 공격을 받으면 확률로 방어의 오라를 둘러 몇 라운드간 자기 AC가 오름(performMonsterAttack 참고)
   const arcaneAuraSkillDef = classDef.skills.find((s) => s.type === 'passive_arcane_aura');
   const arcaneAuraTier = (character.skillLevels && arcaneAuraSkillDef && character.skillLevels[arcaneAuraSkillDef.id]) || 0;
