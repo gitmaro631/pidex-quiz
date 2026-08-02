@@ -3,6 +3,12 @@
 // rpg-combat.js computeCharacterCombatStats), 이 스킬을 훈련하면 그 페널티가 없어짐(모든 직업 공통).
 // 전사 전용 '방패기술'(shield_mastery)과는 다른 스킬 - 그쪽은 멘탈붕괴방어/반격확률/완전방어확률(방패 등급별 수치)
 const SHIELD_EQUIP_SKILL = { id: 'shield_equip', name: '방패장착', manaCost: 0, type: 'passive_shield_equip', power: 1 };
+// 전 직업 공용 패시브 - 전투 중 매 라운드 확률 없이 무조건 발동, 훈련 단계만큼 최대체력/최대자원의 %를
+// 회복함(HP_REGEN_PCT_BY_TIER/RESOURCE_REGEN_PCT_BY_TIER, rpg-combat.js 참고: 1단계 1% ~ 3단계 3%).
+// 기력 회복은 그 직업이 실제로 쓰는 자원(마나 또는 스태미나)만 회복시켜줌 - 체력을 자원으로 쓰는
+// 흑기사는 hp_regen이 자원 회복까지 겸해주는 효과라 특히 도움이 됨
+const HP_REGEN_SKILL = { id: 'hp_regen', name: '생명력 재생', manaCost: 0, type: 'passive_hp_regen', power: 0 };
+const RESOURCE_REGEN_SKILL = { id: 'resource_regen', name: '기력 회복', manaCost: 0, type: 'passive_resource_regen', power: 0 };
 
 // 직업 정의 — 데이터로만 관리, 나중에 도적/마법사 추가는 이 객체에 항목만 넣으면 됨
 export const CLASSES = {
@@ -35,6 +41,8 @@ export const CLASSES = {
       // 무적 상태가 됨. 무적 자체는 훈련 단계와 무관하게 항상 발동(1단계만 배워도 있음) - 훈련해서
       // 단계를 올리면 대신 무기 데미지 보너스가 커짐(LAST_STAND_WEAPON_BONUS_BY_TIER, rpg-combat.js 참고)
       { id: 'last_stand', name: '최후의 저항', manaCost: 0, type: 'passive_last_stand', power: 0 },
+      HP_REGEN_SKILL,
+      RESOURCE_REGEN_SKILL,
       SHIELD_EQUIP_SKILL,
     ],
     // 직업-몹 타입 상성(확률 발동, 명중 보장 아님) - 전사는 언데드 사냥에 강하고 야수 상대는 약함
@@ -64,6 +72,8 @@ export const CLASSES = {
       // power는 발동 시 감소량 기준값, 단계가 오르면 발동확률/감소량 둘 다 커짐
       // (rpg-combat.js performAttack/EXPOSE_EVASION_ROUNDS/EXPOSE_SHOT_PROC_CHANCE_BY_TIER 참고)
       { id: 'exposing_shot', name: '급소 노출', manaCost: 0, type: 'passive_expose_evasion', power: 3 },
+      HP_REGEN_SKILL,
+      RESOURCE_REGEN_SKILL,
       SHIELD_EQUIP_SKILL,
     ],
     // 궁수는 야수 사냥에 강하고 언데드(생체반응 없음) 상대는 약함 - 전사와 상호보완적 구도
@@ -97,6 +107,8 @@ export const CLASSES = {
       // 그 타격 데미지의 절반이 무작위 다른 몹에게 튐(CHAIN_BOLT_SPLASH_MULT, rpg-combat.js 참고).
       // 스플래시로도 죽을 수 있음 - 원소 폭발 자체의 기본 스플래시(확률 없이 항상 발동, HP 1 보존)와는 별개
       { id: 'chain_bolt', name: '연쇄 마력탄', manaCost: 0, type: 'passive_chain_bolt', power: 0.15 },
+      HP_REGEN_SKILL,
+      RESOURCE_REGEN_SKILL,
       SHIELD_EQUIP_SKILL,
     ],
     strongVs: [{ tag: 'humanoid', chance: 0.25, multiplier: 1.4 }],
@@ -129,6 +141,8 @@ export const CLASSES = {
       // 오르고 매 라운드 소량 회복됨(ANGELIC_DESCENT_*_BY_TIER, rpg-combat.js 참고). 힐을 계속 쓸수록
       // 지속시간이 계속 갱신되는 구조라 서포터 롤을 계속 수행할수록 파티 전체가 강해짐
       { id: 'angelic_descent', name: '천사의 강림', manaCost: 0, type: 'passive_angelic_descent', power: 0 },
+      HP_REGEN_SKILL,
+      RESOURCE_REGEN_SKILL,
       SHIELD_EQUIP_SKILL,
     ],
     strongVs: [{ tag: 'undead', chance: 0.3, multiplier: 1.4 }],
@@ -161,6 +175,8 @@ export const CLASSES = {
       // 패시브 - 공격이 명중하면 확률로 그 몹을 감화시켜 몇 라운드간 성기사(파티)를 공격하지 않고 대신
       // 다른 몹을 공격하게 함(CONVERSION_ROUNDS, rpg-combat.js 참고). 공격할 다른 몹이 없으면 그냥 가만히 있음
       { id: 'conversion', name: '감화', manaCost: 0, type: 'passive_conversion', power: 0.12 },
+      HP_REGEN_SKILL,
+      RESOURCE_REGEN_SKILL,
       SHIELD_EQUIP_SKILL,
     ],
     strongVs: [{ tag: 'undead', chance: 0.3, multiplier: 1.5 }, { tag: 'demon', chance: 0.25, multiplier: 1.4 }],
@@ -179,20 +195,26 @@ export const CLASSES = {
       { id: 'basic_attack', name: '어둠의 손아귀', manaCost: 0, type: 'passive_basic_attack', power: 1 },
       // 공격은 단일/광역 딱 둘 - 둘 다 어둠속성 고정. 유혈강타는 광역기 자리로 옮기고 HP소모 컨셉은 그대로 유지
       { id: 'dark_strike', name: '암흑 일격', manaCost: 5, type: 'attack', power: 1.6, elements: ['dark'] },
-      { id: 'blood_strike', name: '유혈 강타', manaCost: 12, type: 'attack_all', power: 1.6, resourceType: 'hp', elements: ['dark'] },
-      { id: 'dark_pact', name: '어둠의 계약', manaCost: 15, type: 'buff_atk_party', power: 1.4, resourceType: 'hp' },
-      // 패시브(HP소모) - 공격이 명중하면 확률로 그 몹에게 흡혈 저주를 걸어 몇 라운드간 매 라운드
-      // 몹 체력을 깎아 흑기사에게 옮겨줌. 발동 자체에도 소량의 HP를 씀(risk&return 컨셉 유지)
-      { id: 'blood_drain', name: '피의 저주', manaCost: 5, type: 'passive_blood_drain', power: 0.15, resourceType: 'hp' },
-      // 패시브(HP소모) - 공격을 받으면 확률로 그 몹을 멘탈붕괴시켜 몇 라운드간 공격을 못 하게 함
-      { id: 'dread_aura', name: '공포의 오라', manaCost: 5, type: 'passive_dread_aura', power: 0.12, resourceType: 'hp' },
-      // 패시브(HP소모) - 매 턴 사망한 아군이 있으면 확률로 되살림(tryUtilitySkill 최우선순위) - 다른 흑기사
-      // 패시브와 같은 결로 HP를 대가로 씀
-      { id: 'reanimate', name: '되살림의 저주', manaCost: 10, type: 'passive_revive', power: 0.15, resourceType: 'hp' },
+      // HP 소모량을 전반적으로 하향(12→8→6, 15→10→8) - 흑기사가 다른 직업 대비 체력 회복(휴식)에
+      // 턴을 지나치게 많이 태우는 게 시뮬로 확인돼서 애초에 덜 태우게 조정
+      { id: 'blood_strike', name: '유혈 강타', manaCost: 6, type: 'attack_all', power: 1.6, resourceType: 'hp', elements: ['dark'] },
+      { id: 'dark_pact', name: '어둠의 계약', manaCost: 8, type: 'buff_atk_party', power: 1.4, resourceType: 'hp' },
+      // 패시브 - 공격이 명중하면 확률로 그 몹에게 흡혈 저주를 걸어 몇 라운드간 매 라운드 몹 체력을 깎아
+      // 흑기사에게 옮겨줌. 예전엔 발동 자체에도 소량 HP를 썼는데, 패시브까지 체력을 태우면 회복 부담이
+      // 너무 커져서 패시브는 전부 무료로 하향(액티브로 직접 쓰는 스킬만 HP를 씀)
+      { id: 'blood_drain', name: '피의 저주', manaCost: 0, type: 'passive_blood_drain', power: 0.15 },
+      // 패시브 - 공격을 받으면 확률로 그 몹을 멘탈붕괴시켜 몇 라운드간 공격을 못 하게 함
+      { id: 'dread_aura', name: '공포의 오라', manaCost: 0, type: 'passive_dread_aura', power: 0.12 },
+      // 패시브 - 유저 본인이 죽는 순간 전투당 1회 확정 발동(확률 아님). 본인 포함 이미 죽어있던
+      // 파티원 전원을 동시에 부활시키고, 부활 직후 몇 라운드간 파티 전원이 무적이 됨. 부활 시 채워지는
+      // 체력 비율은 훈련 단계로 결정(1단계 25% / 2단계 50% / 3단계 75%, REANIMATE_HP_PCT_BY_TIER 참고)
+      { id: 'reanimate', name: '되살림의 저주', manaCost: 0, type: 'passive_revive', power: 0 },
       // 패시브 - 공포의 오라(dread_aura, '맞았을 때' 발동)와 반대로 '때렸을 때' 발동함. 공격이 명중하면
       // 확률로 그 몹을 멘탈붕괴시켜 몇 라운드간 공격을 못 하게 함(같은 stunnedRounds를 공유해서
       // dread_aura와 겹치면 더 긴 쪽이 유지됨 - HP소모 없음, dread_aura와 달리 공격 자체가 대가)
       { id: 'fear_strike', name: '공포의 일격', manaCost: 0, type: 'passive_fear_strike', power: 0.12 },
+      HP_REGEN_SKILL,
+      RESOURCE_REGEN_SKILL,
       SHIELD_EQUIP_SKILL,
     ],
     strongVs: [{ tag: 'humanoid', chance: 0.3, multiplier: 1.4 }],

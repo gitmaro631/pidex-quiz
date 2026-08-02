@@ -89,7 +89,7 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-import { resolveCombat, computeCharacterCombatStats, applyEquipmentWear, rollEncounter } from '../rpg-combat.js';
+import { resolveCombat, computeCharacterCombatStats, applyEquipmentWear, rollEncounter, effectiveStats } from '../rpg-combat.js';
 import { applyXpGain } from '../rpg-progression.js';
 import { settleTerritoryDays, territoryDaysElapsed } from '../rpg-territory.js';
 import { turnCapForLevel } from '../api/_rpgTurns.js';
@@ -161,12 +161,12 @@ const POLICY = {
   // Skill training priority per class (trained with class essences + gold, up to
   // MAX_SKILL_TIER). Deliberately front-loads the mechanics balance wants tracked.
   SKILL_PRIORITY: {
-    warrior:     ['power_strike', 'dual_wield', 'whirlwind', 'guard_stance', 'taunt', 'last_stand'],
-    archer:      ['aimed_shot', 'evasion', 'multi_shot', 'exposing_shot'],
-    mage:        ['magic_bolt', 'staff_mastery', 'wand_mastery', 'elemental_nova', 'arcane_aura', 'chain_bolt'],
-    priest:      ['smite', 'blunt_mastery', 'heal', 'mass_heal', 'morale_boost', 'angelic_descent'],
-    paladin:     ['holy_strike', 'holy_leech', 'holy_wave', 'divine_shield', 'indomitable_will', 'conversion'],
-    dark_knight: ['dark_strike', 'blood_drain', 'blood_strike', 'dread_aura', 'dark_pact', 'fear_strike'],
+    warrior:     ['power_strike', 'dual_wield', 'whirlwind', 'guard_stance', 'taunt', 'last_stand', 'hp_regen', 'resource_regen'],
+    archer:      ['aimed_shot', 'evasion', 'multi_shot', 'exposing_shot', 'hp_regen', 'resource_regen'],
+    mage:        ['magic_bolt', 'staff_mastery', 'wand_mastery', 'elemental_nova', 'arcane_aura', 'chain_bolt', 'hp_regen', 'resource_regen'],
+    priest:      ['smite', 'blunt_mastery', 'heal', 'mass_heal', 'morale_boost', 'angelic_descent', 'hp_regen', 'resource_regen'],
+    paladin:     ['holy_strike', 'holy_leech', 'holy_wave', 'divine_shield', 'indomitable_will', 'conversion', 'hp_regen', 'resource_regen'],
+    dark_knight: ['dark_strike', 'blood_drain', 'blood_strike', 'dread_aura', 'dark_pact', 'fear_strike', 'hp_regen', 'resource_regen'],
   },
 
   // Combat mercenaries: hire up to this many ACTIVE mercs once we can afford them
@@ -538,9 +538,13 @@ function runOne(classId, repeatIndex) {
         else considerLoot(drop.itemId);
       }
 
-      // XP + level (real curve).
-      const progression = applyXpGain(char, result.xpGain);
+      // XP + level (real curve). statSnapshot mirrors adventure.js's HP/MP/Stamina lock-in-at-level-up system.
+      const effStats = effectiveStats(char);
+      const mainCls = CLASSES[char.classMain] || CLASSES.warrior;
+      const statSnapshot = { vit: effStats.vit, mainStat: effStats[mainCls.statScaling.atk] ?? effStats.str, agi: effStats.agi };
+      const progression = applyXpGain(char, result.xpGain, statSnapshot);
       char.level = progression.level; char.xp = progression.xp; char.statPoints = progression.statPoints;
+      char.vitHpAccrued = progression.vitHpAccrued; char.mainStatMpAccrued = progression.mainStatMpAccrued; char.agiStaminaAccrued = progression.agiStaminaAccrued;
 
       // Gold (combat) minus defeat loss.
       const goldGain = result.goldGain;

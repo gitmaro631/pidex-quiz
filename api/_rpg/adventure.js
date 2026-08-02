@@ -5,7 +5,8 @@ import { accountFacilitiesDocPath, defaultAccountFacilities } from '../_rpgFacil
 import { computeCurrentTurns, turnCapForLevel } from '../_rpgTurns.js';
 import { removeItem, tryAddItem, isOverCapacity } from '../_rpgInventory.js';
 import { ZONES } from '../../data/rpg/zones.js';
-import { resolveCombat, applyEquipmentWear } from '../../rpg-combat.js';
+import { resolveCombat, applyEquipmentWear, effectiveStats } from '../../rpg-combat.js';
+import { CLASSES } from '../../data/rpg/classes.js';
 import { applyXpGain } from '../../rpg-progression.js';
 import { checkNewLoreUnlocks } from '../../rpg-lore.js';
 import { LORE_ENTRIES } from '../../data/rpg/lore.js';
@@ -154,7 +155,11 @@ export default async function handler(req, res) {
       const newLoreEntries = newLoreIds.map((id) => LORE_ENTRIES[id]);
 
       const injuries = decayInjuries(character.injuries, combatResult.newInjuries);
-      const progression = applyXpGain(character, combatResult.xpGain);
+      // 체력/마나/스태미나 레벨업 고정 시스템 - 본인 캐릭터만 해당(용병은 statSnapshot 없이 그대로 호출)
+      const playerEffStats = effectiveStats(character);
+      const playerMainClass = CLASSES[character.classMain] || CLASSES.warrior;
+      const statSnapshot = { vit: playerEffStats.vit, mainStat: playerEffStats[playerMainClass.statScaling.atk] ?? playerEffStats.str, agi: playerEffStats.agi };
+      const progression = applyXpGain(character, combatResult.xpGain, statSnapshot);
 
       // 개간지(시설) 레벨만큼 전투 골드획득에 % 보너스
       const bonusedGoldGain = Math.floor(combatResult.goldGain * facilityBonusMultiplier(characterForCombat, 'clearing'));
@@ -249,6 +254,9 @@ export default async function handler(req, res) {
           level: progression.level,
           xp: progression.xp,
           statPoints: progression.statPoints,
+          vitHpAccrued: progression.vitHpAccrued,
+          mainStatMpAccrued: progression.mainStatMpAccrued,
+          agiStaminaAccrued: progression.agiStaminaAccrued,
           turnPoints: nextTurns,
           turnPointsUpdatedAt: now,
           totalTurnsSpent: nextTotalTurnsSpent,

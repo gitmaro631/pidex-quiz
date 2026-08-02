@@ -7,6 +7,8 @@ import { checkQuestCondition } from '../../rpg-quests.js';
 import { applyXpGain } from '../../rpg-progression.js';
 import { checkNewLoreUnlocks } from '../../rpg-lore.js';
 import { LORE_ENTRIES } from '../../data/rpg/lore.js';
+import { effectiveStats } from '../../rpg-combat.js';
+import { CLASSES } from '../../data/rpg/classes.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -35,7 +37,11 @@ export default async function handler(req, res) {
         }
       }
 
-      const progression = applyXpGain(character, quest.reward.xp || 0);
+      // 체력/마나/스태미나 레벨업 고정 시스템 - 본인 캐릭터 전용(adventure.js와 동일 규칙)
+      const playerEffStats = effectiveStats(character);
+      const playerMainClass = CLASSES[character.classMain] || CLASSES.warrior;
+      const statSnapshot = { vit: playerEffStats.vit, mainStat: playerEffStats[playerMainClass.statScaling.atk] ?? playerEffStats.str, agi: playerEffStats.agi };
+      const progression = applyXpGain(character, quest.reward.xp || 0, statSnapshot);
       questFlags[questId] = 'done';
       const now = Date.now();
 
@@ -55,6 +61,9 @@ export default async function handler(req, res) {
         level: progression.level,
         xp: progression.xp,
         statPoints: progression.statPoints,
+        vitHpAccrued: progression.vitHpAccrued,
+        mainStatMpAccrued: progression.mainStatMpAccrued,
+        agiStaminaAccrued: progression.agiStaminaAccrued,
         inventory,
         questFlags,
         loreUnlocked,

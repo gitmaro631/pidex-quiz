@@ -41,15 +41,19 @@ const DEFEAT_REVIVE_PCT = 0.3;
 const DEFEAT_GOLD_LOSS_PCT = 0.1;
 const BASE_HP = 40;
 const HP_PER_LEVEL = 6;
-const VIT_HP_PER_LEVEL = 0.5; // VIT 1당, 레벨 1당 최대체력 +0.5 - 레벨이 오를수록 VIT 효과가 누적돼 커짐
+// VIT 1당, 레벨업 1회당 최대체력 +0.5 - applyXpGain(rpg-progression.js)이 레벨업 "그 순간"의 VIT로
+// 매번 계산해서 vitHpAccrued에 영구 누적함(나중에 VIT를 더 찍어도 이미 지난 레벨업분은 재계산 안 됨 -
+// 그래서 같은 최종 스탯이라도 언제 스탯을 찍었느냐에 따라 최대체력이 갈림). export해서 rpg-progression.js와 공유
+export const VIT_HP_PER_LEVEL = 0.5;
 const BASE_MP = 15;
 const MP_PER_LEVEL = 2;
 // 마나는 각 직업의 주스탯(전사=STR, 궁수=AGI, 마법사=INT, 성직자=WIS)에 비례 - VIT/HP와 같은 방식으로
-// 레벨이 오를수록 그 스탯 투자분이 누적돼 마나가 커짐
-const MAGIC_STAT_MP_PER_LEVEL = 0.3;
+// 레벨업 시점 스탯 기준으로 mainStatMpAccrued에 영구 누적됨
+export const MAGIC_STAT_MP_PER_LEVEL = 0.3;
 const BASE_STAMINA = 40;
 const STAMINA_PER_LEVEL = 2;
-const AGI_STAMINA_PER_LEVEL = 0.4; // AGI도 같은 방식으로 스테미나에 누적 반영
+// AGI도 같은 방식으로 agiStaminaAccrued에 영구 누적
+export const AGI_STAMINA_PER_LEVEL = 0.4;
 // 직업이 숙련되지 않은 무기(classDef.weaponTypes에 없는 타입)를 장착했을 때의 패널티 - 명중굴림에 페널티로 통합됨
 const OFF_CLASS_WEAPON_DAMAGE_MULT = 0.7;
 const OFF_CLASS_WEAPON_ATTACK_PENALTY = 4; // D&D식 명중굴림(1d20+공격보정 vs AC)에 -4
@@ -121,8 +125,11 @@ const BLOOD_DRAIN_ROUNDS = 3;
 const BLOOD_DRAIN_PER_ROUND_MULT = 0.3;
 // 흑기사 공포의 오라(dread_aura) - 몹이 멘탈붕괴로 공격을 못 하는 지속 라운드 수
 const DREAD_AURA_STUN_ROUNDS = 2;
-// 흑기사 되살림의 저주(reanimate) - 부활 시 채워주는 체력 비율(최대체력 기준)
-const REVIVE_HP_PCT = 0.3;
+// 흑기사 되살림의 저주(reanimate) - 예전엔 "누가 죽어있으면 확률로 부활"이었는데, 이제 유저 본인이
+// 죽는 순간 전투당 1회 확정 발동으로 바뀜: 본인 포함 이미 죽어있던 파티원 전원이 동시에 부활하고
+// (부활 시 채워지는 체력 비율은 훈련 단계로 결정), 부활 직후 몇 라운드간 파티 전원이 무적이 됨
+const REANIMATE_HP_PCT_BY_TIER = { 1: 0.25, 2: 0.5, 3: 0.75 };
+const REANIMATE_INVINCIBLE_ROUNDS = 2;
 // 성기사 용맹한 결의(valorous_resolve) - 발동 1회당 파티 전체 공격력 배율/방어력 증가폭(전투 내내 유지, 스택)
 const PALADIN_PARTY_BOOST_ATK_MULT_PER_STACK = 1.03;
 const PALADIN_PARTY_BOOST_DEF_AC_PER_STACK = 1;
@@ -148,6 +155,10 @@ const ANGELIC_DESCENT_HEAL_PCT_BY_TIER = { 1: 0.03, 2: 0.04, 3: 0.05 };
 // 확률 판정, 발동하면 그 타격 데미지의 절반이 무작위 "다른" 몹에게 튐(스플래시로도 죽을 수 있음 -
 // 기존 attack_all 기본 스플래시(HP 1 보존, 확률 없음)와는 별개의 새 패시브)
 const CHAIN_BOLT_SPLASH_MULT = 0.5;
+// 전 직업 공용 - 생명력 재생(hp_regen)/기력 회복(resource_regen) 패시브. 확률 판정 없이 매 라운드 무조건
+// 적용, 훈련 단계가 오르면 회복 비율만 커짐(1단계 1% ~ 3단계 3%). 체력을 자원으로 쓰는 흑기사가 특히 도움을 받음
+const HP_REGEN_PCT_BY_TIER = { 1: 0.01, 2: 0.02, 3: 0.03 };
+const RESOURCE_REGEN_PCT_BY_TIER = { 1: 0.01, 2: 0.02, 3: 0.03 };
 // 밀려난 칸 수(rowsOut)당 명중/피해 페널티 - 더 이상 "공격 불가"로 아예 막지 않는 대신, 밀린 만큼
 // 조금씩 불리해짐(전열→후열처럼 두 칸 밀리면 페널티가 누적으로 더 세짐 - selectAttackWeapon 참고)
 const PUSHED_ATTACK_ROLL_PENALTY_PER_ROW = 2;
@@ -466,11 +477,18 @@ export function computeCharacterCombatStats(character) {
   const attackBonus = 2 + Math.floor(level / 3) + Math.min(6, Math.floor(finalAtk / 10));
   const defAcContribution = Math.min(8, Math.floor(finalDef / 8)); // 도발(taunt)이 "방어력 2배"를 표현할 때 이만큼을 한 번 더 더해줌
   const ac = 10 + Math.floor(level / 3) + defAcContribution + Math.min(5, Math.floor(stats.agi / 8));
+  // 체력/마나/스태미나의 스탯 기여분 - 본인 캐릭터는 applyXpGain(rpg-progression.js)이 매 레벨업 "그 순간"의
+  // 스탯으로 계산해 vitHpAccrued/mainStatMpAccrued/agiStaminaAccrued에 영구 누적해준 값을 그대로 씀(나중에
+  // 스탯을 더 찍어도 지난 레벨업분은 안 바뀜). 이 누적치가 없는 경우(용병, 혹은 아직 한 번도 레벨업을
+  // 안 거친 캐릭터)는 예전처럼 현재 스탯×현재레벨로 즉석 계산(순수함수라 값은 항상 같음, 그냥 "고정" 효과만 없음)
+  const vitHpContribution = character.vitHpAccrued != null ? character.vitHpAccrued : Math.round(stats.vit * level * VIT_HP_PER_LEVEL);
+  const mainStatMpContribution = character.mainStatMpAccrued != null ? character.mainStatMpAccrued : Math.round(scalingStat * level * MAGIC_STAT_MP_PER_LEVEL);
+  const agiStaminaContribution = character.agiStaminaAccrued != null ? character.agiStaminaAccrued : Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL);
   return {
-    maxHp: BASE_HP + level * HP_PER_LEVEL + Math.round(stats.vit * level * VIT_HP_PER_LEVEL) + gearHpBonus + accessoryHpBonus + (squireBonus.maxHp || 0),
-    maxMp: Math.round((BASE_MP + level * MP_PER_LEVEL + Math.round(scalingStat * level * MAGIC_STAT_MP_PER_LEVEL)) * facilityResourceMult * (1 + sanctumResourceBonusPct / 100)),
+    maxHp: BASE_HP + level * HP_PER_LEVEL + vitHpContribution + gearHpBonus + accessoryHpBonus + (squireBonus.maxHp || 0),
+    maxMp: Math.round((BASE_MP + level * MP_PER_LEVEL + mainStatMpContribution) * facilityResourceMult * (1 + sanctumResourceBonusPct / 100)),
     // 향후 스테미나 소모 스킬/행동에 대비한 자원(현재는 회복 대상으로만 사용)
-    maxStamina: Math.round((BASE_STAMINA + level * STAMINA_PER_LEVEL + Math.round(stats.agi * level * AGI_STAMINA_PER_LEVEL)) * facilityResourceMult * (1 + sanctumResourceBonusPct / 100)),
+    maxStamina: Math.round((BASE_STAMINA + level * STAMINA_PER_LEVEL + agiStaminaContribution) * facilityResourceMult * (1 + sanctumResourceBonusPct / 100)),
     atk: finalAtk,
     def: finalDef,
     attackBonus,
@@ -1045,6 +1063,21 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   const intro = isCrit ? pickFlavor('monsterCritIntro', MONSTER_CRIT_INTROS, lang) : pickFlavor('monsterHitIntro', MONSTER_HIT_INTROS, lang);
   const critLabel = isCrit ? tLang('rpg.ui.combat.critLabel', lang, ' 💥치명타!') : '';
   log.push(ti('rpg.log.monsterHit', lang, { monster: monster.name, target: target.label, targetObj: target.labelObject, intro, damage: monsterDamage, critLabel }));
+  // 흑기사 전용 되살림의 저주(reanimate) - 유저 본인이 죽는 순간 전투당 1회 확정 발동. 본인 포함
+  // 이미 죽어있던 파티원 전원을 동시에 부활시키고(부활 체력 비율은 훈련 단계로 결정 -
+  // REANIMATE_HP_PCT_BY_TIER), 부활 직후 몇 라운드간 파티 전원이 무적이 됨(last_stand과 같은
+  // invincibleRoundsLeft 필드를 공유해서 쓰므로 겹치면 Math.max로 더 긴 쪽이 유지됨)
+  if (target.hp <= 0 && target.isSelf && !target.reanimateUsed) {
+    const reviveSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_revive' && isSkillUsable(target, s));
+    if (reviveSkill) {
+      target.reanimateUsed = true;
+      const tier = (target.skillLevels && target.skillLevels[reviveSkill.id]) || 1;
+      const revivePct = REANIMATE_HP_PCT_BY_TIER[tier] || REANIMATE_HP_PCT_BY_TIER[1];
+      party.filter((p) => p.hp <= 0).forEach((p) => { p.hp = Math.round(p.combatStats.maxHp * revivePct); });
+      party.filter((p) => p.hp > 0).forEach((p) => { p.invincibleRoundsLeft = Math.max(p.invincibleRoundsLeft || 0, REANIMATE_INVINCIBLE_ROUNDS); });
+      log.push(ti('rpg.log.reanimateTrigger', lang, { actor: target.label, actorPoss: target.labelPossessive }));
+    }
+  }
   // 방패기술의 반격 - 맞은 직후 방패로 쳐내며 즉시 되받아침(자기 atk 기준 배율 데미지)
   let monsterDiedFromCounter = false;
   if (monster.hp > 0 && Math.random() < (combatStats.shieldCounterChance || 0)) {
@@ -1209,17 +1242,6 @@ function performMonsterVsMonsterAttack({ attacker, defender, log, lang = 'ko' })
 function applyRoundStartPassives({ party, partyBuffs, log, lang = 'ko' }) {
   const alive = party.filter((p) => p.alive && p.hp > 0);
   alive.forEach((actor) => {
-    // 흑기사 되살림의 저주(reanimate, HP소모) - 사망한 아군이 있으면 확률로 되살림
-    const reviveSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'passive_revive' && isSkillUsable(actor, s));
-    if (reviveSkill) {
-      const dead = party.filter((p) => p.hp <= 0);
-      if (dead.length && Math.random() < skillEffectivePower(actor, reviveSkill)) {
-        spendActorResource(actor, reviveSkill, reviveSkill.manaCost);
-        const target = dead[0];
-        target.hp = Math.round(target.combatStats.maxHp * REVIVE_HP_PCT);
-        log.push(ti('rpg.log.revive', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, reviveSkill, lang), target: target.label }));
-      }
-    }
     // 성기사 용맹한 결의(valorous_resolve) - 확률로 파티 전체 공격력/방어력이 조금씩 영구 상승(전투 내내 유지, 스택)
     const partyBoostSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'passive_party_boost' && isSkillUsable(actor, s));
     if (partyBoostSkill && Math.random() < skillEffectivePower(actor, partyBoostSkill)) {
@@ -1234,6 +1256,30 @@ function applyRoundStartPassives({ party, partyBuffs, log, lang = 'ko' }) {
       const tier = (actor.skillLevels && actor.skillLevels[tauntSkill.id]) || 1;
       actor.tauntRoundsLeft = TAUNT_ROUNDS_BY_TIER[tier] || TAUNT_ROUNDS_BY_TIER[1];
       log.push(ti('rpg.log.taunt', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, tauntSkill, lang) }));
+    }
+    // 전 직업 공용 생명력 재생(hp_regen) - 확률 판정 없이 매 라운드 무조건, 훈련 단계만큼 최대체력의 %를 회복
+    const hpRegenSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'passive_hp_regen' && isSkillUsable(actor, s));
+    if (hpRegenSkill && actor.hp > 0 && actor.hp < actor.combatStats.maxHp) {
+      const tier = (actor.skillLevels && actor.skillLevels[hpRegenSkill.id]) || 0;
+      const pct = HP_REGEN_PCT_BY_TIER[tier] || 0;
+      const healAmount = Math.round(actor.combatStats.maxHp * pct);
+      if (healAmount > 0) {
+        actor.hp = Math.min(actor.combatStats.maxHp, actor.hp + healAmount);
+        log.push(ti('rpg.log.hpRegenTick', lang, { actor: actor.label, actorPoss: actor.labelPossessive, amount: healAmount }));
+      }
+    }
+    // 전 직업 공용 기력 회복(resource_regen) - 마나/스태미나 중 그 직업이 실제로 쓰는 자원만 회복
+    const resourceRegenSkill = actor.combatStats.classDef.skills.find((s) => s.type === 'passive_resource_regen' && isSkillUsable(actor, s));
+    if (resourceRegenSkill) {
+      const tier = (actor.skillLevels && actor.skillLevels[resourceRegenSkill.id]) || 0;
+      const pct = RESOURCE_REGEN_PCT_BY_TIER[tier] || 0;
+      const resourceKey = actor.combatStats.classDef.resourceType === 'stamina' ? 'stamina' : 'mp';
+      const maxKey = resourceKey === 'stamina' ? 'maxStamina' : 'maxMp';
+      const regenAmount = Math.round(actor.combatStats[maxKey] * pct);
+      if (regenAmount > 0 && actor[resourceKey] < actor.combatStats[maxKey]) {
+        actor[resourceKey] = Math.min(actor.combatStats[maxKey], actor[resourceKey] + regenAmount);
+        log.push(ti('rpg.log.resourceRegenTick', lang, { actor: actor.label, actorPoss: actor.labelPossessive, amount: regenAmount }));
+      }
     }
   });
 }

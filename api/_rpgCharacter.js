@@ -37,6 +37,11 @@ export function defaultCharacter(slot, now = Date.now()) {
     level: 1,
     xp: 0,
     statPoints: 0,
+    // 체력/마나/스태미나 레벨업 고정 시스템(rpg-progression.js applyXpGain 참고) - null이면 아직 한 번도
+    // 이 시스템을 안 거친 캐릭터라는 뜻이라, 첫 레벨업 때 기존 공식으로 역산해 시작값을 잡아줌
+    vitHpAccrued: null,
+    mainStatMpAccrued: null,
+    agiStaminaAccrued: null,
     stats: { str: 5, int: 5, agi: 5, vit: 5, wis: 5 },
     name: null, // 직업 선택(choose-class.js)과 동시에 확정됨 - 그 전까지는 null
     classMain: null,
