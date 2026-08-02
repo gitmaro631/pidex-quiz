@@ -808,7 +808,15 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
   // 페널티가 추가로 곱해지고, 무기는 있는데 스킬만 없으면 그 페널티 없이 기본공격 위력 그대로 나감
   const basicAttackSkill = combatStats.classDef.skills.find((s) => s.id === 'basic_attack');
   const improvised = combatStats.classDef.improvisedAttack || { powerMult: 1 };
-  const attackLabel = skill ? displaySkillName(actor, skill, lang) : displaySkillName(actor, basicAttackSkill, lang);
+  // 스킬 없이 기본공격이 나갈 때, 실제로 무기를 들고 있으면(weapon.atkBonus>0) 그 무기 이름으로 표시함 -
+  // 검을 들고 있는데도 항상 "주먹질"이라고 뜨던 문제 수정(데미지 계산엔 원래도 무기 보너스가 반영되고
+  // 있었음 - 표시 문구만 실제 상황과 안 맞았던 것). 진짜 맨손(무기 자체가 없음)일 때만 직업별
+  // 맨몸 기술 이름(주먹질/짱돌 던지기 등)을 그대로 씀
+  const attackLabel = skill
+    ? displaySkillName(actor, skill, lang)
+    : (weapon.atkBonus > 0
+      ? ti('rpg.log.weaponAttackLabel', lang, { weapon: tLang(`rpg.ui.weaponType.${weapon.weaponType}`, lang, weapon.weaponType) })
+      : displaySkillName(actor, basicAttackSkill, lang));
   const grumbleNote = skill ? '' : ` ${pickFlavor('grumble', IMPROVISED_ATTACK_GRUMBLE_LINES, lang)}`;
   // 파티 전체 적용: buff_atk_party(마법사/흑기사 등, 1회성) * 성기사 용맹한 결의(매턴 확률로 쌓이는 영구 스택)
   let power = (skill ? skillEffectivePower(actor, skill) : skillEffectivePower(actor, basicAttackSkill)) * partyBuffs.atkMult * (partyBuffs.paladinAtkMult || 1);

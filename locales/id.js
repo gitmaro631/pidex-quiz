@@ -2518,6 +2518,7 @@
   "rpg.log.holyLeech": "{actorPoss} Sentuhan Berkat! Memulihkan {amount} HP {targetObj}.",
   "rpg.log.bloodDrainStart": "{actorPoss} Kutukan Darah! Mulai menyedot daya hidup dari {monster}.",
   "rpg.log.attackAllSplash": "{actorPoss} {skill} menyapu area sekitar! (splash {damage})",
+  "rpg.log.weaponAttackLabel": "Serangan {weapon}",
   "rpg.log.dualWandCast": "Wand di tangan satunya {actorPoss} menembakkan elemen {element} secara bersamaan! Memberikan {damage} kerusakan tambahan ke {monster}.",
   "rpg.log.monsterAttackMiss": "{target} {miss} serangan {monster}!",
   "rpg.log.evasionDodge": "{target} melompat dan sepenuhnya menghindari serangan {monster}!",

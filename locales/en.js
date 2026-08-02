@@ -2477,6 +2477,7 @@
   "rpg.log.holyLeech": "{actorPoss} Blessed Touch! Restored {amount} HP to {targetObj}.",
   "rpg.log.bloodDrainStart": "{actorPoss} Curse of Blood! Begins draining life force from {monster}.",
   "rpg.log.attackAllSplash": "{actorPoss} {skill} swept the surrounding area! (splash {damage})",
+  "rpg.log.weaponAttackLabel": "{weapon} attack",
   "rpg.log.dualWandCast": "{actorPoss} off-hand wand fires a {element} bolt at the same time! Dealt an extra {damage} damage to {monster}.",
   "rpg.log.monsterAttackMiss": "{target} {miss} {monster}'s attack!",
   "rpg.log.evasionDodge": "{target} leapt aside and completely evaded {monster}'s attack!",

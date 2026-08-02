@@ -1838,6 +1838,7 @@
   "rpg.log.holyLeech": "{actor}의 축복의 손길! {target}의 체력을 {amount} 회복했다.",
   "rpg.log.bloodDrainStart": "{actor}의 피의 저주! {monster}에게서 생명력을 흡수하기 시작한다.",
   "rpg.log.attackAllSplash": "{actor}의 {skill}이(가) 주변까지 휩쓸었다! (스플래시 {damage})",
+  "rpg.log.weaponAttackLabel": "{weapon} 공격",
   "rpg.log.dualWandCast": "{actor}의 다른 손 완드가 동시에 {element} 속성을 발동! {monster}에게 추가로 {damage} 피해.",
   "rpg.log.monsterAttackMiss": "{target}이(가) {monster}의 공격을 {miss}!",
   "rpg.log.evasionDodge": "{target}이(가) 몸을 날려 {monster}의 공격을 완전히 회피했다!",
