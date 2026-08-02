@@ -49,11 +49,7 @@ export const CLASSES = {
       { id: 'aimed_shot', name: '조준사격', manaCost: 5, type: 'attack', power: 1.5 },
       { id: 'multi_shot', name: '다중사격', manaCost: 8, type: 'attack_all', power: 1.0 },
       { id: 'evasive_shot', name: '회피사격', manaCost: 4, type: 'buff_evade', power: 1.3 },
-      // 전투 행동으로 나가는 게 아니라 훈련해두면 항상 켜져있는 패시브 - 단일공격이든 광역공격이든
-      // 지금 나가는 공격에 일정 확률로 3배 데미지가 붙음(power는 "발동 확률" 기준값, 단계별로 세짐 -
-      // rpg-combat.js computeCharacterCombatStats/performAttack 참고)
-      { id: 'rapid_fire', name: '속사', manaCost: 0, type: 'passive_rapid_fire', power: 0.08 },
-      // 마찬가지로 패시브 - 공격을 받을 때마다(명중 판정과는 별개로) 이 확률만큼 완전히 회피함.
+      // 패시브 - 공격을 받을 때마다(명중 판정과는 별개로) 이 확률만큼 완전히 회피함.
       // 회피사격(evasive_shot, 서포트 역할일 때만 쓰는 일시적 자기버프)과는 다른, 항상 켜져있는 스킬
       // 명중판정까지 통과한 크리티컬조차 조건 없이 무조건 무효화하는 유일한 방어수단이라 값이 과했던 걸
       // 재차 하향 - 훈련 만렙(3단계)은 5% 안쪽(EVASION_SKILL_BONUS_BY_TIER, rpg-combat.js 고정표),

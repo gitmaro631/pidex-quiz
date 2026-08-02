@@ -471,7 +471,6 @@
   "rpg.skill.archer.aimed_shot.name": "조준사격",
   "rpg.skill.archer.multi_shot.name": "다중사격",
   "rpg.skill.archer.evasive_shot.name": "회피사격",
-  "rpg.skill.archer.rapid_fire.name": "속사",
   "rpg.skill.archer.evasion.name": "회피",
   "rpg.skill.archer.exposing_shot.name": "급소 노출",
   "rpg.skill.archer.shield_equip.name": "방패장착",
@@ -1834,7 +1833,7 @@
   "rpg.ui.combat.rareLabel": "(희귀)",
   "rpg.log.attackMiss": "{actor}의 {attack}이(가) {miss}!{hitLabel}{grumble}",
   "rpg.log.exposeEvasion": "{actor}의 {skill}! {monster}의 급소를 노려 회피력이 떨어졌다.",
-  "rpg.log.attackHit": "{actor}의 {attack}, {intro}! {monster}에게 {damage} 피해.{elementNote}{affinityNote}{critLabel}{rapidFireLabel}{hitLabel}{pushedNote}{grumble}",
+  "rpg.log.attackHit": "{actor}의 {attack}, {intro}! {monster}에게 {damage} 피해.{elementNote}{affinityNote}{critLabel}{hitLabel}{pushedNote}{grumble}",
   "rpg.log.holyLeech": "{actor}의 축복의 손길! {target}의 체력을 {amount} 회복했다.",
   "rpg.log.bloodDrainStart": "{actor}의 피의 저주! {monster}에게서 생명력을 흡수하기 시작한다.",
   "rpg.log.attackAllSplash": "{actor}의 {skill}이(가) 주변까지 휩쓸었다! (스플래시 {damage})",
@@ -1894,7 +1893,6 @@
   "rpg.ui.combat.pushedNote": " (밀려난 자세라 위력 약화)",
   "rpg.ui.combat.extraHitLabel": " (추가타!)",
   "rpg.ui.combat.critLabel": " 💥치명타!",
-  "rpg.ui.combat.rapidFireLabel": " 🏹속사!",
 
   // ── RPG: adventure.js 서버측 로그 ──
   "rpg.log.townTravel": "{town}(으)로 이동했다. (턴포인트 1 추가 소모)",

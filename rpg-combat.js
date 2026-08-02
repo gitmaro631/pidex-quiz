@@ -90,8 +90,6 @@ const SELF_DEF_BUFF_AC_BONUS = 3;
 const DANGER_RETREAT_HP_PCT = 0.25;
 // 방패기술 반격의 기본 데미지 배율(자기 atk 기준) - 방패기술 훈련 단계에 따라 더 세짐(computeCharacterCombatStats 참고)
 const SHIELD_COUNTER_BASE_DAMAGE_MULT = 0.5;
-// 궁수 속사 발동 시 데미지 배율 - 확률만 단계별로 세지고 배율 자체는 고정 3배
-const RAPID_FIRE_DAMAGE_MULT = 3;
 // 전사 이도류(dual_wield) - 보조무기 공격력 합산치에 얹는 추가 보너스. 3단계(만렙)에서 정확히 +5%가 되도록
 // 단계별 값을 직접 지정(다른 패시브처럼 TIER_POWER_MULT로 배율만 곱하는 방식이 아님 - 목표 수치가 명확해서 고정표 사용)
 const DUAL_WIELD_BONUS_BY_TIER = { 1: 0.03, 2: 0.04, 3: 0.05 };
@@ -366,11 +364,8 @@ export function computeCharacterCombatStats(character) {
   const shieldBlockChance = shieldMasteryActive ? (shieldItem.blockChance || 0) * shieldMasteryPowerMult : 0;
   // 반격 데미지 배율의 기준값(자기 atk 기준) - 방패기술 단계가 오르면 이것도 같이 세짐
   const shieldCounterDamageMult = shieldMasteryActive ? SHIELD_COUNTER_BASE_DAMAGE_MULT * shieldMasteryPowerMult : 0;
-  // 궁수 전용 패시브 - 속사(공격시 확률로 3배 데미지)/회피(피격시 확률로 완전 회피). 둘 다 훈련 단계(1~3)가
+  // 궁수 전용 패시브 - 회피(피격시 확률로 완전 회피). 훈련 단계(1~3)가
   // 오르면 발동 확률이 TIER_POWER_MULT만큼 세짐(스킬 자체의 power 필드를 기준 확률로 사용)
-  const rapidFireSkillDef = classDef.skills.find((s) => s.type === 'passive_rapid_fire');
-  const rapidFireTier = (character.skillLevels && rapidFireSkillDef && character.skillLevels[rapidFireSkillDef.id]) || 0;
-  const rapidFireChance = rapidFireTier > 0 ? rapidFireSkillDef.power * (TIER_POWER_MULT[rapidFireTier] || 1) : 0;
   const evasionSkillDef = classDef.skills.find((s) => s.type === 'passive_evasion');
   const evasionTier = (character.skillLevels && evasionSkillDef && character.skillLevels[evasionSkillDef.id]) || 0;
   // 3단계(만렙)에서 5% 안쪽으로 딱 떨어지게 고정표 사용(다른 무기숙련 패시브들과 같은 원칙 -
@@ -485,7 +480,6 @@ export function computeCharacterCombatStats(character) {
     shieldCounterDamageMult,
     defAcContribution,
     // 궁수 전용 - 훈련 안 했으면 항상 0
-    rapidFireChance,
     evasionChance,
     // 마법사 전용 - 훈련 안 했으면 항상 0
     arcaneAuraChance,
@@ -879,18 +873,14 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
       log.push(ti('rpg.log.exposeEvasion', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, exposeSkill, lang), monster: monster.name }));
     }
     const critMult = isCrit ? CRIT_DAMAGE_MULT : 1;
-    // 속사(rapid_fire) - 단일/광역 공격 어느 쪽이든 이번 타격에 확률로 3배 데미지
-    const isRapidFire = Math.random() < (combatStats.rapidFireChance || 0);
-    const rapidFireMult = isRapidFire ? RAPID_FIRE_DAMAGE_MULT : 1;
-    const rawDamage = Math.max(1, Math.round(effectiveAtk * power * elemMult * affinityMult * critMult * rapidFireMult * randRange(0.85, 1.15)));
+    const rawDamage = Math.max(1, Math.round(effectiveAtk * power * elemMult * affinityMult * critMult * randRange(0.85, 1.15)));
     lastRawDamage = rawDamage;
     monster.hp -= rawDamage;
     const intro = isCrit ? pickFlavor('attackCritIntro', ATTACK_CRIT_INTROS, lang) : pickFlavor('attackHitIntro', ATTACK_HIT_INTROS, lang);
     const critLabel = isCrit ? tLang('rpg.ui.combat.critLabel', lang, ' 💥치명타!') : '';
-    const rapidFireLabel = isRapidFire ? tLang('rpg.ui.combat.rapidFireLabel', lang, ' 🏹속사!') : '';
     log.push(ti('rpg.log.attackHit', lang, {
       actor: actor.label, actorPoss: actor.labelPossessive, attack: attackLabel, intro, monster: monster.name, damage: rawDamage,
-      elementNote, affinityNote, critLabel, rapidFireLabel, hitLabel, pushedNote, grumble: grumbleNote,
+      elementNote, affinityNote, critLabel, hitLabel, pushedNote, grumble: grumbleNote,
     }));
     // 성기사 전용 패시브 - 입힌 피해의 일정 %만큼 파티 중 체력이 가장 낮은 아군(본인 포함)을 치료
     const holyLeechSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_holy_leech' && isSkillUsable(actor, s));

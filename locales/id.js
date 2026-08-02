@@ -1149,7 +1149,6 @@
   "rpg.skill.archer.aimed_shot.name": "Bidikan Tepat",
   "rpg.skill.archer.multi_shot.name": "Tembakan Beruntun",
   "rpg.skill.archer.evasive_shot.name": "Tembakan Mengelak",
-  "rpg.skill.archer.rapid_fire.name": "Tembakan Cepat",
   "rpg.skill.archer.evasion.name": "Elakan",
   "rpg.skill.archer.exposing_shot.name": "Tembakan Pembuka Celah",
   "rpg.skill.archer.shield_equip.name": "Pasang Perisai",
@@ -2514,7 +2513,7 @@
   "rpg.ui.combat.rareLabel": "(Langka)",
   "rpg.log.attackMiss": "{actorPoss} {attack} {miss}!{hitLabel}{grumble}",
   "rpg.log.exposeEvasion": "{actorPoss} {skill}! Membuka titik lemah {monster}, evasinya menurun.",
-  "rpg.log.attackHit": "{actorPoss} {attack} {intro}! Memberikan {damage} kerusakan ke {monster}.{elementNote}{affinityNote}{critLabel}{rapidFireLabel}{hitLabel}{pushedNote}{grumble}",
+  "rpg.log.attackHit": "{actorPoss} {attack} {intro}! Memberikan {damage} kerusakan ke {monster}.{elementNote}{affinityNote}{critLabel}{hitLabel}{pushedNote}{grumble}",
   "rpg.log.holyLeech": "{actorPoss} Sentuhan Berkat! Memulihkan {amount} HP {targetObj}.",
   "rpg.log.bloodDrainStart": "{actorPoss} Kutukan Darah! Mulai menyedot daya hidup dari {monster}.",
   "rpg.log.attackAllSplash": "{actorPoss} {skill} menyapu area sekitar! (splash {damage})",
@@ -2574,7 +2573,6 @@
   "rpg.ui.combat.pushedNote": " (posisi terdesak - kekuatan melemah)",
   "rpg.ui.combat.extraHitLabel": " (serangan tambahan!)",
   "rpg.ui.combat.critLabel": " 💥Kritikal!",
-  "rpg.ui.combat.rapidFireLabel": " 🏹Tembakan Cepat!",
 
   // ── RPG: Log Server-side adventure.js ──
   "rpg.log.townTravel": "Berpindah ke {town}. (menghabiskan tambahan 1 turn point)",

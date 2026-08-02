@@ -162,7 +162,7 @@ const POLICY = {
   // MAX_SKILL_TIER). Deliberately front-loads the mechanics balance wants tracked.
   SKILL_PRIORITY: {
     warrior:     ['power_strike', 'dual_wield', 'whirlwind', 'guard_stance', 'taunt'],
-    archer:      ['aimed_shot', 'evasion', 'rapid_fire', 'multi_shot', 'exposing_shot'],
+    archer:      ['aimed_shot', 'evasion', 'multi_shot', 'exposing_shot'],
     mage:        ['magic_bolt', 'staff_mastery', 'wand_mastery', 'elemental_nova', 'arcane_aura'],
     priest:      ['smite', 'blunt_mastery', 'heal', 'mass_heal', 'morale_boost'],
     paladin:     ['holy_strike', 'holy_leech', 'holy_wave', 'divine_shield', 'indomitable_will'],
@@ -689,7 +689,7 @@ function classMechanicReport(classId, char, stats) {
     case 'warrior':
       return { dual_wield_tier: sk.dual_wield || 0, offhand_equipped: !!char.equipment.offhand, offhand_id: char.equipment.offhand || null };
     case 'archer':
-      return { evasion_tier: sk.evasion || 0, evasionChance: round3(stats.evasionChance || 0), rapid_fire_tier: sk.rapid_fire || 0 };
+      return { evasion_tier: sk.evasion || 0, evasionChance: round3(stats.evasionChance || 0) };
     case 'mage':
       return { staff_mastery_tier: sk.staff_mastery || 0, wand_mastery_tier: sk.wand_mastery || 0, offhand_wand: char.equipment.offhand && ITEMS[char.equipment.offhand]?.weaponType === 'wand' || false };
     case 'priest':
