@@ -721,6 +721,14 @@ function isSkillUsable(actor, skill) {
   const available = key === 'hp' ? actor.hp - HP_SKILL_MIN_REMAINING : actor[key];
   if (skill.manaCost > available) return false;
   if (skill.requiresShield && !actor.combatStats.hasShield) return false; // 방패 스킬은 방패 장착 중일 때만
+  // 공격 스킬(단일/광역)은 그 직업에 맞는 무기를 들고 있어야만 발동함 - 궁수가 검을 들고 조준사격을
+  // 쏘거나 맨손으로 쏘는 건 말이 안 되므로, 직업 비숙련 무기(isOffClassWeapon)이거나 무기가 아예
+  // 없으면 스킬 자체가 안 나가고 기본공격(맨몸/즉흥)으로 자동 대체됨(chooseAttackPlan 참고).
+  // 전사는 "만능 근접직" 컨셉이라 isOffClassWeapon이 항상 false를 주므로 이 제약에서 자연히 예외가 됨
+  if (skill.type === 'attack' || skill.type === 'attack_all') {
+    const weaponType = actor.combatStats.weaponType;
+    if (!weaponType || isOffClassWeapon(actor.combatStats.classDef, weaponType)) return false;
+  }
   if (actor.isSelf) return (actor.skillLevels && actor.skillLevels[skill.id] > 0);
   return true; // 용병은 훈련 시스템 대상이 아니라 항상 사용 가능
 }
