@@ -71,6 +71,13 @@ function isOffClassWeapon(classDef, weaponType) {
   const allowed = CONCEPT_WEAPON_BY_CLASS[classDef.id] || classDef.weaponTypes;
   return !allowed.includes(weaponType);
 }
+// isOffClassWeapon과 같은 기준으로, 공격 스킬이 실제로 발동하는(isSkillUsable 참고) 무기 종류
+// 목록을 UI 표시용으로 돌려줌 - null이면 "아무 무기나 가능"(전사 전용)이라는 뜻
+export function attackSkillWeaponTypes(classDef) {
+  if (UNRESTRICTED_WEAPON_CLASS_IDS.includes(classDef.id)) return null;
+  const base = CONCEPT_WEAPON_BY_CLASS[classDef.id] || classDef.weaponTypes;
+  return [...new Set([...base, ...UNIVERSAL_NO_PENALTY_WEAPON_TYPES])];
+}
 // 용병의 멘탈(공포저항) - 전열에서 피격당할 때마다 낮은 확률로 멘탈이 나가서 후열로 숨음(그 전투 한정, 일시적)
 const MORALE_BREAK_BASE_CHANCE = 0.13; // 예전엔 0.25 - 근접딜러가 밀려나 그 라운드 공격을 못하는 스노우볼이 너무 잦다는 피드백으로 완화
 const PLAYER_BASE_MENTAL_RESIST = 50; // 유저 캐릭터 전용 스탯이 따로 없어 용병 평균값(50~65)대로 기본값 사용

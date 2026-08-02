@@ -18,7 +18,7 @@ import { NPCS } from './data/rpg/npcs.js';
 import { QUESTS } from './data/rpg/quests.js';
 import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
-import { computeCharacterCombatStats, monsterDifficultyTier, COMBAT_MISS_PHRASES, effectiveStats, TWO_HANDED_WEAPON_TYPES } from './rpg-combat.js';
+import { computeCharacterCombatStats, monsterDifficultyTier, COMBAT_MISS_PHRASES, effectiveStats, TWO_HANDED_WEAPON_TYPES, attackSkillWeaponTypes } from './rpg-combat.js';
 import {
   MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster, PLAYER_TERRITORY_BONUS_MULT,
 } from './data/rpg/mercenaries.js';
@@ -1045,6 +1045,7 @@ function trainerHtml() {
   const owned = (character.inventory || []).find((e) => e.itemId === essenceItemId);
   const ownedQty = owned ? owned.qty : 0;
   const skillLevels = character.skillLevels || {};
+  const requiredWeapons = attackSkillWeaponTypes(cls); // null이면 전사처럼 무기 무관
   return `
     <p class="rpg-hint">${ti('rpg.ui.trainer.ownedMaterial', getLang(), { item: getItemName(essenceItemId, getLang()), qty: ownedQty })}</p>
     ${cls.skills.map((s) => {
@@ -1052,11 +1053,19 @@ function trainerHtml() {
       const maxed = tier >= MAX_SKILL_TIER;
       const cost = maxed ? null : TRAINING_TIER_COSTS[tier + 1];
       const isBasicAttack = s.id === 'basic_attack';
+      const isAttackSkill = s.type === 'attack' || s.type === 'attack_all';
       const label = tier === 0 ? t('rpg.ui.trainer.learnBtn') : t('rpg.ui.trainer.levelUpBtn');
       const tierText = tier === 0 && !isBasicAttack ? t('rpg.ui.trainer.unlearned') : ti('rpg.ui.trainer.tierLabel', getLang(), { tier, max: MAX_SKILL_TIER });
+      // 공격 스킬(단일/광역)은 실제로 그 무기를 들고 있어야만 발동하므로(rpg-combat.js의 isSkillUsable
+      // 참고), 참고할 수 있게 필요 무기 종류를 같이 보여줌
+      const weaponHint = isAttackSkill
+        ? ` <span class="rpg-hint">(${ti('rpg.ui.trainer.requiredWeaponLabel', getLang(), {
+            weapons: requiredWeapons ? requiredWeapons.map((w) => t(`rpg.ui.weaponType.${w}`)).join(' / ') : t('rpg.ui.trainer.requiredWeaponAny'),
+          })})</span>`
+        : '';
       return `
         <div class="rpg-shop-row">
-          <span>${getSkillName(cls.id, s.id, getLang())} — ${tierText}${maxed ? t('rpg.ui.trainer.maxed') : ''}${isBasicAttack ? t('rpg.ui.trainer.alwaysUsableSuffix') : ''}</span>
+          <span>${getSkillName(cls.id, s.id, getLang())} — ${tierText}${maxed ? t('rpg.ui.trainer.maxed') : ''}${isBasicAttack ? t('rpg.ui.trainer.alwaysUsableSuffix') : ''}${weaponHint}</span>
           ${maxed ? '' : `<button class="rpg-train-skill-btn" data-skill="${s.id}">${ti('rpg.ui.trainer.trainBtn', getLang(), { label, item: getItemName(essenceItemId, getLang()), essence: cost.essence, gold: cost.gold })}</button>`}
         </div>
       `;
