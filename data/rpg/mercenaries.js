@@ -40,8 +40,11 @@ export function randomMercName() {
   return MERC_RANDOM_NAMES[Math.floor(Math.random() * MERC_RANDOM_NAMES.length)];
 }
 
-export const MAX_PARTY_SIZE = 3; // 본인 포함 "전투 동행" 최대 인원(본인 1 + 전투용병 최대 2)
+export const MAX_PARTY_SIZE = 4; // 본인 포함 "전투 동행" 최대 인원(본인 1 + 전투용병 최대 3)
 export const MAX_MERCENARIES = MAX_PARTY_SIZE - 1; // 동시에 전투(assignment:'active')에 데려갈 수 있는 용병 수
+// 전투 동행(active) 슬롯을 채울 때마다 고용비가 이 배율만큼 붙음(1번째=그대로, 2번째=1.5배, 3번째=2배) -
+// 용병을 많이 데리고 다니는 걸 쉽게 만들지 않기 위한 장치(hire-mercenary.js/rpg-balance-sim.mjs 참고)
+export const ACTIVE_HIRE_COST_MULT_BY_SLOT = [1, 1.5, 2];
 // 전투에 못 데려가는 잉여 용병은 영지에 남겨 일을 시킬 수 있음 - assignment:'territory'.
 // 영지 경제는 실시간이 아니라 "영지일"(턴포인트 10소모 = 영지 1일, rpg-territory.js의
 // TURNS_PER_TERRITORY_DAY 참고) 단위로 정산됨 - 플레이를 안 하면 영지도 그대로 멈춰있음.

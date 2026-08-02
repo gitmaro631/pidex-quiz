@@ -101,7 +101,7 @@ import { ENHANCE_LEVEL_COSTS, MAX_ENHANCE_LEVEL } from '../data/rpg/enhancement.
 import { TRAINING_TIER_COSTS, MAX_SKILL_TIER, CLASS_ESSENCE_ITEM } from '../data/rpg/training.js';
 import { CASTLE_CLEAR_REQUIREMENT } from '../data/rpg/castle.js';
 import { HP_REST_HEAL_FULL_TURNS, REST_HEAL_TURN_COST_BY_SEVERITY } from '../data/rpg/injuries.js';
-import { MERCENARY_TEMPLATES } from '../data/rpg/mercenaries.js';
+import { MERCENARY_TEMPLATES, ACTIVE_HIRE_COST_MULT_BY_SLOT } from '../data/rpg/mercenaries.js';
 import { TOWNS } from '../data/rpg/towns.js';
 
 // ----------------------------------------------------------------------------
@@ -161,18 +161,18 @@ const POLICY = {
   // Skill training priority per class (trained with class essences + gold, up to
   // MAX_SKILL_TIER). Deliberately front-loads the mechanics balance wants tracked.
   SKILL_PRIORITY: {
-    warrior:     ['power_strike', 'dual_wield', 'whirlwind', 'guard_stance', 'taunt'],
+    warrior:     ['power_strike', 'dual_wield', 'whirlwind', 'guard_stance', 'taunt', 'last_stand'],
     archer:      ['aimed_shot', 'evasion', 'multi_shot', 'exposing_shot'],
-    mage:        ['magic_bolt', 'staff_mastery', 'wand_mastery', 'elemental_nova', 'arcane_aura'],
-    priest:      ['smite', 'blunt_mastery', 'heal', 'mass_heal', 'morale_boost'],
-    paladin:     ['holy_strike', 'holy_leech', 'holy_wave', 'divine_shield', 'indomitable_will'],
-    dark_knight: ['dark_strike', 'blood_drain', 'blood_strike', 'dread_aura', 'dark_pact'],
+    mage:        ['magic_bolt', 'staff_mastery', 'wand_mastery', 'elemental_nova', 'arcane_aura', 'chain_bolt'],
+    priest:      ['smite', 'blunt_mastery', 'heal', 'mass_heal', 'morale_boost', 'angelic_descent'],
+    paladin:     ['holy_strike', 'holy_leech', 'holy_wave', 'divine_shield', 'indomitable_will', 'conversion'],
+    dark_knight: ['dark_strike', 'blood_drain', 'blood_strike', 'dread_aura', 'dark_pact', 'fear_strike'],
   },
 
   // Combat mercenaries: hire up to this many ACTIVE mercs once we can afford them
   // with a buffer. Early towns only offer warrior/archer (minTownTier 1).
-  MAX_ACTIVE_MERCS: 2,
-  ACTIVE_MERC_IDS: ['merc_warrior', 'merc_archer'],
+  MAX_ACTIVE_MERCS: 3,
+  ACTIVE_MERC_IDS: ['merc_warrior', 'merc_archer', 'merc_priest'],
   MERC_HIRE_GOLD_BUFFER: 400,   // keep this much gold after a hire
   TERRITORY_CLEARING_MERCS: 2,  // extra mercs put on 'clearing' (gold income) when affordable
 
@@ -486,12 +486,15 @@ function runOne(classId, repeatIndex) {
       const activeCount = char.mercenaries.filter((m) => m.assignment === 'active').length;
       // Active combat mercs (up to MAX_ACTIVE_MERCS).
       for (const mid of POLICY.ACTIVE_MERC_IDS) {
-        if (char.mercenaries.filter((m) => m.assignment === 'active').length >= POLICY.MAX_ACTIVE_MERCS) break;
+        const slotIdx = char.mercenaries.filter((m) => m.assignment === 'active').length;
+        if (slotIdx >= POLICY.MAX_ACTIVE_MERCS) break;
         const tmpl = MERCENARY_TEMPLATES[mid];
         if (!tmpl || (tmpl.minTownTier || 1) > townTier) continue;
         if (char.mercenaries.some((m) => m.templateId === mid && m.assignment === 'active')) continue;
-        if (char.gold < tmpl.hireCost + POLICY.MERC_HIRE_GOLD_BUFFER) continue;
-        char.gold -= tmpl.hireCost; sim.goldSpentMercs += tmpl.hireCost;
+        // 2번째/3번째 전투 슬롯은 고용비가 할증됨(ACTIVE_HIRE_COST_MULT_BY_SLOT, hire-mercenary.js와 동일 규칙)
+        const cost = Math.round(tmpl.hireCost * (ACTIVE_HIRE_COST_MULT_BY_SLOT[slotIdx] || 1));
+        if (char.gold < cost + POLICY.MERC_HIRE_GOLD_BUFFER) continue;
+        char.gold -= cost; sim.goldSpentMercs += cost;
         const merc = createMercenaryInstance(mid);
         merc.assignment = 'active';
         char.mercenaries.push(merc);
@@ -689,7 +692,7 @@ function classMechanicReport(classId, char, stats) {
     case 'warrior':
       return { dual_wield_tier: sk.dual_wield || 0, offhand_equipped: !!char.equipment.offhand, offhand_id: char.equipment.offhand || null };
     case 'archer':
-      return { evasion_tier: sk.evasion || 0, evasionChance: round3(stats.evasionChance || 0) };
+      return { evasion_tier: sk.evasion || 0, evasionChance: round3(stats.evasionChance || 0), exposing_shot_tier: sk.exposing_shot || 0, exposeShotChance: round3(stats.exposeShotChance || 0) };
     case 'mage':
       return { staff_mastery_tier: sk.staff_mastery || 0, wand_mastery_tier: sk.wand_mastery || 0, offhand_wand: char.equipment.offhand && ITEMS[char.equipment.offhand]?.weaponType === 'wand' || false };
     case 'priest':

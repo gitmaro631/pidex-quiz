@@ -138,7 +138,7 @@ export function createMercenaryInstance(templateId, now = Date.now()) {
       leg: { severity: 0, turnsLeft: 0 },
     },
     hospitalized: false, // true면 병원에서 요양 중 - 모험에 동행하지 않고 보수도 안 나가지만 계속 회복은 됨
-    // assignment: 'active'(전투 동행, 최대 2명) | 'territory'(영지에서 일함) - hire-mercenary.js가 자리를 봐서 결정
+    // assignment: 'active'(전투 동행, 최대 3명) | 'territory'(영지에서 일함) - hire-mercenary.js가 자리를 봐서 결정
     assignment: 'territory',
     job: 'clearing',
     hiredAt: now,

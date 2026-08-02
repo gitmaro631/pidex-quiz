@@ -20,7 +20,7 @@ import { checkQuestCondition } from './rpg-quests.js';
 import { LORE_ENTRIES } from './data/rpg/lore.js';
 import { computeCharacterCombatStats, monsterDifficultyTier, COMBAT_MISS_PHRASES, effectiveStats, TWO_HANDED_WEAPON_TYPES, attackSkillWeaponTypes } from './rpg-combat.js';
 import {
-  MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, TERRITORY_JOBS, dailyTavernRoster, PLAYER_TERRITORY_BONUS_MULT,
+  MERCENARY_TEMPLATES, MAX_MERCENARIES, MAX_TERRITORY_MERCENARIES, ACTIVE_HIRE_COST_MULT_BY_SLOT, TERRITORY_JOBS, dailyTavernRoster, PLAYER_TERRITORY_BONUS_MULT,
 } from './data/rpg/mercenaries.js';
 import { CLASS_ESSENCE_ITEM, MAX_SKILL_TIER, TRAINING_TIER_COSTS } from './data/rpg/training.js';
 import { MAX_ENHANCE_LEVEL, ENHANCE_LEVEL_COSTS, MAX_REPAIR_SKILL_LEVEL, REPAIR_SKILL_COSTS, REPAIR_SKILL_RARITY_CAP, rarityAllowedBySkill } from './data/rpg/enhancement.js';
@@ -1144,11 +1144,17 @@ function tavernHireHtml() {
   const options = Object.values(MERCENARY_TEMPLATES)
     .filter((tmpl) => todayRoster.has(tmpl.id) && !hiredTemplateIds.has(tmpl.id));
   if (!options.length) return `<p class="rpg-hint">${t('rpg.ui.tavern.noneToday')}</p>`;
+  // 지금 고용하면 몇 번째 전투 슬롯을 채우는지에 따라 고용비가 할증됨(2번째=1.5배, 3번째=2배) -
+  // 실제로 청구될 금액을 미리 보여줘야 하므로 표시 시점의 activeCount 기준으로 계산
+  const activeCount = mercenaries.filter((m) => m.assignment === 'active').length;
+  const willBeActive = activeCount < MAX_MERCENARIES;
+  const costMult = willBeActive ? (ACTIVE_HIRE_COST_MULT_BY_SLOT[activeCount] || 1) : 1;
   return options.map((tmpl) => {
     const cls = CLASSES[tmpl.classMain];
+    const displayCost = Math.round(tmpl.hireCost * costMult);
     return `
       <div class="rpg-shop-row">
-        <span>${ti('rpg.ui.tavern.rowLabel', getLang(), { name: getMercTemplateName(tmpl.id, getLang()), level: tmpl.baseLevel, class: cls ? getClassName(cls.id, getLang()) : tmpl.classMain, hireCost: tmpl.hireCost })}</span>
+        <span>${ti('rpg.ui.tavern.rowLabel', getLang(), { name: getMercTemplateName(tmpl.id, getLang()), level: tmpl.baseLevel, class: cls ? getClassName(cls.id, getLang()) : tmpl.classMain, hireCost: displayCost })}</span>
         <button class="rpg-hire-btn" data-template="${tmpl.id}">${t('rpg.ui.tavern.hireBtn')}</button>
       </div>
     `;

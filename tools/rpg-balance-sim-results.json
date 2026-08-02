@@ -1,8 +1,8 @@
 {
   "meta": {
-    "generatedAt": "2026-08-02T20:54:23.105Z",
-    "runtimeSeconds": 32,
-    "repeats": 3,
+    "generatedAt": "2026-08-02T21:35:00.783Z",
+    "runtimeSeconds": 24.3,
+    "repeats": 2,
     "classes": [
       "warrior",
       "archer",
@@ -16,69 +16,69 @@
   },
   "perClass": {
     "warrior": {
-      "runs": 3,
-      "daysMedian": 350,
-      "daysMin": 349.7,
-      "daysMax": 372.3,
+      "runs": 2,
+      "daysMedian": 358.3,
+      "daysMin": 353.5,
+      "daysMax": 363,
       "finalLevelMedian": 27,
-      "totalTurnsMedian": 11488,
-      "winRateMedian": 0.968,
-      "healTurnShareMedian": 0.547,
+      "totalTurnsMedian": 11770,
+      "winRateMedian": 0.971,
+      "healTurnShareMedian": 0.546,
       "anyBailed": false
     },
     "archer": {
-      "runs": 3,
-      "daysMedian": 168.8,
-      "daysMin": 167.9,
-      "daysMax": 170.7,
+      "runs": 2,
+      "daysMedian": 174,
+      "daysMin": 172.9,
+      "daysMax": 175,
       "finalLevelMedian": 27,
-      "totalTurnsMedian": 5536,
+      "totalTurnsMedian": 5708.5,
       "winRateMedian": 1,
-      "healTurnShareMedian": 0.097,
+      "healTurnShareMedian": 0.103,
       "anyBailed": false
     },
     "mage": {
-      "runs": 3,
-      "daysMedian": 412,
-      "daysMin": 411.2,
-      "daysMax": 414.9,
+      "runs": 2,
+      "daysMedian": 382.6,
+      "daysMin": 381.3,
+      "daysMax": 383.9,
       "finalLevelMedian": 27,
-      "totalTurnsMedian": 13603,
-      "winRateMedian": 0.94,
-      "healTurnShareMedian": 0.609,
+      "totalTurnsMedian": 12594,
+      "winRateMedian": 0.964,
+      "healTurnShareMedian": 0.585,
       "anyBailed": false
     },
     "priest": {
-      "runs": 3,
-      "daysMedian": 437.5,
-      "daysMin": 433.9,
-      "daysMax": 438.1,
+      "runs": 2,
+      "daysMedian": 378.2,
+      "daysMin": 376.3,
+      "daysMax": 380,
       "finalLevelMedian": 27,
-      "totalTurnsMedian": 14464,
-      "winRateMedian": 0.978,
-      "healTurnShareMedian": 0.659,
+      "totalTurnsMedian": 12438.5,
+      "winRateMedian": 0.986,
+      "healTurnShareMedian": 0.595,
       "anyBailed": false
     },
     "paladin": {
-      "runs": 3,
-      "daysMedian": 279.6,
-      "daysMin": 274.1,
-      "daysMax": 283.1,
+      "runs": 2,
+      "daysMedian": 286.5,
+      "daysMin": 278.4,
+      "daysMax": 294.5,
       "finalLevelMedian": 27,
-      "totalTurnsMedian": 9174,
-      "winRateMedian": 0.991,
-      "healTurnShareMedian": 0.455,
+      "totalTurnsMedian": 9408.5,
+      "winRateMedian": 0.992,
+      "healTurnShareMedian": 0.445,
       "anyBailed": false
     },
     "dark_knight": {
-      "runs": 3,
-      "daysMedian": 472.3,
-      "daysMin": 467.5,
-      "daysMax": 494.3,
+      "runs": 2,
+      "daysMedian": 468.9,
+      "daysMin": 461.3,
+      "daysMax": 476.4,
       "finalLevelMedian": 27,
-      "totalTurnsMedian": 15574,
-      "winRateMedian": 0.928,
-      "healTurnShareMedian": 0.638,
+      "totalTurnsMedian": 15429.5,
+      "winRateMedian": 0.933,
+      "healTurnShareMedian": 0.631,
       "anyBailed": false
     }
   },
@@ -88,49 +88,49 @@
       "repeat": 0,
       "seed": 1499033353,
       "bailed": false,
-      "days": 372.3,
-      "totalTurns": 12233,
-      "turnsAdventure": 5253,
-      "turnsHeal": 6980,
-      "healTurnShare": 0.571,
-      "adventures": 5248,
+      "days": 353.5,
+      "totalTurns": 11608,
+      "turnsAdventure": 5284,
+      "turnsHeal": 6324,
+      "healTurnShare": 0.545,
+      "adventures": 5279,
       "finalLevel": 27,
-      "finalHp": 692,
-      "finalAtk": 186,
-      "finalDef": 44,
-      "wins": 5029,
-      "losses": 220,
-      "winRate": 0.958,
+      "finalHp": 717,
+      "finalAtk": 211,
+      "finalDef": 50,
+      "wins": 5130,
+      "losses": 150,
+      "winRate": 0.972,
       "winsByTierBand": {
         "low(t1-4)": {
-          "w": 1974,
-          "l": 47
+          "w": 1887,
+          "l": 52
         },
         "mid(t5-8)": {
-          "w": 2954,
-          "l": 147
+          "w": 3142,
+          "l": 87
         },
         "high(t9-12)": {
           "w": 101,
-          "l": 26
+          "l": 11
         }
       },
       "gold": {
-        "earnedCombat": 442953,
-        "fromTerritory": 2370,
-        "spentPotions": 138795,
-        "spentEnhance": 1040,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 7617
+        "earnedCombat": 445462,
+        "fromTerritory": 2310,
+        "spentPotions": 143772,
+        "spentEnhance": 1680,
+        "spentTraining": 5100,
+        "spentMercs": 1475,
+        "finalGold": 36943
       },
       "equipment": {
-        "weapon": "weapon_rare",
-        "weaponEnhance": 3,
-        "offhand": "weapon_rare",
-        "offhandEnhance": 3,
+        "weapon": "weapon_legendary",
+        "weaponEnhance": 1,
+        "offhand": "weapon_legendary",
+        "offhandEnhance": 1,
         "shield": null,
-        "armor_top": "armor_light_legendary",
+        "armor_top": "armor_legendary",
         "armor_bottom": "armor_bottom_basic"
       },
       "skills": {
@@ -138,22 +138,23 @@
         "dual_wield": 3,
         "whirlwind": 3,
         "guard_stance": 3,
-        "taunt": 3
+        "taunt": 3,
+        "last_stand": 3
       },
       "mercs": {
-        "hiredActive": 2,
+        "hiredActive": 3,
         "hiredTerritory": 2,
-        "current": 4
+        "current": 5
       },
       "classMechanic": {
         "dual_wield_tier": 3,
         "offhand_equipped": true,
-        "offhand_id": "weapon_rare"
+        "offhand_id": "weapon_legendary"
       },
       "gateClears": {
-        "ruins_hill": 378,
-        "canyon": 630,
-        "ridge": 692,
+        "ruins_hill": 387,
+        "canyon": 602,
+        "ridge": 750,
         "sulfur_caves": 100
       },
       "finalZoneClears": 1
@@ -163,124 +164,49 @@
       "repeat": 1,
       "seed": 4153469114,
       "bailed": false,
-      "days": 349.7,
-      "totalTurns": 11467,
-      "turnsAdventure": 5200,
-      "turnsHeal": 6267,
-      "healTurnShare": 0.547,
-      "adventures": 5195,
-      "finalLevel": 27,
-      "finalHp": 717,
-      "finalAtk": 209,
-      "finalDef": 50,
-      "wins": 5046,
-      "losses": 150,
-      "winRate": 0.971,
-      "winsByTierBand": {
-        "low(t1-4)": {
-          "w": 1982,
-          "l": 50
-        },
-        "mid(t5-8)": {
-          "w": 2963,
-          "l": 85
-        },
-        "high(t9-12)": {
-          "w": 101,
-          "l": 15
-        }
-      },
-      "gold": {
-        "earnedCombat": 449452,
-        "fromTerritory": 2310,
-        "spentPotions": 139106,
-        "spentEnhance": 1750,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 24113
-      },
-      "equipment": {
-        "weapon": "weapon_legendary",
-        "weaponEnhance": 2,
-        "offhand": "weapon_legendary",
-        "offhandEnhance": 1,
-        "shield": null,
-        "armor_top": "armor_legendary",
-        "armor_bottom": "armor_bottom_basic"
-      },
-      "skills": {
-        "power_strike": 3,
-        "dual_wield": 3,
-        "whirlwind": 3,
-        "guard_stance": 3,
-        "taunt": 3
-      },
-      "mercs": {
-        "hiredActive": 2,
-        "hiredTerritory": 2,
-        "current": 4
-      },
-      "classMechanic": {
-        "dual_wield_tier": 3,
-        "offhand_equipped": true,
-        "offhand_id": "weapon_legendary"
-      },
-      "gateClears": {
-        "ruins_hill": 375,
-        "canyon": 653,
-        "ridge": 709,
-        "sulfur_caves": 100
-      },
-      "finalZoneClears": 1
-    },
-    {
-      "class": "warrior",
-      "repeat": 2,
-      "seed": 2512937579,
-      "bailed": false,
-      "days": 350,
-      "totalTurns": 11488,
-      "turnsAdventure": 5217,
-      "turnsHeal": 6271,
+      "days": 363,
+      "totalTurns": 11932,
+      "turnsAdventure": 5420,
+      "turnsHeal": 6512,
       "healTurnShare": 0.546,
-      "adventures": 5212,
+      "adventures": 5415,
       "finalLevel": 27,
-      "finalHp": 717,
+      "finalHp": 692,
       "finalAtk": 209,
-      "finalDef": 50,
-      "wins": 5045,
-      "losses": 168,
-      "winRate": 0.968,
+      "finalDef": 44,
+      "wins": 5253,
+      "losses": 163,
+      "winRate": 0.97,
       "winsByTierBand": {
         "low(t1-4)": {
-          "w": 1981,
-          "l": 60
+          "w": 2021,
+          "l": 38
         },
         "mid(t5-8)": {
-          "w": 2963,
-          "l": 98
+          "w": 3131,
+          "l": 108
         },
         "high(t9-12)": {
           "w": 101,
-          "l": 10
+          "l": 17
         }
       },
       "gold": {
-        "earnedCombat": 443732,
-        "fromTerritory": 2310,
-        "spentPotions": 140077,
-        "spentEnhance": 1430,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 31645
+        "earnedCombat": 447521,
+        "fromTerritory": 2340,
+        "spentPotions": 140501,
+        "spentEnhance": 1200,
+        "spentTraining": 5100,
+        "spentMercs": 1475,
+        "finalGold": 18439
       },
       "equipment": {
         "weapon": "weapon_legendary",
-        "weaponEnhance": 2,
+        "weaponEnhance": 1,
         "offhand": "weapon_legendary",
-        "offhandEnhance": 1,
+        "offhandEnhance": 0,
         "shield": null,
-        "armor_top": "armor_legendary",
+        "armor_top": "armor_light_legendary",
         "armor_bottom": "armor_bottom_basic"
       },
       "skills": {
@@ -288,12 +214,13 @@
         "dual_wield": 3,
         "whirlwind": 3,
         "guard_stance": 3,
-        "taunt": 3
+        "taunt": 3,
+        "last_stand": 3
       },
       "mercs": {
-        "hiredActive": 2,
+        "hiredActive": 3,
         "hiredTerritory": 2,
-        "current": 4
+        "current": 5
       },
       "classMechanic": {
         "dual_wield_tier": 3,
@@ -301,9 +228,9 @@
         "offhand_id": "weapon_legendary"
       },
       "gateClears": {
-        "ruins_hill": 379,
-        "canyon": 654,
-        "ridge": 694,
+        "ruins_hill": 432,
+        "canyon": 636,
+        "ridge": 754,
         "sulfur_caves": 100
       },
       "finalZoneClears": 1
@@ -313,27 +240,27 @@
       "repeat": 0,
       "seed": 871806850,
       "bailed": false,
-      "days": 168.8,
-      "totalTurns": 5536,
-      "turnsAdventure": 5000,
-      "turnsHeal": 536,
-      "healTurnShare": 0.097,
-      "adventures": 4995,
+      "days": 172.9,
+      "totalTurns": 5673,
+      "turnsAdventure": 5099,
+      "turnsHeal": 574,
+      "healTurnShare": 0.101,
+      "adventures": 5094,
       "finalLevel": 27,
       "finalHp": 637,
-      "finalAtk": 173,
+      "finalAtk": 167,
       "finalDef": 34,
-      "wins": 4992,
-      "losses": 4,
+      "wins": 5088,
+      "losses": 7,
       "winRate": 0.999,
       "winsByTierBand": {
         "low(t1-4)": {
-          "w": 2075,
-          "l": 1
+          "w": 2056,
+          "l": 2
         },
         "mid(t5-8)": {
-          "w": 2816,
-          "l": 3
+          "w": 2931,
+          "l": 5
         },
         "high(t9-12)": {
           "w": 101,
@@ -341,17 +268,17 @@
         }
       },
       "gold": {
-        "earnedCombat": 452657,
-        "fromTerritory": 3180,
-        "spentPotions": 31458,
-        "spentEnhance": 1190,
+        "earnedCombat": 449806,
+        "fromTerritory": 3255,
+        "spentPotions": 32386,
+        "spentEnhance": 1960,
         "spentTraining": 3400,
-        "spentMercs": 600,
-        "finalGold": 340475
+        "spentMercs": 1475,
+        "finalGold": 323560
       },
       "equipment": {
-        "weapon": "weapon_bow_legendary",
-        "weaponEnhance": 1,
+        "weapon": "weapon_bow_rare",
+        "weaponEnhance": 5,
         "offhand": null,
         "offhandEnhance": 0,
         "shield": null,
@@ -365,18 +292,20 @@
         "exposing_shot": 3
       },
       "mercs": {
-        "hiredActive": 2,
+        "hiredActive": 3,
         "hiredTerritory": 2,
-        "current": 4
+        "current": 5
       },
       "classMechanic": {
         "evasion_tier": 3,
-        "evasionChance": 0.05
+        "evasionChance": 0.05,
+        "exposing_shot_tier": 3,
+        "exposeShotChance": 0.3
       },
       "gateClears": {
-        "ruins_hill": 360,
-        "canyon": 734,
-        "ridge": 621,
+        "ruins_hill": 361,
+        "canyon": 728,
+        "ridge": 703,
         "sulfur_caves": 100
       },
       "finalZoneClears": 1
@@ -386,117 +315,44 @@
       "repeat": 1,
       "seed": 3526242611,
       "bailed": false,
-      "days": 167.9,
-      "totalTurns": 5507,
-      "turnsAdventure": 5010,
-      "turnsHeal": 497,
-      "healTurnShare": 0.09,
-      "adventures": 5005,
+      "days": 175,
+      "totalTurns": 5744,
+      "turnsAdventure": 5139,
+      "turnsHeal": 605,
+      "healTurnShare": 0.105,
+      "adventures": 5134,
       "finalLevel": 27,
       "finalHp": 637,
-      "finalAtk": 173,
+      "finalAtk": 177,
       "finalDef": 34,
-      "wins": 5004,
+      "wins": 5133,
       "losses": 2,
       "winRate": 1,
       "winsByTierBand": {
         "low(t1-4)": {
-          "w": 2066,
-          "l": 0
+          "w": 2067,
+          "l": 1
         },
         "mid(t5-8)": {
-          "w": 2837,
+          "w": 2965,
           "l": 1
         },
         "high(t9-12)": {
           "w": 101,
-          "l": 1
+          "l": 0
         }
       },
       "gold": {
-        "earnedCombat": 445996,
+        "earnedCombat": 449619,
         "fromTerritory": 3255,
-        "spentPotions": 31561,
-        "spentEnhance": 2040,
+        "spentPotions": 32481,
+        "spentEnhance": 1840,
         "spentTraining": 3400,
-        "spentMercs": 600,
-        "finalGold": 313105
+        "spentMercs": 1475,
+        "finalGold": 348056
       },
       "equipment": {
         "weapon": "weapon_bow_legendary",
-        "weaponEnhance": 1,
-        "offhand": null,
-        "offhandEnhance": 0,
-        "shield": null,
-        "armor_top": "armor_basic",
-        "armor_bottom": "armor_bottom_basic"
-      },
-      "skills": {
-        "aimed_shot": 3,
-        "evasion": 3,
-        "multi_shot": 3,
-        "exposing_shot": 3
-      },
-      "mercs": {
-        "hiredActive": 2,
-        "hiredTerritory": 2,
-        "current": 4
-      },
-      "classMechanic": {
-        "evasion_tier": 3,
-        "evasionChance": 0.05
-      },
-      "gateClears": {
-        "ruins_hill": 345,
-        "canyon": 726,
-        "ridge": 636,
-        "sulfur_caves": 100
-      },
-      "finalZoneClears": 1
-    },
-    {
-      "class": "archer",
-      "repeat": 2,
-      "seed": 1885711076,
-      "bailed": false,
-      "days": 170.7,
-      "totalTurns": 5604,
-      "turnsAdventure": 5044,
-      "turnsHeal": 560,
-      "healTurnShare": 0.1,
-      "adventures": 5039,
-      "finalLevel": 27,
-      "finalHp": 637,
-      "finalAtk": 165,
-      "finalDef": 34,
-      "wins": 5038,
-      "losses": 2,
-      "winRate": 1,
-      "winsByTierBand": {
-        "low(t1-4)": {
-          "w": 2062,
-          "l": 0
-        },
-        "mid(t5-8)": {
-          "w": 2875,
-          "l": 2
-        },
-        "high(t9-12)": {
-          "w": 101,
-          "l": 0
-        }
-      },
-      "gold": {
-        "earnedCombat": 450024,
-        "fromTerritory": 3240,
-        "spentPotions": 32414,
-        "spentEnhance": 2190,
-        "spentTraining": 3400,
-        "spentMercs": 600,
-        "finalGold": 338017
-      },
-      "equipment": {
-        "weapon": "weapon_archerset",
         "weaponEnhance": 3,
         "offhand": null,
         "offhandEnhance": 0,
@@ -511,18 +367,20 @@
         "exposing_shot": 3
       },
       "mercs": {
-        "hiredActive": 2,
+        "hiredActive": 3,
         "hiredTerritory": 2,
-        "current": 4
+        "current": 5
       },
       "classMechanic": {
         "evasion_tier": 3,
-        "evasionChance": 0.05
+        "evasionChance": 0.05,
+        "exposing_shot_tier": 3,
+        "exposeShotChance": 0.3
       },
       "gateClears": {
-        "ruins_hill": 358,
-        "canyon": 748,
-        "ridge": 650,
+        "ruins_hill": 348,
+        "canyon": 755,
+        "ridge": 707,
         "sulfur_caves": 100
       },
       "finalZoneClears": 1
@@ -532,196 +390,46 @@
       "repeat": 0,
       "seed": 3785939139,
       "bailed": false,
-      "days": 414.9,
-      "totalTurns": 13701,
-      "turnsAdventure": 5266,
-      "turnsHeal": 8435,
-      "healTurnShare": 0.616,
-      "adventures": 5261,
+      "days": 383.9,
+      "totalTurns": 12635,
+      "turnsAdventure": 5290,
+      "turnsHeal": 7345,
+      "healTurnShare": 0.581,
+      "adventures": 5285,
       "finalLevel": 27,
       "finalHp": 634,
-      "finalAtk": 178,
+      "finalAtk": 180,
       "finalDef": 33,
-      "wins": 4929,
-      "losses": 333,
-      "winRate": 0.937,
+      "wins": 5100,
+      "losses": 186,
+      "winRate": 0.965,
       "winsByTierBand": {
         "low(t1-4)": {
-          "w": 1877,
-          "l": 44
+          "w": 1943,
+          "l": 29
         },
         "mid(t5-8)": {
-          "w": 2951,
-          "l": 255
+          "w": 3056,
+          "l": 134
         },
         "high(t9-12)": {
           "w": 101,
-          "l": 34
+          "l": 23
         }
       },
       "gold": {
-        "earnedCombat": 440893,
-        "fromTerritory": 2985,
-        "spentPotions": 80784,
-        "spentEnhance": 1270,
-        "spentTraining": 3750,
-        "spentMercs": 600,
-        "finalGold": 6673
+        "earnedCombat": 441860,
+        "fromTerritory": 2865,
+        "spentPotions": 68382,
+        "spentEnhance": 1350,
+        "spentTraining": 5100,
+        "spentMercs": 1475,
+        "finalGold": 13571
       },
       "equipment": {
         "weapon": "weapon_staff_legendary",
         "weaponEnhance": 2,
         "offhand": null,
-        "offhandEnhance": 0,
-        "shield": null,
-        "armor_top": "armor_cloth_basic",
-        "armor_bottom": "armor_bottom_cloth_basic"
-      },
-      "skills": {
-        "magic_bolt": 3,
-        "staff_mastery": 3,
-        "elemental_nova": 3,
-        "arcane_aura": 3,
-        "wand_mastery": 2
-      },
-      "mercs": {
-        "hiredActive": 2,
-        "hiredTerritory": 2,
-        "current": 4
-      },
-      "classMechanic": {
-        "staff_mastery_tier": 3,
-        "wand_mastery_tier": 2,
-        "offhand_wand": false
-      },
-      "gateClears": {
-        "ruins_hill": 362,
-        "canyon": 671,
-        "ridge": 685,
-        "sulfur_caves": 100
-      },
-      "finalZoneClears": 1
-    },
-    {
-      "class": "mage",
-      "repeat": 1,
-      "seed": 2145407604,
-      "bailed": false,
-      "days": 411.2,
-      "totalTurns": 13574,
-      "turnsAdventure": 5314,
-      "turnsHeal": 8260,
-      "healTurnShare": 0.609,
-      "adventures": 5309,
-      "finalLevel": 27,
-      "finalHp": 634,
-      "finalAtk": 176,
-      "finalDef": 33,
-      "wins": 5001,
-      "losses": 309,
-      "winRate": 0.942,
-      "winsByTierBand": {
-        "low(t1-4)": {
-          "w": 1890,
-          "l": 27
-        },
-        "mid(t5-8)": {
-          "w": 3010,
-          "l": 245
-        },
-        "high(t9-12)": {
-          "w": 101,
-          "l": 37
-        }
-      },
-      "gold": {
-        "earnedCombat": 446678,
-        "fromTerritory": 3150,
-        "spentPotions": 80410,
-        "spentEnhance": 1270,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 8405
-      },
-      "equipment": {
-        "weapon": "weapon_staff_legendary",
-        "weaponEnhance": 1,
-        "offhand": null,
-        "offhandEnhance": 0,
-        "shield": null,
-        "armor_top": "armor_cloth_basic",
-        "armor_bottom": "armor_bottom_cloth_basic"
-      },
-      "skills": {
-        "magic_bolt": 3,
-        "staff_mastery": 3,
-        "elemental_nova": 3,
-        "arcane_aura": 3,
-        "wand_mastery": 3
-      },
-      "mercs": {
-        "hiredActive": 2,
-        "hiredTerritory": 2,
-        "current": 4
-      },
-      "classMechanic": {
-        "staff_mastery_tier": 3,
-        "wand_mastery_tier": 3,
-        "offhand_wand": false
-      },
-      "gateClears": {
-        "ruins_hill": 339,
-        "canyon": 719,
-        "ridge": 704,
-        "sulfur_caves": 100
-      },
-      "finalZoneClears": 1
-    },
-    {
-      "class": "mage",
-      "repeat": 2,
-      "seed": 504876069,
-      "bailed": false,
-      "days": 412,
-      "totalTurns": 13603,
-      "turnsAdventure": 5401,
-      "turnsHeal": 8202,
-      "healTurnShare": 0.603,
-      "adventures": 5396,
-      "finalLevel": 27,
-      "finalHp": 634,
-      "finalAtk": 194,
-      "finalDef": 33,
-      "wins": 5071,
-      "losses": 326,
-      "winRate": 0.94,
-      "winsByTierBand": {
-        "low(t1-4)": {
-          "w": 1937,
-          "l": 41
-        },
-        "mid(t5-8)": {
-          "w": 3033,
-          "l": 253
-        },
-        "high(t9-12)": {
-          "w": 101,
-          "l": 32
-        }
-      },
-      "gold": {
-        "earnedCombat": 439877,
-        "fromTerritory": 3045,
-        "spentPotions": 79308,
-        "spentEnhance": 1520,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 4834
-      },
-      "equipment": {
-        "weapon": "weapon_wand_legendary",
-        "weaponEnhance": 1,
-        "offhand": "weapon_wand_legendary",
         "offhandEnhance": 1,
         "shield": null,
         "armor_top": "armor_cloth_basic",
@@ -732,22 +440,99 @@
         "staff_mastery": 3,
         "elemental_nova": 3,
         "arcane_aura": 3,
+        "chain_bolt": 3,
         "wand_mastery": 3
       },
       "mercs": {
-        "hiredActive": 2,
+        "hiredActive": 3,
         "hiredTerritory": 2,
-        "current": 4
+        "current": 5
       },
       "classMechanic": {
         "staff_mastery_tier": 3,
         "wand_mastery_tier": 3,
-        "offhand_wand": true
+        "offhand_wand": false
       },
       "gateClears": {
-        "ruins_hill": 363,
-        "canyon": 718,
-        "ridge": 727,
+        "ruins_hill": 347,
+        "canyon": 706,
+        "ridge": 710,
+        "sulfur_caves": 100
+      },
+      "finalZoneClears": 1
+    },
+    {
+      "class": "mage",
+      "repeat": 1,
+      "seed": 2145407604,
+      "bailed": false,
+      "days": 381.3,
+      "totalTurns": 12553,
+      "turnsAdventure": 5170,
+      "turnsHeal": 7383,
+      "healTurnShare": 0.588,
+      "adventures": 5165,
+      "finalLevel": 27,
+      "finalHp": 634,
+      "finalAtk": 176,
+      "finalDef": 33,
+      "wins": 4972,
+      "losses": 194,
+      "winRate": 0.962,
+      "winsByTierBand": {
+        "low(t1-4)": {
+          "w": 1922,
+          "l": 40
+        },
+        "mid(t5-8)": {
+          "w": 2949,
+          "l": 138
+        },
+        "high(t9-12)": {
+          "w": 101,
+          "l": 16
+        }
+      },
+      "gold": {
+        "earnedCombat": 438363,
+        "fromTerritory": 2715,
+        "spentPotions": 68492,
+        "spentEnhance": 1190,
+        "spentTraining": 5100,
+        "spentMercs": 1475,
+        "finalGold": 18877
+      },
+      "equipment": {
+        "weapon": "weapon_staff_legendary",
+        "weaponEnhance": 1,
+        "offhand": null,
+        "offhandEnhance": 0,
+        "shield": null,
+        "armor_top": "armor_cloth_basic",
+        "armor_bottom": "armor_bottom_cloth_basic"
+      },
+      "skills": {
+        "magic_bolt": 3,
+        "staff_mastery": 3,
+        "elemental_nova": 3,
+        "arcane_aura": 3,
+        "chain_bolt": 3,
+        "wand_mastery": 3
+      },
+      "mercs": {
+        "hiredActive": 3,
+        "hiredTerritory": 2,
+        "current": 5
+      },
+      "classMechanic": {
+        "staff_mastery_tier": 3,
+        "wand_mastery_tier": 3,
+        "offhand_wand": false
+      },
+      "gateClears": {
+        "ruins_hill": 340,
+        "canyon": 710,
+        "ridge": 704,
         "sulfur_caves": 100
       },
       "finalZoneClears": 1
@@ -757,45 +542,45 @@
       "repeat": 0,
       "seed": 2782486874,
       "bailed": false,
-      "days": 438.1,
-      "totalTurns": 14482,
-      "turnsAdventure": 4918,
-      "turnsHeal": 9564,
-      "healTurnShare": 0.66,
-      "adventures": 4913,
+      "days": 380,
+      "totalTurns": 12505,
+      "turnsAdventure": 5111,
+      "turnsHeal": 7394,
+      "healTurnShare": 0.591,
+      "adventures": 5106,
       "finalLevel": 27,
       "finalHp": 634,
-      "finalAtk": 167,
+      "finalAtk": 175,
       "finalDef": 33,
-      "wins": 4813,
-      "losses": 101,
-      "winRate": 0.979,
+      "wins": 5035,
+      "losses": 72,
+      "winRate": 0.986,
       "winsByTierBand": {
         "low(t1-4)": {
-          "w": 1856,
-          "l": 11
+          "w": 1956,
+          "l": 36
         },
         "mid(t5-8)": {
-          "w": 2856,
-          "l": 64
+          "w": 2978,
+          "l": 22
         },
         "high(t9-12)": {
           "w": 101,
-          "l": 26
+          "l": 14
         }
       },
       "gold": {
-        "earnedCombat": 451135,
-        "fromTerritory": 2595,
-        "spentPotions": 82211,
-        "spentEnhance": 1960,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 13959
+        "earnedCombat": 449332,
+        "fromTerritory": 2625,
+        "spentPotions": 71994,
+        "spentEnhance": 1940,
+        "spentTraining": 5100,
+        "spentMercs": 1475,
+        "finalGold": 42833
       },
       "equipment": {
-        "weapon": "weapon_staff_rare",
-        "weaponEnhance": 5,
+        "weapon": "weapon_staff_legendary",
+        "weaponEnhance": 2,
         "offhand": null,
         "offhandEnhance": 0,
         "shield": null,
@@ -807,21 +592,22 @@
         "blunt_mastery": 3,
         "heal": 3,
         "mass_heal": 3,
-        "morale_boost": 3
+        "morale_boost": 3,
+        "angelic_descent": 3
       },
       "mercs": {
-        "hiredActive": 2,
+        "hiredActive": 3,
         "hiredTerritory": 2,
-        "current": 4
+        "current": 5
       },
       "classMechanic": {
         "blunt_mastery_tier": 3,
         "weapon_is_blunt": false
       },
       "gateClears": {
-        "ruins_hill": 353,
-        "canyon": 652,
-        "ridge": 636,
+        "ruins_hill": 371,
+        "canyon": 707,
+        "ridge": 690,
         "sulfur_caves": 100
       },
       "finalZoneClears": 1
@@ -831,41 +617,41 @@
       "repeat": 1,
       "seed": 1141955339,
       "bailed": false,
-      "days": 437.5,
-      "totalTurns": 14464,
-      "turnsAdventure": 4930,
-      "turnsHeal": 9534,
-      "healTurnShare": 0.659,
-      "adventures": 4925,
+      "days": 376.3,
+      "totalTurns": 12372,
+      "turnsAdventure": 4945,
+      "turnsHeal": 7427,
+      "healTurnShare": 0.6,
+      "adventures": 4940,
       "finalLevel": 27,
       "finalHp": 634,
       "finalAtk": 178,
       "finalDef": 33,
-      "wins": 4820,
-      "losses": 106,
-      "winRate": 0.978,
+      "wins": 4870,
+      "losses": 71,
+      "winRate": 0.986,
       "winsByTierBand": {
         "low(t1-4)": {
-          "w": 1850,
-          "l": 25
+          "w": 1838,
+          "l": 26
         },
         "mid(t5-8)": {
-          "w": 2869,
-          "l": 47
+          "w": 2931,
+          "l": 35
         },
         "high(t9-12)": {
           "w": 101,
-          "l": 34
+          "l": 10
         }
       },
       "gold": {
-        "earnedCombat": 445565,
-        "fromTerritory": 2610,
-        "spentPotions": 81671,
-        "spentEnhance": 1110,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 10606
+        "earnedCombat": 440510,
+        "fromTerritory": 2670,
+        "spentPotions": 71502,
+        "spentEnhance": 1340,
+        "spentTraining": 5100,
+        "spentMercs": 1475,
+        "finalGold": 51536
       },
       "equipment": {
         "weapon": "weapon_mace_legendary",
@@ -881,95 +667,22 @@
         "blunt_mastery": 3,
         "heal": 3,
         "mass_heal": 3,
-        "morale_boost": 3
+        "morale_boost": 3,
+        "angelic_descent": 3
       },
       "mercs": {
-        "hiredActive": 2,
+        "hiredActive": 3,
         "hiredTerritory": 2,
-        "current": 4
+        "current": 5
       },
       "classMechanic": {
         "blunt_mastery_tier": 3,
         "weapon_is_blunt": true
       },
       "gateClears": {
-        "ruins_hill": 335,
-        "canyon": 688,
-        "ridge": 719,
-        "sulfur_caves": 100
-      },
-      "finalZoneClears": 1
-    },
-    {
-      "class": "priest",
-      "repeat": 2,
-      "seed": 3796391100,
-      "bailed": false,
-      "days": 433.9,
-      "totalTurns": 14308,
-      "turnsAdventure": 4970,
-      "turnsHeal": 9338,
-      "healTurnShare": 0.653,
-      "adventures": 4965,
-      "finalLevel": 27,
-      "finalHp": 634,
-      "finalAtk": 181,
-      "finalDef": 33,
-      "wins": 4830,
-      "losses": 136,
-      "winRate": 0.973,
-      "winsByTierBand": {
-        "low(t1-4)": {
-          "w": 1900,
-          "l": 54
-        },
-        "mid(t5-8)": {
-          "w": 2829,
-          "l": 64
-        },
-        "high(t9-12)": {
-          "w": 101,
-          "l": 18
-        }
-      },
-      "gold": {
-        "earnedCombat": 441755,
-        "fromTerritory": 2520,
-        "spentPotions": 78481,
-        "spentEnhance": 2190,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 25134
-      },
-      "equipment": {
-        "weapon": "weapon_mace_legendary",
-        "weaponEnhance": 3,
-        "offhand": null,
-        "offhandEnhance": 0,
-        "shield": null,
-        "armor_top": "armor_cloth_basic",
-        "armor_bottom": "armor_bottom_cloth_basic"
-      },
-      "skills": {
-        "smite": 3,
-        "blunt_mastery": 3,
-        "heal": 3,
-        "mass_heal": 3,
-        "morale_boost": 3
-      },
-      "mercs": {
-        "hiredActive": 2,
-        "hiredTerritory": 2,
-        "current": 4
-      },
-      "classMechanic": {
-        "blunt_mastery_tier": 3,
-        "weapon_is_blunt": true
-      },
-      "gateClears": {
-        "ruins_hill": 365,
-        "canyon": 687,
-        "ridge": 651,
+        "ruins_hill": 353,
+        "canyon": 666,
+        "ridge": 680,
         "sulfur_caves": 100
       },
       "finalZoneClears": 1
@@ -979,49 +692,49 @@
       "repeat": 0,
       "seed": 3762320476,
       "bailed": false,
-      "days": 274.1,
-      "totalTurns": 8991,
-      "turnsAdventure": 5028,
-      "turnsHeal": 3963,
-      "healTurnShare": 0.441,
-      "adventures": 5023,
+      "days": 294.5,
+      "totalTurns": 9671,
+      "turnsAdventure": 5313,
+      "turnsHeal": 4358,
+      "healTurnShare": 0.451,
+      "adventures": 5308,
       "finalLevel": 27,
-      "finalHp": 717,
-      "finalAtk": 177,
-      "finalDef": 50,
-      "wins": 4979,
-      "losses": 45,
-      "winRate": 0.991,
+      "finalHp": 682,
+      "finalAtk": 167,
+      "finalDef": 46,
+      "wins": 5255,
+      "losses": 54,
+      "winRate": 0.99,
       "winsByTierBand": {
         "low(t1-4)": {
-          "w": 1978,
-          "l": 7
+          "w": 2039,
+          "l": 9
         },
         "mid(t5-8)": {
-          "w": 2900,
-          "l": 26
+          "w": 3115,
+          "l": 34
         },
         "high(t9-12)": {
           "w": 101,
-          "l": 12
+          "l": 11
         }
       },
       "gold": {
-        "earnedCombat": 450188,
-        "fromTerritory": 2805,
-        "spentPotions": 80519,
-        "spentEnhance": 1840,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 45010
+        "earnedCombat": 450061,
+        "fromTerritory": 2910,
+        "spentPotions": 82279,
+        "spentEnhance": 1960,
+        "spentTraining": 5100,
+        "spentMercs": 1475,
+        "finalGold": 46970
       },
       "equipment": {
-        "weapon": "weapon_legendary",
-        "weaponEnhance": 3,
+        "weapon": "weapon_rare",
+        "weaponEnhance": 5,
         "offhand": null,
         "offhandEnhance": 0,
         "shield": null,
-        "armor_top": "armor_legendary",
+        "armor_top": "armor_top_heavyset",
         "armor_bottom": "armor_bottom_basic"
       },
       "skills": {
@@ -1029,21 +742,22 @@
         "holy_leech": 3,
         "holy_wave": 3,
         "divine_shield": 3,
-        "indomitable_will": 3
+        "indomitable_will": 3,
+        "conversion": 3
       },
       "mercs": {
-        "hiredActive": 2,
+        "hiredActive": 3,
         "hiredTerritory": 2,
-        "current": 4
+        "current": 5
       },
       "classMechanic": {
         "holy_leech_tier": 3,
         "indomitable_will_tier": 3
       },
       "gateClears": {
-        "ruins_hill": 357,
-        "canyon": 732,
-        "ridge": 640,
+        "ruins_hill": 365,
+        "canyon": 750,
+        "ridge": 772,
         "sulfur_caves": 100
       },
       "finalZoneClears": 1
@@ -1053,45 +767,45 @@
       "repeat": 1,
       "seed": 2121788941,
       "bailed": false,
-      "days": 283.1,
-      "totalTurns": 9275,
-      "turnsAdventure": 5038,
-      "turnsHeal": 4237,
-      "healTurnShare": 0.457,
-      "adventures": 5033,
+      "days": 278.4,
+      "totalTurns": 9146,
+      "turnsAdventure": 5136,
+      "turnsHeal": 4010,
+      "healTurnShare": 0.438,
+      "adventures": 5131,
       "finalLevel": 27,
       "finalHp": 717,
-      "finalAtk": 171,
+      "finalAtk": 173,
       "finalDef": 50,
-      "wins": 4976,
-      "losses": 58,
-      "winRate": 0.988,
+      "wins": 5099,
+      "losses": 33,
+      "winRate": 0.994,
       "winsByTierBand": {
         "low(t1-4)": {
-          "w": 1911,
-          "l": 23
+          "w": 1931,
+          "l": 9
         },
         "mid(t5-8)": {
-          "w": 2964,
-          "l": 28
+          "w": 3067,
+          "l": 18
         },
         "high(t9-12)": {
           "w": 101,
-          "l": 7
+          "l": 6
         }
       },
       "gold": {
-        "earnedCombat": 447750,
-        "fromTerritory": 2850,
-        "spentPotions": 79816,
-        "spentEnhance": 1710,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 61556
+        "earnedCombat": 444161,
+        "fromTerritory": 2955,
+        "spentPotions": 81076,
+        "spentEnhance": 2040,
+        "spentTraining": 5100,
+        "spentMercs": 1475,
+        "finalGold": 91492
       },
       "equipment": {
         "weapon": "weapon_legendary",
-        "weaponEnhance": 0,
+        "weaponEnhance": 1,
         "offhand": null,
         "offhandEnhance": 0,
         "shield": null,
@@ -1103,95 +817,22 @@
         "holy_leech": 3,
         "holy_wave": 3,
         "divine_shield": 3,
-        "indomitable_will": 3
+        "indomitable_will": 3,
+        "conversion": 3
       },
       "mercs": {
-        "hiredActive": 2,
+        "hiredActive": 3,
         "hiredTerritory": 2,
-        "current": 4
+        "current": 5
       },
       "classMechanic": {
         "holy_leech_tier": 3,
         "indomitable_will_tier": 3
       },
       "gateClears": {
-        "ruins_hill": 353,
-        "canyon": 712,
-        "ridge": 686,
-        "sulfur_caves": 100
-      },
-      "finalZoneClears": 1
-    },
-    {
-      "class": "paladin",
-      "repeat": 2,
-      "seed": 481257406,
-      "bailed": false,
-      "days": 279.6,
-      "totalTurns": 9174,
-      "turnsAdventure": 5004,
-      "turnsHeal": 4170,
-      "healTurnShare": 0.455,
-      "adventures": 4999,
-      "finalLevel": 27,
-      "finalHp": 717,
-      "finalAtk": 167,
-      "finalDef": 50,
-      "wins": 4953,
-      "losses": 47,
-      "winRate": 0.991,
-      "winsByTierBand": {
-        "low(t1-4)": {
-          "w": 1915,
-          "l": 13
-        },
-        "mid(t5-8)": {
-          "w": 2937,
-          "l": 22
-        },
-        "high(t9-12)": {
-          "w": 101,
-          "l": 12
-        }
-      },
-      "gold": {
-        "earnedCombat": 443970,
-        "fromTerritory": 2790,
-        "spentPotions": 79990,
-        "spentEnhance": 1960,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 50043
-      },
-      "equipment": {
-        "weapon": "weapon_rare",
-        "weaponEnhance": 5,
-        "offhand": null,
-        "offhandEnhance": 0,
-        "shield": null,
-        "armor_top": "armor_legendary",
-        "armor_bottom": "armor_bottom_basic"
-      },
-      "skills": {
-        "holy_strike": 3,
-        "holy_leech": 3,
-        "holy_wave": 3,
-        "divine_shield": 3,
-        "indomitable_will": 3
-      },
-      "mercs": {
-        "hiredActive": 2,
-        "hiredTerritory": 2,
-        "current": 4
-      },
-      "classMechanic": {
-        "holy_leech_tier": 3,
-        "indomitable_will_tier": 3
-      },
-      "gateClears": {
-        "ruins_hill": 362,
-        "canyon": 702,
-        "ridge": 671,
+        "ruins_hill": 356,
+        "canyon": 685,
+        "ridge": 713,
         "sulfur_caves": 100
       },
       "finalZoneClears": 1
@@ -1201,41 +842,41 @@
       "repeat": 0,
       "seed": 1853847047,
       "bailed": false,
-      "days": 494.3,
-      "totalTurns": 16297,
-      "turnsAdventure": 5724,
-      "turnsHeal": 10573,
-      "healTurnShare": 0.649,
-      "adventures": 5719,
+      "days": 476.4,
+      "totalTurns": 15673,
+      "turnsAdventure": 5748,
+      "turnsHeal": 9925,
+      "healTurnShare": 0.633,
+      "adventures": 5743,
       "finalLevel": 27,
       "finalHp": 717,
       "finalAtk": 177,
       "finalDef": 50,
-      "wins": 5260,
-      "losses": 460,
-      "winRate": 0.92,
+      "wins": 5343,
+      "losses": 401,
+      "winRate": 0.93,
       "winsByTierBand": {
         "low(t1-4)": {
-          "w": 2029,
-          "l": 110
+          "w": 2069,
+          "l": 135
         },
         "mid(t5-8)": {
-          "w": 3130,
-          "l": 307
+          "w": 3173,
+          "l": 234
         },
         "high(t9-12)": {
           "w": 101,
-          "l": 43
+          "l": 32
         }
       },
       "gold": {
-        "earnedCombat": 440889,
-        "fromTerritory": 3330,
-        "spentPotions": 58559,
-        "spentEnhance": 1440,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 4280
+        "earnedCombat": 444703,
+        "fromTerritory": 3240,
+        "spentPotions": 52231,
+        "spentEnhance": 1590,
+        "spentTraining": 5100,
+        "spentMercs": 1475,
+        "finalGold": 9401
       },
       "equipment": {
         "weapon": "weapon_greatsword_legendary",
@@ -1251,21 +892,22 @@
         "blood_drain": 3,
         "blood_strike": 3,
         "dread_aura": 3,
-        "dark_pact": 3
+        "dark_pact": 3,
+        "fear_strike": 3
       },
       "mercs": {
-        "hiredActive": 2,
+        "hiredActive": 3,
         "hiredTerritory": 2,
-        "current": 4
+        "current": 5
       },
       "classMechanic": {
         "blood_drain_tier": 3,
         "dread_aura_tier": 3
       },
       "gateClears": {
-        "ruins_hill": 347,
-        "canyon": 789,
-        "ridge": 778,
+        "ruins_hill": 379,
+        "canyon": 782,
+        "ridge": 776,
         "sulfur_caves": 100
       },
       "finalZoneClears": 1
@@ -1275,45 +917,45 @@
       "repeat": 1,
       "seed": 213315512,
       "bailed": false,
-      "days": 472.3,
-      "totalTurns": 15574,
-      "turnsAdventure": 5642,
-      "turnsHeal": 9932,
-      "healTurnShare": 0.638,
-      "adventures": 5637,
+      "days": 461.3,
+      "totalTurns": 15186,
+      "turnsAdventure": 5639,
+      "turnsHeal": 9547,
+      "healTurnShare": 0.629,
+      "adventures": 5634,
       "finalLevel": 27,
       "finalHp": 717,
-      "finalAtk": 173,
+      "finalAtk": 167,
       "finalDef": 50,
-      "wins": 5230,
-      "losses": 408,
-      "winRate": 0.928,
+      "wins": 5266,
+      "losses": 369,
+      "winRate": 0.935,
       "winsByTierBand": {
         "low(t1-4)": {
-          "w": 2047,
-          "l": 108
+          "w": 2018,
+          "l": 88
         },
         "mid(t5-8)": {
-          "w": 3082,
-          "l": 266
+          "w": 3147,
+          "l": 250
         },
         "high(t9-12)": {
           "w": 101,
-          "l": 34
+          "l": 31
         }
       },
       "gold": {
-        "earnedCombat": 442253,
-        "fromTerritory": 3300,
-        "spentPotions": 55252,
-        "spentEnhance": 1790,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 5244
+        "earnedCombat": 443258,
+        "fromTerritory": 3240,
+        "spentPotions": 51802,
+        "spentEnhance": 1710,
+        "spentTraining": 5100,
+        "spentMercs": 1475,
+        "finalGold": 9546
       },
       "equipment": {
-        "weapon": "weapon_greatsword_legendary",
-        "weaponEnhance": 1,
+        "weapon": "weapon_greatsword_rare",
+        "weaponEnhance": 5,
         "offhand": null,
         "offhandEnhance": 0,
         "shield": null,
@@ -1325,95 +967,22 @@
         "blood_drain": 3,
         "blood_strike": 3,
         "dread_aura": 3,
-        "dark_pact": 3
+        "dark_pact": 3,
+        "fear_strike": 3
       },
       "mercs": {
-        "hiredActive": 2,
+        "hiredActive": 3,
         "hiredTerritory": 2,
-        "current": 4
+        "current": 5
       },
       "classMechanic": {
         "blood_drain_tier": 3,
         "dread_aura_tier": 3
       },
       "gateClears": {
-        "ruins_hill": 379,
-        "canyon": 732,
-        "ridge": 727,
-        "sulfur_caves": 100
-      },
-      "finalZoneClears": 1
-    },
-    {
-      "class": "dark_knight",
-      "repeat": 2,
-      "seed": 2867751273,
-      "bailed": false,
-      "days": 467.5,
-      "totalTurns": 15387,
-      "turnsAdventure": 5625,
-      "turnsHeal": 9762,
-      "healTurnShare": 0.634,
-      "adventures": 5620,
-      "finalLevel": 27,
-      "finalHp": 739,
-      "finalAtk": 167,
-      "finalDef": 56,
-      "wins": 5272,
-      "losses": 349,
-      "winRate": 0.938,
-      "winsByTierBand": {
-        "low(t1-4)": {
-          "w": 2067,
-          "l": 116
-        },
-        "mid(t5-8)": {
-          "w": 3104,
-          "l": 209
-        },
-        "high(t9-12)": {
-          "w": 101,
-          "l": 24
-        }
-      },
-      "gold": {
-        "earnedCombat": 440738,
-        "fromTerritory": 3285,
-        "spentPotions": 50142,
-        "spentEnhance": 1710,
-        "spentTraining": 4250,
-        "spentMercs": 600,
-        "finalGold": 11446
-      },
-      "equipment": {
-        "weapon": "weapon_greatsword_rare",
-        "weaponEnhance": 5,
-        "offhand": null,
-        "offhandEnhance": 0,
-        "shield": null,
-        "armor_top": "armor_legendary",
-        "armor_bottom": "armor_bottom_paladinset"
-      },
-      "skills": {
-        "dark_strike": 3,
-        "blood_drain": 3,
-        "blood_strike": 3,
-        "dread_aura": 3,
-        "dark_pact": 3
-      },
-      "mercs": {
-        "hiredActive": 2,
-        "hiredTerritory": 2,
-        "current": 4
-      },
-      "classMechanic": {
-        "blood_drain_tier": 3,
-        "dread_aura_tier": 3
-      },
-      "gateClears": {
-        "ruins_hill": 357,
-        "canyon": 776,
-        "ridge": 746,
+        "ruins_hill": 353,
+        "canyon": 761,
+        "ridge": 787,
         "sulfur_caves": 100
       },
       "finalZoneClears": 1

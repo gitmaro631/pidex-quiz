@@ -88,6 +88,12 @@ const SELF_DEF_BUFF_ROUNDS = 3;
 const SELF_DEF_BUFF_AC_BONUS = 3;
 // 체력이 이 비율 이하로 떨어지면 무조건(확률 판정 없이) 맨 뒷열로 후퇴함 - 기존 "위험 수위" 경고 로그와 같은 기준선
 const DANGER_RETREAT_HP_PCT = 0.25;
+// 전사 최후의 저항(last_stand) - "죽기 직전"은 위 후퇴 기준(25%)보다 더 급박해야 하므로 별도로 낮게 잡음.
+// 전투당 1회만 발동(actor.lastStandUsed로 관리), 무적 지속시간은 훈련 단계와 무관하게 항상 고정값(이게
+// "무적은 기본" 요구사항) - 훈련해서 오르는 건 무기 데미지 보너스 쪽(LAST_STAND_WEAPON_BONUS_BY_TIER)
+const LAST_STAND_HP_TRIGGER_PCT = 0.15;
+const LAST_STAND_INVINCIBLE_ROUNDS = 2;
+const LAST_STAND_WEAPON_BONUS_BY_TIER = { 1: 0.05, 2: 0.08, 3: 0.12 };
 // 방패기술 반격의 기본 데미지 배율(자기 atk 기준) - 방패기술 훈련 단계에 따라 더 세짐(computeCharacterCombatStats 참고)
 const SHIELD_COUNTER_BASE_DAMAGE_MULT = 0.5;
 // 전사 이도류(dual_wield) - 보조무기 공격력 합산치에 얹는 추가 보너스. 3단계(만렙)에서 정확히 +5%가 되도록
@@ -103,6 +109,9 @@ const WAND_MASTERY_BONUS_BY_TIER = { 1: 0.03, 2: 0.04, 3: 0.05 };
 const STAFF_MASTERY_BONUS_BY_TIER = { 1: 0.06, 2: 0.08, 3: 0.10 };
 // 궁수 회피 스킬 - 3단계(만렙)에서 5% 안쪽으로 제한
 const EVASION_SKILL_BONUS_BY_TIER = { 1: 0.03, 2: 0.04, 3: 0.05 };
+// 궁수 급소노출(exposing_shot) - 원래는 명중 시 무조건 발동이라 궁수 클리어 속도가 다른 직업 대비
+// 지나치게 빨랐음(밸런스 시뮬로 확인). 확정 발동에서 확률 발동으로 하향
+const EXPOSE_SHOT_PROC_CHANCE_BY_TIER = { 1: 0.2, 2: 0.25, 3: 0.3 };
 // 사기진작(morale_boost) 시전 시 파티 전원이 멘탈붕괴 완전 면역을 받는 지속 라운드 수
 const MORALE_BOOST_IMMUNE_ROUNDS = 4;
 // 성기사 불굴의 의지 - 발동 1회당 AC(방어) 증가폭(그 전투 내내 유지, 스택 가능)
@@ -125,6 +134,20 @@ const THREAT_ATK_MULTIPLIER = 1.5;
 const FINISH_HIT_ESTIMATE_MULT = 0.8;
 // 궁수 급소노출(exposing_shot) - 회피력(AC) 감소가 유지되는 라운드 수(감소량 자체는 스킬 단계별로 다름)
 const EXPOSE_EVASION_ROUNDS = 3;
+// 성기사 개종(conversion) - 공격이 명중하면 확률로 그 몹을 회유해 몇 라운드간 파티 대신 다른 몹을 공격하게 함
+const CONVERSION_ROUNDS = 3;
+// 흑기사 공포의 일격(fear_strike) - dread_aura(맞았을 때 발동)와 반대로 '때렸을 때' 발동하는 별도 스킬.
+// 같은 stunnedRounds를 공유하므로 겹치면 Math.max로 더 긴 쪽이 유지됨(DREAD_AURA_STUN_ROUNDS 재사용)
+// 성직자 천사의 강림(angelic_descent) - 힐/광역힐 어느 쪽이든 시전하면 확률 없이 항상 발동(치유 자체가
+// 조건), 몇 라운드간 파티 전체 공격력/방어력이 오르고 매 라운드 소량 회복됨. 훈련 단계가 오르면 세 효과 모두 세짐
+const ANGELIC_DESCENT_ROUNDS = 3;
+const ANGELIC_DESCENT_ATK_MULT_BY_TIER = { 1: 1.08, 2: 1.12, 3: 1.16 };
+const ANGELIC_DESCENT_DEF_AC_BONUS_BY_TIER = { 1: 2, 2: 3, 3: 4 };
+const ANGELIC_DESCENT_HEAL_PCT_BY_TIER = { 1: 0.03, 2: 0.04, 3: 0.05 };
+// 마법사 연쇄 마력탄(chain_bolt) - 명중한 타격 하나하나마다(단일공격이든 광역의 각 타격이든) 독립적으로
+// 확률 판정, 발동하면 그 타격 데미지의 절반이 무작위 "다른" 몹에게 튐(스플래시로도 죽을 수 있음 -
+// 기존 attack_all 기본 스플래시(HP 1 보존, 확률 없음)와는 별개의 새 패시브)
+const CHAIN_BOLT_SPLASH_MULT = 0.5;
 // 밀려난 칸 수(rowsOut)당 명중/피해 페널티 - 더 이상 "공격 불가"로 아예 막지 않는 대신, 밀린 만큼
 // 조금씩 불리해짐(전열→후열처럼 두 칸 밀리면 페널티가 누적으로 더 세짐 - selectAttackWeapon 참고)
 const PUSHED_ATTACK_ROLL_PENALTY_PER_ROW = 2;
@@ -176,11 +199,6 @@ function pickFlavor(baseKey, arr, lang) {
 const ATTACK_HIT_INTROS = ['제대로 꽂혔다', '정확히 적중했다', '매섭게 파고들었다', '빈틈을 찔렀다', '묵직하게 들어갔다'];
 const ATTACK_CRIT_INTROS = ['급소를 완벽히 꿰뚫었다', '치명적인 일격이 작렬했다', '빈틈없이 급소를 노렸다'];
 const ATTACK_MISS_LINES = ['빗나갔다', '허공을 갈랐다', '아슬아슬하게 비껴갔다', '가로막혔다'];
-// 스킬을 못 배웠거나 자원이 없어서 기본공격(improvisedAttack)으로 때울 때만 붙는 투덜거림 - performAttack 참고
-const IMPROVISED_ATTACK_GRUMBLE_LINES = [
-  '(스킬 좀 배워야 하는데...)', '(이럴 줄 알았으면 훈련소 좀 다녀올걸)', '(맨몸으로 언제까지 버티나...)',
-  '(스킬 하나 없이는 한계가 있는데)', '(슬슬 제대로 된 기술이 필요하다)',
-];
 const MONSTER_HIT_INTROS = ['강타했다', '물어뜯었다', '베어냈다', '덮쳤다', '내리찍었다'];
 const MONSTER_CRIT_INTROS = ['치명적으로 급소를 강타했다', '방어를 완전히 무너뜨렸다'];
 const MONSTER_MISS_LINES = ['가까스로 피했다', '아슬아슬하게 회피했다', '몸을 굴려 피했다', '방어로 막아냈다'];
@@ -335,7 +353,12 @@ export function computeCharacterCombatStats(character) {
   const staffMasterySkillDef = classDef.skills.find((s) => s.type === 'passive_staff_mastery');
   const staffMasteryTier = (character.skillLevels && staffMasterySkillDef && character.skillLevels[staffMasterySkillDef.id]) || 0;
   const staffMasteryBonusPct = currentWeaponType === 'staff' && staffMasteryTier > 0 ? (STAFF_MASTERY_BONUS_BY_TIER[staffMasteryTier] || 0) : 0;
-  const weaponAtkBonus = Math.round(weaponBaseAtkBonus * (1 + bluntMasteryBonusPct + wandMasteryBonusPct + staffMasteryBonusPct));
+  // 전사 최후의 저항(last_stand) - 무기 종류 무관(전사는 만능 근접직)하게 무기 데미지에 훈련 단계별 보너스를 얹음.
+  // 무적 발동 자체는 훈련 여부와 무관하게 항상 되지만(1단계 이상 배웠으면), 이 데미지 보너스만 단계에 비례해서 커짐
+  const lastStandSkillDef = classDef.skills.find((s) => s.type === 'passive_last_stand');
+  const lastStandTier = (character.skillLevels && lastStandSkillDef && character.skillLevels[lastStandSkillDef.id]) || 0;
+  const lastStandBonusPct = lastStandTier > 0 ? (LAST_STAND_WEAPON_BONUS_BY_TIER[lastStandTier] || 0) : 0;
+  const weaponAtkBonus = Math.round(weaponBaseAtkBonus * (1 + bluntMasteryBonusPct + wandMasteryBonusPct + staffMasteryBonusPct + lastStandBonusPct));
   // 이도류(전사 전용, equip.js에서 방패와 상호배타적으로 강제함) - 보조무기의 공격력이 그대로 합산됨(기본
   // 동작, 훈련 불필요). dual_wield 패시브를 훈련해뒀으면 그 위에 단계별 추가 보너스가 얹어짐(위 상수 참고)
   const offhandBaseAtkBonus = (offhandBroken ? 0 : ((offhandItem && offhandItem.atkBonus) || 0)) + offhandEnhanceBonus;
@@ -374,6 +397,10 @@ export function computeCharacterCombatStats(character) {
   // 순회함) - 플레이어 본인은 work-territory.js로 공용 시설 레벨은 올릴 수 있어도 이 개인 보너스는 못 받음.
   // 그래서 본인 캐릭터의 회피율은 사실상 궁수 전용 회피 패시브 스킬 만렙(5%)이 최대치
   const evasionChance = (evasionTier > 0 ? (EVASION_SKILL_BONUS_BY_TIER[evasionTier] || 0) : 0) + (character.basicsEvasionBonus || 0);
+  // 궁수 급소노출 - 명중 시 이 확률로만 발동(EXPOSE_SHOT_PROC_CHANCE_BY_TIER 참고, 예전엔 무조건 발동)
+  const exposeShotSkillDef = classDef.skills.find((s) => s.type === 'passive_expose_evasion');
+  const exposeShotTier = (character.skillLevels && exposeShotSkillDef && character.skillLevels[exposeShotSkillDef.id]) || 0;
+  const exposeShotChance = exposeShotTier > 0 ? (EXPOSE_SHOT_PROC_CHANCE_BY_TIER[exposeShotTier] || 0) : 0;
   // 마법사 전용 패시브 - 공격을 받으면 확률로 방어의 오라를 둘러 몇 라운드간 자기 AC가 오름(performMonsterAttack 참고)
   const arcaneAuraSkillDef = classDef.skills.find((s) => s.type === 'passive_arcane_aura');
   const arcaneAuraTier = (character.skillLevels && arcaneAuraSkillDef && character.skillLevels[arcaneAuraSkillDef.id]) || 0;
@@ -481,6 +508,7 @@ export function computeCharacterCombatStats(character) {
     defAcContribution,
     // 궁수 전용 - 훈련 안 했으면 항상 0
     evasionChance,
+    exposeShotChance,
     // 마법사 전용 - 훈련 안 했으면 항상 0
     arcaneAuraChance,
     classDef,
@@ -811,9 +839,11 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
     : (weapon.atkBonus > 0
       ? ti('rpg.log.weaponAttackLabel', lang, { weapon: tLang(`rpg.ui.weaponType.${weapon.weaponType}`, lang, weapon.weaponType) })
       : displaySkillName(actor, basicAttackSkill, lang));
-  const grumbleNote = skill ? '' : ` ${pickFlavor('grumble', IMPROVISED_ATTACK_GRUMBLE_LINES, lang)}`;
   // 파티 전체 적용: buff_atk_party(마법사/흑기사 등, 1회성) * 성기사 용맹한 결의(매턴 확률로 쌓이는 영구 스택)
-  let power = (skill ? skillEffectivePower(actor, skill) : skillEffectivePower(actor, basicAttackSkill)) * partyBuffs.atkMult * (partyBuffs.paladinAtkMult || 1);
+  // 성직자 천사의 강림(angelic_descent) - 시전 후 몇 라운드 동안만 유지되는 시한부 버프(다른 파티버프와
+  // 달리 재시전으로 갱신되고 라운드가 다하면 자동 소멸 - angelicRoundsLeft 참고)
+  const angelicAtkMult = (partyBuffs.angelicRoundsLeft || 0) > 0 ? (partyBuffs.angelicAtkMult || 1) : 1;
+  let power = (skill ? skillEffectivePower(actor, skill) : skillEffectivePower(actor, basicAttackSkill)) * partyBuffs.atkMult * (partyBuffs.paladinAtkMult || 1) * angelicAtkMult;
   if (!skill && weapon.atkBonus <= 0) power *= improvised.powerMult * combatStats.improvisedAttackBonus.powerMult;
   if (skill) spendActorResource(actor, skill, skill.manaCost);
 
@@ -848,6 +878,20 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
   const hitCount = Math.random() < actor.doubleAttackChance ? 2 : 1;
   let lastRawDamage = 0;
   let anyHit = false;
+  // 마법사 연쇄 마력탄(chain_bolt) - 이 공격에서 발생한 타격 하나하나가 독립적으로 판정하며, 스플래시로
+  // 죽은 몹은 여기 모아뒀다가 함수 끝에서 반환(resolveCombat이 handleMonsterDeath를 호출하도록)
+  const chainBoltDefeated = [];
+  const tryChainBolt = (sourceMonster, damageDealt, pool) => {
+    const chainSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_chain_bolt' && isSkillUsable(actor, s));
+    if (!chainSkill || Math.random() >= skillEffectivePower(actor, chainSkill)) return;
+    const candidates = pool.filter((m) => m !== sourceMonster && m.hp > 0);
+    if (!candidates.length) return;
+    const victim = candidates[randInt(0, candidates.length - 1)];
+    const splashDamage = Math.max(1, Math.round(damageDealt * CHAIN_BOLT_SPLASH_MULT));
+    victim.hp -= splashDamage;
+    log.push(ti('rpg.log.chainBoltSplash', lang, { actor: actor.label, actorPoss: actor.labelPossessive, monster: victim.name, damage: splashDamage }));
+    if (victim.hp <= 0) chainBoltDefeated.push(victim);
+  };
   for (let hitIdx = 0; hitIdx < hitCount && !monsterDied; hitIdx++) {
     const naturalRoll = randInt(1, 20);
     const attackRollBonus = combatStats.attackBonus
@@ -861,16 +905,31 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
     const hit = isCrit || (!isFumble && naturalRoll + attackRollBonus >= monsterEffectiveAc);
     const hitLabel = hitIdx === 1 ? tLang('rpg.ui.combat.extraHitLabel', lang, ' (추가타!)') : '';
     if (!hit) {
-      log.push(ti('rpg.log.attackMiss', lang, { actor: actor.label, actorPoss: actor.labelPossessive, attack: attackLabel, miss: pickFlavor('attackMiss', ATTACK_MISS_LINES, lang), hitLabel, grumble: grumbleNote }));
+      log.push(ti('rpg.log.attackMiss', lang, { actor: actor.label, actorPoss: actor.labelPossessive, attack: attackLabel, miss: pickFlavor('attackMiss', ATTACK_MISS_LINES, lang), hitLabel }));
       continue;
     }
     anyHit = true;
-    // 급소노출 - 명중하면 확률 없이 항상 적용(단계가 오르면 감소량이 커짐)
+    // 급소노출 - 명중해도 exposeShotChance 확률로만 발동(단계가 오르면 발동확률도, 감소량도 커짐)
     const exposeSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_expose_evasion' && isSkillUsable(actor, s));
-    if (exposeSkill) {
-      monster.evasionDebuffRoundsLeft = EXPOSE_EVASION_ROUNDS;
-      monster.evasionDebuffReduction = Math.round(skillEffectivePower(actor, exposeSkill));
+    if (exposeSkill && Math.random() < (combatStats.exposeShotChance || 0)) {
+      // 같은 디버프가 아직 남아있는 상태에서 재적용되면 지속시간/감소량 둘 다 더 큰 쪽으로(짧은 쪽으로
+      // 덮어써서 손해보지 않게) - 서로 다른 디버프끼리는 각자 자기 타이머로 독립적으로 유지됨
+      monster.evasionDebuffRoundsLeft = Math.max(monster.evasionDebuffRoundsLeft || 0, EXPOSE_EVASION_ROUNDS);
+      monster.evasionDebuffReduction = Math.max(monster.evasionDebuffReduction || 0, Math.round(skillEffectivePower(actor, exposeSkill)));
       log.push(ti('rpg.log.exposeEvasion', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, exposeSkill, lang), monster: monster.name }));
+    }
+    // 성기사 전용 개종(conversion) - 공격이 명중하면 확률로 그 몹을 회유해 몇 라운드간 파티 대신 다른 몹을 공격하게 함
+    const conversionSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_conversion' && isSkillUsable(actor, s));
+    if (conversionSkill && Math.random() < skillEffectivePower(actor, conversionSkill)) {
+      monster.charmedRoundsLeft = Math.max(monster.charmedRoundsLeft || 0, CONVERSION_ROUNDS);
+      log.push(ti('rpg.log.conversionTrigger', lang, { actor: actor.label, actorPoss: actor.labelPossessive, monster: monster.name }));
+    }
+    // 흑기사 전용 공포의 일격(fear_strike) - 공격이 명중하면 확률로 그 몹을 멘탈붕괴시켜 몇 라운드 공격 불가
+    // (dread_aura는 '맞았을 때' 발동하는 반대 트리거 - 같은 stunnedRounds를 공유해 겹치면 더 긴 쪽 유지)
+    const fearStrikeSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_fear_strike' && isSkillUsable(actor, s));
+    if (fearStrikeSkill && Math.random() < skillEffectivePower(actor, fearStrikeSkill)) {
+      monster.stunnedRounds = Math.max(monster.stunnedRounds || 0, DREAD_AURA_STUN_ROUNDS);
+      log.push(ti('rpg.log.fearStrike', lang, { actor: actor.label, actorPoss: actor.labelPossessive, monster: monster.name }));
     }
     const critMult = isCrit ? CRIT_DAMAGE_MULT : 1;
     const rawDamage = Math.max(1, Math.round(effectiveAtk * power * elemMult * affinityMult * critMult * randRange(0.85, 1.15)));
@@ -880,8 +939,9 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
     const critLabel = isCrit ? tLang('rpg.ui.combat.critLabel', lang, ' 💥치명타!') : '';
     log.push(ti('rpg.log.attackHit', lang, {
       actor: actor.label, actorPoss: actor.labelPossessive, attack: attackLabel, intro, monster: monster.name, damage: rawDamage,
-      elementNote, affinityNote, critLabel, hitLabel, pushedNote, grumble: grumbleNote,
+      elementNote, affinityNote, critLabel, hitLabel, pushedNote,
     }));
+    if (otherMonsters && otherMonsters.length) tryChainBolt(monster, rawDamage, otherMonsters);
     // 성기사 전용 패시브 - 입힌 피해의 일정 %만큼 파티 중 체력이 가장 낮은 아군(본인 포함)을 치료
     const holyLeechSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_holy_leech' && isSkillUsable(actor, s));
     if (holyLeechSkill && party && party.length) {
@@ -916,6 +976,8 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
     for (const other of otherMonsters) {
       if (other === monster || other.hp <= 0) continue;
       other.hp = Math.max(1, other.hp - splashDamage);
+      // 연쇄 마력탄 - 광역 스플래시로 맞은 몹 하나하나도 독립적으로 확률 판정(전체 대상 풀에서 자기 자신만 제외)
+      tryChainBolt(other, splashDamage, [monster, ...otherMonsters]);
     }
     log.push(ti('rpg.log.attackAllSplash', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, skill, lang), damage: splashDamage }));
   }
@@ -933,7 +995,7 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
       damage: offhandDamage, element: combatStats.offhandElement,
     }));
   }
-  return { monsterDied, isKiting, affinity };
+  return { monsterDied, isKiting, affinity, splashDefeated: chainBoltDefeated };
 }
 
 // 몹의 반격 1회 처리 - target(파티원 한 명)이 대상. 카이팅 중이면 아예 호출되지 않음(resolveCombat에서 스킵)
@@ -948,7 +1010,9 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   const stackingDefBonus = (target.stackingDefBonus || 0) + (partyBuffs.paladinDefAcBonus || 0);
   // 전사 도발(taunt) - 지속시간 동안 방어력 2배(= 방어력이 AC에 기여하는 몫을 한 번 더 더해줌)
   const tauntDefBonus = target.tauntRoundsLeft > 0 ? (combatStats.defAcContribution || 0) : 0;
-  const targetAC = combatStats.ac + defBuffAcBonus + selfDefBonus + stackingDefBonus + tauntDefBonus - legPenalty;
+  // 성직자 천사의 강림 - 시한부(angelicRoundsLeft) 동안만 적용
+  const angelicDefBonus = (partyBuffs.angelicRoundsLeft || 0) > 0 ? (partyBuffs.angelicDefAcBonus || 0) : 0;
+  const targetAC = combatStats.ac + defBuffAcBonus + selfDefBonus + stackingDefBonus + tauntDefBonus + angelicDefBonus - legPenalty;
   const naturalRoll = randInt(1, 20);
   const isCrit = naturalRoll === 20;
   const isFumble = naturalRoll === 1;
@@ -965,6 +1029,11 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   // 방패기술의 완전방어(blockChance) - 명중이 확정된 공격도 방패로 완전히 무산시킴(치명타여도 막힘)
   if (Math.random() < (combatStats.shieldBlockChance || 0)) {
     log.push(ti('rpg.log.shieldBlock', lang, { target: target.label, monster: monster.name }));
+    return { monsterDiedFromCounter: false };
+  }
+  // 전사 전용 최후의 저항(last_stand) - 무적 상태면 명중이 확정된 공격(치명타 포함)도 데미지 자체가 없음
+  if (target.invincibleRoundsLeft > 0) {
+    log.push(ti('rpg.log.lastStandImmune', lang, { target: target.label, monster: monster.name }));
     return { monsterDiedFromCounter: false };
   }
 
@@ -1009,7 +1078,8 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
     const dreadSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_dread_aura' && isSkillUsable(target, s));
     if (dreadSkill && Math.random() < skillEffectivePower(target, dreadSkill)) {
       spendActorResource(target, dreadSkill, dreadSkill.manaCost);
-      monster.stunnedRounds = DREAD_AURA_STUN_ROUNDS;
+      // 같은 종류의 스턴이 이미 걸려있으면 더 긴 쪽으로(짧게 덮어쓰지 않음) - fear_strike(공격시 발동)와도 공용
+      monster.stunnedRounds = Math.max(monster.stunnedRounds || 0, DREAD_AURA_STUN_ROUNDS);
       log.push(ti('rpg.log.dreadAura', lang, { target: target.label, targetPoss: target.labelPossessive, monster: monster.name }));
     }
   }
@@ -1025,6 +1095,17 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   if (target.hp > 0 && target.hp / combatStats.maxHp <= DANGER_RETREAT_HP_PCT && target.formationRow !== 'back') {
     target.formationRow = 'back';
     log.push(ti('rpg.log.dangerRetreat', lang, { target: target.label }));
+  }
+
+  // 전사 전용 최후의 저항(last_stand) - 체력이 LAST_STAND_HP_TRIGGER_PCT(15%) 이하로 처음 떨어진
+  // 순간 전투당 1회만 발동(target.lastStandUsed로 관리). 무적 지속시간은 훈련 단계와 무관하게 항상 고정
+  if (target.hp > 0 && !target.lastStandUsed && target.hp / combatStats.maxHp <= LAST_STAND_HP_TRIGGER_PCT) {
+    const lastStandSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_last_stand' && isSkillUsable(target, s));
+    if (lastStandSkill) {
+      target.lastStandUsed = true;
+      target.invincibleRoundsLeft = LAST_STAND_INVINCIBLE_ROUNDS;
+      log.push(ti('rpg.log.lastStandTrigger', lang, { target: target.label, targetPoss: target.labelPossessive }));
+    }
   }
 
   // 맞으면 멘탈(공포저항)이 낮을수록 한 칸 뒤로 물러날 확률이 있음(전열->중열->후열, 전투 중 일시적,
@@ -1106,6 +1187,23 @@ function performMonsterAttack({ monster, target, log, isUnderleveled, affinityFr
   return { monsterDiedFromCounter };
 }
 
+// 성기사 감화(conversion)로 회유된 몹이 다른 몹을 때릴 때 쓰는 단순화된 몹-대-몹 공격(파티원 대상 공격처럼
+// 부상/멘탈/장비 같은 파티 전용 시스템은 관여하지 않음 - 몹은 그런 상태를 갖지 않음)
+function performMonsterVsMonsterAttack({ attacker, defender, log, lang = 'ko' }) {
+  const naturalRoll = randInt(1, 20);
+  const isCrit = naturalRoll === 20;
+  const isFumble = naturalRoll === 1;
+  const hit = isCrit || (!isFumble && naturalRoll + attacker.attackBonus >= defender.ac);
+  if (!hit) {
+    log.push(ti('rpg.log.charmedAttackMiss', lang, { attacker: attacker.name, defender: defender.name }));
+    return;
+  }
+  const critMult = isCrit ? CRIT_DAMAGE_MULT : 1;
+  const damage = Math.max(1, Math.round(attacker.atk * critMult * randRange(0.85, 1.15)));
+  defender.hp -= damage;
+  log.push(ti('rpg.log.charmedAttackHit', lang, { attacker: attacker.name, defender: defender.name, damage }));
+}
+
 // 진짜 패시브(되살림/도발/용맹한 결의) - 라운드 시작 시 모든 생존 파티원에 대해 자동으로 판정.
 // tryUtilitySkill과 달리 턴을 쓰는 "선택"이 아니라서 우선순위가 없고, 이번 라운드 공격 여부와 무관하게 그냥 발동함
 function applyRoundStartPassives({ party, partyBuffs, log, lang = 'ko' }) {
@@ -1144,6 +1242,21 @@ function applyRoundStartPassives({ party, partyBuffs, log, lang = 'ko' }) {
 // 우선순위: 사기진작(멘탈붕괴 면역+복귀, 전투당 1회) > 치유(다친 아군 있을 때) > 저주(몹 미저주 상태) >
 // 파티 버프(공격력/방어력, 전투당 1회씩만) - 진짜 패시브(되살림/도발/용맹한 결의)는 턴을 쓰는 이 함수가
 // 아니라 매 라운드 자동으로 발동하는 applyRoundStartPassives에서 처리함(우선순위 개념 자체가 없음)
+// 성직자 천사의 강림(angelic_descent) - heal/mass_heal 둘 다에서 공유하는 발동 처리(치유 자체가 조건이라
+// 확률 판정 없음). 재시전하면 남은 라운드/수치를 그냥 새 값으로 갱신(더 짧아지는 손해를 볼 일이 없음 -
+// 애초에 성직자가 힐을 계속 쓸수록 계속 갱신되는 게 자연스러운 컨셉)
+function triggerAngelicDescent(actor, partyBuffs, log, lang) {
+  const skill = actor.combatStats.classDef.skills.find((s) => s.type === 'passive_angelic_descent' && isSkillUsable(actor, s));
+  if (!skill) return;
+  const tier = (actor.skillLevels && actor.skillLevels[skill.id]) || 0;
+  if (tier <= 0) return;
+  partyBuffs.angelicRoundsLeft = ANGELIC_DESCENT_ROUNDS;
+  partyBuffs.angelicAtkMult = ANGELIC_DESCENT_ATK_MULT_BY_TIER[tier] || 1;
+  partyBuffs.angelicDefAcBonus = ANGELIC_DESCENT_DEF_AC_BONUS_BY_TIER[tier] || 0;
+  partyBuffs.angelicHealPct = ANGELIC_DESCENT_HEAL_PCT_BY_TIER[tier] || 0;
+  log.push(ti('rpg.log.angelicDescent', lang, { actor: actor.label, actorPoss: actor.labelPossessive }));
+}
+
 function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko', healOnly = false }) {
   const alive = party.filter((p) => p.alive && p.hp > 0);
 
@@ -1177,6 +1290,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko', 
         p.hp = Math.min(p.combatStats.maxHp, p.hp + healAmount);
       });
       log.push(ti('rpg.log.massHeal', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, massHealSkill, lang), count: hurtMany.length }));
+      triggerAngelicDescent(actor, partyBuffs, log, lang);
       return true;
     }
   }
@@ -1193,6 +1307,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko', 
       const healAmount = Math.round(target.combatStats.maxHp * skillEffectivePower(actor, healSkill)) + Math.round(actor.combatStats.atk * 0.5);
       target.hp = Math.min(target.combatStats.maxHp, target.hp + healAmount);
       log.push(ti('rpg.log.heal', lang, { actor: actor.label, actorPoss: actor.labelPossessive, skill: displaySkillName(actor, healSkill, lang), target: target.label, targetObj: target.labelObject, amount: healAmount }));
+      triggerAngelicDescent(actor, partyBuffs, log, lang);
       return true;
     }
   }
@@ -1243,7 +1358,7 @@ function tryUtilitySkill({ actor, party, monster, log, partyBuffs, lang = 'ko', 
 }
 
 // 전투 전체(파티 vs 몹 무리 동시 전투) 판정 - 결과만 반환, 아무것도 저장하지 않음.
-// character.mercenaries(있다면, 최대 2명)가 자동으로 파티에 합류함. 몹 무리는 순차 처리가 아니라
+// character.mercenaries(있다면, 최대 3명)가 자동으로 파티에 합류함. 몹 무리는 순차 처리가 아니라
 // 전부 동시에 "살아있는" 상태로 등장하고, 매 라운드 파티원+몹 전원이 속도(AGI/몹 속도) 기준
 // 이니셔티브 순서로 한 번씩 행동함(발더스게이트류 개별 행동순서). 파티원 공격은 몹 중 "현재 체력이
 // 가장 낮은" 개체를 자동으로 골라 때리고(약한 몹부터 정리), 몹의 반격 대상은 기존과 동일하게
@@ -1440,12 +1555,22 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter, lang
       }
       if (m.stunnedRounds > 0) m.stunnedRounds--;
       if (m.evasionDebuffRoundsLeft > 0) m.evasionDebuffRoundsLeft--;
+      if (m.charmedRoundsLeft > 0) m.charmedRoundsLeft--;
     });
     alivePartyMembers().forEach((p) => {
       if (p.selfDefRounds > 0) p.selfDefRounds--;
       if (p.mentalImmuneRounds > 0) p.mentalImmuneRounds--;
       if (p.tauntRoundsLeft > 0) p.tauntRoundsLeft--;
+      if (p.invincibleRoundsLeft > 0) p.invincibleRoundsLeft--;
     });
+    // 성직자 천사의 강림 - 지속시간 동안 매 라운드 파티 전원 소량 회복, 라운드 소진되면 ATK/DEF 보너스도 함께 소멸
+    if ((partyBuffs.angelicRoundsLeft || 0) > 0) {
+      alivePartyMembers().forEach((p) => {
+        const healAmount = Math.round(p.combatStats.maxHp * (partyBuffs.angelicHealPct || 0));
+        if (healAmount > 0) p.hp = Math.min(p.combatStats.maxHp, p.hp + healAmount);
+      });
+      partyBuffs.angelicRoundsLeft--;
+    }
     applyRoundStartPassives({ party, partyBuffs, log, lang });
 
     // 이니셔티브 순서 - 속도(민첩/몹 속도)가 높을수록 먼저 행동. 매 라운드 다시 굴려서 소폭의
@@ -1478,12 +1603,27 @@ export function resolveCombat({ character, zoneId, stance, presetEncounter, lang
         const result = performAttack({ actor, monster: target, otherMonsters, log, isUnderleveled, partyBuffs, party, chosenSkill: plan.skill, lang });
         if (result.isKiting) anyKiting = true;
         if (result.monsterDied) handleMonsterDeath(target);
+        // 마법사 연쇄 마력탄 스플래시로 죽은 몹들(주 타겟과 별개)도 각각 정산
+        (result.splashDefeated || []).forEach((m) => { if (m.hp <= 0) handleMonsterDeath(m); });
       } else {
         const monster = entry.ref;
         if (monster.hp <= 0) continue;
         // 흑기사 공포의 오라(dread_aura)로 멘탈붕괴된 몹은 이번 라운드 행동 불가
         if (monster.stunnedRounds > 0) {
           log.push(ti('rpg.log.monsterStunned', lang, { monster: monster.name }));
+          continue;
+        }
+        // 성기사 감화(conversion)로 회유된 몹은 파티 대신 다른 몹을 공격함(다른 몹이 없으면 이번 턴은 그냥 넘어감 -
+        // 회유가 풀릴 때까지 파티를 공격하지 않는 게 이 스킬의 핵심이라 공격 대상이 없다고 원래대로 되돌리지 않음)
+        if (monster.charmedRoundsLeft > 0) {
+          const allies = aliveMonsters().filter((m) => m !== monster);
+          if (allies.length) {
+            const victim = allies[randInt(0, allies.length - 1)];
+            performMonsterVsMonsterAttack({ attacker: monster, defender: victim, log, lang });
+            if (victim.hp <= 0) handleMonsterDeath(victim);
+          } else {
+            log.push(ti('rpg.log.charmedIdle', lang, { monster: monster.name }));
+          }
           continue;
         }
         // 화살로 카이팅 중이고 비원거리 몹이면 이 몹의 반격은 무효

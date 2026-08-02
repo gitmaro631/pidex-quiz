@@ -31,6 +31,10 @@ export const CLASSES = {
       // (이건 훈련과 무관한 기본 동작). 이 스킬은 그 합산치에 추가 보너스를 얹어줌 - 3단계(만렙) 기준
       // +5%, DUAL_WIELD_BONUS_BY_TIER(rpg-combat.js)가 단계별 정확한 값을 관리(1단계 3%, 2단계 4%, 3단계 5%)
       { id: 'dual_wield', name: '이도류', manaCost: 0, type: 'passive_dual_wield', power: 0.05 },
+      // 패시브 - 체력이 15% 이하로 처음 떨어지면 전투당 1회, 몇 라운드간 모든 피해를 완전히 무시하는
+      // 무적 상태가 됨. 무적 자체는 훈련 단계와 무관하게 항상 발동(1단계만 배워도 있음) - 훈련해서
+      // 단계를 올리면 대신 무기 데미지 보너스가 커짐(LAST_STAND_WEAPON_BONUS_BY_TIER, rpg-combat.js 참고)
+      { id: 'last_stand', name: '최후의 저항', manaCost: 0, type: 'passive_last_stand', power: 0 },
       SHIELD_EQUIP_SKILL,
     ],
     // 직업-몹 타입 상성(확률 발동, 명중 보장 아님) - 전사는 언데드 사냥에 강하고 야수 상대는 약함
@@ -55,8 +59,10 @@ export const CLASSES = {
       // 재차 하향 - 훈련 만렙(3단계)은 5% 안쪽(EVASION_SKILL_BONUS_BY_TIER, rpg-combat.js 고정표),
       // 연무장 시설 개인 보너스도 최대 3%로 낮춤(BASICS_EVASION_GAIN_CAP, rpg-territory.js)
       { id: 'evasion', name: '회피', manaCost: 0, type: 'passive_evasion', power: 0.05 },
-      // 패시브 - 명중할 때마다(확률 아님, 항상 적용) 그 몹의 회피력(AC)이 몇 라운드간 떨어짐. power는
-      // 감소량 기준값, 단계가 오르면 감소량이 커짐(rpg-combat.js performAttack/EXPOSE_EVASION_ROUNDS 참고)
+      // 패시브 - 명중 시 EXPOSE_SHOT_PROC_CHANCE_BY_TIER 확률로 그 몹의 회피력(AC)이 몇 라운드간 떨어짐
+      // (원래는 명중하면 무조건 발동이었는데 궁수가 다른 직업보다 압도적으로 빨라서 확률제로 하향).
+      // power는 발동 시 감소량 기준값, 단계가 오르면 발동확률/감소량 둘 다 커짐
+      // (rpg-combat.js performAttack/EXPOSE_EVASION_ROUNDS/EXPOSE_SHOT_PROC_CHANCE_BY_TIER 참고)
       { id: 'exposing_shot', name: '급소 노출', manaCost: 0, type: 'passive_expose_evasion', power: 3 },
       SHIELD_EQUIP_SKILL,
     ],
@@ -87,6 +93,10 @@ export const CLASSES = {
       // 화력이 세고 보너스도 더 크게(3단계 10%) - WAND/STAFF_MASTERY_BONUS_BY_TIER(rpg-combat.js) 참고
       { id: 'wand_mastery', name: '완드술', manaCost: 0, type: 'passive_wand_mastery', power: 0.05 },
       { id: 'staff_mastery', name: '스태프술', manaCost: 0, type: 'passive_staff_mastery', power: 0.10 },
+      // 패시브 - 명중한 타격 하나하나마다(단일공격이든 원소 폭발의 각 타격이든 전부 독립 판정) 확률로
+      // 그 타격 데미지의 절반이 무작위 다른 몹에게 튐(CHAIN_BOLT_SPLASH_MULT, rpg-combat.js 참고).
+      // 스플래시로도 죽을 수 있음 - 원소 폭발 자체의 기본 스플래시(확률 없이 항상 발동, HP 1 보존)와는 별개
+      { id: 'chain_bolt', name: '연쇄 마력탄', manaCost: 0, type: 'passive_chain_bolt', power: 0.15 },
       SHIELD_EQUIP_SKILL,
     ],
     strongVs: [{ tag: 'humanoid', chance: 0.25, multiplier: 1.4 }],
@@ -115,6 +125,10 @@ export const CLASSES = {
       // 둔기(철퇴/전쟁망치/모닝스타/도리깨) 장착 중일 때만 주무기 공격력에 보너스가 붙음(지팡이/물매는 해당 없음).
       // 3단계(만렙) 기준 +10%, BLUNT_MASTERY_BONUS_BY_TIER(rpg-combat.js)가 단계별 정확한 값을 관리(1단계 6%, 2단계 8%, 3단계 10%)
       { id: 'blunt_mastery', name: '둔기술', manaCost: 0, type: 'passive_blunt_mastery', power: 0.10 },
+      // 패시브 - 치유(단일/광역 무관)를 시전하면 확률 없이 항상 발동, 몇 라운드간 파티 전체 공격력/방어력이
+      // 오르고 매 라운드 소량 회복됨(ANGELIC_DESCENT_*_BY_TIER, rpg-combat.js 참고). 힐을 계속 쓸수록
+      // 지속시간이 계속 갱신되는 구조라 서포터 롤을 계속 수행할수록 파티 전체가 강해짐
+      { id: 'angelic_descent', name: '천사의 강림', manaCost: 0, type: 'passive_angelic_descent', power: 0 },
       SHIELD_EQUIP_SKILL,
     ],
     strongVs: [{ tag: 'undead', chance: 0.3, multiplier: 1.4 }],
@@ -144,6 +158,9 @@ export const CLASSES = {
       // 패시브 - 매 턴 확률로 파티 전체의 공격력/방어력을 조금씩 영구 상승(그 전투 내내 유지, 계속 쌓임).
       // 다른 유틸리티 스킬(치유/방벽 등)이 먼저 나갈 여지가 있게 tryUtilitySkill 우선순위 맨 뒤에 둠
       { id: 'valorous_resolve', name: '용맹한 결의', manaCost: 0, type: 'passive_party_boost', power: 0.15 },
+      // 패시브 - 공격이 명중하면 확률로 그 몹을 감화시켜 몇 라운드간 성기사(파티)를 공격하지 않고 대신
+      // 다른 몹을 공격하게 함(CONVERSION_ROUNDS, rpg-combat.js 참고). 공격할 다른 몹이 없으면 그냥 가만히 있음
+      { id: 'conversion', name: '감화', manaCost: 0, type: 'passive_conversion', power: 0.12 },
       SHIELD_EQUIP_SKILL,
     ],
     strongVs: [{ tag: 'undead', chance: 0.3, multiplier: 1.5 }, { tag: 'demon', chance: 0.25, multiplier: 1.4 }],
@@ -172,6 +189,10 @@ export const CLASSES = {
       // 패시브(HP소모) - 매 턴 사망한 아군이 있으면 확률로 되살림(tryUtilitySkill 최우선순위) - 다른 흑기사
       // 패시브와 같은 결로 HP를 대가로 씀
       { id: 'reanimate', name: '되살림의 저주', manaCost: 10, type: 'passive_revive', power: 0.15, resourceType: 'hp' },
+      // 패시브 - 공포의 오라(dread_aura, '맞았을 때' 발동)와 반대로 '때렸을 때' 발동함. 공격이 명중하면
+      // 확률로 그 몹을 멘탈붕괴시켜 몇 라운드간 공격을 못 하게 함(같은 stunnedRounds를 공유해서
+      // dread_aura와 겹치면 더 긴 쪽이 유지됨 - HP소모 없음, dread_aura와 달리 공격 자체가 대가)
+      { id: 'fear_strike', name: '공포의 일격', manaCost: 0, type: 'passive_fear_strike', power: 0.12 },
       SHIELD_EQUIP_SKILL,
     ],
     strongVs: [{ tag: 'humanoid', chance: 0.3, multiplier: 1.4 }],
