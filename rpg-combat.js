@@ -425,10 +425,12 @@ export function computeCharacterCombatStats(character) {
   // 종자로 흡수한 용병의 스탯 일부(흡수 시점에 고정된 값) - squire-mercenary.js가 부여
   const squireBonus = character.squireStatBonus || {};
   // 영지 배치 개인효과(rpg-territory.js의 applyMercTerritoryJobEffect가 용병 개체에 직접 붙여줌) -
-  // 방벽=방어력 flat 가산, 연공실=최대 마나/스테미나 % 가산, 연무장=회피율 flat 가산(evasionChance에서 반영)
+  // 방벽=방어력 flat 가산, 연공실=최대 마나/스테미나 % 가산, 연무장=회피율 flat 가산(evasionChance에서 반영),
+  // 공방=공격력 flat 가산
   const rampartsDefBonus = character.rampartsDefBonus || 0;
   const sanctumResourceBonusPct = character.sanctumResourceBonusPct || 0;
-  const finalAtk = Math.round((scalingStat * 2 + level + weaponAtkBonus + offhandAtkBonus + accessoryAtkBonus) * facilityAtkMult) + (squireBonus.atk || 0);
+  const workshopAtkBonus = character.workshopAtkBonus || 0;
+  const finalAtk = Math.round((scalingStat * 2 + level + weaponAtkBonus + offhandAtkBonus + accessoryAtkBonus) * facilityAtkMult) + (squireBonus.atk || 0) + workshopAtkBonus;
   const finalDef = Math.round((stats.vit + gearDefBonus + accessoryDefBonus) * facilityDefMult) + (squireBonus.def || 0) + rampartsDefBonus;
   // D&D식 명중판정용 - 레벨/tier 위주로 압축한 값(공/방 원수치를 그대로 쓰면 고티어에서 늘 명중해버림).
   // attackBonus: 레벨 + 무기숙련(atk의 일부) / ac: 레벨 + 방어(def의 일부) + 민첩(dex 보정격)

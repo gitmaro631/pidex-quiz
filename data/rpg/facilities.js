@@ -72,3 +72,12 @@ export function improvisedAttackBonus(character) {
   const pct = TERRITORY_JOBS.basics.bonusPctPerLevel * level;
   return { powerMult: 1 + pct / 100, accuracyBonus: Math.round(pct / 2) };
 }
+
+// 공방 전용 - 병원처럼 "보너스"가 아니라 장비 마모 확률을 깎아주는 배율(최대 30% 감소).
+// api/_rpg/adventure.js의 wearChance에 곱해서 씀 - 용병 본인 장비는 애초에 안 닳으므로 해당 없음
+const WORKSHOP_WEAR_REDUCTION_CAP_PCT = 30;
+export function durabilityWearReductionMultiplier(character) {
+  const level = ((character && character.facilityLevels) || {}).workshop || 0;
+  const reductionPct = Math.min(WORKSHOP_WEAR_REDUCTION_CAP_PCT, TERRITORY_JOBS.workshop.bonusPctPerLevel * level);
+  return 1 - reductionPct / 100;
+}

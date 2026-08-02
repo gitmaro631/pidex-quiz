@@ -34,6 +34,10 @@ export const SANCTUM_RESOURCE_GAIN_PCT_CAP = 10; // 연공실로 얻는 개인 �
 // 40일 만에 상한 도달하는 기존 램프 속도는 유지(0.03/40=0.00075)
 export const BASICS_EVASION_GAIN_PER_DAY = 0.00075; // 영지 1일에 회피율(0~1) 이만큼 증가
 export const BASICS_EVASION_GAIN_CAP = 0.03; // 연무장으로 얻는 개인 회피율 보너스 상한(3%)
+// 공방 - 방벽/연공실/연무장과 같은 원칙(영구 소량 상승, 상한 있음). 다른 일자리들이 이미
+// 방어력/자원/회피를 다 차지하고 있어서 공방은 공격력을 채움
+export const WORKSHOP_ATK_GAIN_PER_DAY = 0.2; // 영지 1일에 공격력 영구 보너스 이만큼 증가
+export const WORKSHOP_ATK_GAIN_CAP = 10; // 공방으로 얻는 개인 공격력 보너스 상한
 
 // 용병 한 명에게 그 일자리 효과를 daysToProcess만큼 적용한 새 상태를 반환 - 전투동행(active) 중이거나
 // 입원(hospitalized) 중이면 대상이 아니라 그대로 반환
@@ -87,6 +91,11 @@ export function applyMercTerritoryJobEffect(merc, daysToProcess, playerLevel) {
   if (merc.job === 'basics') {
     const basicsEvasionBonus = Math.min(BASICS_EVASION_GAIN_CAP, (merc.basicsEvasionBonus || 0) + BASICS_EVASION_GAIN_PER_DAY * daysToProcess);
     return { ...merc, basicsEvasionBonus };
+  }
+
+  if (merc.job === 'workshop') {
+    const workshopAtkBonus = Math.min(WORKSHOP_ATK_GAIN_CAP, (merc.workshopAtkBonus || 0) + WORKSHOP_ATK_GAIN_PER_DAY * daysToProcess);
+    return { ...merc, workshopAtkBonus };
   }
 
   return merc;

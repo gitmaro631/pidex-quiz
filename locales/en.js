@@ -1917,6 +1917,7 @@
   "rpg.territoryJob.morale.name": "Morale Hall",
   "rpg.territoryJob.sanctum.name": "Sanctum",
   "rpg.territoryJob.basics.name": "Training Yard",
+  "rpg.territoryJob.workshop.name": "Workshop",
 
   // ── RPG: lore entries ──
   "rpg.lore.lore_arrival.title": "First Footprints",
@@ -2222,6 +2223,7 @@
   "rpg.ui.territory.statKeyHealCostReduction": "Treatment Cost/Turn Reduction",
   "rpg.ui.territory.statKeyMentalResist": "Mental Resistance",
   "rpg.ui.territory.statKeyMp": "Max Mana/Stamina",
+  "rpg.ui.territory.statKeyWearReduction": "Equipment Wear Reduction",
   "rpg.ui.territory.dashboardTitle": "🏯 Territory Dashboard",
   "rpg.ui.territory.equipmentLabel": "Gear:",
   "rpg.ui.territory.none": "None",
@@ -2515,7 +2517,6 @@
   "rpg.log.equipBroken": "Your {slot} broke! It needs repair.",
   "rpg.log.goldStolen": "While unconscious, {gold} gold was stolen from you...",
   "rpg.log.wokeUpInTown": "You woke up in {town}.",
-  "rpg.log.mercEquipBroken": "{merc}'s {slot} broke!",
   "rpg.log.mercLevelCapped": "{merc} can't exceed the hero's level.",
   "rpg.log.mercDischarged": "{merc} made a full recovery and was discharged!",
 

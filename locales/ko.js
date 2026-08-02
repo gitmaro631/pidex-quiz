@@ -1241,6 +1241,7 @@
   "rpg.territoryJob.morale.name": "사기진작소",
   "rpg.territoryJob.sanctum.name": "연공실",
   "rpg.territoryJob.basics.name": "연무장",
+  "rpg.territoryJob.workshop.name": "공방",
 
   // ── RPG UI: 캐릭터선택/직업선택/상태바/탭 ──────────
   "rpg.ui.charSelect.loading": "캐릭터 목록을 불러오는 중...",
@@ -1568,6 +1569,7 @@
   "rpg.ui.territory.statKeyHealCostReduction": "치료비/턴 절감",
   "rpg.ui.territory.statKeyMentalResist": "멘탈저항",
   "rpg.ui.territory.statKeyMp": "최대 마나/스테미나",
+  "rpg.ui.territory.statKeyWearReduction": "장비 마모 감소",
   "rpg.ui.territory.dashboardTitle": "🏯 영지 현황판",
   "rpg.ui.territory.equipmentLabel": "장비:",
   "rpg.ui.territory.none": "없음",
@@ -1882,7 +1884,6 @@
   "rpg.log.equipBroken": "{slot}이(가) 파손되었습니다! 수리가 필요해요.",
   "rpg.log.goldStolen": "정신을 잃은 사이 골드 {gold}를 도둑맞았다...",
   "rpg.log.wokeUpInTown": "정신을 차려보니 {town}이었다.",
-  "rpg.log.mercEquipBroken": "{merc}의 {slot}이(가) 파손되었습니다!",
   "rpg.log.mercLevelCapped": "{merc}은(는) 주인공의 레벨을 넘어설 수 없다.",
   "rpg.log.mercDischarged": "{merc}이(가) 완쾌해 퇴원했다!",
 

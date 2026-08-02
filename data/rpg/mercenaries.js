@@ -67,6 +67,9 @@ export const TERRITORY_JOBS = {
   // classes.js 참고)의 위력/명중률을 올려줌. 레벨마다 위력 %만큼, 명중은 그 절반만큼(D&D식 명중굴림 보정치라
   // 값이 작아야 함) 오름(rpg-combat.js의 performAttack 참고)
   basics: { id: 'basics', name: '연무장', goldPerDay: 0, statKey: 'improvisedPower', bonusPctPerLevel: 4 },
+  // 공방 - 레벨마다 장비 마모 확률이 %만큼 줄어듦(최대 30%, facilities.js의 durabilityWearReductionMultiplier
+  // 참고). 배치된 용병 개인효과는 방어력/자원/회피가 이미 다른 시설에 있어서 공격력을 대신 줌(rpg-territory.js)
+  workshop: { id: 'workshop', name: '공방', goldPerDay: 0, statKey: 'wearReduction', bonusPctPerLevel: 1.5 },
 };
 
 // 종자 흡수 - 다른 용병을 "종자"로 붙이면 그 용병은 사라지고(되돌릴 수 없음, 1회만 가능),

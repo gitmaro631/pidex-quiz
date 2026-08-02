@@ -1942,7 +1942,7 @@ function formationSectionHtml(characterLike, mercId) {
 // ── 파티(고용한 용병) 섹션 - 캐릭터 탭에서 사용 ─────────
 // 전투부대(active, 최대 MAX_MERCENARIES명)는 모험에 동행하고, 영지(territory)는 남아서 일을 함
 // ── 영지 현황판 - 시설(개간지/훈련소/방벽/농장) 레벨과 다음 레벨까지 진행률을 한눈에 보여줌 ──
-const FACILITY_ICONS = { clearing: '🌾', training: '⚔️', ramparts: '🛡️', hospital: '🏥', morale: '📯', sanctum: '🔮', basics: '🥋' };
+const FACILITY_ICONS = { clearing: '🌾', training: '⚔️', ramparts: '🛡️', hospital: '🏥', morale: '📯', sanctum: '🔮', basics: '🥋', workshop: '🔧' };
 
 // api/_rpgTurns.js와 반드시 같은 공식 유지 - 서버 전용 파일이라 브라우저가 직접 못 불러와서 복제해서 씀
 function turnCapForLevelClient(level) {
@@ -2008,7 +2008,7 @@ function facilityDashboardHtml() {
     const progress = facilityProgress(days[jobId] || 0);
     const pct = Math.min(100, Math.round((progress.daysIntoLevel / progress.daysForNextLevel) * 100));
     const workerCount = territoryMercs.filter((m) => m.job === jobId).length;
-    const STAT_KEY_LABEL_KEYS = { gold: 'rpg.ui.territory.statKeyGold', atk: 'rpg.ui.territory.statKeyAtk', def: 'rpg.ui.territory.statKeyDef', healCostReduction: 'rpg.ui.territory.statKeyHealCostReduction', mentalResist: 'rpg.ui.territory.statKeyMentalResist', mp: 'rpg.ui.territory.statKeyMp' };
+    const STAT_KEY_LABEL_KEYS = { gold: 'rpg.ui.territory.statKeyGold', atk: 'rpg.ui.territory.statKeyAtk', def: 'rpg.ui.territory.statKeyDef', healCostReduction: 'rpg.ui.territory.statKeyHealCostReduction', mentalResist: 'rpg.ui.territory.statKeyMentalResist', mp: 'rpg.ui.territory.statKeyMp', wearReduction: 'rpg.ui.territory.statKeyWearReduction' };
     const flatBonusStats = ['mentalResist']; // %가 아니라 고정치로 붙는 보너스(사기진작소 등)
     const bonusAmount = job.bonusPctPerLevel * progress.level;
     const bonusLabel = job.bonusPctPerLevel

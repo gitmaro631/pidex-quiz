@@ -1921,6 +1921,7 @@
   "rpg.territoryJob.morale.name": "Balai Semangat",
   "rpg.territoryJob.sanctum.name": "Ruang Latihan Sihir",
   "rpg.territoryJob.basics.name": "Lapangan Latihan",
+  "rpg.territoryJob.workshop.name": "Bengkel",
 
   // ── RPG UI: Pilih Karakter/Kelas/Statusbar/Tab ──────────
   "rpg.ui.charSelect.loading": "Memuat daftar karakter...",
@@ -2248,6 +2249,7 @@
   "rpg.ui.territory.statKeyHealCostReduction": "Pengurangan Biaya/Turn Pengobatan",
   "rpg.ui.territory.statKeyMentalResist": "Resistensi Mental",
   "rpg.ui.territory.statKeyMp": "Mana/Stamina Maks",
+  "rpg.ui.territory.statKeyWearReduction": "Pengurangan Ausnya Peralatan",
   "rpg.ui.territory.dashboardTitle": "🏯 Papan Status Wilayah",
   "rpg.ui.territory.equipmentLabel": "Perlengkapan:",
   "rpg.ui.territory.none": "Tidak ada",
@@ -2562,7 +2564,6 @@
   "rpg.log.equipBroken": "{slot} rusak! Perlu diperbaiki.",
   "rpg.log.goldStolen": "Saat tak sadarkan diri, {gold} emas dicuri...",
   "rpg.log.wokeUpInTown": "Tersadar dan ternyata sudah berada di {town}.",
-  "rpg.log.mercEquipBroken": "{slot} milik {merc} rusak!",
   "rpg.log.mercLevelCapped": "{merc} tidak bisa melebihi level karakter utama.",
   "rpg.log.mercDischarged": "{merc} sembuh total dan keluar dari rumah sakit!",
 

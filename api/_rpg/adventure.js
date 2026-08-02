@@ -11,7 +11,7 @@ import { checkNewLoreUnlocks } from '../../rpg-lore.js';
 import { LORE_ENTRIES } from '../../data/rpg/lore.js';
 import { isAdminUsername } from '../_rpgAdmin.js';
 import { CASTLE_CLEAR_REQUIREMENT } from '../../data/rpg/castle.js';
-import { facilityBonusMultiplier } from '../../data/rpg/facilities.js';
+import { facilityBonusMultiplier, durabilityWearReductionMultiplier } from '../../data/rpg/facilities.js';
 import { territoryDaysElapsed, settleTerritoryDays } from '../../rpg-territory.js';
 import { tLang, ti } from '../../util-i18n.js';
 import { getTownName } from '../../rpg-i18n.js';
@@ -112,8 +112,10 @@ export default async function handler(req, res) {
       if (overweightLoot.length) combatResult.log.push(tLang('rpg.log.overweightLoot', lang, '짐이 너무 무거워서 일부 전리품을 챙기지 못했다.'));
 
       // 전투 1회를 치르면 장착중인 무기/방어구가 마모됨 - 내구도가 낮을수록 조기 파손 확률이 높아짐.
-      // 초급 지역(tier 낮음)은 아직 수리비 감당이 버거운 시기라 마모가 아예 안 일어나는 판을 늘려줌
-      const wearChance = zone.tier <= 2 ? 0.35 : zone.tier <= 5 ? 0.7 : 1;
+      // 초급 지역(tier 낮음)은 아직 수리비 감당이 버거운 시기라 마모가 아예 안 일어나는 판을 늘려줌.
+      // 공방 시설 레벨만큼 이 확률 자체가 추가로 줄어듦(최대 30%, durabilityWearReductionMultiplier)
+      const wearChance = (zone.tier <= 2 ? 0.35 : zone.tier <= 5 ? 0.7 : 1)
+        * durabilityWearReductionMultiplier(characterForCombat);
       const { equipment: wornEquipment, brokenNow } = applyEquipmentWear(character.equipment || {}, wearChance);
       brokenNow.forEach((s) => combatResult.log.push(ti('rpg.log.equipBroken', lang, { slot: equipSlotLabelFor(s, lang) })));
 
@@ -175,13 +177,12 @@ export default async function handler(req, res) {
         };
       }
 
-      // 용병 결과 반영 - 각자 체력/마나/부상/내구도/경험치를 본인과 동일한 방식으로 처리.
+      // 용병 결과 반영 - 각자 체력/마나/부상/경험치를 본인과 동일한 방식으로 처리. 단 장비 내구도는
+      // 마모 대상이 아님(용병 장비는 안 닳음 - 사용자 요청) - equipment 필드 자체를 안 건드리고 그대로 유지.
       // 용병 레벨은 본인 레벨을 넘지 못함(주인공이 파티의 성장 한계) - 넘으면 경험치도 그 시점에서 멈춤
       const updatedMercenaries = mercenaries.map((merc) => {
         const mr = combatResult.mercenaries.find((r) => r.id === merc.id);
         if (!mr) return merc;
-        const { equipment: mercWornEquipment, brokenNow: mercBrokenNow } = applyEquipmentWear(merc.equipment || {}, wearChance);
-        mercBrokenNow.forEach((s) => combatResult.log.push(ti('rpg.log.mercEquipBroken', lang, { merc: merc.name, slot: equipSlotLabelFor(s, lang) })));
         let mercProgression = applyXpGain(merc, combatResult.xpGain);
         if (mercProgression.level > progression.level) {
           if (merc.level < progression.level) combatResult.log.push(ti('rpg.log.mercLevelCapped', lang, { merc: merc.name }));
@@ -195,7 +196,6 @@ export default async function handler(req, res) {
           currentHp: mr.finalHp,
           currentMp: mr.finalMp,
           currentStamina: mr.finalStamina,
-          equipment: mercWornEquipment,
           injuries: decayInjuries(merc.injuries, mr.newInjuries),
         };
       });
