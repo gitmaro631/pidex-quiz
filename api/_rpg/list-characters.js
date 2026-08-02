@@ -18,7 +18,7 @@ export default async function handler(req, res) {
         if (!character) return { slot, exists: false, isTestSlot };
         return {
           slot, exists: true, isTestSlot,
-          level: character.level, classMain: character.classMain, gold: character.gold,
+          level: character.level, classMain: character.classMain, gold: character.gold, name: character.name || null,
         };
       })
     );

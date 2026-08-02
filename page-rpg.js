@@ -51,6 +51,8 @@ function inventoryWeight(inventory) {
 
 function elementName(element) { return t(`rpg.ui.element.${element}`); }
 function bodyPartName(part) { return t(`rpg.ui.bodyPart.${part}`); }
+// 유저가 직접 입력하는 이름(본인 캐릭터/용병)을 innerHTML에 꽂을 때 XSS 방지용 이스케이프
+function esc(str) { return String(str ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
 const IDENTIFIABLE_TYPES = ['weapon', 'shield', 'armor_top', 'armor_bottom', 'ring', 'necklace'];
 // 아이템 등급이 내 레벨보다 높으면 미확인 상태 - 감정 스크롤을 쓰거나, 본인/활성 용병 중 지혜가
@@ -485,7 +487,7 @@ async function renderCharacterSelect(container) {
         ` : `
           <div class="rpg-slot-block">
             <button class="rpg-slot-btn" data-slot="${s.slot}">
-              <div class="rpg-class-name">${slotLabel} — Lv.${s.level} ${getClassName(s.classMain, getLang())}</div>
+              <div class="rpg-class-name">${slotLabel} — ${s.name ? `${esc(s.name)} · ` : ''}Lv.${s.level} ${getClassName(s.classMain, getLang())}</div>
               <div class="rpg-class-skills">${s.gold}골드</div>
             </button>
             <button class="rpg-slot-delete-btn" data-slot="${s.slot}">${t('rpg.ui.charSelect.deleteBtn')}</button>
@@ -530,6 +532,11 @@ function renderClassSelect(container) {
       <button class="rpg-back-to-slots-btn">${t('rpg.ui.classSelect.back')}</button>
       <h3>${t('rpg.ui.classSelect.title')}</h3>
       <p class="rpg-hint">${t('rpg.ui.classSelect.hint')}</p>
+      <p>
+        <label>${t('rpg.ui.classSelect.nameLabel')}
+          <input type="text" class="rpg-char-name-input" maxlength="12" placeholder="${t('rpg.ui.classSelect.namePlaceholder')}">
+        </label>
+      </p>
       <div class="rpg-class-cards">
         ${Object.values(CLASSES).map((c) => `
           <button class="rpg-class-card" data-class="${c.id}">
@@ -545,10 +552,13 @@ function renderClassSelect(container) {
     activeSlot = null;
     renderRpgPage(container);
   });
+  const nameInput = container.querySelector('.rpg-char-name-input');
   container.querySelectorAll('.rpg-class-card').forEach((btn) => {
     btn.addEventListener('click', async () => {
+      const name = nameInput.value.trim();
+      if (!name) { showToast(t('rpg.ui.classSelect.nameRequired')); nameInput.focus(); return; }
       try {
-        await apiPost('choose-class', { classId: btn.dataset.class });
+        await apiPost('choose-class', { classId: btn.dataset.class, name });
         await loadCharacter();
         renderMain(container);
       } catch (e) {
@@ -2066,7 +2076,7 @@ function mercenaryCardHtml(m) {
   const territoryMercs = (character.mercenaries || []).filter((mm) => mm.assignment === 'territory' && !mm.hospitalized);
   return `
     <div class="rpg-npc-card">
-      <div class="rpg-class-name">${m.name} (Lv.${m.level} ${cls ? getClassName(cls.id, getLang()) : m.classMain})${m.hospitalized ? t('rpg.ui.territory.hospitalizedSuffix') : ''} <button class="rpg-rename-merc-btn" data-merc="${m.id}">✏️</button></div>
+      <div class="rpg-class-name">${esc(m.name)} (Lv.${m.level} ${cls ? getClassName(cls.id, getLang()) : m.classMain})${m.hospitalized ? t('rpg.ui.territory.hospitalizedSuffix') : ''} <button class="rpg-rename-merc-btn" data-merc="${m.id}">✏️</button></div>
       <p class="rpg-hint">${ti('rpg.ui.territory.mercStatusLine', getLang(), { hp: m.currentHp })} ${injured.length ? ti('rpg.ui.territory.injuredLabel', getLang(), { parts: injured.map((p) => bodyPartName(p)).join(', ') }) : ''} ${m.assignment === 'territory' ? ti('rpg.ui.territory.workingSuffix', getLang(), { job: m.job ? getTerritoryJobName(m.job, getLang()) : t('rpg.ui.territory.restingLabel') }) : ''}</p>
       ${mercEquipmentRowHtml(m)}
       ${m.statPoints > 0 ? `
@@ -2328,6 +2338,7 @@ function renderCharacterTab(content, container) {
   const needed = xpToNextLevel(character.level);
   content.innerHTML = `
     <div class="rpg-char-info">
+      ${character.name ? `<p class="rpg-class-name">${esc(character.name)}</p>` : ''}
       <p>${ti('rpg.ui.character.classLabel', getLang(), { class: cls ? getClassName(cls.id, getLang()) : '-' })}${subCls ? ti('rpg.ui.character.subclassSuffix', getLang(), { subclass: getClassName(subCls.id, getLang()) }) : ''}</p>
       <p>${ti('rpg.ui.character.xpLabel', getLang(), { xp: character.xp, needed })}</p>
       <p>${t('rpg.ui.character.stanceLabel')}

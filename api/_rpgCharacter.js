@@ -38,6 +38,7 @@ export function defaultCharacter(slot, now = Date.now()) {
     xp: 0,
     statPoints: 0,
     stats: { str: 5, int: 5, agi: 5, vit: 5, wis: 5 },
+    name: null, // 직업 선택(choose-class.js)과 동시에 확정됨 - 그 전까지는 null
     classMain: null,
     classSub: null,
     // 장비 슬롯: weapon(무기) / shield(방패, 물리직업 전용) / armor_top(상의) / armor_bottom(하의) /
