@@ -159,6 +159,9 @@ const CHAIN_BOLT_SPLASH_MULT = 0.5;
 // 적용, 훈련 단계가 오르면 회복 비율만 커짐(1단계 1% ~ 3단계 3%). 체력을 자원으로 쓰는 흑기사가 특히 도움을 받음
 const HP_REGEN_PCT_BY_TIER = { 1: 0.01, 2: 0.02, 3: 0.03 };
 const RESOURCE_REGEN_PCT_BY_TIER = { 1: 0.01, 2: 0.02, 3: 0.03 };
+// 흑기사 전용 생명력 흡수(vampiric_strike) - 무기 흡혈(lifeSteal, 아이템 스탯)과는 별개로 훈련해서 얻는
+// 패시브. 확률 판정 없이 명중할 때마다 무조건 발동, 무기 흡혈과 중첩됨(둘 다 있으면 합산)
+const VAMPIRIC_STRIKE_PCT_BY_TIER = { 1: 0.03, 2: 0.05, 3: 0.08 };
 // 밀려난 칸 수(rowsOut)당 명중/피해 페널티 - 더 이상 "공격 불가"로 아예 막지 않는 대신, 밀린 만큼
 // 조금씩 불리해짐(전열→후열처럼 두 칸 밀리면 페널티가 누적으로 더 세짐 - selectAttackWeapon 참고)
 const PUSHED_ATTACK_ROLL_PENALTY_PER_ROW = 2;
@@ -969,6 +972,17 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
       if (lifeStealAmount > 0) {
         actor.hp = Math.min(actor.combatStats.maxHp, actor.hp + lifeStealAmount);
         log.push(ti('rpg.log.weaponLifeSteal', lang, { actor: actor.label, actorPoss: actor.labelPossessive, amount: lifeStealAmount }));
+      }
+    }
+    // 흑기사 전용 생명력 흡수(vampiric_strike) - 무기 흡혈과 별개로 중첩, 확률 판정 없이 명중 시 항상 발동
+    const vampiricSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_vampiric_strike' && isSkillUsable(actor, s));
+    if (vampiricSkill) {
+      const vampTier = (actor.skillLevels && actor.skillLevels[vampiricSkill.id]) || 0;
+      const vampPct = VAMPIRIC_STRIKE_PCT_BY_TIER[vampTier] || 0;
+      const vampAmount = Math.round(rawDamage * vampPct);
+      if (vampAmount > 0) {
+        actor.hp = Math.min(actor.combatStats.maxHp, actor.hp + vampAmount);
+        log.push(ti('rpg.log.vampiricStrike', lang, { actor: actor.label, actorPoss: actor.labelPossessive, amount: vampAmount }));
       }
     }
     // 성기사 전용 패시브 - 입힌 피해의 일정 %만큼 파티 중 체력이 가장 낮은 아군(본인 포함)을 치료

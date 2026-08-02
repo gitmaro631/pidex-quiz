@@ -213,6 +213,9 @@ export const CLASSES = {
       // 확률로 그 몹을 멘탈붕괴시켜 몇 라운드간 공격을 못 하게 함(같은 stunnedRounds를 공유해서
       // dread_aura와 겹치면 더 긴 쪽이 유지됨 - HP소모 없음, dread_aura와 달리 공격 자체가 대가)
       { id: 'fear_strike', name: '공포의 일격', manaCost: 0, type: 'passive_fear_strike', power: 0.12 },
+      // 패시브 - 무기 흡혈(아이템 스탯)과 별개로 중첩되는 스킬형 흡혈. 확률 판정 없이 명중할 때마다
+      // 입힌 피해의 일정 %를 즉시 체력으로 회복(1단계 3% / 2단계 5% / 3단계 8%, VAMPIRIC_STRIKE_PCT_BY_TIER 참고)
+      { id: 'vampiric_strike', name: '생명력 흡수', manaCost: 0, type: 'passive_vampiric_strike', power: 0 },
       HP_REGEN_SKILL,
       RESOURCE_REGEN_SKILL,
       SHIELD_EQUIP_SKILL,

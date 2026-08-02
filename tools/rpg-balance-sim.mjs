@@ -166,7 +166,7 @@ const POLICY = {
     mage:        ['magic_bolt', 'staff_mastery', 'wand_mastery', 'elemental_nova', 'arcane_aura', 'chain_bolt', 'hp_regen', 'resource_regen'],
     priest:      ['smite', 'blunt_mastery', 'heal', 'mass_heal', 'morale_boost', 'angelic_descent', 'hp_regen', 'resource_regen'],
     paladin:     ['holy_strike', 'holy_leech', 'holy_wave', 'divine_shield', 'indomitable_will', 'conversion', 'hp_regen', 'resource_regen'],
-    dark_knight: ['dark_strike', 'blood_drain', 'blood_strike', 'dread_aura', 'dark_pact', 'fear_strike', 'hp_regen', 'resource_regen'],
+    dark_knight: ['dark_strike', 'vampiric_strike', 'blood_drain', 'blood_strike', 'dread_aura', 'dark_pact', 'fear_strike', 'hp_regen', 'resource_regen'],
   },
 
   // Combat mercenaries: hire up to this many ACTIVE mercs once we can afford them
