@@ -62,11 +62,15 @@ async function fetchAllNotices() {
   try {
     if (typeof firebase !== 'undefined' && firebase.apps.length) {
       const db = firebase.firestore();
+      // NOTICE_PREV/NOTICE는 "현재 활성" 슬롯 - 문구를 고치면 버전을 안 바꿔도 다음 로드 때 자동
+      // 반영되도록 이미 있는 문서는 내용만 갱신함(createdAt은 그대로 둬서 히스토리 순서는 안 바뀜).
+      // 이 두 슬롯에서 밀려난 진짜 과거 버전들만 Firestore에 그대로 얼어붙어 남음
       for (const n of [NOTICE_PREV, NOTICE]) {
         if (!n) continue;
         const ref  = db.collection(_NOTICE_COL).doc(n.version);
         const snap = await ref.get();
         if (!snap.exists) await ref.set({ ...n, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+        else await ref.update({ ...n });
       }
       const q = await db.collection(_NOTICE_COL).orderBy('createdAt', 'asc').get();
       notices = q.docs.map(d => d.data());
