@@ -1340,6 +1340,7 @@ function renderShopTab(content, container) {
           try {
             const r = await apiPost('shop-buy', { itemId: btn.dataset.item, qty });
             character.gold = r.gold;
+            await loadCharacter(); // 인벤토리에 새로 산 아이템이 반영되도록 서버 최신값으로 새로고침
             container.querySelector('.rpg-statusbar').outerHTML = statusBarHtml();
             showToast(qty > 1 ? ti('rpg.ui.shop.bought', getLang(), { item: getItemName(item.id, getLang()), qty }) : t('rpg.ui.shop.boughtSingle'));
           } catch (e) {
