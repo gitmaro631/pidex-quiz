@@ -251,10 +251,16 @@ export const ITEMS = {
   weapon_mace_uncommon: { id: 'weapon_mace_uncommon', name: '단련된 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'uncommon', atkBonus: 8, mentalResistBonus: 6, weight: 5 },
   weapon_mace_rare: { id: 'weapon_mace_rare', name: '칠흑의 철퇴', type: 'weapon', weaponType: 'mace', rarity: 'rare', atkBonus: 16, element: 'dark', hpBonus: 22, weight: 6 },
   weapon_mace_legendary: { id: 'weapon_mace_legendary', name: '수호자의 성퇴', type: 'weapon', weaponType: 'mace', rarity: 'legendary', atkBonus: 30, element: 'holy', mentalResistBonus: 11, weight: 6 },
-  // 흑기사 전용 대검 몹 드랍 라인 - weapon_uncommon/rare/legendary와 동일 수치
+  // 흑기사 전용 대검 몹 드랍 라인 - weapon_uncommon/rare/legendary와 동일 수치. 고급 등급부턴 흑기사의
+  // "체력을 자원으로 쓰는" 컨셉과 맞게 흡혈(lifeSteal, 입힌 피해의 %만큼 즉시 회복)을 얹음
   weapon_greatsword_uncommon: { id: 'weapon_greatsword_uncommon', name: '단련된 대검', type: 'weapon', weaponType: 'greatsword', rarity: 'uncommon', atkBonus: 8, weight: 9 },
-  weapon_greatsword_rare: { id: 'weapon_greatsword_rare', name: '칠흑의 대검', type: 'weapon', weaponType: 'greatsword', rarity: 'rare', atkBonus: 16, element: 'dark', weight: 10 },
-  weapon_greatsword_legendary: { id: 'weapon_greatsword_legendary', name: '수호자의 성대검', type: 'weapon', weaponType: 'greatsword', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 10 },
+  weapon_greatsword_rare: { id: 'weapon_greatsword_rare', name: '칠흑의 대검', type: 'weapon', weaponType: 'greatsword', rarity: 'rare', atkBonus: 16, element: 'dark', lifeSteal: 0.05, mentalResistBonus: 3, weight: 10 },
+  weapon_greatsword_legendary: { id: 'weapon_greatsword_legendary', name: '수호자의 성대검', type: 'weapon', weaponType: 'greatsword', rarity: 'legendary', atkBonus: 30, element: 'holy', lifeSteal: 0.05, hpBonus: 15, weight: 10 },
+  // 흑기사(+전사) 전용 도끼 라인 - 예전엔 낡은 도끼(기본) 하나뿐이라 진급 경로가 없었음(버그성 공백).
+  // 대검 라인과 동일한 수치로 채워서 도끼도 끝까지 쓸 수 있게 함
+  weapon_axe_uncommon: { id: 'weapon_axe_uncommon', name: '단련된 도끼', type: 'weapon', weaponType: 'axe', rarity: 'uncommon', atkBonus: 8, weight: 7 },
+  weapon_axe_rare: { id: 'weapon_axe_rare', name: '칠흑의 도끼', type: 'weapon', weaponType: 'axe', rarity: 'rare', atkBonus: 16, element: 'dark', lifeSteal: 0.05, mentalResistBonus: 3, weight: 8 },
+  weapon_axe_legendary: { id: 'weapon_axe_legendary', name: '수호자의 성도끼', type: 'weapon', weaponType: 'axe', rarity: 'legendary', atkBonus: 30, element: 'holy', lifeSteal: 0.05, hpBonus: 15, weight: 8 },
   weapon_staff_legendary: { id: 'weapon_staff_legendary', name: '수호자의 성장', type: 'weapon', weaponType: 'staff', rarity: 'legendary', atkBonus: 30, element: 'holy', weight: 4 },
   armor_uncommon: { id: 'armor_uncommon', name: '강철 갑옷', type: 'armor_top', rarity: 'uncommon', armorClass: 'heavy', defBonus: 4, hpBonus: 20, weight: 12, strRequirement: 12 },
   armor_rare: { id: 'armor_rare', name: '정련된 판금 갑옷', type: 'armor_top', rarity: 'rare', armorClass: 'heavy', defBonus: 9, hpBonus: 45, weight: 16, strRequirement: 18 },
@@ -365,7 +371,10 @@ export const ITEMS = {
   armor_bottom_darkknightset: { id: 'armor_bottom_darkknightset', name: '심연기사의 각반', type: 'armor_bottom', rarity: 'epic', armorClass: 'heavy', defBonus: 6, hpBonus: 22, weight: 9, strRequirement: 15 },
   necklace_darkknightset: { id: 'necklace_darkknightset', name: '심연기사의 목걸이', type: 'necklace', rarity: 'epic', atkBonus: 7, hpBonus: 20, weight: 0.3 },
   ring_darkknightset: { id: 'ring_darkknightset', name: '심연기사의 반지', type: 'ring', rarity: 'epic', atkBonus: 8, weight: 0.2 },
-  weapon_darkknightset: { id: 'weapon_darkknightset', name: '심연기사의 대검', type: 'weapon', weaponType: 'sword', rarity: 'epic', atkBonus: 20, element: 'dark', weight: 6 },
+  // weaponType이 'sword'로 잘못 지정돼 있던 버그 수정 - 이름은 "대검"인데 흑기사(axe/greatsword 전용)가
+  // 자기 세트무기를 껴도 비숙련 무기 취급받고 있었음. greatsword로 바로잡고 세트 컨셉(체력 자원 활용)에
+  // 맞게 흡혈/멘탈저항/체력보너스도 얹음
+  weapon_darkknightset: { id: 'weapon_darkknightset', name: '심연기사의 대검', type: 'weapon', weaponType: 'greatsword', rarity: 'epic', atkBonus: 20, element: 'dark', lifeSteal: 0.08, mentalResistBonus: 5, hpBonus: 15, weight: 6 },
 
   // 랜덤박스 - 상점에서 골드로 직접 뽑기(박스 자체는 인벤토리에 안 쌓이고 즉시 결과만 지급)
   random_box: { id: 'random_box', name: '수상한 상자', type: 'randombox', rarity: 'normal', shopPrice: 150, weight: 0 },

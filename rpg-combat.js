@@ -382,7 +382,7 @@ export function computeCharacterCombatStats(character) {
   const subWeapons = ['weapon2', 'weapon3']
     .map((slot) => equipment[slot] && ITEMS[equipment[slot]])
     .filter(Boolean)
-    .map((item) => ({ weaponType: item.weaponType, atkBonus: item.atkBonus || 0, element: item.element || 'none', elements: item.elements || null }));
+    .map((item) => ({ weaponType: item.weaponType, atkBonus: item.atkBonus || 0, element: item.element || 'none', elements: item.elements || null, lifeSteal: item.lifeSteal || 0 }));
   // 방패는 물리 직업(전사/궁수) 전용 장비지만 캐스터도 장착 자체는 가능 - 다만 방어력 기여가 대폭 깎임(회피 저하).
   // 단, 방패장착(shield_equip, 모든 직업이 배울 수 있는 공용 패시브)을 훈련해뒀으면 이 페널티가 없어짐
   const hasShieldEquipSkill = !!(character.skillLevels && character.skillLevels.shield_equip > 0);
@@ -499,6 +499,9 @@ export function computeCharacterCombatStats(character) {
     elements: weaponBroken ? null : ((weaponItem && weaponItem.elements) || null),
     weaponType: (weaponItem && weaponItem.weaponType) || null,
     weaponAtkBonus, // 주무기가 최종 atk에 기여한 원수치(보조무기로 전투 중 전환할 때 이 값만 빼고 갈아끼움)
+    // 흡혈(lifeSteal) - 무기 자체에 붙는 수치(훈련 불필요, 장착만 하면 바로 적용). 입힌 피해의 이 비율만큼
+    // 그 즉시 체력으로 회복함(performAttack 참고) - 무기 파손시 사라짐
+    weaponLifeSteal: weaponBroken ? 0 : ((weaponItem && weaponItem.lifeSteal) || 0),
     // 마법사 양손완드 - 보조무기가 완드일 때만 씀(performAttack의 동시타격 판정 참고). 전사 이도류와
     // 달리 물리 데미지가 아니라 "속성이 다르면 별도 속성 공격을 하나 더 날림" 컨셉이라 원소 정보가 필요함
     offhandWeaponType: (offhandItem && !offhandBroken && offhandItem.weaponType) || null,
@@ -618,9 +621,9 @@ function classMonsterAffinity(classDef, monsterTags) {
 // 어떤 직업이 잡든 무기/방어구 타입이 완전 무작위로 갈리게 해서(캐릭 직업과 무관) 다른 타입을 얻으면
 // 직접 쓰거나(무기는 직업 불일치 패널티 감수, 방패도 동일한 원칙) 마켓에서 맞는 직업에게 거래할 수 있음
 const WEAPON_TIER_VARIANTS = {
-  weapon_uncommon: ['weapon_uncommon', 'weapon_bow_uncommon', 'weapon_staff_uncommon', 'weapon_mace_uncommon', 'weapon_wand_uncommon', 'weapon_greatsword_uncommon'],
-  weapon_rare: ['weapon_rare', 'weapon_bow_rare', 'weapon_staff_rare', 'weapon_mace_rare', 'weapon_wand_rare', 'weapon_greatsword_rare'],
-  weapon_legendary: ['weapon_legendary', 'weapon_bow_legendary', 'weapon_staff_legendary', 'weapon_mace_legendary', 'weapon_wand_legendary', 'weapon_greatsword_legendary'],
+  weapon_uncommon: ['weapon_uncommon', 'weapon_bow_uncommon', 'weapon_staff_uncommon', 'weapon_mace_uncommon', 'weapon_wand_uncommon', 'weapon_greatsword_uncommon', 'weapon_axe_uncommon'],
+  weapon_rare: ['weapon_rare', 'weapon_bow_rare', 'weapon_staff_rare', 'weapon_mace_rare', 'weapon_wand_rare', 'weapon_greatsword_rare', 'weapon_axe_rare'],
+  weapon_legendary: ['weapon_legendary', 'weapon_bow_legendary', 'weapon_staff_legendary', 'weapon_mace_legendary', 'weapon_wand_legendary', 'weapon_greatsword_legendary', 'weapon_axe_legendary'],
 };
 const ARMOR_TIER_VARIANTS = {
   armor_uncommon: ['armor_uncommon', 'armor_light_uncommon', 'armor_cloth_uncommon'],
@@ -813,7 +816,7 @@ function displayMonsterSkillName(monster, skill, lang) {
 function selectAttackWeapon(actor) {
   const combatStats = actor.combatStats;
   const candidates = [
-    { weaponType: combatStats.weaponType, atkBonus: combatStats.weaponAtkBonus, element: combatStats.element, elements: combatStats.elements, isMain: true },
+    { weaponType: combatStats.weaponType, atkBonus: combatStats.weaponAtkBonus, element: combatStats.element, elements: combatStats.elements, lifeSteal: combatStats.weaponLifeSteal, isMain: true },
     ...(combatStats.subWeapons || []).map((w) => ({ ...w, isMain: false })),
   ].filter((w) => w.weaponType);
 
@@ -821,7 +824,7 @@ function selectAttackWeapon(actor) {
   if (reaching.length) {
     return { ...reaching.reduce((a, b) => (b.atkBonus > a.atkBonus ? b : a)), rowsOut: 0 };
   }
-  const main = candidates.find((w) => w.isMain) || { weaponType: combatStats.weaponType, atkBonus: combatStats.weaponAtkBonus, element: combatStats.element, elements: combatStats.elements, isMain: true };
+  const main = candidates.find((w) => w.isMain) || { weaponType: combatStats.weaponType, atkBonus: combatStats.weaponAtkBonus, element: combatStats.element, elements: combatStats.elements, lifeSteal: combatStats.weaponLifeSteal, isMain: true };
   const maxReachIdx = Math.max(...weaponReachRows(main.weaponType).map((r) => FORMATION_ROWS.indexOf(r)));
   const rowsOut = Math.max(0, FORMATION_ROWS.indexOf(actor.formationRow) - maxReachIdx);
   return { ...main, rowsOut };
@@ -960,6 +963,14 @@ function performAttack({ actor, monster, otherMonsters, log, isUnderleveled, par
       elementNote, affinityNote, critLabel, hitLabel, pushedNote,
     }));
     if (otherMonsters && otherMonsters.length) tryChainBolt(monster, rawDamage, otherMonsters);
+    // 무기 흡혈(lifeSteal) - 스킬/훈련 무관, 무기 자체에 붙은 수치라 장착만 하면 항상 적용됨
+    if (weapon.lifeSteal > 0) {
+      const lifeStealAmount = Math.round(rawDamage * weapon.lifeSteal);
+      if (lifeStealAmount > 0) {
+        actor.hp = Math.min(actor.combatStats.maxHp, actor.hp + lifeStealAmount);
+        log.push(ti('rpg.log.weaponLifeSteal', lang, { actor: actor.label, actorPoss: actor.labelPossessive, amount: lifeStealAmount }));
+      }
+    }
     // 성기사 전용 패시브 - 입힌 피해의 일정 %만큼 파티 중 체력이 가장 낮은 아군(본인 포함)을 치료
     const holyLeechSkill = combatStats.classDef.skills.find((s) => s.type === 'passive_holy_leech' && isSkillUsable(actor, s));
     if (holyLeechSkill && party && party.length) {
