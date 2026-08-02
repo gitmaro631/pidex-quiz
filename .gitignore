@@ -3,3 +3,4 @@ scripts/.env
 scripts/candles.db
 node_modules/
 .env*
+tools/rpg-balance-sim-results.json
