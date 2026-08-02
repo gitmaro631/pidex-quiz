@@ -1,6 +1,6 @@
 import { currentAccessToken, createGoldPurchasePayment } from './pi-sdk.js';
 import { showToast } from './page-quiz.js';
-import { t, ti, getLang } from './util-i18n.js';
+import { t, ti, getLang, detectCountry } from './util-i18n.js';
 import {
   getClassName, getSkillName, getMonsterName, getMonsterSkillName, getItemName, getSetBonusName,
   getFullSetName, getZoneName, getTownName, getNpcName, getNpcDialogue, getMercTemplateName,
@@ -377,7 +377,8 @@ function friendlyError(err) {
 }
 
 async function loadCharacter() {
-  character = await apiPost('character', {});
+  // 국적은 모험 랭킹보드 국기 표시용 - 최초 1회만 저장되고 이후엔 덮어쓰지 않음(api/_rpg/character.js 참고)
+  character = await apiPost('character', { country: detectCountry() });
   pinnedItemIds = character.pinnedItemIds || []; // 서버에 저장된 상단고정 순서를 화면 상태와 동기화
   return character;
 }

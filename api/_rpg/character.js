@@ -10,7 +10,7 @@ const SURVEY_CHECK_TTL_MS = 60 * 60 * 1000; // 1시간에 한 번만 재확인(�
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  const { accessToken, slot } = req.body;
+  const { accessToken, slot, country } = req.body;
   const verified = await verifyPiUserFull(accessToken);
   if (!verified) return res.status(401).json({ error: 'invalid accessToken' });
   const { username, uid } = verified;
@@ -24,6 +24,15 @@ export default async function handler(req, res) {
         if (current) return null; // 그 사이 다른 요청이 이미 생성함
         return defaultCharacter(slot);
       });
+    }
+
+    // 국적(모험 랭킹보드 국기 표시용) - 퀴즈 랭킹의 updateLeaderboardCountry와 같은 원칙으로,
+    // 한 번 기록되면 덮어쓰지 않고 최초 확인값만 저장(기기/VPN 등으로 흔들려도 안정적으로 유지)
+    if (country && !character.country) {
+      character = { ...character, country };
+      await withFirestoreTransaction(docPath, (current) => (
+        current && !current.country ? { ...current, country } : null
+      ));
     }
 
     // 영지 시설 레벨은 캐릭터 문서가 아니라 계정 공용 문서에서 옴(_rpgFacilities.js) - 같은 유저의

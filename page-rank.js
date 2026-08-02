@@ -2,9 +2,10 @@ import { getScore, getRank, getNextRank, getStats, getHighScore, getLives, getMo
 import { shareResult } from './util-share.js';
 import { fetchLeaderboard, fetchMyLeaderboardEntry, initFirebase, migrateLeaderboard } from './firebase.js';
 import { countryToFlag } from './util-i18n.js';
-import { t } from './util-i18n.js';
+import { t, getLang } from './util-i18n.js';
 import { updateHeaderLives } from './app.js';
 import { setupPullToRefresh } from './util-ptr.js';
+import { getClassName, getTownName } from './rpg-i18n.js';
 
 const VIEW_COOLDOWN_MS = 60 * 60 * 1000;
 
@@ -178,12 +179,17 @@ export async function renderRankPage(container) {
       if (!rows.length) {
         listEl.innerHTML = `<div class="leaderboard-empty">${t('lb.empty')}</div>`;
       } else {
-        listEl.innerHTML = rows.map((r, i) => `
+        listEl.innerHTML = rows.map((r, i) => {
+          const flag = r.country ? countryToFlag(r.country) : '';
+          const className = r.classMain ? getClassName(r.classMain, getLang()) : '';
+          const townName = r.currentTown ? getTownName(r.currentTown, getLang()) : '';
+          return `
           <div class="leaderboard-row ${r.username === username ? 'leaderboard-me' : ''}">
             <span class="lb-rank">${i + 1}</span>
-            <span class="lb-user">${esc(r.username)}</span>
-            <span class="lb-score">Lv.${r.level}${r.slot ? ` (슬롯${r.slot})` : ''} · ${r.gold}골드</span>
-          </div>`).join('');
+            <span class="lb-user">${flag ? `${flag} ` : ''}${esc(r.username)}</span>
+            <span class="lb-score">${className ? `[${className}] ` : ''}Lv.${r.level}${townName ? ` · ${townName}` : ''} · 턴 ${r.totalTurnsSpent} · ${r.gold}골드</span>
+          </div>`;
+        }).join('');
       }
       rpgLoaded = true;
     } catch {
